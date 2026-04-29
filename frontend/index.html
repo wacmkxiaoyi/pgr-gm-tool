@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WACMK PGR Management</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div class="bg-aurora bg-aurora-one" aria-hidden="true"></div>
+    <div class="bg-aurora bg-aurora-two" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <main class="auth-shell">
+      <section class="login-panel" aria-labelledby="login-title">
+        <div class="login-card">
+          <div class="login-header">
+            <span class="login-badge">WACMK PGR Management</span>
+            <h2 id="login-title">登陆</h2>
+          </div>
+
+          <form class="login-form">
+            <label>
+              <span>账号</span>
+              <input type="text" name="username" placeholder="请输入账号" autocomplete="username" />
+            </label>
+
+            <label>
+              <span>密码</span>
+              <input type="password" name="password" placeholder="请输入密码" autocomplete="current-password" />
+            </label>
+
+            <button type="submit">登录</button>
+            <p class="hint" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <div class="login-modal" hidden>
+      <div class="login-modal-backdrop" data-login-modal-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" aria-describedby="login-modal-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow">登录失败</p>
+            <h3 id="login-modal-title">请检查账号和密码</h3>
+          </div>
+        </div>
+        <p id="login-modal-message" class="login-modal-message"></p>
+        <div class="login-modal-actions">
+          <button type="button" class="login-modal-button" data-login-modal-close>知道了</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="./assets/app.js"></script>
+  </body>
+</html>

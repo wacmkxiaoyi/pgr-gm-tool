@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PGR 服务器状态</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <div class="bg-aurora bg-aurora-one" aria-hidden="true"></div>
+    <div class="bg-aurora bg-aurora-two" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+
+    <main class="dashboard-shell">
+      <div class="dashboard-layout">
+        <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="后台导航">
+          <div class="sidebar-brand">
+            <div>
+              <strong>WACMK PGR</strong>
+              <span>管理后台</span>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a class="sidebar-link is-active" href="#dashboard-main">服务状态</a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <div class="sidebar-status">
+              <span class="status-dot"></span>
+              <span>系统运行正常</span>
+            </div>
+            <button class="logout-button sidebar-logout" type="button">退出登录</button>
+          </div>
+        </aside>
+
+        <section class="dashboard-main" id="dashboard-main" tabindex="-1">
+          <header class="dashboard-topbar">
+            <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
+
+            <div class="topbar-copy">
+              <h1>PGR 服务器状态</h1>
+              <p>页面会按健康检查间隔自动刷新，展示 SDK 与游戏服务器的实时健康结果。</p>
+            </div>
+
+            <div class="topbar-actions">
+              <div class="topbar-chip">
+                <span class="chip-label">当前状态</span>
+                <strong id="status-last-updated">等待加载状态...</strong>
+              </div>
+              <div class="topbar-user">
+                <span class="topbar-avatar">P</span>
+                <div>
+                  <strong>PGR</strong>
+                  <span>服务器状态</span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div class="dashboard-content status-page" aria-live="polite" id="service-status">
+            <section class="status-hero">
+              <div class="status-meta">
+                <span id="status-server-version">服务器版本号: --</span>
+                <span id="status-interval">检查检查时间间隔: --</span>
+              </div>
+            </section>
+
+            <section class="status-section" aria-labelledby="sdk-status-title">
+              <div class="status-section-header">
+                <div>
+                  <span class="section-tag">SDK</span>
+                  <h2 id="sdk-status-title">SDK 服务器状态</h2>
+                </div>
+                <small>HTTP / HTTPS 检查</small>
+              </div>
+              <div class="status-grid" id="sdk-status-grid"></div>
+            </section>
+
+            <section class="status-section" aria-labelledby="game-status-title">
+              <div class="status-section-header">
+                <div>
+                  <span class="section-tag">GAME</span>
+                  <h2 id="game-status-title">游戏服务器状态</h2>
+                </div>
+                <small>TCP 连接检查</small>
+              </div>
+              <div class="status-grid" id="game-status-grid"></div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="./assets/dashboard.js"></script>
+  </body>
+</html>
