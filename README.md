@@ -13,7 +13,7 @@
 - 暂不开放注册入口
 - 已预留 MongoDB 环境变量配置
 - 已实现登录鉴权逻辑
-- 已预留 PGR 服务器状态页
+- 已预留 服务器管理页
 
 ## 环境变量
 
@@ -38,7 +38,7 @@ MongoDB 支持两种方式配置：
 ```bash
 cd backend
 pip3 install -r requirements.txt
-uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+python3 -m uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## 前端预览

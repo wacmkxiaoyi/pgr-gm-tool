@@ -47,6 +47,22 @@ HEALTH_CHECK_SNAPSHOT: dict[str, Any] = {
 }
 
 
+def is_health_snapshot_healthy(snapshot: dict[str, Any] | None) -> bool:
+    sections = snapshot.get("sections", []) if isinstance(snapshot, dict) else []
+    services = [
+        service
+        for section in sections
+        if isinstance(section, dict)
+        for service in section.get("services", [])
+        if isinstance(service, dict)
+    ]
+
+    if not services:
+        return False
+
+    return all(service.get("latest", {}).get("state") == "healthy" for service in services)
+
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -66,7 +82,7 @@ async def _check_http_target(settings: Settings, target: HealthTarget) -> Health
             with urllib.request.urlopen(request, timeout=8, context=context) as response:
                 return response.status, "HTTP 请求正常"
         except urllib.error.HTTPError as error:
-            return error.code, "HTTP 请求返回错误状态"
+            return error.code, f"HTTP 请求正常"
 
     try:
         status_code, message = await asyncio.to_thread(_request)
@@ -132,7 +148,13 @@ def init_health_targets(settings: Settings) -> None:
             port=settings.game_server_port,
         ),
     })
+    HEALTH_CHECK_SNAPSHOT["checked_at"] = None
     HEALTH_CHECK_SNAPSHOT["interval_seconds"] = settings.healthy_check_interval
+    HEALTH_CHECK_SNAPSHOT["sections"] = _build_sections()
+
+
+def reload_health_targets(settings: Settings) -> None:
+    init_health_targets(settings)
 
 
 async def run_health_check_once(settings: Settings) -> None:

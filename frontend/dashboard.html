@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PGR 服务器状态</title>
+    <title>服务器管理</title>
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
@@ -39,22 +39,7 @@
             <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
 
             <div class="topbar-copy">
-              <h1>PGR 服务器状态</h1>
-              <p>页面会按健康检查间隔自动刷新，展示 SDK 与游戏服务器的实时健康结果。</p>
-            </div>
-
-            <div class="topbar-actions">
-              <div class="topbar-chip">
-                <span class="chip-label">当前状态</span>
-                <strong id="status-last-updated">等待加载状态...</strong>
-              </div>
-              <div class="topbar-user">
-                <span class="topbar-avatar">P</span>
-                <div>
-                  <strong>PGR</strong>
-                  <span>服务器状态</span>
-                </div>
-              </div>
+              <h1>服务器管理</h1>
             </div>
           </header>
 
@@ -68,6 +53,8 @@
                 <div class="status-controls" id="status-controls" hidden>
                   <button class="status-action-button status-action-button-start" type="button">启动</button>
                   <button class="status-action-button status-action-button-stop" type="button">停止</button>
+                  <button class="status-action-button status-action-button-log" type="button">查看日志</button>
+                  <button class="status-action-button status-action-button-config" type="button">修改配置</button>
                 </div>
               </div>
             </section>
@@ -97,6 +84,79 @@
         </section>
       </div>
     </main>
+
+    <div class="login-modal" hidden id="server-control-modal">
+      <div class="login-modal-backdrop" data-server-modal-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-modal-title" aria-describedby="server-modal-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow">启动失败</p>
+            <h3 id="server-modal-title">服务器未能成功启动</h3>
+          </div>
+        </div>
+        <p id="server-modal-message" class="login-modal-message"></p>
+        <div class="login-modal-actions">
+          <button type="button" class="login-modal-button" data-server-modal-close>知道了</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="server-log-modal">
+      <div class="login-modal-backdrop" data-server-log-close></div>
+      <section class="login-modal-card server-log-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-log-title" aria-describedby="server-log-content">
+        <div class="login-modal-header server-log-modal-header">
+          <div>
+            <p class="login-modal-eyebrow">实时日志</p>
+            <h3 id="server-log-title">服务器日志</h3>
+          </div>
+          <span class="server-log-status" id="server-log-status">未连接</span>
+        </div>
+        <p class="server-log-path" id="server-log-path">日志文件: --</p>
+        <pre class="server-log-content" id="server-log-content">点击“查看日志”后显示最近日志。</pre>
+        <div class="login-modal-actions server-log-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-log-clear>清空显示</button>
+          <button type="button" class="login-modal-button" data-server-log-close>关闭</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="server-config-modal">
+      <div class="login-modal-backdrop" data-server-config-close></div>
+      <section class="login-modal-card server-config-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-config-title" aria-describedby="server-config-description">
+        <div class="login-modal-header server-config-modal-header">
+          <div>
+            <p class="login-modal-eyebrow">JSON 配置</p>
+            <h3 id="server-config-title">修改服务器配置</h3>
+          </div>
+          <span class="server-config-status" id="server-config-status">未加载</span>
+        </div>
+        <p class="server-config-path" id="server-config-path">配置文件: --</p>
+        <p class="server-config-description" id="server-config-description">仅在服务器未启动时允许保存，保存前会校验 JSON 语法。</p>
+        <div class="server-config-editor-shell">
+          <div class="server-config-editor-gutter" id="server-config-editor-gutter" aria-hidden="true"></div>
+          <div class="server-config-editor-surface">
+            <pre class="server-config-editor-highlight" id="server-config-editor-highlight" aria-hidden="true"></pre>
+            <textarea
+              class="server-config-editor-input"
+              id="server-config-editor-input"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              wrap="off"
+              aria-label="config.json 编辑器"
+            ></textarea>
+          </div>
+        </div>
+        <p class="server-config-feedback" id="server-config-feedback">点击“修改配置”后加载 config.json。</p>
+        <div class="login-modal-actions server-config-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-reload>重新加载</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-close>关闭</button>
+          <button type="button" class="login-modal-button" data-server-config-save>保存</button>
+        </div>
+      </section>
+    </div>
 
     <script src="./assets/dashboard.js"></script>
   </body>

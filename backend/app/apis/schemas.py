@@ -22,3 +22,14 @@ class HealthStatusResponse(BaseModel):
     server_version: str | None = None
     interval_seconds: int
     sections: list[dict[str, object]]
+    controls: dict[str, object]
+
+
+class ServerConfigResponse(BaseModel):
+    path: str
+    text: str
+    editable: bool
+
+
+class SaveServerConfigRequest(BaseModel):
+    text: str

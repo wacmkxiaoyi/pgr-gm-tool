@@ -5,10 +5,12 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.app.apis import router
 from backend.app.services.health_check import health_check_loop
+from backend.app.services.server_control import ServerController
 
 
 def init_app(app, settings):
     app.state.settings = settings
+    app.state.pgr_server_controller = ServerController(settings)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -35,3 +37,7 @@ def init_app(app, settings):
                 await task
             except asyncio.CancelledError:
                 pass
+
+        controller = getattr(app.state, "pgr_server_controller", None)
+        if controller is not None:
+            await controller.shutdown()

@@ -130,14 +130,17 @@ class Settings:
         self.server_version = os.getenv("SERVER_VERSION")
         self.server_path = os.getenv("SERVER_PATH", "/root/wacmk-pgr-server")
         self.server_binary_file = os.getenv("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
-        self.server_controls_visible = self.is_dev or _path_is_executable(Path(self.server_path) / self.server_binary_file)
+        self.server_runtime_log_path = os.getenv("SERVER_RUNTIME_LOG_PATH", "/tmp/rpg-server.log").strip() or "/tmp/rpg-server.log"
+        self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
+        self.server_config_path = Path(self.server_path) / "Configs" / "config.json"
 
         self.healthy_check_interval = max(1, _to_int(os.getenv("HEALTHY_CHECK_INTERVAL"), 60))
         self.admin_username = os.getenv("ADMIN_USERNAME", "").strip()
         self.admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
 
-        server_config_path = Path(self.server_path) / "Configs" / "config.json"
-        server_config = _load_server_config(str(server_config_path))
+        self.reload_server_runtime_config()
+
+    def _apply_server_runtime_config(self, server_config: dict[str, Any] | None) -> None:
         if server_config is not None:
             sdk_server = server_config["SDKServer"]
             https_config = sdk_server["Https"]
@@ -161,21 +164,31 @@ class Settings:
             self.mongo_password = str(database["Password"]).strip()
             self.mongo_auth_source = str(database["AuthDatabase"]).strip()
             self.mongo_tls = False
-        else:
-            self.sdk_server_scheme = os.getenv("SDK_SERVER_SCHEME", "http").strip().lower() or "http"
-            self.sdk_server_host = os.getenv("SDK_SERVER_HOST", "127.0.0.1").strip()
-            self.sdk_server_port = _to_int(os.getenv("SDK_SERVER_PORT"), 80)
-            self.game_server_host = os.getenv("GAME_SERVER_HOST", "127.0.0.1").strip()
-            self.game_server_port = _to_int(os.getenv("GAME_SERVER_PORT"), 2335)
+            return
 
-            self.mongo_uri = os.getenv("MONGO_URI", "").strip()
-            self.mongo_host = os.getenv("MONGO_HOST", "localhost")
-            self.mongo_port = _to_int(os.getenv("MONGO_PORT"), 27017)
-            self.mongo_db = os.getenv("MONGO_DB", "admin_system")
-            self.mongo_username = os.getenv("MONGO_USERNAME", "").strip()
-            self.mongo_password = os.getenv("MONGO_PASSWORD", "").strip()
-            self.mongo_auth_source = os.getenv("MONGO_AUTH_SOURCE", "admin")
-            self.mongo_tls = _to_bool(os.getenv("MONGO_TLS"), False)
+        self.sdk_server_scheme = os.getenv("SDK_SERVER_SCHEME", "http").strip().lower() or "http"
+        self.sdk_server_host = os.getenv("SDK_SERVER_HOST", "127.0.0.1").strip()
+        self.sdk_server_port = _to_int(os.getenv("SDK_SERVER_PORT"), 80)
+        self.game_server_host = os.getenv("GAME_SERVER_HOST", "127.0.0.1").strip()
+        self.game_server_port = _to_int(os.getenv("GAME_SERVER_PORT"), 2335)
+
+        self.mongo_uri = os.getenv("MONGO_URI", "").strip()
+        self.mongo_host = os.getenv("MONGO_HOST", "localhost")
+        self.mongo_port = _to_int(os.getenv("MONGO_PORT"), 27017)
+        self.mongo_db = os.getenv("MONGO_DB", "admin_system")
+        self.mongo_username = os.getenv("MONGO_USERNAME", "").strip()
+        self.mongo_password = os.getenv("MONGO_PASSWORD", "").strip()
+        self.mongo_auth_source = os.getenv("MONGO_AUTH_SOURCE", "admin")
+        self.mongo_tls = _to_bool(os.getenv("MONGO_TLS"), False)
+
+    def reload_server_runtime_config(self) -> None:
+        self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
+        self.server_config_path = Path(self.server_path) / "Configs" / "config.json"
+        server_config = _load_server_config(str(self.server_config_path))
+        self._apply_server_runtime_config(server_config)
+
+    def read_server_config_text(self) -> str:
+        return self.server_config_path.read_text(encoding="utf-8")
 
     def build_mongo_uri(self) -> str:
         if self.mongo_uri:
@@ -199,6 +212,7 @@ class Settings:
             "app_port": self.app_port,
             "is_dev": self.is_dev,
             "server_version": self.server_version,
+            "server_runtime_log_path": self.server_runtime_log_path,
             "healthy_check_interval": self.healthy_check_interval,
             "sdk_server_scheme": self.sdk_server_scheme,
             "sdk_server_host": self.sdk_server_host,
