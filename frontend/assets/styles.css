@@ -253,6 +253,14 @@ body {
   box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
 }
 
+.status-action-button.is-selected,
+.status-action-button.is-selected:disabled {
+  color: #0f766e;
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.12);
+}
+
 .status-action-button-config {
   color: #7c2d12;
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(255, 79, 160, 0.12));
@@ -591,6 +599,16 @@ body {
   border-radius: 30px;
   display: grid;
   gap: 24px;
+  align-content: start;
+}
+
+.dashboard-page {
+  display: none;
+  gap: 24px;
+}
+
+.dashboard-page.is-active {
+  display: grid;
 }
 
 .dashboard-topbar {
@@ -598,6 +616,13 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  padding: 4px 0 0;
+  background: linear-gradient(180deg, rgba(248, 250, 255, 0.92), rgba(248, 250, 255, 0.72), rgba(248, 250, 255, 0));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .sidebar-toggle {
@@ -663,6 +688,254 @@ body {
 .dashboard-content {
   display: grid;
   gap: 24px;
+}
+
+.database-page {
+  align-content: start;
+}
+
+.status-page,
+.database-page {
+  scroll-margin-top: 172px;
+}
+
+.dashboard-subnav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  overflow-x: auto;
+}
+
+.page-subnav {
+  position: sticky;
+  top: 72px;
+  z-index: 7;
+}
+
+.subnav-link {
+  flex: 0 0 auto;
+  min-width: 108px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.subnav-link:hover,
+.subnav-link.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(124, 92, 246, 0.22);
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+  box-shadow: 0 12px 26px rgba(99, 102, 241, 0.12);
+}
+
+.subnav-link:disabled {
+  cursor: not-allowed;
+  transform: none;
+  color: rgba(100, 116, 139, 0.72);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.database-selected-account {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.database-panel {
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  display: grid;
+  gap: 20px;
+  scroll-margin-top: 184px;
+}
+
+#sdk-status-section,
+#game-status-section,
+#database-service-status-section {
+  scroll-margin-top: 184px;
+}
+
+.database-panel-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.database-panel-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.database-panel-header small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.database-panel-header-compact {
+  align-items: flex-start;
+}
+
+.database-panel-description {
+  margin: 10px 0 0;
+  max-width: 62ch;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.database-status-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.database-accounts-panel {
+  scroll-margin-top: 184px;
+}
+
+.database-tab-panel {
+  display: none;
+}
+
+.database-tab-panel.is-active {
+  display: grid;
+}
+
+.database-accounts-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.accounts-table-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.accounts-state {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.accounts-state.is-loading {
+  color: #4338ca;
+  border-color: rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
+}
+
+.accounts-state.is-error {
+  color: #b91c1c;
+  border-color: rgba(248, 113, 113, 0.22);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.accounts-state.is-empty,
+.accounts-state.is-muted {
+  color: var(--muted);
+}
+
+.accounts-table-scroll {
+  overflow-x: auto;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.accounts-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.accounts-table th,
+.accounts-table td {
+  padding: 16px 18px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.accounts-table th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.accounts-table th:last-child,
+.accounts-table td:last-child {
+  text-align: right;
+}
+
+.accounts-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.accounts-table tbody tr:hover {
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.06), rgba(56, 189, 248, 0.05));
+}
+
+.accounts-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.accounts-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.accounts-pagination-label {
+  min-width: 96px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .hero-panel {
@@ -1114,6 +1387,11 @@ body {
   box-shadow: 0 16px 32px rgba(255, 79, 160, 0.24);
 }
 
+.login-modal-icon.is-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.98), rgba(14, 165, 233, 0.96));
+  box-shadow: 0 16px 32px rgba(16, 185, 129, 0.24);
+}
+
 .login-modal-eyebrow {
   margin: 0 0 4px;
   color: #8c5aa7;
@@ -1121,6 +1399,10 @@ body {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+}
+
+.login-modal-eyebrow.is-success {
+  color: #0f9d58;
 }
 
 .login-modal h3 {
@@ -1171,6 +1453,68 @@ body {
 .login-modal-button-secondary {
   background: linear-gradient(135deg, rgba(148, 163, 184, 0.95), rgba(100, 116, 139, 0.94));
   box-shadow: 0 14px 28px rgba(71, 85, 105, 0.22);
+}
+
+.login-modal-button-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.98), rgba(190, 24, 93, 0.96));
+  box-shadow: 0 14px 28px rgba(220, 38, 38, 0.24);
+}
+
+.account-delete-actions {
+  gap: 12px;
+}
+
+.account-password-form {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.account-password-target,
+.account-password-feedback {
+  margin: 0;
+  color: #66758f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.account-password-feedback.is-error {
+  color: #dc2626;
+}
+
+.account-password-feedback.is-valid {
+  color: #0f9d58;
+}
+
+.account-password-label {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.account-password-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-password-input:focus {
+  outline: none;
+  border-color: rgba(124, 92, 246, 0.44);
+  box-shadow: 0 0 0 4px rgba(124, 92, 246, 0.14);
+}
+
+.account-password-actions {
+  gap: 12px;
+}
+
+.logout-confirm-actions {
+  gap: 12px;
 }
 
 .server-log-modal-card {
@@ -1567,6 +1911,46 @@ body.login-modal-open {
 
   .dashboard-topbar {
     align-items: flex-start;
+    top: 0;
+    padding-top: 0;
+  }
+
+  .dashboard-page {
+    gap: 20px;
+  }
+
+  .dashboard-subnav {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .page-subnav {
+    top: 56px;
+  }
+
+  .subnav-link {
+    min-width: 96px;
+    padding: 11px 16px;
+    border-radius: 14px;
+  }
+
+  .database-panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .status-page,
+  .database-page,
+  .database-panel,
+  #sdk-status-section,
+  #game-status-section,
+  #database-service-status-section {
+    scroll-margin-top: 148px;
+  }
+
+  .database-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .sidebar-toggle {

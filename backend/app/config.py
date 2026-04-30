@@ -175,7 +175,7 @@ class Settings:
         self.mongo_uri = os.getenv("MONGO_URI", "").strip()
         self.mongo_host = os.getenv("MONGO_HOST", "localhost")
         self.mongo_port = _to_int(os.getenv("MONGO_PORT"), 27017)
-        self.mongo_db = os.getenv("MONGO_DB", "admin_system")
+        self.mongo_db = os.getenv("MONGO_DB", "asc_net")
         self.mongo_username = os.getenv("MONGO_USERNAME", "").strip()
         self.mongo_password = os.getenv("MONGO_PASSWORD", "").strip()
         self.mongo_auth_source = os.getenv("MONGO_AUTH_SOURCE", "admin")

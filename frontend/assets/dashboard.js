@@ -3,10 +3,25 @@ const layout = document.querySelector('.dashboard-layout');
 const dashboardMain = document.querySelector('.dashboard-main');
 const sidebarToggle = document.querySelector('.sidebar-toggle');
 const sidebar = document.querySelector('#dashboard-sidebar');
+const sidebarLinks = Array.from(document.querySelectorAll('[data-dashboard-page]'));
+const dashboardPages = Array.from(document.querySelectorAll('[data-dashboard-panel]'));
 const sdkGrid = document.querySelector('#sdk-status-grid');
 const gameGrid = document.querySelector('#game-status-grid');
+const databaseGrid = document.querySelector('#database-status-grid');
+const databaseAccountsSubnavButton = document.querySelector('#database-accounts-subnav');
+const databaseTabButtons = Array.from(document.querySelectorAll('[data-database-tab]'));
+const databaseTabPanels = Array.from(document.querySelectorAll('[data-database-tab-panel]'));
+const databaseAccountsState = document.querySelector('#database-accounts-state');
+const databaseAccountsTableShell = document.querySelector('#database-accounts-table-shell');
+const databaseAccountsBody = document.querySelector('#database-accounts-body');
+const databaseAccountsSummary = document.querySelector('#database-accounts-summary');
+const databaseAccountsPrevButton = document.querySelector('#database-accounts-prev');
+const databaseAccountsNextButton = document.querySelector('#database-accounts-next');
+const databaseAccountsPaginationLabel = document.querySelector('#database-accounts-pagination');
+const databaseSelectedAccountLabel = document.querySelector('#database-selected-account');
 const serverVersionLabel = document.querySelector('#status-server-version');
 const intervalLabel = document.querySelector('#status-interval');
+const databaseIntervalLabel = document.querySelector('#database-status-interval');
 const statusControls = document.querySelector('#status-controls');
 const startButton = document.querySelector('.status-action-button-start');
 const stopButton = document.querySelector('.status-action-button-stop');
@@ -14,6 +29,8 @@ const logButton = document.querySelector('.status-action-button-log');
 const configButton = document.querySelector('.status-action-button-config');
 const controlModal = document.querySelector('#server-control-modal');
 const controlModalMessage = document.querySelector('#server-modal-message');
+const controlModalIcon = document.querySelector('#server-modal-icon');
+const controlModalEyebrow = document.querySelector('#server-modal-eyebrow');
 const controlModalCloseTargets = document.querySelectorAll('[data-server-modal-close]');
 const logModal = document.querySelector('#server-log-modal');
 const logModalContent = document.querySelector('#server-log-content');
@@ -31,12 +48,27 @@ const configFeedback = document.querySelector('#server-config-feedback');
 const configModalCloseTargets = document.querySelectorAll('[data-server-config-close]');
 const configReloadButton = document.querySelector('[data-server-config-reload]');
 const configSaveButton = document.querySelector('[data-server-config-save]');
+const accountDeleteModal = document.querySelector('#account-delete-modal');
+const accountDeleteMessage = document.querySelector('#account-delete-message');
+const accountDeleteCloseTargets = document.querySelectorAll('[data-account-delete-close]');
+const accountDeleteConfirmButton = document.querySelector('#account-delete-confirm');
+const accountPasswordModal = document.querySelector('#account-password-modal');
+const accountPasswordTarget = document.querySelector('#account-password-target');
+const accountPasswordInput = document.querySelector('#account-password-input');
+const accountPasswordConfirmInput = document.querySelector('#account-password-confirm-input');
+const accountPasswordFeedback = document.querySelector('#account-password-feedback');
+const accountPasswordCloseTargets = document.querySelectorAll('[data-account-password-close]');
+const accountPasswordConfirmButton = document.querySelector('#account-password-confirm');
+const logoutConfirmModal = document.querySelector('#logout-confirm-modal');
+const logoutConfirmCloseTargets = document.querySelectorAll('[data-logout-confirm-close]');
+const logoutConfirmSubmitButton = document.querySelector('#logout-confirm-submit');
 
 let serverControlsVisible = false;
 let serverControlState = null;
 let serverControlFailureMessage = null;
 let lastFocusedControl = null;
 let nextHealthCheckAtMs = null;
+let nextDatabaseHealthCheckAtMs = null;
 let logEventSource = null;
 let lastLogFocusedControl = null;
 let logStreamEnded = false;
@@ -46,6 +78,18 @@ let configIsLoading = false;
 let configIsSaving = false;
 let configLoadedOnce = false;
 let configLastSavedValue = '';
+let databaseHealthSnapshot = null;
+let accountsCurrentPage = 1;
+let accountsTotalPages = 0;
+let accountsHasLoaded = false;
+let accountsLoading = false;
+let selectedAccountUid = null;
+let accountSelectionPendingUid = null;
+let pendingDeleteAccount = null;
+let lastDeleteFocusedControl = null;
+let pendingPasswordAccount = null;
+let lastPasswordFocusedControl = null;
+let lastLogoutFocusedControl = null;
 
 const CONFIG_EDITOR_EMPTY_HINT = '点击“修改配置”后加载 config.json。';
 
@@ -62,11 +106,300 @@ const stateMeta = {
 const historyStateClass = (state) => stateMeta[state]?.className ?? 'status-unknown';
 const HISTORY_SLOT_COUNT = 10;
 
-const getHistoryGrids = () => [sdkGrid, gameGrid].filter(Boolean);
+const getHistoryGrids = () => [sdkGrid, gameGrid, databaseGrid].filter(Boolean);
+
+const getActiveDashboardPage = () => dashboardPages.find((page) => page.classList.contains('is-active')) ?? null;
 
 const getServiceHealthState = (service) => service?.latest?.state ?? 'unknown';
 
 const isServiceHealthy = (service) => getServiceHealthState(service) === 'healthy';
+
+const getDatabaseSection = (payload) => {
+  const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+  return sections.find((section) => section?.key === 'database') ?? sections[0] ?? null;
+};
+
+const getDatabasePrimaryService = (payload) => {
+  const section = getDatabaseSection(payload);
+  const services = Array.isArray(section?.services) ? section.services : [];
+  return services[0] ?? null;
+};
+
+const isDatabaseHealthy = (payload = databaseHealthSnapshot) => isServiceHealthy(getDatabasePrimaryService(payload));
+
+const isDatabaseAccountsSectionActive = () => {
+  return databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-accounts-section');
+};
+
+const normalizeAccountUid = (value) => {
+  const parsed = Number.parseInt(String(value ?? ''), 10);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const renderSelectedAccountBadge = () => {
+  if (databaseSelectedAccountLabel instanceof HTMLElement) {
+    databaseSelectedAccountLabel.textContent = `已选定用户：${selectedAccountUid ?? '--'}`;
+  }
+};
+
+const updateAccountSelectionUi = () => {
+  if (databaseAccountsBody instanceof HTMLElement) {
+    Array.from(databaseAccountsBody.querySelectorAll('[data-account-action="select"]')).forEach((button) => {
+      if (!(button instanceof HTMLButtonElement)) {
+        return;
+      }
+
+      const uid = normalizeAccountUid(button.dataset.accountUid);
+      const isSelected = uid !== null && uid === selectedAccountUid;
+      const isPending = uid !== null && uid === accountSelectionPendingUid;
+
+      button.textContent = isSelected ? '已选定' : (isPending ? '选定中...' : '选定');
+      button.disabled = isSelected || isPending || accountSelectionPendingUid !== null;
+      button.classList.toggle('is-selected', isSelected);
+    });
+  }
+
+  renderSelectedAccountBadge();
+};
+
+const setSelectedAccountUid = (uid) => {
+  selectedAccountUid = normalizeAccountUid(uid);
+  updateAccountSelectionUi();
+};
+
+const clearSelectedAccount = async () => {
+  try {
+    const response = await fetch('/api/database-accounts/selection', {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '清空已选定用户失败');
+    }
+
+    setSelectedAccountUid(payload?.selected_uid ?? null);
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '清空已选定用户失败');
+  }
+};
+
+const setAccountPasswordFeedback = (message, tone = '') => {
+  if (!(accountPasswordFeedback instanceof HTMLElement)) {
+    return;
+  }
+
+  accountPasswordFeedback.textContent = message;
+  accountPasswordFeedback.className = 'account-password-feedback';
+  if (tone) {
+    accountPasswordFeedback.classList.add(tone);
+  }
+};
+
+const resetAccountPasswordForm = () => {
+  if (accountPasswordInput instanceof HTMLInputElement) {
+    accountPasswordInput.value = '';
+  }
+  if (accountPasswordConfirmInput instanceof HTMLInputElement) {
+    accountPasswordConfirmInput.value = '';
+  }
+  setAccountPasswordFeedback('密码长度需大于等于 6 位。');
+};
+
+const closeAccountPasswordModal = () => {
+  pendingPasswordAccount = null;
+  resetAccountPasswordForm();
+  if (!(accountPasswordModal instanceof HTMLElement) || accountPasswordModal.hidden) {
+    return;
+  }
+
+  accountPasswordModal.hidden = true;
+  document.body.classList.remove('login-modal-open');
+
+  if (lastPasswordFocusedControl instanceof HTMLElement) {
+    lastPasswordFocusedControl.focus();
+  }
+};
+
+const openAccountPasswordModal = (account, trigger) => {
+  if (!(accountPasswordModal instanceof HTMLElement)) {
+    return;
+  }
+
+  pendingPasswordAccount = account;
+  lastPasswordFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  if (accountPasswordTarget instanceof HTMLElement) {
+    const username = typeof account?.username === 'string' && account.username ? account.username : '--';
+    accountPasswordTarget.textContent = `目标账户：UID ${account.uid ?? '--'}（用户名 ${username}）`;
+  }
+  resetAccountPasswordForm();
+  accountPasswordModal.hidden = false;
+  document.body.classList.add('login-modal-open');
+
+  if (accountPasswordInput instanceof HTMLInputElement) {
+    accountPasswordInput.focus();
+  }
+};
+
+const getAccountPasswordValidationMessage = () => {
+  const password = accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
+  const confirmPassword = accountPasswordConfirmInput instanceof HTMLInputElement ? accountPasswordConfirmInput.value : '';
+
+  if (password.length < 6) {
+    return { valid: false, message: '新密码长度必须大于等于 6 位。' };
+  }
+
+  if (password !== confirmPassword) {
+    return { valid: false, message: '两次输入的密码不一致。' };
+  }
+
+  return { valid: true, message: '密码校验通过，可以提交。' };
+};
+
+const updateAccountPasswordValidationState = () => {
+  const validation = getAccountPasswordValidationMessage();
+  setAccountPasswordFeedback(validation.message, validation.valid ? 'is-valid' : 'is-error');
+  return validation.valid;
+};
+
+const submitAccountPasswordReset = async () => {
+  if (!pendingPasswordAccount || !(accountPasswordConfirmButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const valid = updateAccountPasswordValidationState();
+  if (!valid) {
+    return;
+  }
+
+  const targetUid = pendingPasswordAccount.uid;
+  const password = accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
+  accountPasswordConfirmButton.disabled = true;
+
+  try {
+    const response = await fetch('/api/database-accounts/password', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uid: pendingPasswordAccount.uid,
+        password,
+      }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '重置密码失败');
+    }
+
+    closeAccountPasswordModal();
+    openSuccessModal(`UID ${targetUid} 的密码已重置。`, '密码重置成功');
+  } catch (error) {
+    setAccountPasswordFeedback(error instanceof Error ? error.message : '重置密码失败', 'is-error');
+  } finally {
+    accountPasswordConfirmButton.disabled = false;
+  }
+};
+
+const closeAccountDeleteModal = () => {
+  pendingDeleteAccount = null;
+  if (!(accountDeleteModal instanceof HTMLElement) || accountDeleteModal.hidden) {
+    return;
+  }
+
+  accountDeleteModal.hidden = true;
+  document.body.classList.remove('login-modal-open');
+
+  if (lastDeleteFocusedControl instanceof HTMLElement) {
+    lastDeleteFocusedControl.focus();
+  }
+};
+
+const openAccountDeleteModal = (account, trigger) => {
+  if (!(accountDeleteModal instanceof HTMLElement) || !(accountDeleteMessage instanceof HTMLElement)) {
+    return;
+  }
+
+  pendingDeleteAccount = account;
+  lastDeleteFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  const username = typeof account?.username === 'string' && account.username ? account.username : '--';
+  accountDeleteMessage.textContent = `确认删除 UID ${account.uid ?? '--'}（用户名 ${username}）吗？`;
+  accountDeleteModal.hidden = false;
+  document.body.classList.add('login-modal-open');
+
+  if (accountDeleteConfirmButton instanceof HTMLButtonElement) {
+    accountDeleteConfirmButton.focus();
+  }
+};
+
+const removeAccountRow = (uid) => {
+  if (!(databaseAccountsBody instanceof HTMLElement)) {
+    return;
+  }
+
+  const row = databaseAccountsBody.querySelector(`button[data-account-action="select"][data-account-uid="${uid}"]`)?.closest('tr');
+  if (row instanceof HTMLElement) {
+    row.remove();
+  }
+
+  const remainingRows = databaseAccountsBody.querySelectorAll('tr').length;
+  if (remainingRows === 0) {
+    setAccountsState('当前页账户已全部移除，重新进入账号管理后可重新加载。', 'is-empty');
+  }
+
+  updateAccountSelectionUi();
+};
+
+const confirmDeleteAccount = async () => {
+  if (!pendingDeleteAccount || !(accountDeleteConfirmButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const targetUid = pendingDeleteAccount.uid;
+  accountDeleteConfirmButton.disabled = true;
+
+  try {
+    if (normalizeAccountUid(pendingDeleteAccount.uid) === selectedAccountUid) {
+      await clearSelectedAccount();
+    }
+
+    removeAccountRow(pendingDeleteAccount.uid);
+    closeAccountDeleteModal();
+    openSuccessModal(`UID ${targetUid} 已从当前列表移除。`, '删除完成');
+  } catch (error) {
+    closeAccountDeleteModal();
+    openControlModal(error instanceof Error ? error.message : '删除账户失败');
+  } finally {
+    accountDeleteConfirmButton.disabled = false;
+  }
+};
+
+const setActiveDatabaseTab = (tabId) => {
+  let matched = false;
+
+  databaseTabButtons.forEach((button) => {
+    const isActive = button.dataset.databaseTab === tabId;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    if (isActive) {
+      matched = true;
+    }
+  });
+
+  databaseTabPanels.forEach((panel) => {
+    const isActive = panel.dataset.databaseTabPanel === tabId;
+    panel.classList.toggle('is-active', isActive);
+    panel.hidden = !isActive;
+  });
+
+  if (!matched && databaseTabButtons.length > 0) {
+    const fallback = databaseTabButtons[0].dataset.databaseTab;
+    if (fallback && fallback !== tabId) {
+      setActiveDatabaseTab(fallback);
+    }
+  }
+};
 
 const isSnapshotHealthy = (payload) => {
   const sections = Array.isArray(payload?.sections) ? payload.sections : [];
@@ -87,17 +420,46 @@ const closeControlModal = () => {
   controlModal.hidden = true;
   document.body.classList.remove('login-modal-open');
 
+  if (controlModalIcon instanceof HTMLElement) {
+    controlModalIcon.textContent = '!';
+    controlModalIcon.classList.remove('is-success');
+  }
+
+  if (controlModalEyebrow instanceof HTMLElement) {
+    controlModalEyebrow.textContent = '提示';
+    controlModalEyebrow.classList.remove('is-success');
+  }
+
   if (lastFocusedControl instanceof HTMLElement) {
     lastFocusedControl.focus();
   }
 };
 
-const openControlModal = (message) => {
+const openControlModal = (message, options = {}) => {
   if (!controlModal || !controlModalMessage) {
     return;
   }
 
+  const titleElement = controlModal.querySelector('#server-modal-title');
+  const {
+    title = '操作提示',
+    eyebrow = '提示',
+    icon = '!',
+    tone = 'default',
+  } = options;
+
   lastFocusedControl = document.activeElement;
+  if (titleElement instanceof HTMLElement) {
+    titleElement.textContent = title;
+  }
+  if (controlModalIcon instanceof HTMLElement) {
+    controlModalIcon.textContent = icon;
+    controlModalIcon.classList.toggle('is-success', tone === 'success');
+  }
+  if (controlModalEyebrow instanceof HTMLElement) {
+    controlModalEyebrow.textContent = eyebrow;
+    controlModalEyebrow.classList.toggle('is-success', tone === 'success');
+  }
   controlModalMessage.textContent = message;
   controlModal.hidden = false;
   document.body.classList.add('login-modal-open');
@@ -105,6 +467,68 @@ const openControlModal = (message) => {
   const primaryButton = controlModal.querySelector('.login-modal-button');
   if (primaryButton instanceof HTMLElement) {
     primaryButton.focus();
+  }
+};
+
+const openSuccessModal = (message, title = '操作成功') => {
+  openControlModal(message, {
+    title,
+    eyebrow: '操作成功',
+    icon: '✓',
+    tone: 'success',
+  });
+};
+
+const closeLogoutConfirmModal = () => {
+  if (!(logoutConfirmModal instanceof HTMLElement) || logoutConfirmModal.hidden) {
+    return;
+  }
+
+  logoutConfirmModal.hidden = true;
+  document.body.classList.remove('login-modal-open');
+
+  if (logoutButton instanceof HTMLButtonElement) {
+    logoutButton.disabled = false;
+    logoutButton.textContent = '退出登录';
+  }
+
+  if (lastLogoutFocusedControl instanceof HTMLElement) {
+    lastLogoutFocusedControl.focus();
+  }
+};
+
+const openLogoutConfirmModal = () => {
+  if (!(logoutConfirmModal instanceof HTMLElement)) {
+    return;
+  }
+
+  lastLogoutFocusedControl = document.activeElement;
+  logoutConfirmModal.hidden = false;
+  document.body.classList.add('login-modal-open');
+
+  if (logoutConfirmSubmitButton instanceof HTMLButtonElement) {
+    logoutConfirmSubmitButton.focus();
+  }
+};
+
+const submitLogout = async () => {
+  if (!(logoutConfirmSubmitButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  logoutConfirmSubmitButton.disabled = true;
+  if (logoutButton instanceof HTMLButtonElement) {
+    logoutButton.disabled = true;
+    logoutButton.textContent = '正在退出...';
+  }
+
+  try {
+    await fetch('/api/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } finally {
+    window.location.assign('/login');
   }
 };
 
@@ -685,6 +1109,31 @@ const closeSidebar = () => {
   sidebarToggle.setAttribute('aria-expanded', 'false');
 };
 
+const setActiveDashboardPage = (pageKey) => {
+  let matched = false;
+
+  sidebarLinks.forEach((link) => {
+    const isActive = link.dataset.dashboardPage === pageKey;
+    link.classList.toggle('is-active', isActive);
+    if (isActive) {
+      matched = true;
+    }
+  });
+
+  dashboardPages.forEach((page) => {
+    const isActive = page.dataset.dashboardPanel === pageKey;
+    page.classList.toggle('is-active', isActive);
+    page.hidden = !isActive;
+  });
+
+  if (!matched && sidebarLinks.length > 0) {
+    const fallbackPage = sidebarLinks[0].dataset.dashboardPage;
+    if (fallbackPage && fallbackPage !== pageKey) {
+      setActiveDashboardPage(fallbackPage);
+    }
+  }
+};
+
 const focusContentStart = () => {
   if (!dashboardMain) {
     return;
@@ -703,10 +1152,19 @@ if (sidebarToggle && layout && sidebar) {
     sidebarToggle.setAttribute('aria-expanded', String(isOpen));
   });
 
-  sidebar.querySelectorAll('a').forEach((link) => {
+  sidebarLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
       const target = event.currentTarget;
       const href = target instanceof HTMLAnchorElement ? target.getAttribute('href') : null;
+      const pageKey = target instanceof HTMLElement ? target.dataset.dashboardPage : null;
+
+      if (pageKey) {
+        event.preventDefault();
+        setActiveDashboardPage(pageKey);
+        closeSidebar();
+        focusContentStart();
+        return;
+      }
 
       if (href?.startsWith('#')) {
         event.preventDefault();
@@ -722,15 +1180,7 @@ if (sidebarToggle && layout && sidebar) {
 
 if (logoutButton) {
   logoutButton.addEventListener('click', () => {
-    logoutButton.disabled = true;
-    logoutButton.textContent = '正在退出...';
-
-    fetch('/api/logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).finally(() => {
-      window.location.assign('/login');
-    });
+    openLogoutConfirmModal();
   });
 }
 
@@ -759,6 +1209,253 @@ const updateNextHealthCheckLabel = () => {
 
   const remainingSeconds = Math.max(0, Math.ceil((nextHealthCheckAtMs - Date.now()) / 1000));
   intervalLabel.textContent = `距离下次健康检查: ${remainingSeconds}s`;
+};
+
+const updateDatabaseHealthCheckLabel = () => {
+  if (!databaseIntervalLabel) {
+    return;
+  }
+
+  if (typeof nextDatabaseHealthCheckAtMs !== 'number') {
+    databaseIntervalLabel.textContent = '距离下次健康检查: --';
+    return;
+  }
+
+  const remainingSeconds = Math.max(0, Math.ceil((nextDatabaseHealthCheckAtMs - Date.now()) / 1000));
+  databaseIntervalLabel.textContent = `距离下次健康检查: ${remainingSeconds}s`;
+};
+
+const setAccountsState = (message, tone = '') => {
+  if (databaseAccountsState instanceof HTMLElement) {
+    databaseAccountsState.textContent = message;
+    databaseAccountsState.className = 'accounts-state';
+    if (tone) {
+      databaseAccountsState.classList.add(tone);
+    }
+    databaseAccountsState.hidden = false;
+  }
+
+  if (databaseAccountsTableShell instanceof HTMLElement) {
+    databaseAccountsTableShell.hidden = true;
+  }
+};
+
+const showAccountsTable = () => {
+  if (databaseAccountsState instanceof HTMLElement) {
+    databaseAccountsState.hidden = true;
+  }
+
+  if (databaseAccountsTableShell instanceof HTMLElement) {
+    databaseAccountsTableShell.hidden = false;
+  }
+};
+
+const updateAccountsPagination = () => {
+  if (databaseAccountsPaginationLabel instanceof HTMLElement) {
+    databaseAccountsPaginationLabel.textContent = `第 ${accountsTotalPages === 0 ? 0 : accountsCurrentPage} / ${accountsTotalPages} 页`;
+  }
+
+  if (databaseAccountsPrevButton instanceof HTMLButtonElement) {
+    databaseAccountsPrevButton.disabled = accountsLoading || accountsCurrentPage <= 1 || accountsTotalPages === 0 || !isDatabaseHealthy();
+  }
+
+  if (databaseAccountsNextButton instanceof HTMLButtonElement) {
+    databaseAccountsNextButton.disabled = accountsLoading || accountsTotalPages === 0 || accountsCurrentPage >= accountsTotalPages || !isDatabaseHealthy();
+  }
+};
+
+const renderAccountRows = (items) => {
+  if (!(databaseAccountsBody instanceof HTMLElement)) {
+    return;
+  }
+
+  databaseAccountsBody.innerHTML = items.map((item) => `
+    <tr>
+      <td>${item?.uid ?? '--'}</td>
+      <td>${item?.username ?? '--'}</td>
+      <td>
+        <div class="accounts-row-actions">
+          <button class="status-action-button status-action-button-log" type="button" data-account-action="select" data-account-uid="${item?.uid ?? ''}">选定</button>
+          <button class="status-action-button status-action-button-config" type="button" data-account-action="password" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">重置密码</button>
+          <button class="status-action-button status-action-button-stop" type="button" data-account-action="delete" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">删除</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  updateAccountSelectionUi();
+};
+
+const loadSelectedAccount = async () => {
+  try {
+    const response = await fetch('/api/database-accounts/selection', { credentials: 'include' });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '加载已选定用户失败');
+    }
+
+    setSelectedAccountUid(payload?.selected_uid ?? null);
+  } catch {
+    setSelectedAccountUid(null);
+  }
+};
+
+const selectDatabaseAccount = async (uid) => {
+  const normalizedUid = normalizeAccountUid(uid);
+  if (normalizedUid === null || accountSelectionPendingUid !== null) {
+    return;
+  }
+
+  if (!isDatabaseHealthy()) {
+    openControlModal('数据库服务未处于正常状态，暂时无法选定账户。');
+    return;
+  }
+
+  accountSelectionPendingUid = normalizedUid;
+  updateAccountSelectionUi();
+
+  try {
+    const response = await fetch('/api/database-accounts/selection', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uid: normalizedUid }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '选定账户失败');
+    }
+
+    setSelectedAccountUid(payload?.selected_uid ?? normalizedUid);
+  } catch (error) {
+    openControlModal(error instanceof Error ? error.message : '选定账户失败');
+  } finally {
+    accountSelectionPendingUid = null;
+    updateAccountSelectionUi();
+  }
+};
+
+const updateDatabaseAccountsAccess = (payload = databaseHealthSnapshot) => {
+  const healthy = isDatabaseHealthy(payload);
+
+  if (databaseAccountsSubnavButton instanceof HTMLButtonElement) {
+    databaseAccountsSubnavButton.disabled = !healthy;
+    databaseAccountsSubnavButton.title = healthy ? '' : '仅在数据库服务正常时允许查看账号管理';
+  }
+
+  if (databaseAccountsSummary instanceof HTMLElement) {
+    databaseAccountsSummary.textContent = healthy
+      ? (accountsHasLoaded ? '账户列表已加载，每页 25 条' : '数据库服务正常，可查看账户列表')
+      : '仅在数据库服务正常时可查看';
+  }
+
+  if (!healthy) {
+    accountsTotalPages = 0;
+    updateAccountsPagination();
+    if (databaseAccountsBody instanceof HTMLElement) {
+      databaseAccountsBody.innerHTML = '';
+    }
+    setAccountsState('数据库服务正常后可查看账户列表。', 'is-muted');
+
+    if (isDatabaseAccountsSectionActive()) {
+      setActiveDatabaseTab('database-service-status-section');
+    }
+    return;
+  }
+
+  updateAccountsPagination();
+};
+
+const handleAccountActionClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const button = target.closest('[data-account-action]');
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const labels = {
+    select: '选定',
+    password: '重置密码',
+    delete: '删除',
+  };
+  if (button.dataset.accountAction === 'select') {
+    void selectDatabaseAccount(button.dataset.accountUid);
+    return;
+  }
+
+  if (button.dataset.accountAction === 'password') {
+    openAccountPasswordModal({
+      uid: normalizeAccountUid(button.dataset.accountUid),
+      username: button.dataset.accountUsername ?? '',
+    }, button);
+    return;
+  }
+
+  if (button.dataset.accountAction === 'delete') {
+    openAccountDeleteModal({
+      uid: normalizeAccountUid(button.dataset.accountUid),
+      username: button.dataset.accountUsername ?? '',
+    }, button);
+    return;
+  }
+
+  const action = labels[button.dataset.accountAction] ?? '该操作';
+  openControlModal(`${action} 功能暂未接入后端逻辑。`);
+};
+
+const loadDatabaseAccounts = async (page = 1) => {
+  if (!isDatabaseHealthy() || accountsLoading) {
+    updateAccountsPagination();
+    return;
+  }
+
+  accountsLoading = true;
+  accountsCurrentPage = Math.max(1, page);
+  updateAccountsPagination();
+  setAccountsState('正在加载账户列表...', 'is-loading');
+
+  try {
+    const response = await fetch(`/api/database-accounts?page=${accountsCurrentPage}&page_size=25`, { credentials: 'include' });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '加载账户列表失败');
+    }
+
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    accountsCurrentPage = typeof payload?.page === 'number' ? payload.page : accountsCurrentPage;
+    accountsTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    accountsHasLoaded = true;
+
+    if (databaseAccountsSummary instanceof HTMLElement) {
+      const total = typeof payload?.total === 'number' ? payload.total : items.length;
+      databaseAccountsSummary.textContent = `共 ${total} 个账户，每页 25 条`;
+    }
+
+    if (items.length === 0) {
+      if (databaseAccountsBody instanceof HTMLElement) {
+        databaseAccountsBody.innerHTML = '';
+      }
+      setAccountsState('暂无账户数据。', 'is-empty');
+    } else {
+      renderAccountRows(items);
+      showAccountsTable();
+    }
+  } catch (error) {
+    accountsTotalPages = 0;
+    if (databaseAccountsBody instanceof HTMLElement) {
+      databaseAccountsBody.innerHTML = '';
+    }
+    setAccountsState(error instanceof Error ? error.message : '加载账户列表失败', 'is-error');
+  } finally {
+    accountsLoading = false;
+    updateAccountsPagination();
+  }
 };
 
 const renderCard = (item) => {
@@ -857,6 +1554,25 @@ const renderSnapshot = (payload) => {
 
   renderGrid(sdkGrid, sdkSection);
   renderGrid(gameGrid, gameSection);
+  window.requestAnimationFrame(updateAllHistoryGridVisibility);
+};
+
+const renderDatabaseSnapshot = (payload) => {
+  const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+  const databaseSection = sections.find((section) => section.key === 'database') ?? sections[0];
+  const wasHealthy = isDatabaseHealthy(databaseHealthSnapshot);
+  databaseHealthSnapshot = payload;
+
+  if (typeof payload?.interval_seconds === 'number') {
+    nextDatabaseHealthCheckAtMs = Date.now() + payload.interval_seconds * 1000;
+    updateDatabaseHealthCheckLabel();
+  }
+
+  renderGrid(databaseGrid, databaseSection);
+  updateDatabaseAccountsAccess(payload);
+  if (!wasHealthy && isDatabaseHealthy(payload) && isDatabaseAccountsSectionActive()) {
+    loadDatabaseAccounts(accountsCurrentPage);
+  }
   window.requestAnimationFrame(updateAllHistoryGridVisibility);
 };
 
@@ -965,6 +1681,28 @@ const startServer = async () => {
   }
 };
 
+const loadDatabaseStatus = async () => {
+  try {
+    const response = await fetch('/api/database-status', { credentials: 'include' });
+    if (!response.ok) {
+      throw new Error('加载数据库状态失败');
+    }
+
+    const payload = await response.json();
+    renderDatabaseSnapshot(payload);
+
+    return typeof payload?.interval_seconds === 'number' ? payload.interval_seconds : 60;
+  } catch (error) {
+    databaseHealthSnapshot = null;
+    nextDatabaseHealthCheckAtMs = null;
+    updateDatabaseHealthCheckLabel();
+    renderGrid(databaseGrid, { services: [] });
+    updateDatabaseAccountsAccess(null);
+    window.requestAnimationFrame(updateAllHistoryGridVisibility);
+    return 60;
+  }
+};
+
 const stopServer = async () => {
   if (!(stopButton instanceof HTMLButtonElement) || !serverControlsVisible) {
     return;
@@ -1040,6 +1778,18 @@ configModalCloseTargets.forEach((target) => {
   target.addEventListener('click', closeConfigModal);
 });
 
+accountDeleteCloseTargets.forEach((target) => {
+  target.addEventListener('click', closeAccountDeleteModal);
+});
+
+accountPasswordCloseTargets.forEach((target) => {
+  target.addEventListener('click', closeAccountPasswordModal);
+});
+
+logoutConfirmCloseTargets.forEach((target) => {
+  target.addEventListener('click', closeLogoutConfirmModal);
+});
+
 if (logModalClearButton instanceof HTMLButtonElement) {
   logModalClearButton.addEventListener('click', () => {
     replaceLogContent('日志显示已清空，等待新的日志输出...');
@@ -1058,6 +1808,70 @@ if (configSaveButton instanceof HTMLButtonElement) {
   });
 }
 
+if (accountDeleteConfirmButton instanceof HTMLButtonElement) {
+  accountDeleteConfirmButton.addEventListener('click', () => {
+    void confirmDeleteAccount();
+  });
+}
+
+if (accountPasswordConfirmButton instanceof HTMLButtonElement) {
+  accountPasswordConfirmButton.addEventListener('click', () => {
+    void submitAccountPasswordReset();
+  });
+}
+
+if (logoutConfirmSubmitButton instanceof HTMLButtonElement) {
+  logoutConfirmSubmitButton.addEventListener('click', () => {
+    void submitLogout();
+  });
+}
+
+if (accountPasswordInput instanceof HTMLInputElement) {
+  accountPasswordInput.addEventListener('input', updateAccountPasswordValidationState);
+}
+
+if (accountPasswordConfirmInput instanceof HTMLInputElement) {
+  accountPasswordConfirmInput.addEventListener('input', updateAccountPasswordValidationState);
+}
+
+if (databaseAccountsBody instanceof HTMLElement) {
+  databaseAccountsBody.addEventListener('click', handleAccountActionClick);
+}
+
+if (databaseAccountsPrevButton instanceof HTMLButtonElement) {
+  databaseAccountsPrevButton.addEventListener('click', () => {
+    if (accountsCurrentPage > 1) {
+      loadDatabaseAccounts(accountsCurrentPage - 1);
+    }
+  });
+}
+
+if (databaseAccountsNextButton instanceof HTMLButtonElement) {
+  databaseAccountsNextButton.addEventListener('click', () => {
+    if (accountsCurrentPage < accountsTotalPages) {
+      loadDatabaseAccounts(accountsCurrentPage + 1);
+    }
+  });
+}
+
+databaseTabButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    if (button instanceof HTMLButtonElement && button.disabled) {
+      return;
+    }
+
+    const tabId = button.dataset.databaseTab;
+    if (!tabId) {
+      return;
+    }
+
+    setActiveDatabaseTab(tabId);
+    if (tabId === 'database-accounts-section' && isDatabaseHealthy()) {
+      loadDatabaseAccounts(accountsCurrentPage);
+    }
+  });
+});
+
 if (configEditorInput instanceof HTMLTextAreaElement) {
   configEditorInput.addEventListener('input', (event) => {
     const target = event.currentTarget;
@@ -1073,6 +1887,9 @@ window.addEventListener('keydown', (event) => {
     closeControlModal();
     closeLogModal();
     closeConfigModal();
+    closeAccountDeleteModal();
+    closeAccountPasswordModal();
+    closeLogoutConfirmModal();
   }
 });
 
@@ -1080,16 +1897,27 @@ const scheduleReload = async () => {
   await loadAppInfo();
 
   const intervalSeconds = await loadStatus();
+  await loadDatabaseStatus();
+  await loadSelectedAccount();
   if (timerId) {
     window.clearInterval(timerId);
   }
 
   timerId = window.setInterval(() => {
     loadStatus();
+    loadDatabaseStatus();
   }, Math.max(5, intervalSeconds) * 1000);
 };
 
 updateNextHealthCheckLabel();
-countdownTimerId = window.setInterval(updateNextHealthCheckLabel, 1000);
+updateDatabaseHealthCheckLabel();
+renderSelectedAccountBadge();
+countdownTimerId = window.setInterval(() => {
+  updateNextHealthCheckLabel();
+  updateDatabaseHealthCheckLabel();
+}, 1000);
 setConfigEditorValue('');
+setActiveDashboardPage('server-management');
+setActiveDatabaseTab('database-service-status-section');
+updateDatabaseAccountsAccess(null);
 scheduleReload();

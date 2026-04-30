@@ -16,6 +16,7 @@ SESSION_STORE: dict[str, "Session"] = {}
 class Session(BaseModel):
     token: str
     expires_at: datetime
+    selected_account_uid: int | None = None
 
 
 def create_session(username: str, password: str, settings: Settings) -> Session | None:

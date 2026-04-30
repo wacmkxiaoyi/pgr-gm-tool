@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>服务器管理</title>
+    <title>游戏服务器管理</title>
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
@@ -22,7 +22,8 @@
           </div>
 
           <nav class="sidebar-nav">
-            <a class="sidebar-link is-active" href="#dashboard-main">服务器管理</a>
+            <a class="sidebar-link is-active" href="#server-management" data-dashboard-page="server-management">游戏服务器管理</a>
+            <a class="sidebar-link" href="#database-management" data-dashboard-page="database-management">数据库服务管理</a>
           </nav>
 
           <div class="sidebar-footer">
@@ -35,52 +36,113 @@
         </aside>
 
         <section class="dashboard-main" id="dashboard-main" tabindex="-1">
-          <header class="dashboard-topbar">
-            <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
+          <section class="dashboard-page is-active" id="server-management" data-dashboard-panel="server-management" aria-labelledby="server-management-title">
+            <header class="dashboard-topbar">
+              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
 
-            <div class="topbar-copy">
-              <h1>服务器管理</h1>
+              <div class="topbar-copy">
+                <h1 id="server-management-title">游戏服务器管理</h1>
+              </div>
+            </header>
+
+            <div class="dashboard-content status-page" aria-live="polite" id="service-status">
+              <section class="status-hero">
+                <div class="status-meta status-meta-row">
+                  <div class="status-meta-list">
+                    <span id="status-server-version">服务器版本号: --</span>
+                    <span id="status-interval">健康检查时间间隔: --</span>
+                  </div>
+                  <div class="status-controls" id="status-controls" hidden>
+                    <button class="status-action-button status-action-button-start" type="button">启动</button>
+                    <button class="status-action-button status-action-button-stop" type="button">停止</button>
+                    <button class="status-action-button status-action-button-log" type="button">查看日志</button>
+                    <button class="status-action-button status-action-button-config" type="button">修改配置</button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="status-section" id="sdk-status-section" aria-labelledby="sdk-status-title">
+                <div class="status-section-header">
+                  <div>
+                    <span class="section-tag">SDK</span>
+                    <h2 id="sdk-status-title">SDK 服务器状态</h2>
+                  </div>
+                  <small>HTTP / HTTPS 检查</small>
+                </div>
+                <div class="status-grid" id="sdk-status-grid"></div>
+              </section>
+
+              <section class="status-section" id="game-status-section" aria-labelledby="game-status-title">
+                <div class="status-section-header">
+                  <div>
+                    <span class="section-tag">GAME</span>
+                    <h2 id="game-status-title">游戏服务器状态</h2>
+                  </div>
+                  <small>TCP 连接检查</small>
+                </div>
+                <div class="status-grid" id="game-status-grid"></div>
+              </section>
             </div>
-          </header>
+          </section>
 
-          <div class="dashboard-content status-page" aria-live="polite" id="service-status">
-            <section class="status-hero">
-              <div class="status-meta status-meta-row">
-                <div class="status-meta-list">
-                  <span id="status-server-version">服务器版本号: --</span>
-                  <span id="status-interval">健康检查时间间隔: --</span>
-                </div>
-                <div class="status-controls" id="status-controls" hidden>
-                  <button class="status-action-button status-action-button-start" type="button">启动</button>
-                  <button class="status-action-button status-action-button-stop" type="button">停止</button>
-                  <button class="status-action-button status-action-button-log" type="button">查看日志</button>
-                  <button class="status-action-button status-action-button-config" type="button">修改配置</button>
-                </div>
-              </div>
-            </section>
+          <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="数据库服务管理" hidden>
+            <header class="dashboard-topbar">
+              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
+            </header>
 
-            <section class="status-section" aria-labelledby="sdk-status-title">
-              <div class="status-section-header">
-                <div>
-                  <span class="section-tag">SDK</span>
-                  <h2 id="sdk-status-title">SDK 服务器状态</h2>
-                </div>
-                <small>HTTP / HTTPS 检查</small>
-              </div>
-              <div class="status-grid" id="sdk-status-grid"></div>
-            </section>
+            <div class="dashboard-content database-page">
+              <nav class="dashboard-subnav page-subnav database-subnav" aria-label="数据库服务管理次级导航">
+                <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true">服务状态</button>
+                <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled>账号管理</button>
+                <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户：--</div>
+              </nav>
 
-            <section class="status-section" aria-labelledby="game-status-title">
-              <div class="status-section-header">
-                <div>
-                  <span class="section-tag">GAME</span>
-                  <h2 id="game-status-title">游戏服务器状态</h2>
+              <section class="database-panel database-tab-panel is-active" id="database-service-status-section" data-database-tab-panel="database-service-status-section" aria-labelledby="database-service-status-title">
+                <div class="database-panel-header">
+                  <div>
+                    <span class="section-tag">Database</span>
+                    <h2 id="database-service-status-title">服务状态</h2>
+                  </div>
+                  <small id="database-status-interval">距离下次健康检查: --</small>
                 </div>
-                <small>TCP 连接检查</small>
-              </div>
-              <div class="status-grid" id="game-status-grid"></div>
-            </section>
-          </div>
+
+                <div class="status-grid database-status-grid" id="database-status-grid"></div>
+              </section>
+
+              <section class="database-panel database-accounts-panel database-tab-panel" id="database-accounts-section" data-database-tab-panel="database-accounts-section" aria-labelledby="database-accounts-title" hidden>
+                <div class="database-panel-header database-panel-header-compact">
+                  <div>
+                    <span class="section-tag">Accounts</span>
+                    <h2 id="database-accounts-title">账号管理</h2>
+                    <p class="database-panel-description">展示 MongoDB 中 accounts 集合的账户数据，每页固定 25 条记录。</p>
+                  </div>
+                  <small class="database-accounts-summary" id="database-accounts-summary">仅在数据库服务正常时可查看</small>
+                </div>
+
+                <div class="accounts-table-shell">
+                  <div class="accounts-state" id="database-accounts-state">数据库服务正常后可查看账户列表。</div>
+                  <div class="accounts-table-scroll" id="database-accounts-table-shell" hidden>
+                    <table class="accounts-table" aria-describedby="database-accounts-summary">
+                      <thead>
+                        <tr>
+                          <th scope="col">UID</th>
+                          <th scope="col">用户名</th>
+                          <th scope="col">操作</th>
+                        </tr>
+                      </thead>
+                      <tbody id="database-accounts-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="accounts-pagination">
+                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-prev" disabled>上一页</button>
+                  <span class="accounts-pagination-label" id="database-accounts-pagination">第 0 / 0 页</span>
+                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-next" disabled>下一页</button>
+                </div>
+              </section>
+            </div>
+          </section>
         </section>
       </div>
     </main>
@@ -89,9 +151,9 @@
       <div class="login-modal-backdrop" data-server-modal-close></div>
       <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-modal-title" aria-describedby="server-modal-message">
         <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <span class="login-modal-icon" id="server-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow">启动失败</p>
+            <p class="login-modal-eyebrow" id="server-modal-eyebrow">启动失败</p>
             <h3 id="server-modal-title">服务器未能成功启动</h3>
           </div>
         </div>
@@ -154,6 +216,68 @@
           <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-reload>重新加载</button>
           <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-close>关闭</button>
           <button type="button" class="login-modal-button" data-server-config-save>保存</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="account-delete-modal">
+      <div class="login-modal-backdrop" data-account-delete-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-delete-title" aria-describedby="account-delete-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow">删除确认</p>
+            <h3 id="account-delete-title">确认删除账户</h3>
+          </div>
+        </div>
+        <p id="account-delete-message" class="login-modal-message">确认删除该账户吗？</p>
+        <div class="login-modal-actions account-delete-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-delete-close>取消</button>
+          <button type="button" class="login-modal-button login-modal-button-danger" id="account-delete-confirm">确认删除</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="account-password-modal">
+      <div class="login-modal-backdrop" data-account-password-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-password-title" aria-describedby="account-password-description">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow">密码管理</p>
+            <h3 id="account-password-title">重置密码</h3>
+          </div>
+        </div>
+        <p id="account-password-description" class="login-modal-message">请为指定账户设置新的密码。</p>
+        <div class="account-password-form">
+          <p class="account-password-target" id="account-password-target">目标账户：--</p>
+          <label class="account-password-label" for="account-password-input">新密码</label>
+          <input class="account-password-input" id="account-password-input" type="password" autocomplete="new-password" />
+          <label class="account-password-label" for="account-password-confirm-input">确认新密码</label>
+          <input class="account-password-input" id="account-password-confirm-input" type="password" autocomplete="new-password" />
+          <p class="account-password-feedback" id="account-password-feedback">密码长度需大于等于 6 位。</p>
+        </div>
+        <div class="login-modal-actions account-password-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-password-close>取消</button>
+          <button type="button" class="login-modal-button" id="account-password-confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="logout-confirm-modal">
+      <div class="login-modal-backdrop" data-logout-confirm-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow">退出确认</p>
+            <h3 id="logout-confirm-title">确认退出登录</h3>
+          </div>
+        </div>
+        <p id="logout-confirm-message" class="login-modal-message">确认退出当前登录状态吗？</p>
+        <div class="login-modal-actions logout-confirm-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close>取消</button>
+          <button type="button" class="login-modal-button" id="logout-confirm-submit">确认退出</button>
         </div>
       </section>
     </div>

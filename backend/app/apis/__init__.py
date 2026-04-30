@@ -2,19 +2,36 @@ from __future__ import annotations
 
 import json
 
-from fastapi import APIRouter, Cookie, HTTPException, Request, Response
+from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
+    DatabaseHealthStatusResponse,
     HealthStatusResponse,
     LoginRequest,
     LoginResponse,
+    ResetAccountPasswordRequest,
+    ResetAccountPasswordResponse,
+    SelectAccountRequest,
     SaveServerConfigRequest,
+    SelectedAccountResponse,
     SessionResponse,
     ServerConfigResponse,
 )
-from backend.app.services.health_check import get_health_snapshot, is_health_snapshot_healthy, reload_health_targets, run_health_check_once
-from backend.app.services.server_control import get_server_control_snapshot
+from backend.app.db.models import AccountListResponse
+from backend.app.services.database_control import (
+    get_database_health_snapshot,
+    is_database_snapshot_healthy,
+    reload_database_health_targets,
+    run_database_health_check_once,
+)
+from backend.app.services.server_control import (
+    get_health_snapshot,
+    get_server_control_snapshot,
+    is_health_snapshot_healthy,
+    reload_health_targets,
+    run_health_check_once,
+)
 from backend.app.services.auth import SESSION_COOKIE_NAME, create_session, delete_session, get_session
 
 router = APIRouter(prefix="/api")
@@ -51,6 +68,106 @@ async def server_status(request: Request) -> HealthStatusResponse:
         **health_snapshot,
         "controls": controls,
     })
+
+
+@router.get("/database-status", response_model=DatabaseHealthStatusResponse)
+async def database_status(request: Request) -> DatabaseHealthStatusResponse:
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    return DatabaseHealthStatusResponse.model_validate(snapshot)
+
+
+@router.get("/database-accounts", response_model=AccountListResponse)
+async def database_accounts(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=25),
+) -> AccountListResponse:
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法访问账号管理。")
+
+    controller = request.app.state.database_controller
+    return await controller.list_accounts(page=page, page_size=page_size)
+
+
+def _get_active_session(login_session_token: str | None) -> object:
+    session = get_session(login_session_token)
+    if session is None:
+        raise HTTPException(status_code=401, detail="当前会话未登录或已失效。")
+    return session
+
+
+@router.get("/database-accounts/selection", response_model=SelectedAccountResponse)
+async def get_database_account_selection(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> SelectedAccountResponse:
+    active_session = _get_active_session(login_session_token)
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+
+    if selected_uid is None:
+        return SelectedAccountResponse(selected_uid=None)
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        return SelectedAccountResponse(selected_uid=None)
+
+    return SelectedAccountResponse(selected_uid=selected_uid)
+
+
+@router.put("/database-accounts/selection", response_model=SelectedAccountResponse)
+async def set_database_account_selection(
+    request: Request,
+    payload: SelectAccountRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> SelectedAccountResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法选定账户。")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(payload.uid):
+        raise HTTPException(status_code=404, detail="未找到对应 UID 的账户。")
+
+    active_session.selected_account_uid = payload.uid
+    return SelectedAccountResponse(selected_uid=payload.uid)
+
+
+@router.delete("/database-accounts/selection", response_model=SelectedAccountResponse)
+async def clear_database_account_selection(
+    login_session_token: str | None = Cookie(default=None),
+) -> SelectedAccountResponse:
+    active_session = _get_active_session(login_session_token)
+    active_session.selected_account_uid = None
+    return SelectedAccountResponse(selected_uid=None)
+
+
+@router.put("/database-accounts/password", response_model=ResetAccountPasswordResponse)
+async def reset_database_account_password(
+    request: Request,
+    payload: ResetAccountPasswordRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> ResetAccountPasswordResponse:
+    _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法重置密码。")
+
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=422, detail="新密码长度必须大于等于 6 位。")
+
+    controller = request.app.state.database_controller
+    updated = await controller.update_account_password(payload.uid, payload.password)
+    if not updated:
+        raise HTTPException(status_code=404, detail="未找到对应 UID 的账户。")
+
+    return ResetAccountPasswordResponse(uid=payload.uid, updated=True)
 
 
 @router.post("/server-control/start")
@@ -167,7 +284,9 @@ async def save_server_config(request: Request, payload: SaveServerConfigRequest)
         settings.server_config_path.write_text(payload.text, encoding="utf-8")
         settings.reload_server_runtime_config()
         reload_health_targets(settings)
+        reload_database_health_targets(settings)
         await run_health_check_once(settings)
+        await run_database_health_check_once(settings)
         refreshed_text = settings.read_server_config_text()
     except OSError as error:
         raise HTTPException(status_code=500, detail=f"保存配置文件失败: {error}") from error
