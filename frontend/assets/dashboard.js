@@ -7,7 +7,12 @@ const sdkGrid = document.querySelector('#sdk-status-grid');
 const gameGrid = document.querySelector('#game-status-grid');
 const serverVersionLabel = document.querySelector('#status-server-version');
 const intervalLabel = document.querySelector('#status-interval');
+const statusControls = document.querySelector('#status-controls');
+const startButton = document.querySelector('.status-action-button-start');
+const stopButton = document.querySelector('.status-action-button-stop');
 const updatedLabel = document.querySelector('#status-last-updated');
+
+let serverControlsVisible = false;
 
 const stateMeta = {
   healthy: { label: '正常', className: 'status-ok' },
@@ -19,6 +24,31 @@ const historyStateClass = (state) => stateMeta[state]?.className ?? 'status-unkn
 const HISTORY_SLOT_COUNT = 10;
 
 const getHistoryGrids = () => [sdkGrid, gameGrid].filter(Boolean);
+
+const getServiceHealthState = (service) => service?.latest?.state ?? 'unknown';
+
+const isServiceHealthy = (service) => getServiceHealthState(service) === 'healthy';
+
+const isSnapshotHealthy = (payload) => {
+  const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+  const services = sections.flatMap((section) => (Array.isArray(section?.services) ? section.services : []));
+
+  if (services.length === 0) {
+    return false;
+  }
+
+  return services.every(isServiceHealthy);
+};
+
+const updateStatusActionButtons = (payload) => {
+  if (!(startButton instanceof HTMLButtonElement) || !(stopButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const allHealthy = isSnapshotHealthy(payload);
+  startButton.disabled = allHealthy;
+  stopButton.disabled = !allHealthy;
+};
 
 const shouldHideHistoryGrid = (grid) => {
   if (!grid) {
@@ -206,6 +236,12 @@ const renderSnapshot = (payload) => {
     updatedLabel.textContent = `更新时间: ${formatTime(payload?.checked_at)}`;
   }
 
+  if (statusControls instanceof HTMLElement) {
+    statusControls.hidden = !serverControlsVisible;
+  }
+
+  updateStatusActionButtons(payload);
+
   renderGrid(sdkGrid, sdkSection);
   renderGrid(gameGrid, gameSection);
   window.requestAnimationFrame(updateAllHistoryGridVisibility);
@@ -226,6 +262,7 @@ const loadStatus = async () => {
     if (updatedLabel) {
       updatedLabel.textContent = error.message;
     }
+    updateStatusActionButtons({ sections: [] });
     renderGrid(sdkGrid, { services: [] });
     renderGrid(gameGrid, { services: [] });
     window.requestAnimationFrame(updateAllHistoryGridVisibility);
@@ -233,9 +270,32 @@ const loadStatus = async () => {
   }
 };
 
+const loadAppInfo = async () => {
+  try {
+    const response = await fetch('/api/app-info', { credentials: 'include' });
+    if (!response.ok) {
+      return;
+    }
+
+    const payload = await response.json();
+    serverControlsVisible = Boolean(payload?.server_controls_visible);
+
+    if (statusControls instanceof HTMLElement) {
+      statusControls.hidden = !serverControlsVisible;
+    }
+  } catch (error) {
+    serverControlsVisible = false;
+    if (statusControls instanceof HTMLElement) {
+      statusControls.hidden = true;
+    }
+  }
+};
+
 let timerId = null;
 
 const scheduleReload = async () => {
+  await loadAppInfo();
+
   const intervalSeconds = await loadStatus();
   if (timerId) {
     window.clearInterval(timerId);

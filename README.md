@@ -24,7 +24,12 @@ MongoDB 支持两种方式配置：
 1. 直接填写 `MONGO_URI`
 2. 通过 `MONGO_HOST`、`MONGO_PORT`、`MONGO_DB`、`MONGO_USERNAME`、`MONGO_PASSWORD` 组合生成
 
-本地开发时可设置 `IS_DEV=true`，后端会读取根目录下的 `local_data.json` 来模拟 `accounts` 集合。
+管理员登录账号由环境变量提供：
+
+1. `ADMIN_USERNAME`
+2. `ADMIN_PASSWORD`
+
+后端不再读取 `local_data.json`，也不再通过 MongoDB 进行登录授权。
 
 健康检查会按 `HEALTHY_CHECK_INTERVAL` 定时执行，结果缓存在内存中并提供给前端状态页读取。
 
@@ -33,7 +38,7 @@ MongoDB 支持两种方式配置：
 ```bash
 cd backend
 pip3 install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## 前端预览

@@ -22,7 +22,7 @@
           </div>
 
           <nav class="sidebar-nav">
-            <a class="sidebar-link is-active" href="#dashboard-main">服务状态</a>
+            <a class="sidebar-link is-active" href="#dashboard-main">服务器管理</a>
           </nav>
 
           <div class="sidebar-footer">
@@ -60,9 +60,15 @@
 
           <div class="dashboard-content status-page" aria-live="polite" id="service-status">
             <section class="status-hero">
-              <div class="status-meta">
-                <span id="status-server-version">服务器版本号: --</span>
-                <span id="status-interval">检查检查时间间隔: --</span>
+              <div class="status-meta status-meta-row">
+                <div class="status-meta-list">
+                  <span id="status-server-version">服务器版本号: --</span>
+                  <span id="status-interval">健康检查时间间隔: --</span>
+                </div>
+                <div class="status-controls" id="status-controls" hidden>
+                  <button class="status-action-button status-action-button-start" type="button">启动</button>
+                  <button class="status-action-button status-action-button-stop" type="button">停止</button>
+                </div>
               </div>
             </section>
 

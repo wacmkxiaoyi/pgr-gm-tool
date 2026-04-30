@@ -1,38 +1,17 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Cookie, HTTPException, Response
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Cookie, HTTPException, Request, Response
 
-from app.core.config import settings
-from app.services.health_check import get_health_snapshot
-from app.services.auth import SESSION_COOKIE_NAME, create_session, delete_session, get_session, verify_credentials
+from backend.app.apis.schemas import (
+    HealthStatusResponse,
+    LoginRequest,
+    LoginResponse,
+    SessionResponse,
+)
+from backend.app.services.health_check import get_health_snapshot
+from backend.app.services.auth import SESSION_COOKIE_NAME, create_session, delete_session, get_session
 
 router = APIRouter(prefix="/api")
-
-
-class LoginRequest(BaseModel):
-    username: str = Field(min_length=1)
-    password: str = Field(min_length=1)
-
-
-class LoginResponse(BaseModel):
-    uid: int
-    username: str
-    token: str | None = None
-    expires_at: str | None = None
-
-
-class SessionResponse(BaseModel):
-    authenticated: bool
-    uid: int | None = None
-    username: str | None = None
-
-
-class HealthStatusResponse(BaseModel):
-    checked_at: str | None = None
-    server_version: str | None = None
-    interval_seconds: int
-    sections: list[dict[str, object]]
 
 
 @router.get("/health")
@@ -41,28 +20,29 @@ async def health() -> dict[str, str]:
 
 
 @router.get("/app-info")
-async def app_info() -> dict[str, object]:
+async def app_info(request: Request) -> dict[str, object]:
+    settings = request.app.state.settings
     return {
         "name": settings.app_name,
         "environment": settings.app_env,
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
-        "is_dev": settings.is_dev,
+        "server_controls_visible": settings.server_controls_visible,
     }
 
 
 @router.get("/server-status", response_model=HealthStatusResponse)
-async def server_status() -> HealthStatusResponse:
-    return HealthStatusResponse.model_validate(get_health_snapshot())
+async def server_status(request: Request) -> HealthStatusResponse:
+    settings = request.app.state.settings
+    return HealthStatusResponse.model_validate(get_health_snapshot(settings))
 
 
 @router.post("/login", response_model=LoginResponse)
-async def login(payload: LoginRequest, response: Response) -> LoginResponse:
-    account = await verify_credentials(payload.username, payload.password)
-    if account is None:
+async def login(request: Request, payload: LoginRequest, response: Response) -> LoginResponse:
+    settings = request.app.state.settings
+    session = create_session(payload.username, payload.password, settings)
+    if session is None:
         raise HTTPException(status_code=401, detail="账号或密码错误")
-
-    session = create_session(account)
     response.set_cookie(
         key=SESSION_COOKIE_NAME,
         value=session.token,
@@ -73,8 +53,6 @@ async def login(payload: LoginRequest, response: Response) -> LoginResponse:
         path="/",
     )
     return LoginResponse(
-        uid=account.uid,
-        username=account.username,
         token=session.token,
         expires_at=session.expires_at.isoformat(),
     )
@@ -88,8 +66,6 @@ async def session(login_session_token: str | None = Cookie(default=None)) -> Ses
 
     return SessionResponse(
         authenticated=True,
-        uid=active_session.account.uid,
-        username=active_session.account.username,
     )
 
 

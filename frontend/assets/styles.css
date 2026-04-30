@@ -180,6 +180,72 @@ body {
   font-size: 13px;
 }
 
+.status-meta-row {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.status-meta-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.status-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.status-action-button {
+  min-width: 88px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.status-action-button:hover {
+  transform: translateY(-1px);
+}
+
+.status-action-button:disabled {
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  color: rgba(100, 116, 139, 0.72);
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.status-action-button:disabled:hover {
+  transform: none;
+}
+
+.status-action-button-start {
+  color: #0f766e;
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.14);
+}
+
+.status-action-button-stop {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.28);
+  box-shadow: 0 12px 30px rgba(248, 113, 113, 0.12);
+}
+
 .status-section {
   padding: 22px;
   border-radius: 28px;
@@ -1205,6 +1271,15 @@ body.login-modal-open {
 
   .topbar-actions {
     display: none;
+  }
+
+  .status-meta-row {
+    align-items: flex-start;
+  }
+
+  .status-controls {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .hero-panel,

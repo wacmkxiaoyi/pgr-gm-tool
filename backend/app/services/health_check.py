@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from app.core.config import settings
+from backend.app.config import Settings
 
 
 HealthState = Literal["healthy", "unhealthy", "unknown"]
@@ -38,28 +38,11 @@ class HealthTarget:
     latest: HealthCheckRecord | None = None
 
 
-HEALTH_TARGETS: dict[str, HealthTarget] = {
-    "sdk": HealthTarget(
-        key="sdk",
-        title="SDK 服务器状态",
-        target_type="http",
-        url=f"{settings.sdk_server_scheme}://{settings.sdk_server_host}:{settings.sdk_server_port}",
-        host=settings.sdk_server_host,
-        port=settings.sdk_server_port,
-    ),
-    "game": HealthTarget(
-        key="game",
-        title="游戏服务器状态",
-        target_type="tcp",
-        url=f"tcp://{settings.game_server_host}:{settings.game_server_port}",
-        host=settings.game_server_host,
-        port=settings.game_server_port,
-    ),
-}
+HEALTH_TARGETS: dict[str, HealthTarget] = {}
 
 HEALTH_CHECK_SNAPSHOT: dict[str, Any] = {
     "checked_at": None,
-    "interval_seconds": settings.healthy_check_interval,
+    "interval_seconds": None,
     "sections": [],
 }
 
@@ -68,12 +51,12 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _build_http_url(target: HealthTarget) -> str:
+def _build_http_url(settings: Settings, target: HealthTarget) -> str:
     return f"{settings.sdk_server_scheme}://{target.host}:{target.port}"
 
 
-async def _check_http_target(target: HealthTarget) -> HealthCheckRecord:
-    url = _build_http_url(target)
+async def _check_http_target(settings: Settings, target: HealthTarget) -> HealthCheckRecord:
+    url = _build_http_url(settings, target)
     start = time.perf_counter()
 
     def _request() -> tuple[int | None, str]:
@@ -129,9 +112,35 @@ async def _check_tcp_target(target: HealthTarget) -> HealthCheckRecord:
     )
 
 
-async def run_health_check_once() -> None:
+def init_health_targets(settings: Settings) -> None:
+    HEALTH_TARGETS.clear()
+    HEALTH_TARGETS.update({
+        "sdk": HealthTarget(
+            key="sdk",
+            title="SDK 服务器状态",
+            target_type="http",
+            url=f"{settings.sdk_server_scheme}://{settings.sdk_server_host}:{settings.sdk_server_port}",
+            host=settings.sdk_server_host,
+            port=settings.sdk_server_port,
+        ),
+        "game": HealthTarget(
+            key="game",
+            title="游戏服务器状态",
+            target_type="tcp",
+            url=f"tcp://{settings.game_server_host}:{settings.game_server_port}",
+            host=settings.game_server_host,
+            port=settings.game_server_port,
+        ),
+    })
+    HEALTH_CHECK_SNAPSHOT["interval_seconds"] = settings.healthy_check_interval
+
+
+async def run_health_check_once(settings: Settings) -> None:
+    if not HEALTH_TARGETS:
+        init_health_targets(settings)
+
     sdk_record, game_record = await asyncio.gather(
-        _check_http_target(HEALTH_TARGETS["sdk"]),
+        _check_http_target(settings, HEALTH_TARGETS["sdk"]),
         _check_tcp_target(HEALTH_TARGETS["game"]),
     )
 
@@ -189,7 +198,10 @@ def _serialize_target(target: HealthTarget) -> dict[str, Any]:
     }
 
 
-def get_health_snapshot() -> dict[str, Any]:
+def get_health_snapshot(settings: Settings) -> dict[str, Any]:
+    if not HEALTH_TARGETS:
+        init_health_targets(settings)
+
     sections = HEALTH_CHECK_SNAPSHOT["sections"] or _build_sections()
     return {
         "checked_at": HEALTH_CHECK_SNAPSHOT["checked_at"],
@@ -199,8 +211,8 @@ def get_health_snapshot() -> dict[str, Any]:
     }
 
 
-async def health_check_loop() -> None:
-    await run_health_check_once()
+async def health_check_loop(settings: Settings) -> None:
+    await run_health_check_once(settings)
     while True:
         await asyncio.sleep(settings.healthy_check_interval)
-        await run_health_check_once()
+        await run_health_check_once(settings)
