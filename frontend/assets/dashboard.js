@@ -9,6 +9,7 @@ const sdkGrid = document.querySelector('#sdk-status-grid');
 const gameGrid = document.querySelector('#game-status-grid');
 const databaseGrid = document.querySelector('#database-status-grid');
 const databaseAccountsSubnavButton = document.querySelector('#database-accounts-subnav');
+const databasePlayerProfileSubnavButton = document.querySelector('#database-player-profile-subnav');
 const databaseTabButtons = Array.from(document.querySelectorAll('[data-database-tab]'));
 const databaseTabPanels = Array.from(document.querySelectorAll('[data-database-tab-panel]'));
 const databaseAccountsState = document.querySelector('#database-accounts-state');
@@ -19,6 +20,30 @@ const databaseAccountsPrevButton = document.querySelector('#database-accounts-pr
 const databaseAccountsNextButton = document.querySelector('#database-accounts-next');
 const databaseAccountsPaginationLabel = document.querySelector('#database-accounts-pagination');
 const databaseSelectedAccountLabel = document.querySelector('#database-selected-account');
+const databasePlayerProfileState = document.querySelector('#database-player-profile-state');
+const databasePlayerProfileShell = document.querySelector('#database-player-profile-shell');
+const databasePlayerProfileSummary = document.querySelector('#database-player-profile-summary');
+const playerCardAvatarShell = document.querySelector('.database-player-card-avatar-shell');
+const playerCardAvatarRing = document.querySelector('.database-player-card-avatar-ring');
+const playerCardAvatarFrameImage = document.querySelector('#player-card-avatar-frame-image');
+const playerCardAvatarImage = document.querySelector('#player-card-avatar-image');
+const playerCardAvatarFallback = document.querySelector('#player-card-avatar-fallback');
+const playerCardName = document.querySelector('#player-card-name');
+const playerCardInlineUid = document.querySelector('#player-card-inline-uid');
+const playerCardGender = document.querySelector('#player-card-gender');
+const playerCardLikes = document.querySelector('#player-card-likes');
+const playerCardLevel = document.querySelector('#player-card-level');
+const playerCardExp = document.querySelector('#player-card-exp');
+const playerPortraitPickerModal = document.querySelector('#player-portrait-picker-modal');
+const playerPortraitPickerTitle = document.querySelector('#player-portrait-picker-title');
+const playerPortraitPickerEyebrow = document.querySelector('#player-portrait-picker-eyebrow');
+const playerPortraitPickerIcon = document.querySelector('#player-portrait-picker-icon');
+const playerPortraitPickerDescription = document.querySelector('#player-portrait-picker-description');
+const playerPortraitPickerCurrent = document.querySelector('#player-portrait-picker-current');
+const playerPortraitPickerGrid = document.querySelector('#player-portrait-picker-grid');
+const playerPortraitPickerConfirmButton = document.querySelector('#player-portrait-picker-confirm');
+const playerPortraitPickerCloseTargets = document.querySelectorAll('[data-player-portrait-picker-close]');
+const playerPortraitPickerCancelButton = document.querySelector('.player-portrait-picker-cancel');
 const serverVersionLabel = document.querySelector('#status-server-version');
 const intervalLabel = document.querySelector('#status-interval');
 const databaseIntervalLabel = document.querySelector('#database-status-interval');
@@ -85,11 +110,89 @@ let accountsHasLoaded = false;
 let accountsLoading = false;
 let selectedAccountUid = null;
 let accountSelectionPendingUid = null;
+let playerProfileLoading = false;
+let playerProfileData = null;
+let playerProfileEditState = null;
+let playerPortraitPickerState = null;
+let playerPortraitUrlMap = {};
+let playerPortraitFrameUrlMap = {};
+let playerPortraitNameMap = {};
+let playerPortraitFrameNameMap = {};
+let latestStatusSnapshot = null;
 let pendingDeleteAccount = null;
 let lastDeleteFocusedControl = null;
 let pendingPasswordAccount = null;
 let lastPasswordFocusedControl = null;
 let lastLogoutFocusedControl = null;
+
+const PLAYER_NAME_PATTERN = /^[\u4e00-\u9fa5A-Za-z0-9 _-]+$/;
+const PLAYER_FIELD_LABELS = {
+  name: '昵称',
+  gender: '性别',
+  likes: '点赞',
+  level: '等级',
+};
+const PLAYER_GENDER_OPTIONS = [
+  { value: '0', label: '男' },
+  { value: '1', label: '女' },
+];
+
+const PLAYER_PROFILE_EDITABLE_FIELDS = {
+  name: {
+    displayValue: (profile) => formatPlayerFieldValue(profile?.name),
+    getRawValue: (profile) => profile?.name ?? null,
+    element: () => playerCardName,
+    editorType: 'input',
+    inputMode: 'text',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => {
+      if (value.length <= 0) {
+        return '昵称不能为空。';
+      }
+
+      return PLAYER_NAME_PATTERN.test(value) ? '' : '昵称仅允许中文、英文、数字、空格、下划线和短横线。';
+    },
+  },
+  gender: {
+    displayValue: (profile) => getPlayerGenderLabel(profile?.gender ?? null),
+    getRawValue: (profile) => profile?.gender ?? null,
+    element: () => playerCardGender,
+    editorType: 'select',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => value === '0' || value === '1' ? '' : '性别仅允许为男或女。',
+    options: PLAYER_GENDER_OPTIONS,
+  },
+  likes: {
+    displayValue: (profile) => formatPlayerFieldValue(profile?.likes),
+    getRawValue: (profile) => profile?.likes ?? null,
+    element: () => playerCardLikes,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => /^\d+$/.test(value) ? '' : '点赞必须为大于等于 0 的整数。',
+  },
+  level: {
+    displayValue: (profile) => formatPlayerFieldValue(profile?.level),
+    getRawValue: (profile) => profile?.level ?? null,
+    element: () => playerCardLevel,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => /^\d+$/.test(value) ? '' : '等级必须为大于等于 0 的整数。',
+  },
+  head_portrait_id: {
+    displayValue: (profile) => formatPlayerFieldValue(profile?.head_portrait_id),
+    getRawValue: (profile) => profile?.head_portrait_id ?? null,
+    element: () => playerCardAvatarImage,
+    editorType: 'picker',
+  },
+  head_frame_id: {
+    displayValue: (profile) => formatPlayerFieldValue(profile?.head_frame_id),
+    getRawValue: (profile) => profile?.head_frame_id ?? null,
+    element: () => playerCardAvatarFrameImage,
+    editorType: 'picker',
+  },
+};
 
 const CONFIG_EDITOR_EMPTY_HINT = '点击“修改配置”后加载 config.json。';
 
@@ -131,9 +234,802 @@ const isDatabaseAccountsSectionActive = () => {
   return databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-accounts-section');
 };
 
+const isDatabasePlayerProfileSectionActive = () => {
+  return databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-player-profile-section');
+};
+
 const normalizeAccountUid = (value) => {
   const parsed = Number.parseInt(String(value ?? ''), 10);
   return Number.isFinite(parsed) ? parsed : null;
+};
+
+const getPlayerGenderLabel = (gender) => {
+  if (gender === 0) {
+    return '男';
+  }
+
+  if (gender === 1) {
+    return '女';
+  }
+
+  return '--';
+};
+
+const formatPlayerFieldValue = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return '--';
+  }
+
+  return String(value);
+};
+
+const normalizePortraitId = (value) => {
+  const parsed = Number.parseInt(String(value ?? ''), 10);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const getPlayerPortraitUrlByField = (field, id) => {
+  if (id === null || id === undefined) {
+    return '';
+  }
+
+  const map = field === 'head_frame_id' ? playerPortraitFrameUrlMap : playerPortraitUrlMap;
+  return typeof map?.[id] === 'string' ? map[id] : '';
+};
+
+const getPlayerPortraitNameByField = (field, id) => {
+  if (id === null || id === undefined) {
+    return '';
+  }
+
+  const map = field === 'head_frame_id' ? playerPortraitFrameNameMap : playerPortraitNameMap;
+  return typeof map?.[id] === 'string' ? map[id] : '';
+};
+
+const getPortraitPickerMap = (field) => (field === 'head_frame_id' ? playerPortraitFrameUrlMap : playerPortraitUrlMap);
+
+const getPortraitPickerEntries = (field) => {
+  const map = getPortraitPickerMap(field);
+  return Object.entries(map)
+    .map(([id, url]) => ({ id: normalizePortraitId(id), url: typeof url === 'string' ? url : '' }))
+    .filter((item) => item.id !== null)
+    .sort((left, right) => left.id - right.id);
+};
+
+const getPortraitPickerLabel = (field) => (field === 'head_frame_id' ? '头像框' : '头像');
+
+const getPortraitPickerCurrentValue = (field) => {
+  if (!playerProfileData) {
+    return null;
+  }
+
+  return field === 'head_frame_id' ? playerProfileData.head_frame_id ?? null : playerProfileData.head_portrait_id ?? null;
+};
+
+const getPortraitPickerCurrentName = (field) => {
+  const currentValue = getPortraitPickerCurrentValue(field);
+  return getPlayerPortraitNameByField(field, currentValue) || (currentValue === null ? '--' : String(currentValue));
+};
+
+const getPortraitPickerPageSize = () => {
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1280;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 720;
+  const cardWidth = 126;
+  const cardHeight = 144;
+  const gap = 12;
+  const horizontalPadding = 84;
+  const verticalPadding = 280;
+  const columns = Math.max(2, Math.floor((viewportWidth - horizontalPadding) / (cardWidth + gap)));
+  const rows = Math.max(2, Math.floor((viewportHeight - verticalPadding) / (cardHeight + gap)));
+  return Math.max(4, columns * rows);
+};
+
+const getPortraitPickerPages = (field) => {
+  const entries = getPortraitPickerEntries(field);
+  return { entries, totalPages: 1 };
+};
+
+const getPlayerProfileEditValue = (field) => {
+  if (!playerProfileData) {
+    return null;
+  }
+
+  if (field === 'head_portrait_id') {
+    return playerProfileData.head_portrait_id ?? null;
+  }
+
+  if (field === 'head_frame_id') {
+    return playerProfileData.head_frame_id ?? null;
+  }
+
+  return PLAYER_PROFILE_EDITABLE_FIELDS[field]?.getRawValue(playerProfileData) ?? null;
+};
+
+const getGameSection = (payload = latestStatusSnapshot) => {
+  const sections = Array.isArray(payload?.sections) ? payload.sections : [];
+  return sections.find((section) => section?.key === 'game') ?? null;
+};
+
+const isGameServerHealthy = (payload = latestStatusSnapshot) => isServiceHealthy(getGameSection(payload)?.services?.[0]);
+
+const setPlayerEditableState = (field, editable) => {
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  const element = config?.element();
+  if (!(element instanceof HTMLElement)) {
+    return;
+  }
+
+  element.classList.toggle('is-editable', editable);
+  element.setAttribute('tabindex', editable ? '0' : '-1');
+  if (editable) {
+    element.setAttribute('role', 'button');
+    element.setAttribute('title', config?.editorType === 'picker' ? `点击后选择${getPortraitPickerLabel(field)}` : '点击后按回车确认修改');
+  } else {
+    element.removeAttribute('role');
+    element.removeAttribute('title');
+  }
+};
+
+const syncPlayerEditableStates = () => {
+  Object.entries(PLAYER_PROFILE_EDITABLE_FIELDS).forEach(([field, config]) => {
+    const rawValue = config.getRawValue(playerProfileData);
+    setPlayerEditableState(field, rawValue !== null && rawValue !== undefined);
+  });
+};
+
+const stopPlayerProfileEdit = (field) => {
+  if (!playerProfileEditState || playerProfileEditState.field !== field) {
+    return;
+  }
+
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  const element = config?.element();
+  if (element instanceof HTMLElement) {
+    element.classList.remove('is-editing');
+  }
+
+  playerProfileEditState = null;
+  renderPlayerProfile(playerProfileData);
+};
+
+const beginPlayerProfileEdit = (field) => {
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  const element = config?.element();
+  const rawValue = config?.getRawValue(playerProfileData);
+
+  if (!config || !(element instanceof HTMLElement) || rawValue === null || rawValue === undefined) {
+    return;
+  }
+
+  if (config.editorType === 'picker') {
+    openPlayerPortraitPicker(field);
+    return;
+  }
+
+  if (playerProfileEditState?.field === field) {
+    const existingInput = element.querySelector('input');
+    if (existingInput instanceof HTMLInputElement) {
+      existingInput.focus();
+      existingInput.select();
+      return;
+    }
+  }
+
+  if (playerProfileEditState?.field && playerProfileEditState.field !== field) {
+    stopPlayerProfileEdit(playerProfileEditState.field);
+  }
+
+  clearPlayerProfileSummaryMessage();
+
+  playerProfileEditState = { field, pending: false };
+  element.classList.add('is-editing');
+  element.innerHTML = '';
+
+  if (config.editorType === 'select') {
+    const select = document.createElement('select');
+    select.className = 'database-player-inline-select';
+    select.setAttribute('aria-label', `编辑${PLAYER_FIELD_LABELS[field] ?? field}`);
+
+    const options = Array.isArray(config.options) ? config.options : [];
+    select.innerHTML = options.map((option) => `<option value="${option.value}">${option.label}</option>`).join('');
+    select.value = String(rawValue);
+    element.appendChild(select);
+    select.focus();
+
+    select.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        void submitPlayerProfileEdit(field, select.value);
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        stopPlayerProfileEdit(field);
+      }
+    });
+
+    select.addEventListener('blur', () => {
+      window.setTimeout(() => {
+        if (playerProfileEditState?.field === field && !playerProfileEditState.pending) {
+          stopPlayerProfileEdit(field);
+        }
+      }, 0);
+    });
+    return;
+  }
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'database-player-inline-input';
+  input.value = String(rawValue);
+  input.inputMode = config.inputMode;
+  input.setAttribute('aria-label', `编辑${PLAYER_FIELD_LABELS[field] ?? field}`);
+  element.appendChild(input);
+  input.focus();
+  input.select();
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      void submitPlayerProfileEdit(field, input.value);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      stopPlayerProfileEdit(field);
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    window.setTimeout(() => {
+      if (playerProfileEditState?.field === field && !playerProfileEditState.pending) {
+        stopPlayerProfileEdit(field);
+      }
+    }, 0);
+  });
+};
+
+const submitPlayerProfileEdit = async (field, nextValue) => {
+  const currentState = playerProfileEditState;
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  if (!currentState || currentState.field !== field || !config) {
+    return;
+  }
+
+  const normalizedValue = config.normalize(nextValue);
+  const validationMessage = config.validate(normalizedValue);
+  if (validationMessage) {
+    openControlModal(validationMessage);
+    return;
+  }
+
+  const currentRawValue = config.getRawValue(playerProfileData);
+  let normalizedCurrentValue = String(currentRawValue);
+  if (field === 'name') {
+    normalizedCurrentValue = String(currentRawValue ?? '').trim();
+  }
+  if (normalizedCurrentValue === normalizedValue) {
+    stopPlayerProfileEdit(field);
+    return;
+  }
+
+  if (isGameServerHealthy() && !window.confirm('游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！')) {
+    stopPlayerProfileEdit(field);
+    return;
+  }
+
+  currentState.pending = true;
+  const element = config.element();
+  const editor = element instanceof HTMLElement ? element.querySelector('input, select') : null;
+  if (editor instanceof HTMLInputElement || editor instanceof HTMLSelectElement) {
+    editor.disabled = true;
+  }
+
+  let requestValue;
+  if (field === 'name') {
+    requestValue = normalizedValue;
+  } else {
+    requestValue = Number.parseInt(normalizedValue, 10);
+  }
+
+  try {
+    const response = await fetch('/api/database-players/selected', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        field,
+        value: requestValue,
+      }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '修改玩家信息失败');
+    }
+
+    playerProfileEditState = null;
+    clearPlayerProfileSummaryMessage();
+    renderPlayerProfile(payload);
+  } catch (error) {
+    currentState.pending = false;
+    renderPlayerProfile(playerProfileData);
+    openControlModal(error instanceof Error ? error.message : '修改玩家信息失败');
+  }
+};
+
+const closePlayerPortraitPicker = () => {
+  if (!(playerPortraitPickerModal instanceof HTMLElement) || playerPortraitPickerModal.hidden) {
+    playerPortraitPickerState = null;
+    playerProfileEditState = null;
+    return;
+  }
+
+  playerPortraitPickerModal.hidden = true;
+  document.body.classList.remove('login-modal-open');
+  playerPortraitPickerState = null;
+  playerProfileEditState = null;
+
+  if (lastFocusedControl instanceof HTMLElement) {
+    lastFocusedControl.focus();
+  }
+};
+
+const renderPlayerPortraitPicker = () => {
+  if (!(playerPortraitPickerGrid instanceof HTMLElement) || !playerPortraitPickerState) {
+    return;
+  }
+
+  const { field } = playerPortraitPickerState;
+  const { entries, totalPages } = getPortraitPickerPages(field);
+  playerPortraitPickerState.page = 1;
+  playerPortraitPickerState.pageSize = getPortraitPickerPageSize();
+  playerPortraitPickerState.totalPages = totalPages;
+
+  if (playerPortraitPickerTitle instanceof HTMLElement) {
+    playerPortraitPickerTitle.textContent = `选择${getPortraitPickerLabel(field)}`;
+  }
+  if (playerPortraitPickerEyebrow instanceof HTMLElement) {
+    playerPortraitPickerEyebrow.textContent = `${getPortraitPickerLabel(field)}选择`;
+  }
+  if (playerPortraitPickerDescription instanceof HTMLElement) {
+    playerPortraitPickerDescription.textContent = `请选择要应用到玩家名片上的${getPortraitPickerLabel(field)}。`;
+  }
+  if (playerPortraitPickerCurrent instanceof HTMLElement) {
+    playerPortraitPickerCurrent.textContent = `当前选择：${getPortraitPickerCurrentName(field)}`;
+  }
+  if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
+    playerPortraitPickerConfirmButton.disabled = !Number.isFinite(playerPortraitPickerState.selectedId);
+  }
+
+  playerPortraitPickerGrid.innerHTML = entries.map((entry) => {
+    const isSelected = entry.id === playerPortraitPickerState.selectedId;
+    const url = entry.url || getPlayerPortraitUrlByField(field, entry.id);
+    const name = getPlayerPortraitNameByField(field, entry.id) || String(entry.id);
+    return `
+      <button type="button" class="player-portrait-picker-item ${isSelected ? 'is-selected' : ''}" data-player-portrait-id="${entry.id}">
+        <span class="player-portrait-picker-item-preview">
+          <img src="${url}" alt="${getPortraitPickerLabel(field)} ${entry.id}">
+        </span>
+        <strong>${name}</strong>
+      </button>
+    `;
+  }).join('');
+};
+
+const openPlayerPortraitPicker = (field) => {
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  if (!config) {
+    return;
+  }
+
+  const currentValue = getPlayerProfileEditValue(field);
+  if (currentValue === null || currentValue === undefined) {
+    return;
+  }
+
+  const availableEntries = getPortraitPickerEntries(field);
+  const initialSelectedId = availableEntries.some((entry) => entry.id === currentValue) ? currentValue : null;
+
+  if (playerProfileEditState?.field && playerProfileEditState.field !== field) {
+    stopPlayerProfileEdit(playerProfileEditState.field);
+  }
+
+  lastFocusedControl = document.activeElement;
+  playerProfileEditState = { field, pending: false };
+  playerPortraitPickerState = {
+    field,
+    page: 1,
+    pageSize: getPortraitPickerPageSize(),
+    totalPages: 1,
+    selectedId: initialSelectedId,
+  };
+
+  if (playerPortraitPickerModal instanceof HTMLElement) {
+    playerPortraitPickerModal.hidden = false;
+    document.body.classList.add('login-modal-open');
+    renderPlayerPortraitPicker();
+    const firstSelected = playerPortraitPickerGrid?.querySelector?.('.is-selected') ?? playerPortraitPickerGrid?.querySelector?.('button');
+    if (firstSelected instanceof HTMLElement) {
+      firstSelected.focus();
+    } else if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
+      playerPortraitPickerConfirmButton.focus();
+    }
+  }
+};
+
+const submitPlayerPortraitPicker = async () => {
+  if (!playerPortraitPickerState || !playerPortraitPickerState.field) {
+    return;
+  }
+
+  const { field, selectedId } = playerPortraitPickerState;
+  const currentValue = getPlayerProfileEditValue(field);
+  if (currentValue === selectedId) {
+    closePlayerPortraitPicker();
+    return;
+  }
+
+  if (selectedId === null || selectedId === undefined) {
+    openControlModal('请选择一个可用资源。');
+    return;
+  }
+
+  if (isGameServerHealthy() && !window.confirm('游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！')) {
+    closePlayerPortraitPicker();
+    return;
+  }
+
+  if (!(playerPortraitPickerConfirmButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  playerPortraitPickerConfirmButton.disabled = true;
+
+  try {
+    const response = await fetch('/api/database-players/selected', {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        field,
+        value: selectedId,
+      }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '修改玩家信息失败');
+    }
+
+    closePlayerPortraitPicker();
+    clearPlayerProfileSummaryMessage();
+    renderPlayerProfile(payload);
+  } catch (error) {
+    playerPortraitPickerConfirmButton.disabled = false;
+    openControlModal(error instanceof Error ? error.message : '修改玩家信息失败');
+  }
+};
+
+const handlePlayerPortraitPickerClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const button = target.closest('[data-player-portrait-id]');
+  if (!(button instanceof HTMLButtonElement) || !playerPortraitPickerState) {
+    return;
+  }
+
+  const selectedId = normalizePortraitId(button.dataset.playerPortraitId);
+  if (selectedId === null) {
+    return;
+  }
+
+  playerPortraitPickerState.selectedId = selectedId;
+  renderPlayerPortraitPicker();
+};
+
+const handlePlayerProfileFieldActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  if (target.tagName === 'INPUT') {
+    return;
+  }
+
+  const editableElement = target.closest('[data-player-edit-field]');
+  if (!(editableElement instanceof HTMLElement)) {
+    return;
+  }
+
+  const field = editableElement.dataset.playerEditField;
+  if (!field || !PLAYER_PROFILE_EDITABLE_FIELDS[field] || !editableElement.classList.contains('is-editable')) {
+    return;
+  }
+
+  beginPlayerProfileEdit(field);
+};
+
+const resetPlayerCardAvatar = () => {
+  if (playerCardAvatarImage instanceof HTMLImageElement) {
+    playerCardAvatarImage.hidden = true;
+    playerCardAvatarImage.removeAttribute('src');
+  }
+
+  if (playerCardAvatarFallback instanceof HTMLElement) {
+    playerCardAvatarFallback.hidden = false;
+  }
+};
+
+const resetPlayerCardAvatarFrame = () => {
+  if (playerCardAvatarFrameImage instanceof HTMLImageElement) {
+    playerCardAvatarFrameImage.hidden = true;
+    playerCardAvatarFrameImage.removeAttribute('src');
+  }
+};
+
+const setPlayerCardAvatar = (source) => {
+  const normalizedSource = typeof source === 'string' ? source.trim() : '';
+  if (!(playerCardAvatarImage instanceof HTMLImageElement)) {
+    return;
+  }
+
+  if (!normalizedSource) {
+    resetPlayerCardAvatar();
+    return;
+  }
+
+  playerCardAvatarImage.hidden = false;
+  playerCardAvatarImage.src = normalizedSource;
+  if (playerCardAvatarFallback instanceof HTMLElement) {
+    playerCardAvatarFallback.hidden = true;
+  }
+};
+
+const setPlayerCardAvatarFrame = (source) => {
+  const normalizedSource = typeof source === 'string' ? source.trim() : '';
+  if (!(playerCardAvatarFrameImage instanceof HTMLImageElement)) {
+    return;
+  }
+
+  if (!normalizedSource) {
+    resetPlayerCardAvatarFrame();
+    return;
+  }
+
+  playerCardAvatarFrameImage.hidden = false;
+  playerCardAvatarFrameImage.src = normalizedSource;
+};
+
+const setPlayerProfileState = (message, tone = '') => {
+  if (!(databasePlayerProfileState instanceof HTMLElement)) {
+    return;
+  }
+
+  databasePlayerProfileState.textContent = message;
+  databasePlayerProfileState.className = 'database-player-empty';
+  if (tone) {
+    databasePlayerProfileState.classList.add(tone);
+  }
+  databasePlayerProfileState.hidden = false;
+
+  if (databasePlayerProfileShell instanceof HTMLElement) {
+    databasePlayerProfileShell.hidden = true;
+  }
+};
+
+const setPlayerProfileSummaryMessage = (message, tone = '') => {
+  if (!(databasePlayerProfileSummary instanceof HTMLElement)) {
+    return;
+  }
+
+  const summaryMeta = databasePlayerProfileSummary.parentElement;
+
+  databasePlayerProfileSummary.hidden = false;
+  databasePlayerProfileSummary.textContent = message;
+  databasePlayerProfileSummary.className = 'database-player-profile-summary';
+  if (tone) {
+    databasePlayerProfileSummary.classList.add(tone);
+  }
+  if (summaryMeta instanceof HTMLElement) {
+    summaryMeta.hidden = false;
+  }
+};
+
+const clearPlayerProfileSummaryMessage = () => {
+  if (!(databasePlayerProfileSummary instanceof HTMLElement)) {
+    return;
+  }
+
+  const summaryMeta = databasePlayerProfileSummary.parentElement;
+
+  databasePlayerProfileSummary.className = 'database-player-profile-summary';
+  databasePlayerProfileSummary.textContent = '';
+  databasePlayerProfileSummary.hidden = true;
+  if (summaryMeta instanceof HTMLElement) {
+    summaryMeta.hidden = true;
+  }
+};
+
+const showPlayerProfile = () => {
+  if (databasePlayerProfileState instanceof HTMLElement) {
+    databasePlayerProfileState.hidden = true;
+  }
+
+  if (databasePlayerProfileShell instanceof HTMLElement) {
+    databasePlayerProfileShell.hidden = false;
+  }
+};
+
+const resetPlayerProfileView = () => {
+  playerProfileData = null;
+  playerProfileEditState = null;
+  clearPlayerProfileSummaryMessage();
+
+  if (playerCardName instanceof HTMLElement) {
+    playerCardName.textContent = '--';
+  }
+
+  if (playerCardInlineUid instanceof HTMLElement) {
+    playerCardInlineUid.textContent = `UID ${selectedAccountUid ?? '--'}`;
+  }
+
+  if (playerCardGender instanceof HTMLElement) {
+    playerCardGender.textContent = '--';
+  }
+
+  if (playerCardLevel instanceof HTMLElement) {
+    playerCardLevel.textContent = '--';
+  }
+
+  if (playerCardLikes instanceof HTMLElement) {
+    playerCardLikes.textContent = '--';
+  }
+
+  if (playerCardExp instanceof HTMLElement) {
+    playerCardExp.textContent = '0';
+  }
+
+  resetPlayerCardAvatarFrame();
+  resetPlayerCardAvatar();
+  syncPlayerEditableStates();
+};
+
+const renderPlayerProfile = (profile) => {
+  playerProfileData = profile;
+  playerProfileEditState = null;
+  clearPlayerProfileSummaryMessage();
+
+  const genderLabel = getPlayerGenderLabel(profile?.gender ?? null);
+  const levelLabel = formatPlayerFieldValue(profile?.level);
+  const nameLabel = formatPlayerFieldValue(profile?.name);
+  const likesLabel = formatPlayerFieldValue(profile?.likes);
+  const profileUid = normalizeAccountUid(profile?.uid ?? selectedAccountUid);
+
+  if (playerCardName instanceof HTMLElement) {
+    playerCardName.textContent = nameLabel;
+  }
+
+  if (playerCardInlineUid instanceof HTMLElement) {
+    playerCardInlineUid.textContent = `UID ${profileUid ?? '--'}`;
+  }
+
+  if (playerCardGender instanceof HTMLElement) {
+    playerCardGender.textContent = genderLabel;
+  }
+
+  if (playerCardLevel instanceof HTMLElement) {
+    playerCardLevel.textContent = levelLabel;
+  }
+
+  if (playerCardLikes instanceof HTMLElement) {
+    playerCardLikes.textContent = likesLabel;
+  }
+
+  if (playerCardExp instanceof HTMLElement) {
+    playerCardExp.textContent = '0';
+  }
+
+  setPlayerCardAvatar(getPlayerPortraitUrlByField('head_portrait_id', profile?.head_portrait_id ?? null));
+  setPlayerCardAvatarFrame(getPlayerPortraitUrlByField('head_frame_id', profile?.head_frame_id ?? null));
+  syncPlayerEditableStates();
+
+  showPlayerProfile();
+};
+
+const canAccessPlayerProfile = (payload = databaseHealthSnapshot) => isDatabaseHealthy(payload) && selectedAccountUid !== null;
+
+const updatePlayerProfileAccess = (payload = databaseHealthSnapshot) => {
+  const healthy = isDatabaseHealthy(payload);
+  const accessible = canAccessPlayerProfile(payload);
+  let summaryMessage = '';
+
+  if (databasePlayerProfileSubnavButton instanceof HTMLButtonElement) {
+    databasePlayerProfileSubnavButton.disabled = !accessible;
+    if (!healthy) {
+      databasePlayerProfileSubnavButton.title = '仅在数据库服务正常时允许查看玩家信息';
+    } else if (selectedAccountUid === null) {
+      databasePlayerProfileSubnavButton.title = '请先在账号管理中选定一个用户';
+    } else {
+      databasePlayerProfileSubnavButton.title = '';
+    }
+  }
+
+  if (databasePlayerProfileSummary instanceof HTMLElement) {
+    const summaryMeta = databasePlayerProfileSummary.parentElement;
+    if (!healthy) {
+      summaryMessage = '仅在数据库服务正常时可查看';
+    } else if (selectedAccountUid === null) {
+      summaryMessage = '请先在账号管理中选定一个用户';
+    } else if (playerProfileLoading) {
+      summaryMessage = '正在加载玩家资料...';
+    }
+
+    databasePlayerProfileSummary.textContent = summaryMessage;
+    databasePlayerProfileSummary.hidden = summaryMessage.length <= 0;
+    if (summaryMeta instanceof HTMLElement) {
+      summaryMeta.hidden = summaryMessage.length <= 0;
+    }
+  }
+
+  if (!(healthy && selectedAccountUid !== null)) {
+    resetPlayerProfileView();
+  }
+
+  if (!healthy) {
+    setPlayerProfileState('数据库服务正常后可查看玩家信息。', 'is-muted');
+    if (isDatabasePlayerProfileSectionActive()) {
+      setActiveDatabaseTab('database-service-status-section');
+    }
+    return;
+  }
+
+  if (selectedAccountUid === null) {
+    setPlayerProfileState('请先在账号管理中选定一个用户。', 'is-muted');
+    if (isDatabasePlayerProfileSectionActive()) {
+      setActiveDatabaseTab('database-accounts-section');
+    }
+    return;
+  }
+
+  if (!playerProfileData) {
+    setPlayerProfileState(playerProfileLoading ? '正在加载玩家资料...' : '进入该分栏后可查看当前选定用户的玩家资料。', playerProfileLoading ? 'is-loading' : 'is-muted');
+  }
+};
+
+const loadSelectedPlayerProfile = async () => {
+  if (!canAccessPlayerProfile() || playerProfileLoading) {
+    updatePlayerProfileAccess();
+    return;
+  }
+
+  playerProfileLoading = true;
+  updatePlayerProfileAccess();
+  setPlayerProfileState('正在加载玩家资料...', 'is-loading');
+
+  try {
+    const response = await fetch('/api/database-players/selected', { credentials: 'include' });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) {
+      throw new Error(payload?.detail || '加载玩家信息失败');
+    }
+
+    renderPlayerProfile(payload);
+  } catch (error) {
+    playerProfileData = null;
+    setPlayerProfileState(error instanceof Error ? error.message : '加载玩家信息失败', 'is-error');
+  } finally {
+    playerProfileLoading = false;
+    updatePlayerProfileAccess();
+  }
 };
 
 const renderSelectedAccountBadge = () => {
@@ -165,6 +1061,11 @@ const updateAccountSelectionUi = () => {
 const setSelectedAccountUid = (uid) => {
   selectedAccountUid = normalizeAccountUid(uid);
   updateAccountSelectionUi();
+  resetPlayerProfileView();
+  updatePlayerProfileAccess();
+  if (isDatabasePlayerProfileSectionActive() && canAccessPlayerProfile()) {
+    void loadSelectedPlayerProfile();
+  }
 };
 
 const clearSelectedAccount = async () => {
@@ -1362,10 +2263,12 @@ const updateDatabaseAccountsAccess = (payload = databaseHealthSnapshot) => {
     if (isDatabaseAccountsSectionActive()) {
       setActiveDatabaseTab('database-service-status-section');
     }
+    updatePlayerProfileAccess(payload);
     return;
   }
 
   updateAccountsPagination();
+  updatePlayerProfileAccess(payload);
 };
 
 const handleAccountActionClick = (event) => {
@@ -1512,6 +2415,7 @@ const renderGrid = (grid, section) => {
 };
 
 const renderSnapshot = (payload) => {
+  latestStatusSnapshot = payload;
   const sections = Array.isArray(payload?.sections) ? payload.sections : [];
   const sdkSection = sections.find((section) => section.key === 'sdk');
   const gameSection = sections.find((section) => section.key === 'game');
@@ -1573,6 +2477,9 @@ const renderDatabaseSnapshot = (payload) => {
   if (!wasHealthy && isDatabaseHealthy(payload) && isDatabaseAccountsSectionActive()) {
     loadDatabaseAccounts(accountsCurrentPage);
   }
+  if (isDatabaseHealthy(payload) && selectedAccountUid !== null && isDatabasePlayerProfileSectionActive()) {
+    loadSelectedPlayerProfile();
+  }
   window.requestAnimationFrame(updateAllHistoryGridVisibility);
 };
 
@@ -1614,6 +2521,10 @@ const loadAppInfo = async () => {
 
     const payload = await response.json();
     serverControlsVisible = Boolean(payload?.server_controls_visible);
+    playerPortraitUrlMap = payload?.player_portrait_url_map && typeof payload.player_portrait_url_map === 'object' ? payload.player_portrait_url_map : {};
+    playerPortraitFrameUrlMap = payload?.player_portrait_frame_url_map && typeof payload.player_portrait_frame_url_map === 'object' ? payload.player_portrait_frame_url_map : {};
+    playerPortraitNameMap = payload?.player_portrait_name_map && typeof payload.player_portrait_name_map === 'object' ? payload.player_portrait_name_map : {};
+    playerPortraitFrameNameMap = payload?.player_portrait_frame_name_map && typeof payload.player_portrait_frame_name_map === 'object' ? payload.player_portrait_frame_name_map : {};
     if (!serverControlsVisible) {
       serverControlState = null;
     }
@@ -1838,6 +2749,106 @@ if (databaseAccountsBody instanceof HTMLElement) {
   databaseAccountsBody.addEventListener('click', handleAccountActionClick);
 }
 
+if (databasePlayerProfileShell instanceof HTMLElement) {
+  databasePlayerProfileShell.addEventListener('click', handlePlayerProfileFieldActivate);
+  databasePlayerProfileShell.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || target.tagName === 'INPUT') {
+      return;
+    }
+
+    event.preventDefault();
+    handlePlayerProfileFieldActivate(event);
+  });
+}
+
+if (playerCardAvatarImage instanceof HTMLImageElement) {
+  playerCardAvatarImage.addEventListener('error', () => {
+    resetPlayerCardAvatar();
+  });
+}
+
+if (playerCardAvatarFrameImage instanceof HTMLImageElement) {
+  playerCardAvatarFrameImage.addEventListener('error', () => {
+    resetPlayerCardAvatarFrame();
+  });
+}
+
+if (playerCardAvatarShell instanceof HTMLElement) {
+  playerCardAvatarShell.addEventListener('click', (event) => {
+    if (event.target instanceof HTMLElement && event.target.closest('.database-player-card-avatar-ring')) {
+      return;
+    }
+
+    openPlayerPortraitPicker('head_portrait_id');
+  });
+}
+
+if (playerCardAvatarRing instanceof HTMLElement) {
+  playerCardAvatarRing.addEventListener('click', (event) => {
+    event.stopPropagation();
+    openPlayerPortraitPicker('head_frame_id');
+  });
+}
+
+if (playerCardAvatarImage instanceof HTMLElement) {
+  playerCardAvatarImage.addEventListener('click', (event) => {
+    event.stopPropagation();
+    openPlayerPortraitPicker('head_portrait_id');
+  });
+}
+
+if (playerCardAvatarFrameImage instanceof HTMLElement) {
+  playerCardAvatarFrameImage.addEventListener('click', (event) => {
+    event.stopPropagation();
+    openPlayerPortraitPicker('head_frame_id');
+  });
+}
+
+playerPortraitPickerCloseTargets.forEach((target) => {
+  target.addEventListener('click', closePlayerPortraitPicker);
+});
+
+if (playerPortraitPickerGrid instanceof HTMLElement) {
+  playerPortraitPickerGrid.addEventListener('click', handlePlayerPortraitPickerClick);
+}
+
+if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
+  playerPortraitPickerConfirmButton.addEventListener('click', () => {
+    void submitPlayerPortraitPicker();
+  });
+}
+
+if (playerPortraitPickerCancelButton instanceof HTMLButtonElement) {
+  playerPortraitPickerCancelButton.addEventListener('click', closePlayerPortraitPicker);
+}
+
+if (playerPortraitPickerModal instanceof HTMLElement) {
+  playerPortraitPickerModal.addEventListener('click', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (target === playerPortraitPickerModal || target.classList.contains('login-modal-backdrop')) {
+      closePlayerPortraitPicker();
+    }
+  });
+}
+
+if (playerPortraitPickerModal instanceof HTMLElement) {
+  playerPortraitPickerModal.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-player-portrait-id]')) {
+      event.preventDefault();
+      void submitPlayerPortraitPicker();
+    }
+  });
+}
+
 if (databaseAccountsPrevButton instanceof HTMLButtonElement) {
   databaseAccountsPrevButton.addEventListener('click', () => {
     if (accountsCurrentPage > 1) {
@@ -1868,6 +2879,11 @@ databaseTabButtons.forEach((button) => {
     setActiveDatabaseTab(tabId);
     if (tabId === 'database-accounts-section' && isDatabaseHealthy()) {
       loadDatabaseAccounts(accountsCurrentPage);
+      return;
+    }
+
+    if (tabId === 'database-player-profile-section' && canAccessPlayerProfile()) {
+      loadSelectedPlayerProfile();
     }
   });
 });
@@ -1890,6 +2906,7 @@ window.addEventListener('keydown', (event) => {
     closeAccountDeleteModal();
     closeAccountPasswordModal();
     closeLogoutConfirmModal();
+    closePlayerPortraitPicker();
   }
 });
 
@@ -1912,6 +2929,7 @@ const scheduleReload = async () => {
 updateNextHealthCheckLabel();
 updateDatabaseHealthCheckLabel();
 renderSelectedAccountBadge();
+resetPlayerProfileView();
 countdownTimerId = window.setInterval(() => {
   updateNextHealthCheckLabel();
   updateDatabaseHealthCheckLabel();

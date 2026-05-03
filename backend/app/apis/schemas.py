@@ -17,6 +17,18 @@ class SessionResponse(BaseModel):
     authenticated: bool
 
 
+class AppInfoResponse(BaseModel):
+    name: str
+    environment: str
+    mongo_db: str
+    mongo_configured: bool
+    server_controls_visible: bool
+    player_portrait_url_map: dict[int, str]
+    player_portrait_frame_url_map: dict[int, str]
+    player_portrait_name_map: dict[int, str]
+    player_portrait_frame_name_map: dict[int, str]
+
+
 class SelectAccountRequest(BaseModel):
     uid: int
 
@@ -33,6 +45,21 @@ class ResetAccountPasswordRequest(BaseModel):
 class ResetAccountPasswordResponse(BaseModel):
     uid: int
     updated: bool
+
+
+class PlayerProfileResponse(BaseModel):
+    uid: int
+    name: str | None = None
+    gender: int | None = None
+    level: int | None = None
+    likes: int | None = None
+    head_portrait_id: int | None = None
+    head_frame_id: int | None = None
+
+
+class UpdateSelectedPlayerProfileRequest(BaseModel):
+    field: str
+    value: str | int
 
 
 class HealthStatusResponse(BaseModel):

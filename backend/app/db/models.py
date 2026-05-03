@@ -15,3 +15,22 @@ class AccountListResponse(BaseModel):
     page_size: int = 25
     total: int = 0
     total_pages: int = 0
+
+
+class PlayerProfileRecord(BaseModel):
+    uid: int
+    name: str | None = None
+    gender: int | None = None
+    level: int | None = None
+    likes: int | None = None
+    head_portrait_id: int | None = None
+    head_frame_id: int | None = None
+
+
+class UpdatePlayerProfilePayload(BaseModel):
+    name: str | None = None
+    gender: int | None = None
+    level: int | None = None
+    likes: int | None = None
+    head_portrait_id: int | None = None
+    head_frame_id: int | None = None

@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import json
+import re
 
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
+    AppInfoResponse,
     DatabaseHealthStatusResponse,
     HealthStatusResponse,
     LoginRequest,
     LoginResponse,
+    PlayerProfileResponse,
     ResetAccountPasswordRequest,
     ResetAccountPasswordResponse,
     SelectAccountRequest,
@@ -17,8 +20,15 @@ from backend.app.apis.schemas import (
     SelectedAccountResponse,
     SessionResponse,
     ServerConfigResponse,
+    UpdateSelectedPlayerProfileRequest,
 )
-from backend.app.db.models import AccountListResponse
+from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
+from backend.app.services.player_portrait import (
+    get_player_portrait_frame_name_map,
+    get_player_portrait_frame_url_map,
+    get_player_portrait_name_map,
+    get_player_portrait_url_map,
+)
 from backend.app.services.database_control import (
     get_database_health_snapshot,
     is_database_snapshot_healthy,
@@ -36,23 +46,29 @@ from backend.app.services.auth import SESSION_COOKIE_NAME, create_session, delet
 
 router = APIRouter(prefix="/api")
 
+PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
+
 
 @router.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/app-info")
-async def app_info(request: Request) -> dict[str, object]:
+@router.get("/app-info", response_model=AppInfoResponse)
+async def app_info(request: Request) -> AppInfoResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
-    return {
+    return AppInfoResponse.model_validate({
         "name": settings.app_name,
         "environment": settings.app_env,
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
         "server_controls_visible": controller.controls_visible(),
-    }
+        "player_portrait_url_map": get_player_portrait_url_map(),
+        "player_portrait_frame_url_map": get_player_portrait_frame_url_map(),
+        "player_portrait_name_map": get_player_portrait_name_map(),
+        "player_portrait_frame_name_map": get_player_portrait_frame_name_map(),
+    })
 
 
 @router.get("/server-status", response_model=HealthStatusResponse)
@@ -168,6 +184,123 @@ async def reset_database_account_password(
         raise HTTPException(status_code=404, detail="未找到对应 UID 的账户。")
 
     return ResetAccountPasswordResponse(uid=payload.uid, updated=True)
+
+
+@router.get("/database-players/selected", response_model=PlayerProfileResponse)
+async def get_selected_database_player_profile(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> PlayerProfileResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法查看玩家信息。")
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise HTTPException(status_code=409, detail="请先在账号管理中选定一个用户。")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise HTTPException(status_code=404, detail="当前选定用户已不存在，请重新选择。")
+
+    profile = await controller.get_player_profile(selected_uid)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="未找到对应 UID 的玩家信息。")
+
+    return PlayerProfileResponse(**profile.model_dump())
+
+
+@router.put("/database-players/selected", response_model=PlayerProfileResponse)
+async def update_selected_database_player_profile(
+    request: Request,
+    payload: UpdateSelectedPlayerProfileRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> PlayerProfileResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法修改玩家信息。")
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise HTTPException(status_code=409, detail="请先在账号管理中选定一个用户。")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise HTTPException(status_code=404, detail="当前选定用户已不存在，请重新选择。")
+
+    field_name = str(payload.field or "").strip().lower()
+    if field_name not in {"name", "gender", "level", "likes", "head_portrait_id", "head_frame_id"}:
+        raise HTTPException(status_code=422, detail="当前字段不允许修改。")
+
+    if field_name == "name":
+        normalized_value = str(payload.value).strip()
+        if not normalized_value:
+            raise HTTPException(status_code=422, detail="昵称不能为空。")
+        if not re.match(PLAYER_NAME_PATTERN, normalized_value):
+            raise HTTPException(status_code=422, detail="昵称仅允许中文、英文、数字、空格、下划线和短横线。")
+        update_payload = UpdatePlayerProfilePayload(name=normalized_value)
+    elif field_name == "gender":
+        try:
+            normalized_gender = int(payload.value)
+        except (TypeError, ValueError) as error:
+            raise HTTPException(status_code=422, detail="性别仅允许为男或女。") from error
+
+        if normalized_gender not in {0, 1}:
+            raise HTTPException(status_code=422, detail="性别仅允许为男或女。")
+
+        update_payload = UpdatePlayerProfilePayload(gender=normalized_gender)
+    elif field_name in {"level", "likes"}:
+        try:
+            normalized_number = int(payload.value)
+        except (TypeError, ValueError) as error:
+            raise HTTPException(status_code=422, detail="请输入有效的整数。") from error
+
+        if normalized_number < 0:
+            raise HTTPException(status_code=422, detail="数值不能小于 0。")
+
+        update_payload = UpdatePlayerProfilePayload(**{field_name: normalized_number})
+    elif field_name == "head_portrait_id":
+        try:
+            normalized_portrait_id = int(payload.value)
+        except (TypeError, ValueError) as error:
+            raise HTTPException(status_code=422, detail="请输入有效的头像 ID。") from error
+
+        if normalized_portrait_id < 0:
+            raise HTTPException(status_code=422, detail="头像 ID 不能小于 0。")
+
+        portrait_map = get_player_portrait_url_map()
+        if normalized_portrait_id != 0 and normalized_portrait_id not in portrait_map:
+            raise HTTPException(status_code=404, detail="未找到对应头像资源。")
+
+        update_payload = UpdatePlayerProfilePayload(head_portrait_id=normalized_portrait_id)
+    elif field_name == "head_frame_id":
+        try:
+            normalized_frame_id = int(payload.value)
+        except (TypeError, ValueError) as error:
+            raise HTTPException(status_code=422, detail="请输入有效的头像框 ID。") from error
+
+        if normalized_frame_id < 0:
+            raise HTTPException(status_code=422, detail="头像框 ID 不能小于 0。")
+
+        frame_map = get_player_portrait_frame_url_map()
+        if normalized_frame_id != 0 and normalized_frame_id not in frame_map:
+            raise HTTPException(status_code=404, detail="未找到对应头像框资源。")
+
+        update_payload = UpdatePlayerProfilePayload(head_frame_id=normalized_frame_id)
+    else:
+        raise HTTPException(status_code=422, detail="当前字段不允许修改。")
+
+    profile = await controller.update_player_profile(selected_uid, update_payload)
+    if profile is None:
+        raise HTTPException(status_code=404, detail="未找到对应 UID 的玩家信息。")
+
+    return PlayerProfileResponse(**profile.model_dump())
 
 
 @router.post("/server-control/start")

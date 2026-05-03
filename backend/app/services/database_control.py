@@ -10,9 +10,11 @@ from dataclasses import field
 from datetime import datetime, timezone
 from typing import Any, Literal
 
+from bson.int64 import Int64
+
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AccountListResponse, AccountRecord
+from backend.app.db.models import AccountListResponse, AccountRecord, PlayerProfileRecord, UpdatePlayerProfilePayload
 
 
 HealthState = Literal["healthy", "unhealthy", "unknown"]
@@ -49,6 +51,14 @@ DATABASE_HEALTH_SNAPSHOT: dict[str, Any] = {
 
 ACCOUNT_COLLECTION_NAME = "accounts"
 ACCOUNT_PAGE_SIZE = 25
+PLAYER_COLLECTION_NAME = "players"
+PLAYER_HEAD_FRAME_ID_FIELD = "CurrHeadFrameId"
+PLAYER_EDITABLE_FIELDS = {
+    "name": "Name",
+    "gender": "Gender",
+    "level": "Level",
+    "likes": "Likes",
+}
 
 
 def _now_iso() -> str:
@@ -222,6 +232,37 @@ def _parse_account_uid(value: Any) -> int:
         return 0
 
 
+def _unwrap_bson_numeric(value: Any) -> Any:
+    if isinstance(value, dict):
+        if "$numberLong" in value:
+            return _parse_optional_int(value.get("$numberLong"))
+        if "$numberInt" in value:
+            return _parse_optional_int(value.get("$numberInt"))
+        if "$numberDouble" in value:
+            raw = value.get("$numberDouble")
+            try:
+                return float(raw)
+            except (TypeError, ValueError):
+                return raw
+    return value
+
+
+def _parse_optional_int(value: Any) -> int | None:
+    normalized = _unwrap_bson_numeric(value)
+    try:
+        return int(normalized)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_optional_string(value: Any) -> str | None:
+    if value is None:
+        return None
+    normalized = _unwrap_bson_numeric(value)
+    text = str(normalized)
+    return text if text else None
+
+
 class DatabaseController:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -249,6 +290,41 @@ class DatabaseController:
                 client.close()
 
         return result.matched_count > 0
+
+    async def update_player_profile(self, uid: int, payload: UpdatePlayerProfilePayload) -> PlayerProfileRecord | None:
+        update_fields: dict[str, Any] = {}
+        if payload.name is not None:
+            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['name']}"] = payload.name
+        if payload.gender is not None:
+            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['gender']}"] = payload.gender
+        if payload.level is not None:
+            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['level']}"] = payload.level
+        if payload.likes is not None:
+            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['likes']}"] = payload.likes
+        if payload.head_portrait_id is not None:
+            update_fields["player_data.CurrHeadPortraitId"] = payload.head_portrait_id
+        if payload.head_frame_id is not None:
+            update_fields[f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}"] = payload.head_frame_id
+
+        if not update_fields:
+            return await self.get_player_profile(uid)
+
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
+            result = await collection.update_one(
+                {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"$set": update_fields},
+            )
+        finally:
+            with contextlib.suppress(Exception):  # noqa: BLE001
+                client.close()
+
+        if result.matched_count <= 0:
+            return None
+
+        return await self.get_player_profile(uid)
 
     async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE) -> AccountListResponse:
         current_page = max(1, int(page))
@@ -281,6 +357,51 @@ class DatabaseController:
             page_size=normalized_page_size,
             total=total,
             total_pages=total_pages,
+        )
+
+    async def get_player_profile(self, uid: int) -> PlayerProfileRecord | None:
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
+            document = await collection.find_one(
+                {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
+                {
+                    "player_data._id": 1,
+                    "player_data.Name": 1,
+                    "player_data.Gender": 1,
+                    "player_data.Level": 1,
+                    "player_data.Likes": 1,
+                    "player_data.CurrHeadPortraitId": 1,
+                    f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}": 1,
+                },
+            )
+        finally:
+            with contextlib.suppress(Exception):  # noqa: BLE001
+                client.close()
+
+        if not document:
+            return None
+
+        player_data = document.get("player_data") if isinstance(document, dict) else None
+        if not isinstance(player_data, dict):
+            return None
+
+        normalized_uid = _parse_optional_int(player_data.get("_id"))
+        if normalized_uid is None:
+            return None
+
+        head_portrait_id = _parse_optional_int(player_data.get("CurrHeadPortraitId"))
+        head_frame_id = _parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
+
+        return PlayerProfileRecord(
+            uid=normalized_uid,
+            name=_parse_optional_string(player_data.get("Name")),
+            gender=_parse_optional_int(player_data.get("Gender")),
+            level=_parse_optional_int(player_data.get("Level")),
+            likes=_parse_optional_int(player_data.get("Likes")),
+            head_portrait_id=head_portrait_id,
+            head_frame_id=head_frame_id,
         )
 
 

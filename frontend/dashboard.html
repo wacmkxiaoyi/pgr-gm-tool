@@ -94,6 +94,7 @@
               <nav class="dashboard-subnav page-subnav database-subnav" aria-label="数据库服务管理次级导航">
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true">服务状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled>账号管理</button>
+                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled>玩家信息</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户：--</div>
               </nav>
 
@@ -139,6 +140,57 @@
                   <button class="status-action-button status-action-button-log" type="button" id="database-accounts-prev" disabled>上一页</button>
                   <span class="accounts-pagination-label" id="database-accounts-pagination">第 0 / 0 页</span>
                   <button class="status-action-button status-action-button-log" type="button" id="database-accounts-next" disabled>下一页</button>
+                </div>
+              </section>
+
+              <section class="database-panel database-player-panel database-tab-panel" id="database-player-profile-section" data-database-tab-panel="database-player-profile-section" aria-labelledby="database-player-profile-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-player-panel-header">
+                  <div>
+                    <span class="section-tag">Player</span>
+                    <h2 id="database-player-profile-title">玩家信息</h2>
+                  </div>
+                  <div class="database-player-profile-meta" hidden>
+                    <small class="database-player-profile-summary" id="database-player-profile-summary" hidden></small>
+                  </div>
+                </div>
+
+                <div class="database-player-empty" id="database-player-profile-state">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
+                  <article class="database-player-card" aria-label="玩家人物名片">
+                    <div class="database-player-card-glow" aria-hidden="true"></div>
+                    <div class="database-player-card-avatar-shell">
+                      <div class="database-player-card-avatar-ring">
+                        <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-player-edit-field="head_frame_id" hidden>
+                        <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-player-edit-field="head_portrait_id" hidden>
+                        <div class="database-player-card-avatar-fallback" id="player-card-avatar-fallback" aria-hidden="true"></div>
+                      </div>
+                    </div>
+                    <div class="database-player-card-copy">
+                      <strong class="database-player-card-name" id="player-card-name" data-player-edit-field="name">--</strong>
+                      <span class="database-player-card-uid" id="player-card-inline-uid">UID --</span>
+                      <div class="database-player-card-tags">
+                        <span class="database-player-card-tag">
+                          <span class="database-player-card-tag-label">点赞</span>
+                          <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
+                        </span>
+                        <span class="database-player-card-tag">
+                          <span class="database-player-card-tag-label">性别</span>
+                          <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="database-player-card-stats" aria-label="玩家等级与经验值">
+                      <div class="database-player-card-stat">
+                        <span class="database-player-card-stat-label">等级</span>
+                        <strong class="database-player-card-stat-value" id="player-card-level" data-player-edit-field="level">--</strong>
+                      </div>
+                      <div class="database-player-card-stat">
+                        <span class="database-player-card-stat-label">经验值</span>
+                        <strong class="database-player-card-stat-value" id="player-card-exp">0</strong>
+                      </div>
+                    </div>
+                  </article>
                 </div>
               </section>
             </div>
@@ -278,6 +330,30 @@
         <div class="login-modal-actions logout-confirm-actions">
           <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close>取消</button>
           <button type="button" class="login-modal-button" id="logout-confirm-submit">确认退出</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal player-portrait-picker-modal" hidden id="player-portrait-picker-modal">
+      <div class="login-modal-backdrop" data-player-portrait-picker-close></div>
+      <section class="login-modal-card player-portrait-picker-card" role="dialog" aria-modal="true" aria-labelledby="player-portrait-picker-title" aria-describedby="player-portrait-picker-description">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" id="player-portrait-picker-icon" aria-hidden="true">◎</span>
+          <div>
+            <p class="login-modal-eyebrow" id="player-portrait-picker-eyebrow">资源选择</p>
+            <h3 id="player-portrait-picker-title">选择资源</h3>
+          </div>
+        </div>
+        <p id="player-portrait-picker-description" class="login-modal-message">请选择要应用到玩家名片上的资源。</p>
+        <div class="player-portrait-picker-meta">
+          <span id="player-portrait-picker-current">当前选择：--</span>
+        </div>
+        <div class="player-portrait-picker-grid" id="player-portrait-picker-grid"></div>
+        <div class="player-portrait-picker-toolbar">
+          <div class="login-modal-actions player-portrait-picker-actions">
+            <button type="button" class="login-modal-button login-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-close>取消</button>
+            <button type="button" class="login-modal-button" id="player-portrait-picker-confirm" disabled>确认</button>
+          </div>
         </div>
       </section>
     </div>
