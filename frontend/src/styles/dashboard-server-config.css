@@ -1,0 +1,226 @@
+.server-config-modal-card {
+  width: min(100%, 1120px);
+  padding: 28px;
+}
+
+.server-config-modal-header {
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.server-config-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #475569;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.server-config-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.server-config-status.is-pending,
+.server-config-feedback.is-pending {
+  color: #b45309;
+}
+
+.server-config-status.is-pending {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+.server-config-status.is-valid,
+.server-config-feedback.is-valid {
+  color: #0f9d58;
+}
+
+.server-config-status.is-valid {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.server-config-status.is-warning,
+.server-config-feedback.is-warning {
+  color: #92400e;
+}
+
+.server-config-status.is-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(217, 119, 6, 0.22);
+}
+
+.server-config-status.is-error,
+.server-config-feedback.is-error {
+  color: #dc2626;
+}
+
+.server-config-status.is-error {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+.server-config-path,
+.server-config-description,
+.server-config-feedback {
+  margin: 16px 0 0;
+  color: #66758f;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.server-config-editor-shell {
+  margin-top: 16px;
+  min-height: 520px;
+  max-height: min(70vh, 760px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 20%),
+    radial-gradient(circle at top left, rgba(124, 92, 246, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(19, 28, 49, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 22px 44px rgba(15, 23, 42, 0.22);
+}
+
+.server-config-editor-gutter,
+.server-config-editor-highlight,
+.server-config-editor-input {
+  margin: 0;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.server-config-editor-gutter {
+  min-width: 64px;
+  padding: 20px 12px 20px 18px;
+  overflow: hidden;
+  color: rgba(148, 163, 184, 0.86);
+  background: rgba(15, 23, 42, 0.42);
+  border-right: 1px solid rgba(99, 102, 241, 0.12);
+  text-align: right;
+  user-select: none;
+}
+
+.server-config-editor-gutter span {
+  display: block;
+  min-height: calc(13px * 1.65);
+}
+
+.server-config-editor-surface {
+  position: relative;
+  min-width: 0;
+}
+
+.server-config-editor-highlight,
+.server-config-editor-input {
+  position: absolute;
+  inset: 0;
+  padding: 20px 22px;
+  overflow: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.server-config-editor-highlight {
+  color: #dbe7ff;
+  pointer-events: none;
+}
+
+.server-config-editor-input {
+  border: none;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: #f8fafc;
+  outline: none;
+}
+
+.server-config-editor-input::selection {
+  background: rgba(96, 165, 250, 0.32);
+}
+
+.server-config-editor-input[readonly] {
+  cursor: default;
+}
+
+.server-config-editor-highlight .token-key {
+  color: #7dd3fc;
+}
+
+.server-config-editor-highlight .token-string {
+  color: #f9a8d4;
+}
+
+.server-config-editor-highlight .token-number {
+  color: #fbbf24;
+}
+
+.server-config-editor-highlight .token-boolean {
+  color: #86efac;
+}
+
+.server-config-editor-highlight .token-null {
+  color: #c4b5fd;
+}
+
+.server-config-editor-highlight .token-punctuation {
+  color: #dbe7ff;
+}
+
+.server-config-actions {
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.server-config-actions .login-modal-button:last-child {
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .server-config-modal-card {
+    width: min(100%, 100vw - 24px);
+    padding: 22px;
+  }
+
+  .server-config-modal-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .server-config-editor-shell {
+    min-height: 340px;
+    max-height: 56vh;
+  }
+
+  .server-config-editor-gutter {
+    min-width: 52px;
+    padding: 16px 10px 16px 12px;
+  }
+
+  .server-config-editor-highlight,
+  .server-config-editor-input {
+    padding: 16px;
+  }
+
+  .server-config-actions {
+    justify-content: flex-end;
+  }
+}

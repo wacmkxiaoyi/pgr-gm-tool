@@ -1,0 +1,139 @@
+import { app } from './shared.js';
+
+const { dom } = app;
+const { layout, sidebarToggle, sidebar, sidebarLinks, dashboardPages, dashboardMain, logoutButton, databaseTabButtons, databaseTabPanels } = dom;
+
+app.closeSidebar = () => {
+  if (!layout || !sidebarToggle || !sidebar) {
+    return;
+  }
+
+  layout.classList.remove('is-sidebar-open');
+  sidebarToggle.setAttribute('aria-expanded', 'false');
+};
+
+app.setActiveDashboardPage = (pageKey) => {
+  let matched = false;
+
+  sidebarLinks.forEach((link) => {
+    const isActive = link.dataset.dashboardPage === pageKey;
+    link.classList.toggle('is-active', isActive);
+    if (isActive) {
+      matched = true;
+    }
+  });
+
+  dashboardPages.forEach((page) => {
+    const isActive = page.dataset.dashboardPanel === pageKey;
+    page.classList.toggle('is-active', isActive);
+    page.hidden = !isActive;
+  });
+
+  if (!matched && sidebarLinks.length > 0) {
+    const fallbackPage = sidebarLinks[0].dataset.dashboardPage;
+    if (fallbackPage && fallbackPage !== pageKey) {
+      app.setActiveDashboardPage(fallbackPage);
+    }
+  }
+};
+
+app.focusContentStart = () => {
+  if (!dashboardMain) {
+    return;
+  }
+
+  dashboardMain.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  if (typeof dashboardMain.focus === 'function') {
+    dashboardMain.focus({ preventScroll: true });
+  }
+};
+
+app.setActiveDatabaseTab = (tabId) => {
+  let matched = false;
+
+  databaseTabButtons.forEach((button) => {
+    const isActive = button.dataset.databaseTab === tabId;
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    if (isActive) {
+      matched = true;
+    }
+  });
+
+  databaseTabPanels.forEach((panel) => {
+    const isActive = panel.dataset.databaseTabPanel === tabId;
+    panel.classList.toggle('is-active', isActive);
+    panel.hidden = !isActive;
+  });
+
+  if (!matched && databaseTabButtons.length > 0) {
+    const fallback = databaseTabButtons[0].dataset.databaseTab;
+    if (fallback && fallback !== tabId) {
+      app.setActiveDatabaseTab(fallback);
+    }
+  }
+};
+
+app.initNavigation = () => {
+  if (sidebarToggle && layout && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      const isOpen = layout.classList.toggle('is-sidebar-open');
+      sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    sidebarLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const target = event.currentTarget;
+        const href = target instanceof HTMLAnchorElement ? target.getAttribute('href') : null;
+        const pageKey = target instanceof HTMLElement ? target.dataset.dashboardPage : null;
+
+        if (pageKey) {
+          event.preventDefault();
+          app.setActiveDashboardPage(pageKey);
+          app.closeSidebar();
+          app.focusContentStart();
+          return;
+        }
+
+        if (href?.startsWith('#')) {
+          event.preventDefault();
+          app.closeSidebar();
+          app.focusContentStart();
+          return;
+        }
+
+        app.closeSidebar();
+      });
+    });
+  }
+
+  if (logoutButton) {
+    logoutButton.addEventListener('click', () => {
+      app.openLogoutConfirmModal();
+    });
+  }
+
+  databaseTabButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      if (button instanceof HTMLButtonElement && button.disabled) {
+        return;
+      }
+
+      const tabId = button.dataset.databaseTab;
+      if (!tabId) {
+        return;
+      }
+
+      app.setActiveDatabaseTab(tabId);
+      if (tabId === 'database-accounts-section' && app.isDatabaseHealthy()) {
+        void app.loadDatabaseAccounts(app.state.accountsCurrentPage);
+        return;
+      }
+
+      if (tabId === 'database-player-profile-section' && app.canAccessPlayerProfile()) {
+        void app.loadSelectedPlayerProfile();
+      }
+    });
+  });
+};

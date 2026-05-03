@@ -1,0 +1,69 @@
+.bg-aurora,
+.bg-grid {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bg-aurora {
+  filter: blur(26px);
+  opacity: 0.92;
+  transform: translate3d(0, 0, 0);
+  animation: drift 18s ease-in-out infinite;
+}
+
+.bg-aurora::before,
+.bg-aurora::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  mix-blend-mode: screen;
+}
+
+.bg-aurora-one::before {
+  width: 34vw;
+  height: 34vw;
+  left: -8vw;
+  top: 8vh;
+  background: radial-gradient(circle, rgba(255, 79, 160, 0.24), rgba(255, 79, 160, 0) 68%);
+}
+
+.bg-aurora-one::after {
+  width: 26vw;
+  height: 26vw;
+  right: 10vw;
+  bottom: 8vh;
+  background: radial-gradient(circle, rgba(124, 92, 246, 0.22), rgba(124, 92, 246, 0) 70%);
+  animation: float 13s ease-in-out infinite;
+}
+
+.bg-aurora-two {
+  animation-duration: 24s;
+  animation-direction: reverse;
+}
+
+.bg-aurora-two::before {
+  width: 22vw;
+  height: 22vw;
+  right: 2vw;
+  top: 14vh;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0) 72%);
+}
+
+.bg-aurora-two::after {
+  width: 18vw;
+  height: 18vw;
+  left: 24vw;
+  bottom: 18vh;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0) 72%);
+}
+
+.bg-grid {
+  opacity: 0.12;
+  background-image:
+    linear-gradient(rgba(100, 116, 139, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 116, 139, 0.1) 1px, transparent 1px);
+  background-size: 84px 84px;
+  mask-image: radial-gradient(circle at center, black 36%, transparent 84%);
+  animation: gridMove 22s linear infinite;
+}

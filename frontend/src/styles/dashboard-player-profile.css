@@ -1,0 +1,309 @@
+.database-player-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  grid-template-areas:
+    "avatar copy"
+    "stats stats";
+  gap: 26px 28px;
+  overflow: hidden;
+  padding: 28px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at top left, rgba(124, 92, 246, 0.3), transparent 38%),
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.18), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.16), transparent 34%),
+    linear-gradient(148deg, rgba(255, 255, 255, 0.97), rgba(237, 246, 255, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 28px 52px rgba(76, 99, 173, 0.16);
+}
+
+.database-player-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.34), transparent 38%),
+    linear-gradient(180deg, transparent, rgba(124, 92, 246, 0.06));
+  pointer-events: none;
+}
+
+.database-player-card-glow {
+  position: absolute;
+  inset: auto -42px -72px auto;
+  width: 240px;
+  height: 240px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(124, 92, 246, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.database-player-card-avatar-shell {
+  grid-area: avatar;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  align-content: start;
+}
+
+.database-player-card-avatar-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 148px;
+  aspect-ratio: 1;
+  padding: 10px;
+  border-radius: 32px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(224, 242, 254, 0.42)),
+    linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(56, 189, 248, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 38px rgba(99, 102, 241, 0.14);
+  overflow: hidden;
+}
+
+.database-player-card-avatar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -10px auto auto -10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.26), rgba(56, 189, 248, 0.12));
+  filter: blur(8px);
+  opacity: 0.75;
+}
+
+.database-player-card-avatar-frame-image,
+.database-player-card-avatar-image,
+.database-player-card-avatar-fallback {
+  position: absolute;
+  inset: 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+}
+
+.database-player-card-avatar-frame-image {
+  z-index: 3;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.database-player-card-avatar-frame-image[hidden],
+.database-player-card-avatar-image[hidden] {
+  display: none;
+}
+
+.database-player-card-avatar-image {
+  z-index: 1;
+  display: block;
+  inset: 20%;
+  width: 60%;
+  height: 60%;
+  border-radius: 24px;
+  object-fit: cover;
+  background: linear-gradient(180deg, rgba(224, 231, 255, 0.6), rgba(219, 234, 254, 0.8));
+}
+
+.database-player-card-avatar-fallback {
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  inset: 20%;
+  width: 60%;
+  height: 60%;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.28), transparent 45%),
+    linear-gradient(160deg, rgba(67, 56, 202, 0.92), rgba(14, 165, 233, 0.74));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.database-player-card-copy {
+  grid-area: copy;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding-top: 4px;
+  justify-items: end;
+  text-align: right;
+}
+
+.database-player-card-name {
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.05;
+  color: #1e1b4b;
+  text-align: right;
+  text-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+}
+
+.database-player-card-name.is-editable,
+.database-player-card-tag strong.is-editable,
+.database-player-card-stat-value.is-editable {
+  cursor: pointer;
+  transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+
+.database-player-card-name.is-editable:hover,
+.database-player-card-tag strong.is-editable:hover,
+.database-player-card-stat-value.is-editable:hover,
+.database-player-card-name.is-editable:focus-visible,
+.database-player-card-tag strong.is-editable:focus-visible,
+.database-player-card-stat-value.is-editable:focus-visible {
+  color: #4338ca;
+  outline: none;
+  text-shadow: 0 10px 24px rgba(79, 70, 229, 0.18);
+}
+
+.database-player-card-name.is-editing,
+.database-player-card-tag strong.is-editing,
+.database-player-card-stat-value.is-editing {
+  cursor: text;
+}
+
+.database-player-card-uid {
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.12), rgba(56, 189, 248, 0.12));
+  border: 1px solid rgba(99, 102, 241, 0.18);
+  color: #312e81;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.database-player-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.database-player-card-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: #1f2a44;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.database-player-card-tag-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.database-player-card-stats {
+  grid-area: stats;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.database-player-card-stat {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+  padding: 20px 22px;
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(247, 250, 255, 0.92), rgba(236, 245, 255, 0.8)),
+    linear-gradient(135deg, rgba(124, 92, 246, 0.06), rgba(56, 189, 248, 0.08));
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 16px 26px rgba(99, 102, 241, 0.08);
+}
+
+.database-player-card-stat::after {
+  content: "";
+  position: absolute;
+  inset: auto -18px -18px auto;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 68%);
+}
+
+.database-player-card-stat-label {
+  position: relative;
+  z-index: 1;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.database-player-card-stat-value {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1;
+  color: #1e1b4b;
+}
+
+.database-player-inline-input,
+.database-player-inline-select {
+  width: min(100%, 220px);
+  padding: 10px 12px;
+  border: 1px solid rgba(99, 102, 241, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #1e1b4b;
+  font: inherit;
+  font-weight: inherit;
+  text-align: inherit;
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.12);
+}
+
+.database-player-inline-input:focus,
+.database-player-inline-select:focus {
+  outline: 2px solid rgba(79, 70, 229, 0.2);
+  border-color: rgba(79, 70, 229, 0.42);
+}
+
+@media (max-width: 640px) {
+  .database-player-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "avatar"
+      "copy"
+      "stats";
+    gap: 22px;
+    padding: 22px;
+  }
+
+  .database-player-card-avatar-shell {
+    justify-items: center;
+  }
+
+  .database-player-card-copy {
+    justify-items: end;
+  }
+
+  .database-player-card-stats {
+    grid-template-columns: 1fr;
+  }
+}

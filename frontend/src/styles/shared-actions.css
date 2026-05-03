@@ -1,0 +1,68 @@
+.status-action-button {
+  min-width: 88px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.status-action-button:hover {
+  transform: translateY(-1px);
+}
+
+.status-action-button:disabled {
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  color: rgba(100, 116, 139, 0.72);
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.status-action-button:disabled:hover {
+  transform: none;
+}
+
+.status-action-button-start {
+  color: #0f766e;
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.14);
+}
+
+.status-action-button-stop {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.28);
+  box-shadow: 0 12px 30px rgba(248, 113, 113, 0.12);
+}
+
+.status-action-button-log {
+  color: #4338ca;
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+  border-color: rgba(99, 102, 241, 0.24);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.12);
+}
+
+.status-action-button.is-selected,
+.status-action-button.is-selected:disabled {
+  color: #0f766e;
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: 0 12px 30px rgba(45, 212, 191, 0.12);
+}
+
+.status-action-button-config {
+  color: #7c2d12;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(255, 79, 160, 0.12));
+  border-color: rgba(245, 158, 11, 0.24);
+  box-shadow: 0 12px 30px rgba(245, 158, 11, 0.12);
+}

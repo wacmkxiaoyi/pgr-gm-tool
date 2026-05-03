@@ -1,0 +1,113 @@
+.server-log-modal-card {
+  width: min(100%, 920px);
+  padding: 28px;
+}
+
+.server-log-modal-header {
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.server-log-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #475569;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.server-log-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.server-log-status.is-pending {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+.server-log-status.is-live {
+  color: #0f9d58;
+  background: rgba(16, 185, 129, 0.14);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.server-log-status.is-error {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.22);
+}
+
+.server-log-status.is-ended {
+  color: #5b21b6;
+  background: rgba(139, 92, 246, 0.14);
+  border-color: rgba(139, 92, 246, 0.22);
+}
+
+.server-log-path {
+  margin: 16px 0 0;
+  color: #66758f;
+  font-size: 13px;
+}
+
+.server-log-content {
+  margin: 16px 0 0;
+  min-height: 420px;
+  max-height: min(62vh, 680px);
+  overflow: auto;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 22%),
+    radial-gradient(circle at top left, rgba(124, 92, 246, 0.1), transparent 26%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(19, 28, 49, 0.98));
+  border: 1px solid rgba(99, 102, 241, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 22px 44px rgba(15, 23, 42, 0.22);
+  color: #dbe7ff;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.server-log-actions {
+  justify-content: space-between;
+}
+
+@media (max-width: 640px) {
+  .server-log-modal-card {
+    width: min(100%, 100vw - 24px);
+    padding: 22px;
+  }
+
+  .server-log-modal-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .server-log-content {
+    min-height: 300px;
+    max-height: 54vh;
+    padding: 16px;
+  }
+
+  .server-log-actions {
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}

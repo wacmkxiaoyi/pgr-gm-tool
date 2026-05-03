@@ -20,6 +20,9 @@ def init_app(app, settings):
         allow_headers=["*"],
     )
 
+    if settings.SRC_DIR.exists():
+        app.mount("/src", StaticFiles(directory=settings.SRC_DIR), name="src")
+
     if settings.ASSETS_DIR.exists():
         app.mount("/assets", StaticFiles(directory=settings.ASSETS_DIR), name="assets")
 

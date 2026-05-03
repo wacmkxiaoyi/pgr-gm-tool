@@ -1,0 +1,50 @@
+.account-delete-actions,
+.account-password-actions,
+.logout-confirm-actions {
+  gap: 12px;
+}
+
+.account-password-form {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.account-password-target,
+.account-password-feedback {
+  margin: 0;
+  color: #66758f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.account-password-feedback.is-error {
+  color: #dc2626;
+}
+
+.account-password-feedback.is-valid {
+  color: #0f9d58;
+}
+
+.account-password-label {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.account-password-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-password-input:focus {
+  outline: none;
+  border-color: rgba(124, 92, 246, 0.44);
+  box-shadow: 0 0 0 4px rgba(124, 92, 246, 0.14);
+}

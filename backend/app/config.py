@@ -120,6 +120,7 @@ def _build_mongo_uri(
 class Settings:
     BASE_DIR = Path(__file__).resolve().parents[2]
     FRONTEND_DIR = BASE_DIR / "frontend"
+    SRC_DIR = FRONTEND_DIR / "src"
     ASSETS_DIR = FRONTEND_DIR / "assets"
 
     def __init__(self) -> None:

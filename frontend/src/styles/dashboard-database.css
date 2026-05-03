@@ -1,0 +1,224 @@
+.database-page {
+  align-content: start;
+  scroll-margin-top: 172px;
+}
+
+.dashboard-subnav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  overflow-x: auto;
+}
+
+.page-subnav {
+  position: sticky;
+  top: 72px;
+  z-index: 7;
+}
+
+.subnav-link {
+  flex: 0 0 auto;
+  min-width: 108px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.48);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.subnav-link:hover,
+.subnav-link.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(124, 92, 246, 0.22);
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+  box-shadow: 0 12px 26px rgba(99, 102, 241, 0.12);
+}
+
+.subnav-link:disabled {
+  cursor: not-allowed;
+  transform: none;
+  color: rgba(100, 116, 139, 0.72);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: none;
+}
+
+.database-selected-account {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.database-panel {
+  padding: 24px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  display: grid;
+  gap: 20px;
+  scroll-margin-top: 184px;
+}
+
+.database-panel-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.database-panel-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.database-panel-header small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.database-panel-header-compact {
+  align-items: flex-start;
+}
+
+.database-panel-description {
+  margin: 10px 0 0;
+  max-width: 62ch;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.database-status-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.database-accounts-panel {
+  scroll-margin-top: 184px;
+}
+
+.database-tab-panel {
+  display: none;
+}
+
+.database-tab-panel.is-active {
+  display: grid;
+}
+
+.database-accounts-summary,
+.database-player-profile-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.54);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.database-player-profile-summary:empty {
+  display: none;
+}
+
+.database-player-panel {
+  gap: 24px;
+}
+
+.database-player-panel-header {
+  align-items: stretch;
+}
+
+.database-player-profile-meta {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+
+.database-player-empty {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.database-player-empty.is-loading {
+  color: #4338ca;
+  border-color: rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
+}
+
+.database-player-empty.is-error {
+  color: #b91c1c;
+  border-color: rgba(248, 113, 113, 0.22);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.database-player-empty.is-muted {
+  color: var(--muted);
+}
+
+.database-player-profile-shell {
+  display: grid;
+  gap: 18px;
+}
+
+@media (max-width: 640px) {
+  .dashboard-subnav {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .page-subnav {
+    top: 56px;
+  }
+
+  .subnav-link {
+    min-width: 96px;
+    padding: 11px 16px;
+    border-radius: 14px;
+  }
+
+  .database-panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .database-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .database-player-profile-meta {
+    width: 100%;
+    justify-items: start;
+  }
+}

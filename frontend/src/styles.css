@@ -1,0 +1,15 @@
+@import url("./styles/base.css");
+@import url("./styles/background.css");
+@import url("./styles/shared-modal.css");
+@import url("./styles/shared-actions.css");
+@import url("./styles/auth.css");
+@import url("./styles/dashboard-shell.css");
+@import url("./styles/dashboard-status.css");
+@import url("./styles/dashboard-database.css");
+@import url("./styles/dashboard-accounts.css");
+@import url("./styles/dashboard-player-profile.css");
+@import url("./styles/dashboard-server-log.css");
+@import url("./styles/dashboard-server-config.css");
+@import url("./styles/dashboard-account-modals.css");
+@import url("./styles/dashboard-portrait-picker.css");
+@import url("./styles/legacy-dashboard-unused.css");

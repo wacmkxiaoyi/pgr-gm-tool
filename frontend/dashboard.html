@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>游戏服务器管理</title>
-    <link rel="stylesheet" href="./assets/styles.css" />
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <div class="bg-aurora bg-aurora-one" aria-hidden="true"></div>
@@ -12,7 +12,9 @@
     <div class="bg-grid" aria-hidden="true"></div>
 
     <main class="dashboard-shell">
+      <!-- Dashboard shell -->
       <div class="dashboard-layout">
+        <!-- Primary navigation -->
         <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="后台导航">
           <div class="sidebar-brand">
             <div>
@@ -36,6 +38,7 @@
         </aside>
 
         <section class="dashboard-main" id="dashboard-main" tabindex="-1">
+          <!-- Server management -->
           <section class="dashboard-page is-active" id="server-management" data-dashboard-panel="server-management" aria-labelledby="server-management-title">
             <header class="dashboard-topbar">
               <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
@@ -85,6 +88,7 @@
             </div>
           </section>
 
+          <!-- Database management -->
           <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="数据库服务管理" hidden>
             <header class="dashboard-topbar">
               <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
@@ -199,6 +203,7 @@
       </div>
     </main>
 
+    <!-- Shared modals -->
     <div class="login-modal" hidden id="server-control-modal">
       <div class="login-modal-backdrop" data-server-modal-close></div>
       <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-modal-title" aria-describedby="server-modal-message">
@@ -216,6 +221,7 @@
       </section>
     </div>
 
+    <!-- Server log modal -->
     <div class="login-modal" hidden id="server-log-modal">
       <div class="login-modal-backdrop" data-server-log-close></div>
       <section class="login-modal-card server-log-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-log-title" aria-describedby="server-log-content">
@@ -235,6 +241,7 @@
       </section>
     </div>
 
+    <!-- Server config modal -->
     <div class="login-modal" hidden id="server-config-modal">
       <div class="login-modal-backdrop" data-server-config-close></div>
       <section class="login-modal-card server-config-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-config-title" aria-describedby="server-config-description">
@@ -272,6 +279,7 @@
       </section>
     </div>
 
+    <!-- Account management modals -->
     <div class="login-modal" hidden id="account-delete-modal">
       <div class="login-modal-backdrop" data-account-delete-close></div>
       <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-delete-title" aria-describedby="account-delete-message">
@@ -316,6 +324,7 @@
       </section>
     </div>
 
+    <!-- Session modal -->
     <div class="login-modal" hidden id="logout-confirm-modal">
       <div class="login-modal-backdrop" data-logout-confirm-close></div>
       <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-message">
@@ -334,6 +343,7 @@
       </section>
     </div>
 
+    <!-- Player portrait picker -->
     <div class="login-modal player-portrait-picker-modal" hidden id="player-portrait-picker-modal">
       <div class="login-modal-backdrop" data-player-portrait-picker-close></div>
       <section class="login-modal-card player-portrait-picker-card" role="dialog" aria-modal="true" aria-labelledby="player-portrait-picker-title" aria-describedby="player-portrait-picker-description">
@@ -358,6 +368,6 @@
       </section>
     </div>
 
-    <script src="./assets/dashboard.js"></script>
+    <script type="module" src="./src/dashboard.js"></script>
   </body>
 </html>

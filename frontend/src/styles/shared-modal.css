@@ -1,0 +1,134 @@
+.login-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.login-modal[hidden] {
+  display: none;
+}
+
+.login-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 79, 160, 0.18), transparent 34%),
+    rgba(18, 26, 48, 0.48);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.login-modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  padding: 28px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 255, 0.88)),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.84), rgba(245, 247, 255, 0.72));
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  box-shadow:
+    0 36px 110px rgba(22, 30, 60, 0.34),
+    0 0 0 1px rgba(255, 79, 160, 0.12);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  animation: modalRise 0.28s ease-out;
+}
+
+.login-modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.login-modal-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 79, 160, 0.96), rgba(124, 92, 246, 0.96));
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  box-shadow: 0 16px 32px rgba(255, 79, 160, 0.24);
+}
+
+.login-modal-icon.is-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.98), rgba(14, 165, 233, 0.96));
+  box-shadow: 0 16px 32px rgba(16, 185, 129, 0.24);
+}
+
+.login-modal-eyebrow {
+  margin: 0 0 4px;
+  color: #8c5aa7;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.login-modal-eyebrow.is-success {
+  color: #0f9d58;
+}
+
+.login-modal h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.login-modal-message {
+  margin: 16px 0 0;
+  color: #4b5876;
+  line-height: 1.7;
+}
+
+.login-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.login-modal-button {
+  min-width: 96px;
+  padding: 11px 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 79, 160, 0.98), rgba(124, 92, 246, 0.98));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(255, 79, 160, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.login-modal-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(255, 79, 160, 0.26);
+  filter: saturate(1.05) brightness(1.03);
+}
+
+.login-modal-button:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(255, 79, 160, 0.18),
+    0 18px 34px rgba(255, 79, 160, 0.26);
+}
+
+.login-modal-button-secondary {
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.95), rgba(100, 116, 139, 0.94));
+  box-shadow: 0 14px 28px rgba(71, 85, 105, 0.22);
+}
+
+.login-modal-button-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.98), rgba(190, 24, 93, 0.96));
+  box-shadow: 0 14px 28px rgba(220, 38, 38, 0.24);
+}
