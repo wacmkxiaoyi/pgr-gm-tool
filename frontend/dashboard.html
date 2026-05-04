@@ -99,6 +99,7 @@
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">数据库状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
+                <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
 
@@ -119,7 +120,7 @@
                   <div>
                     <span class="section-tag">Accounts</span>
                     <h2 id="database-accounts-title" data-i18n="dashboard.accountsTitle">账号管理</h2>
-                    <p class="database-panel-description" data-i18n="dashboard.accountsDescription">展示 MongoDB 中 accounts 集合的账户数据，每页固定 25 条记录。</p>
+                    <p class="database-panel-description" data-i18n="dashboard.accountsDescription">展示 MongoDB 中 accounts 集合的账户数据，每页固定 10 条记录。</p>
                   </div>
                   <small class="database-accounts-summary" id="database-accounts-summary" data-i18n="dashboard.accountsUnavailable">仅在数据库服务正常时可查看</small>
                 </div>
@@ -205,6 +206,56 @@
                       </div>
                     </div>
                   </article>
+                </div>
+              </section>
+
+              <section class="database-panel database-item-panel database-tab-panel" id="database-item-management-section" data-database-tab-panel="database-item-management-section" aria-labelledby="database-item-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div>
+                    <span class="section-tag">Items</span>
+                    <h2 id="database-item-management-title" data-i18n="dashboard.itemManagementTitle">道具管理</h2>
+                    <p class="database-panel-description" data-i18n="dashboard.itemManagementDescription">当前分栏用于管理选定用户的道具数据。</p>
+                  </div>
+                  <small class="database-item-management-summary" id="database-item-management-summary" data-i18n="dashboard.itemManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                </div>
+
+                <div class="database-player-empty" id="database-item-management-state" data-i18n="dashboard.itemManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-item-management-shell" id="database-item-management-shell" hidden>
+                  <div class="database-item-actions" id="database-item-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-item-clear" data-item-management-action="clear" data-i18n="dashboard.itemManagementClear">清空物品</button>
+                    <div class="database-item-search-shell" id="database-item-search-shell">
+                      <input class="database-item-search-input" type="search" id="database-item-search-input" data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder" placeholder="输入道具名后回车搜索">
+                    </div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-item-add" data-item-management-action="add-item" data-i18n="dashboard.itemManagementAddItem">新增物品</button>
+                  </div>
+
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll" id="database-item-management-table-shell">
+                      <table class="accounts-table item-management-table" aria-describedby="database-item-management-summary">
+                        <colgroup>
+                          <col class="item-management-col-id">
+                          <col>
+                          <col class="item-management-col-quantity">
+                          <col class="item-management-col-actions">
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
+                            <th scope="col" data-i18n="dashboard.itemManagementItemName">名字</th>
+                            <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
+                            <th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="database-item-management-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-item-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-item-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-item-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                    </div>
+                  </div>
                 </div>
               </section>
             </div>
@@ -331,6 +382,63 @@
         <div class="login-modal-actions account-password-actions">
           <button type="button" class="login-modal-button login-modal-button-secondary" data-account-password-close data-i18n="common.cancel">取消</button>
           <button type="button" class="login-modal-button" id="account-password-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="item-delete-modal">
+      <div class="login-modal-backdrop" data-item-delete-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-delete-title" aria-describedby="item-delete-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="runtime.itemDeleteEyebrow">道具操作</p>
+            <h3 id="item-delete-title" data-i18n="runtime.itemDeleteTitle">确认删除物品</h3>
+          </div>
+        </div>
+        <p id="item-delete-message" class="login-modal-message" data-i18n="runtime.itemDeleteDefaultMessage">确认执行当前道具操作吗？</p>
+        <div class="login-modal-actions account-delete-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-item-delete-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button login-modal-button-danger" id="item-delete-confirm" data-i18n="runtime.itemDeleteSubmit">确认删除</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="item-add-modal">
+      <div class="login-modal-backdrop" data-item-add-close></div>
+      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-add-title" aria-describedby="item-add-description">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">+</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="runtime.itemAddEyebrow">新增物品</p>
+            <h3 id="item-add-title" data-i18n="runtime.itemAddTitle">选择要新增的物品</h3>
+          </div>
+        </div>
+        <p id="item-add-description" class="login-modal-message" data-i18n="runtime.itemAddDescription">通过搜索选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
+        <div class="item-add-search-shell">
+          <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
+        </div>
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table">
+            <colgroup>
+              <col class="item-management-col-id">
+              <col>
+              <col class="item-management-col-quantity">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
+                <th scope="col" data-i18n="dashboard.itemManagementItemName">名字</th>
+                <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
+              </tr>
+            </thead>
+            <tbody id="item-add-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="item-add-empty-state" data-i18n="dashboard.itemAddEmpty">当前没有匹配的物品。</div>
+        </div>
+        <div class="login-modal-actions item-add-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-item-add-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="item-add-submit" data-i18n="runtime.itemAddSubmit">确认新增</button>
         </div>
       </section>
     </div>

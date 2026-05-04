@@ -133,6 +133,12 @@ app.initNavigation = () => {
 
       if (tabId === 'database-player-profile-section' && app.canAccessPlayerProfile()) {
         void app.loadSelectedPlayerProfile();
+        return;
+      }
+
+      if (tabId === 'database-item-management-section' && app.canAccessItemManagement()) {
+        app.updateItemManagementAccess();
+        void app.loadSelectedAccountItems(app.state.itemManagementCurrentPage);
       }
     });
   });

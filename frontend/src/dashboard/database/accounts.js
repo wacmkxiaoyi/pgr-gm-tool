@@ -40,12 +40,21 @@ app.updateAccountSelectionUi = () => {
 };
 
 app.setSelectedAccountUid = (uid) => {
+  const previousUid = state.selectedAccountUid;
   state.selectedAccountUid = app.normalizeAccountUid(uid);
   app.updateAccountSelectionUi();
   app.resetPlayerProfileView();
+  if (previousUid !== state.selectedAccountUid) {
+    app.clearItemManagementKeyword();
+    app.resetItemManagementView();
+  }
   app.updatePlayerProfileAccess();
+  app.updateItemManagementAccess();
   if (app.isDatabasePlayerProfileSectionActive() && app.canAccessPlayerProfile()) {
     void app.loadSelectedPlayerProfile();
+  }
+  if (app.isDatabaseItemManagementSectionActive() && app.canAccessItemManagement()) {
+    void app.loadSelectedAccountItems(1);
   }
 };
 
@@ -197,11 +206,13 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
       app.setActiveDatabaseTab('database-service-status-section');
     }
     app.updatePlayerProfileAccess(payload);
+    app.updateItemManagementAccess(payload);
     return;
   }
 
   app.updateAccountsPagination();
   app.updatePlayerProfileAccess(payload);
+  app.updateItemManagementAccess(payload);
 };
 
 app.handleAccountActionClick = (event) => {
@@ -248,7 +259,7 @@ app.loadDatabaseAccounts = async (page = 1) => {
   app.setAccountsState(app.translate('dashboard.accountsStateLoading'), 'is-loading');
 
   try {
-    const payload = await app.apiFetch(`/api/database-accounts?page=${state.accountsCurrentPage}&page_size=25`);
+    const payload = await app.apiFetch(`/api/database-accounts?page=${state.accountsCurrentPage}&page_size=10`);
 
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.accountsCurrentPage = typeof payload?.page === 'number' ? payload.page : state.accountsCurrentPage;

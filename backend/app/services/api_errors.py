@@ -110,6 +110,66 @@ ERROR_MESSAGES = {
         'zh-CN': '未找到对应头像框资源。',
         'en-US': 'The requested frame resource was not found.',
     },
+    'database.unhealthy_item_update': {
+        'zh-CN': '数据库服务未处于正常状态，暂时无法修改道具。',
+        'en-US': 'The database service is not healthy, so item changes are unavailable.',
+    },
+    'item.delete_protected': {
+        'zh-CN': 'ID 为 1 - 18 的物品不允许删除。',
+        'en-US': 'Items with IDs from 1 to 18 cannot be deleted.',
+    },
+    'item.not_found': {
+        'zh-CN': '未找到对应物品，或该物品不属于当前选定用户。',
+        'en-US': 'The item was not found or does not belong to the selected user.',
+    },
+    'item.keyword_required_for_clear': {
+        'zh-CN': '请先输入搜索条件后再清空物品。',
+        'en-US': 'Enter a search keyword before clearing items.',
+    },
+    'item.update_protected': {
+        'zh-CN': 'ID 为 1 - 18 的物品不允许修改数量。',
+        'en-US': 'Items with IDs from 1 to 18 cannot have their quantity updated.',
+    },
+    'item.quantity_invalid': {
+        'zh-CN': '请输入有效的物品数量。',
+        'en-US': 'Enter a valid item quantity.',
+    },
+    'item.quantity_below_min': {
+        'zh-CN': '物品数量不能小于 1。',
+        'en-US': 'Item quantity cannot be less than 1.',
+    },
+    'item.quantity_above_max': {
+        'zh-CN': '物品数量不能大于 99999。',
+        'en-US': 'Item quantity cannot exceed 99999.',
+    },
+    'item.add_empty': {
+        'zh-CN': '请至少填写一个要新增的物品。',
+        'en-US': 'Add at least one item before submitting.',
+    },
+    'item.add_protected': {
+        'zh-CN': 'ID 为 1 - 18 的物品不允许新增。',
+        'en-US': 'Items with IDs from 1 to 18 cannot be added.',
+    },
+    'item.add_item_not_found': {
+        'zh-CN': '存在未识别的物品 ID。',
+        'en-US': 'One or more item IDs are not recognized.',
+    },
+    'item.add_quantity_invalid': {
+        'zh-CN': '请输入有效的新增数量。',
+        'en-US': 'Enter a valid quantity to add.',
+    },
+    'item.add_quantity_below_min': {
+        'zh-CN': '新增数量不能小于 1。',
+        'en-US': 'Added quantity cannot be less than 1.',
+    },
+    'item.add_quantity_above_max': {
+        'zh-CN': '新增数量不能大于 99999。',
+        'en-US': 'Added quantity cannot exceed 99999.',
+    },
+    'item.add_total_above_max': {
+        'zh-CN': '新增后物品总数不能大于 99999。',
+        'en-US': 'The total item quantity after adding cannot exceed 99999.',
+    },
     'server.logs_unavailable': {
         'zh-CN': '服务器未处于可查看日志状态。',
         'en-US': 'Server logs are not available in the current state.',

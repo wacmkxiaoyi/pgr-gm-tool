@@ -12,7 +12,7 @@ class AccountRecord(BaseModel):
 class AccountListResponse(BaseModel):
     items: list[AccountRecord] = Field(default_factory=list)
     page: int = 1
-    page_size: int = 25
+    page_size: int = 10
     total: int = 0
     total_pages: int = 0
 
@@ -26,6 +26,19 @@ class PlayerProfileRecord(BaseModel):
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
     use_background_id: int | None = None
+
+
+class InventoryItemRecord(BaseModel):
+    item_id: int
+    quantity: int
+
+
+class InventoryListResponse(BaseModel):
+    items: list[InventoryItemRecord] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
 
 
 class UpdatePlayerProfilePayload(BaseModel):

@@ -181,6 +181,12 @@ app.renderDatabaseSnapshot = (payload) => {
   if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null && app.isDatabasePlayerProfileSectionActive()) {
     void app.loadSelectedPlayerProfile();
   }
+  if (app.isDatabaseItemManagementSectionActive()) {
+    app.updateItemManagementAccess(payload);
+    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
+      void app.loadSelectedAccountItems(state.itemManagementCurrentPage);
+    }
+  }
   window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
 };
 
@@ -217,6 +223,7 @@ app.loadAppInfo = async () => {
     state.playerPortraitFrameNameMap = payload?.player_portrait_frame_name_map && typeof payload.player_portrait_frame_name_map === 'object' ? payload.player_portrait_frame_name_map : {};
     state.playerBackgroundUrlMap = payload?.player_background_url_map && typeof payload.player_background_url_map === 'object' ? payload.player_background_url_map : {};
     state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
+    state.itemNameMap = payload?.item_name_map && typeof payload.item_name_map === 'object' ? payload.item_name_map : {};
     if (!state.serverControlsVisible) {
       state.serverControlState = null;
     }
@@ -226,6 +233,7 @@ app.loadAppInfo = async () => {
     }
   } catch {
     state.serverControlsVisible = false;
+    state.itemNameMap = {};
     if (statusControls instanceof HTMLElement) {
       statusControls.hidden = true;
     }

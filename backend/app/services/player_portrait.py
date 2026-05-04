@@ -8,6 +8,7 @@ from backend.utils.tsv_reader import TSVReader
 
 HEAD_PORTRAIT_TSV_PATH = Path("backend/resources/HeadPortrait.tsv")
 BACKGROUND_TSV_PATH = Path("backend/resources/Background.tsv")
+ITEM_TSV_PATH = Path("backend/resources/Item.tsv")
 PORTRAIT_TYPE = "1"
 PORTRAIT_FRAME_TYPE = "2"
 ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"
@@ -121,6 +122,27 @@ def get_player_background_name_map() -> dict[int, str]:
             continue
 
         name_map[background_id] = background_name
+
+    return name_map
+
+
+@lru_cache(maxsize=1)
+def get_item_name_map() -> dict[int, str]:
+    reader = TSVReader(ITEM_TSV_PATH, typed=True)
+    item_name_map = reader.get_maps("Id", "Name")[0]
+
+    name_map: dict[int, str] = {}
+    for item_id_raw, item_name_raw in item_name_map.items():
+        try:
+            item_id = int(item_id_raw)
+        except (TypeError, ValueError):
+            continue
+
+        item_name = str(item_name_raw).strip()
+        if not item_name:
+            continue
+
+        name_map[item_id] = item_name
 
     return name_map
 

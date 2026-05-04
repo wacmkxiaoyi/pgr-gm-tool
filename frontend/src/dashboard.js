@@ -22,6 +22,7 @@ const rerenderLocaleSensitiveViews = () => {
   app.renderSelectedAccountBadge();
   app.updateDatabaseAccountsAccess();
   app.updatePlayerProfileAccess();
+  app.updateItemManagementAccess();
   app.updateStatusActionButtons({ controls: app.getControlState(state.serverControlState), sections: state.latestStatusSnapshot?.sections ?? [] });
 
   if (state.latestStatusSnapshot) {
@@ -50,6 +51,8 @@ const initGlobalKeyboardShortcuts = () => {
       app.closeLogModal();
       app.closeConfigModal();
       app.closeAccountDeleteModal();
+      app.closeItemAddModal();
+      app.closeItemDeleteModal();
       app.closeAccountPasswordModal();
       app.closeLogoutConfirmModal();
       app.closePlayerPortraitPicker();
@@ -98,6 +101,7 @@ const initDashboard = () => {
   app.setActiveDashboardPage('server-management');
   app.setActiveDatabaseTab('database-service-status-section');
   app.updateDatabaseAccountsAccess(null);
+  app.updateItemManagementAccess(null);
   renderDashboardStaticState();
 
   state.countdownTimerId = window.setInterval(() => {

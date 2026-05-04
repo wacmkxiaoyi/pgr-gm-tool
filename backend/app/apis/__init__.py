@@ -7,9 +7,15 @@ from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
+    AddInventoryItemsRequest,
+    AddInventoryItemsResponse,
     AppInfoResponse,
+    ClearInventoryItemsRequest,
+    ClearInventoryItemsResponse,
     DatabaseHealthStatusResponse,
+    DeleteInventoryItemResponse,
     HealthStatusResponse,
+    InventoryListResponse,
     LoginRequest,
     LoginResponse,
     PlayerProfileResponse,
@@ -20,10 +26,13 @@ from backend.app.apis.schemas import (
     SelectedAccountResponse,
     SessionResponse,
     ServerConfigResponse,
+    UpdateInventoryItemRequest,
+    UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
 )
 from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
 from backend.app.services.player_portrait import (
+    get_item_name_map,
     get_player_background_name_map,
     get_player_background_url_map,
     get_player_portrait_frame_name_map,
@@ -73,6 +82,7 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_portrait_frame_name_map": get_player_portrait_frame_name_map(),
         "player_background_url_map": get_player_background_url_map(),
         "player_background_name_map": get_player_background_name_map(),
+        "item_name_map": get_item_name_map(),
     })
 
 
@@ -102,7 +112,7 @@ async def database_status(request: Request) -> DatabaseHealthStatusResponse:
 async def database_accounts(
     request: Request,
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=25, ge=1, le=25),
+    page_size: int = Query(default=10, ge=1, le=10),
 ) -> AccountListResponse:
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -320,6 +330,192 @@ async def update_selected_database_player_profile(
         raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
     return PlayerProfileResponse(**profile.model_dump())
+
+
+@router.get("/database-items/selected", response_model=InventoryListResponse)
+async def get_selected_database_items(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    login_session_token: str | None = Cookie(default=None),
+) -> InventoryListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    return await controller.list_inventory_items(selected_uid, page=page, page_size=page_size, keyword=keyword)
+
+
+@router.post("/database-items/selected", response_model=AddInventoryItemsResponse)
+async def add_selected_database_items(
+    request: Request,
+    payload: AddInventoryItemsRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddInventoryItemsResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    requested_items = payload.items if isinstance(payload.items, list) else []
+    if not requested_items:
+        raise_http_error(422, "item.add_empty")
+
+    item_name_map = get_item_name_map()
+    merged_items: dict[int, int] = {}
+    current_quantities = await controller.get_inventory_quantities(selected_uid)
+
+    for item in requested_items:
+        item_id = int(item.item_id)
+        quantity = int(item.quantity)
+
+        if 1 <= item_id <= 18:
+            raise_http_error(422, "item.add_protected", {"item_id": item_id})
+
+        if item_id not in item_name_map:
+            raise_http_error(422, "item.add_item_not_found", {"item_id": item_id})
+
+        if quantity < 1:
+            raise_http_error(422, "item.add_quantity_below_min", {"item_id": item_id})
+
+        if quantity > 99999:
+            raise_http_error(422, "item.add_quantity_above_max", {"item_id": item_id})
+
+        merged_items[item_id] = merged_items.get(item_id, 0) + quantity
+        if merged_items[item_id] > 99999:
+            raise_http_error(422, "item.add_quantity_above_max", {"item_id": item_id})
+
+        if current_quantities.get(item_id, 0) + merged_items[item_id] > 99999:
+            raise_http_error(422, "item.add_total_above_max", {"item_id": item_id})
+
+    result = await controller.add_inventory_items(
+        selected_uid,
+        [{"item_id": item_id, "quantity": quantity} for item_id, quantity in merged_items.items()],
+    )
+    return AddInventoryItemsResponse(**result)
+
+
+@router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)
+async def delete_selected_database_item(
+    item_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteInventoryItemResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    if 1 <= item_id <= 18:
+        raise_http_error(409, "item.delete_protected", {"item_id": item_id})
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    deleted = await controller.delete_inventory_item(selected_uid, item_id)
+    if not deleted:
+        raise_http_error(404, "item.not_found", {"item_id": item_id})
+
+    return DeleteInventoryItemResponse(item_id=item_id, deleted=True)
+
+
+@router.put("/database-items/selected/{item_id}", response_model=UpdateInventoryItemResponse)
+async def update_selected_database_item(
+    item_id: int,
+    payload: UpdateInventoryItemRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateInventoryItemResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    if 1 <= item_id <= 18:
+        raise_http_error(409, "item.update_protected", {"item_id": item_id})
+
+    try:
+        quantity = int(payload.quantity)
+    except (TypeError, ValueError):
+        raise_http_error(422, "item.quantity_invalid")
+
+    if quantity < 1:
+        raise_http_error(422, "item.quantity_below_min")
+
+    if quantity > 99999:
+        raise_http_error(422, "item.quantity_above_max")
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    updated = await controller.update_inventory_item_quantity(selected_uid, item_id, quantity)
+    if not updated:
+        raise_http_error(404, "item.not_found", {"item_id": item_id})
+
+    return UpdateInventoryItemResponse(item_id=item_id, quantity=quantity, updated=True)
+
+
+@router.api_route("/database-items/selected", methods=["DELETE"], response_model=ClearInventoryItemsResponse)
+async def clear_selected_database_items(
+    request: Request,
+    payload: ClearInventoryItemsRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> ClearInventoryItemsResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    keyword = str(payload.keyword or "").strip()
+
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    controller = request.app.state.database_controller
+    if not await controller.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    deleted_count = await controller.clear_inventory_items_by_keyword(selected_uid, keyword)
+    return ClearInventoryItemsResponse(keyword=keyword, deleted_count=deleted_count)
 
 
 @router.post("/server-control/start")

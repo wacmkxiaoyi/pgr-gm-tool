@@ -35,6 +35,59 @@ class AppInfoResponse(BaseModel):
     player_portrait_frame_name_map: dict[int, str]
     player_background_url_map: dict[int, str]
     player_background_name_map: dict[int, str]
+    item_name_map: dict[int, str]
+
+
+class InventoryItemResponse(BaseModel):
+    item_id: int
+    quantity: int
+
+
+class InventoryListResponse(BaseModel):
+    items: list[InventoryItemResponse] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
+class ClearInventoryItemsRequest(BaseModel):
+    keyword: str | None = None
+
+
+class DeleteInventoryItemResponse(BaseModel):
+    item_id: int
+    deleted: bool
+
+
+class ClearInventoryItemsResponse(BaseModel):
+    keyword: str
+    deleted_count: int
+
+
+class UpdateInventoryItemRequest(BaseModel):
+    quantity: int
+
+
+class UpdateInventoryItemResponse(BaseModel):
+    item_id: int
+    quantity: int
+    updated: bool
+
+
+class AddInventoryItemPayload(BaseModel):
+    item_id: int
+    quantity: int
+
+
+class AddInventoryItemsRequest(BaseModel):
+    items: list[AddInventoryItemPayload] = Field(default_factory=list)
+
+
+class AddInventoryItemsResponse(BaseModel):
+    added_count: int
+    created_count: int
+    updated_count: int
 
 
 class SelectAccountRequest(BaseModel):
