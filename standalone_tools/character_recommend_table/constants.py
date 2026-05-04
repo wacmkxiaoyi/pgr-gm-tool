@@ -1,0 +1,1 @@
+WIKI_URL = 'https://grayravens-wiki.wacmk.asia/wiki/'

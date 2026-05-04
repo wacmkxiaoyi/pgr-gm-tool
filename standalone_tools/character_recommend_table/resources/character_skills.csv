@@ -1,0 +1,609 @@
+Id,Name
+101201,Precise Shots
+101206,Infernal Shot
+101211,Magnetic Shot
+101216,Shooting Mode
+101217,360° Shooting
+101218,360° Shooting - Rapid Fire
+101221,Controlling Bullet
+101223,Attacker
+102201,Flurry
+102206,Lightning Field
+102211,Moon Arc Slash
+102216,Quick Blade
+102217,Lotus Blade
+102218,Scattering Petals
+102221,Lightning Dance
+102223,Attacker
+103201,Ion Cannons
+103206,Sanctum
+103211,Virtual Barrier
+103216,Lightning Attack
+103217,Electric Wave
+103218,Neo-Nanofield Blossom
+103221,Reversed Egretfield
+103223,Support
+104201,Point Shooting
+104206,Wing Shot
+104211,Bow Draw
+104216,Fast Draw
+104217,Signature - Rain of Destiny
+104218,Rain of Hunt
+104221,Quiver Of Mercy
+104223,Attacker
+105101,Sawblade Slash
+105106,Slash Storm
+105111,Memory Resonance
+105116,Sawblade Strike
+105117,Crystal Barrier
+105118,Nanami Beam
+105121,EX - Slash Storm
+105123,Tank
+106201,Great Slash
+106206,Counterattack
+106211,Assault Mode
+106216,Swing
+106217,Obliterating Press
+106218,Obliterating Wind
+106221,Offence-Defense Rhythm
+106223,Tank
+107201,Scattering Projectiles
+107206,Detonative Projectile
+107211,Spinning Projectile
+107216,Artillery Technique
+107217,Shattering Growl
+107218,Annihilating Projectile
+107221,Artillery Tactics
+107223,Attacker
+108201,Black Sakura
+108206,Shadow Thrust
+108211,Bloodshed
+108216,Slash
+108217,Night Blade
+108218,Flash Fall
+108221,Fleeting Phantom
+108223,Attacker
+102101,Lotus - Initial Move
+102106,Lotus - Flash Strike
+102111,Lotus - Wave Slash
+102116,Lotus - Quick Blade
+102117,Lotus Flurry
+102118,Lotus Quick Slash
+102121,Lotus - Dual Blades
+102123,Attacker
+103101,Laser Shot
+103106,Black Hole
+103111,Inconsistent Particles
+103116,Beam Strike
+103117,Azure Starfall
+103118,Nanofield Blossom
+103121,Laser Cluster
+103123,Support
+103301,Repelling Beams
+103306,Transferring Recharge
+103311,Gray Raven Field
+103316,Adaptive Ray
+103317,Arcadia Gate
+103318,Heroic Dance
+103321,Goddess Connection System
+103323,Support
+106301,Countering Swordplay
+106306,Assaulting Charge
+106311,Sundering Blade
+106316,Greatsword Slash
+106317,Twin Cores
+106318,Chain Spin
+106321,Fighting Will
+106323,Tank
+101301,Continuous Fire
+101306,Backstep Firing
+101311,Electric Induction
+101316,Burst Mode
+101317,Orbital Strike
+101318,Blindspot Ambush
+101321,Space Lord
+101323,Attacker
+107301,Lightblade Strike
+107306,Covering Barrage
+107311,Wingman Support
+107316,Pressure Unleashed
+107317,Scar of Earth
+107318,Gravity Fall
+107321,Thermal Armament
+107323,Attacker
+105301,Rhythm Charge
+105306,Dancing Ring
+105311,Shattering Shock
+105316,Sawblade Storm
+105317,Pulse
+105318,Molten Roundslash
+105321,Overclocking Resonance
+105323,Tank
+102301,Crimson Abyss - Flickering Strike
+102306,Crimson Abyss - Dazzling Strike
+102311,Crimson Abyss - Lightbreak Strike
+102316,Crimson Abyss - Iaido Will
+102317,Abyssal Slash
+102318,Falling Petals
+102321,Crimson Abyss - Blade Will
+102323,Attacker
+108301,Comet Tail
+108306,Celestial Spin
+108311,Meteor Strike
+108316,Deadly Star
+108317,Supernova Burst
+108318,Shadow Cross
+108321,Cosmic Wave
+108323,Attacker
+109201,Vibrant Stroke
+109206,Glittering Shade
+109211,Whirl of Brightness
+109216,Blossom Scythe
+109217,Bloom Time
+109218,Spiral Reaper
+109221,Vector Cube
+109223,Tank
+111201,Strafe
+111206,Jet Propulsion
+111211,Spread Shot
+111216,Rapid Shot
+111217,Fusion Burst
+111218,Fire Support
+111221,Field Supplies
+111223,Support
+104301,Thunder Spike
+104306,Lightning Flash
+104311,Magnetic Voltage
+104316,Voltaic Discharge
+104317,Ire of Lightning
+104318,Blitz Bolt
+104321,Critical Moment
+104323,Attacker
+112201,Shifting Nimbus
+112206,Culling Maelstrom
+112211,Pulse Overload
+112216,Thunderstorm
+112217,Storm World
+112218,Blue Bolt
+112221,Arclight Shield
+112223,Tank
+102401,Mute Winter
+102406,Glacier Puncture
+102411,Frigid Roundabout
+102416,Frost Blade
+102417,Signature - Halcyonic Blossoms
+102418,Frost Blade - Icebreak
+102421,Hyperborea
+102423,Attacker
+113201,Vermilion Slice
+113206,Phantasmal Burst
+113211,Infernal Scorchmark
+113216,Ominous Blade
+113217,Signature-Dark Field
+113218,Black Rose Impact
+113221,Mass Illusion
+113223,Support
+115201,Rampage
+115206,Destruction
+115211,Rapid Claw
+115216,Phantom
+115217,Instinct Unlocked
+115218,Deadly Claw
+115221,Surging Madness
+115223,Vanguard
+114301,Frozen Wind
+114306,Inver-Chariot
+114311,Hunter of Sin
+114316,Swift Strike
+114317,Absolving Spear
+114318,Wings of Destiny
+114321,Valkyrie Heart
+114323,Tank
+152301,Sky-Breaking Cleave
+152306,Warhoof Sprint
+152311,Sweeping Tempest
+152316,Lancemanship
+152317,Signature - Dragon's Wrath
+152318,Blazing Dragon
+152321,Concentrated Will
+152323,Vanguard
+116201,Deep Wyrm Strike
+116206,Skyward Kick
+116211,Air-Cracking Palm
+116216,Sea Serpent Thrash
+116217,Selfless State
+116218,Flashing Breaker
+116221,Follow-Up
+116223,Tank
+117301,Vortex Polestar
+117306,Impending Pain
+117311,Southern Cross
+117316,Thorny Judgement
+117317,Finale Descends
+117318,Speedy Sanction
+117321,Singularity
+117323,Attacker
+118301,Bladestorm
+118306,Shieldbreaker
+118311,R020: Mirage
+118316,Bladed Flurry
+118317,Devastator
+118318,Greatsword
+118321,Blade Rend
+118323,Attacker
+119301,R010: Laser
+119306,A110: Slow
+119311,A080: Wave
+119316,Aero Blade
+119317,Hacking Sequence
+119321,Tactical Hacking
+119322,Overclock Strike
+119327,Support
+120301,Vortex Barrage
+120306,Pursuit
+120311,A140: Gravity
+120316,Impale
+120317,Berserk
+120318,Trigram Assault
+120321,Prototype
+120323,Tank
+121201,Frost Spin
+121206,Baseline Control
+121211,Frost Explosion
+121216,Frost Wings
+121217,Zero Point Bloom
+121218,Hypnotic Gift
+121221,Cold Snap
+121223,Support
+153301,Roaring Thunder
+153306,Lightning Spiccato
+153311,Sonic Vortex
+153316,Dancing Stroke
+153317,Tempest Finale
+153318,Nightingale Strike
+153321,Tertian
+153323,Vanguard
+112301,Reverse Aurora
+112306,Icy Flow
+112311,Glacial Slash
+112316,Arctic Edge
+112317,Rime Blast
+112318,Chilling Dawn
+112321,Frost Origin
+112323,Tank
+122201,Nightfall Realm
+122206,Dusk Bladewheel
+122211,Cluster Recursion
+122216,Prism Barrage
+122217,Shadow Prism Collapse
+122218,Twilight Shackles
+122221,Shadow Prism Agglomerate
+122223,Tank
+113301,Reaper Sweep
+113306,Lightning Fury
+113311,Thunderflash Stab
+113316,Spear Dance
+113317,Shining Piercer
+113318,Victorious War Flag
+113321,Lightning Fall
+113323,Tank
+154301,Swirling Flames
+154306,Smoldering Kick
+154311,Hot Pursuit
+154316,Deceptive Performance
+154317,Apex of Trickery
+154318,Astounding Fireworks
+154321,Art of Deception
+154323,Vanguard
+103401,Zodiacal Grace
+103406,Holywings Mass
+103411,Withering Gospel
+103416,Psalm from Afar
+103417,Sea of Sangharama
+103418,Hymn to Guidance
+103421,Ode for Everlight
+103423,Amplifier
+153401,Butterflies' Serenade
+153406,Ruinous March
+153411,Nebula Rondo
+153416,Andante Strike
+153417,Dream Cosmos Suite
+153418,Lingering Bladesong
+153421,Phantasia
+153423,Amplifier
+155301,Magpie Cut
+155306,Dragon Impact
+155311,Abyss Kick
+155316,Dragon Strike
+155317,Spirit Blade Dance
+155318,Blade Summon
+155321,Snow Dragon
+155323,Vanguard
+105401,Scorching Whirlwind
+105406,Quantum Compression Shot
+105411,Flame Bombing
+105416,Mega Sawblade Slash
+105417,Gigabyte Star Strike
+105418,Haven-Shaking Power
+105421,Soul of Molten Steel
+105423,Tank
+156301,Gravity Matrix
+156306,Frostbite Leap
+156311,Chain Reflection
+156316,Sinusoidal Blade
+156317,Frost-Treated Blade
+156318,Snowfall
+156321,Huntress' Command
+156323,Vanguard
+107401,Comet Propulsion
+107406,Gravity Beacon
+107411,Meteor Track
+107416,Meteor Hammer
+107417,Starshatter Horizon
+107418,Dawn Fall
+107421,Space Walk
+107423,Tank
+157301,Cyclone Downburst
+157306,Laws of Magnetic Storm
+157311,Sparkle Night Thunderclap
+157316,Musou Blades
+157317,End of Night
+157318,Photon Firefly
+157321,Rising Key
+157323,Vanguard
+104401,Piercing Thorns
+104406,Conviction
+104411,Etching Whirl
+104416,Tri-Candela Staffsword
+104417,Blade Abyss
+104418,Divine Judgment
+104421,Glowing Lanternlight
+104423,Attacker
+123201,Frost Threads
+123206,Arching Glimpse
+123211,Entrechat
+123216,Battement Frappe
+123217,Stringless Cage
+123218,Balance
+123221,Puppet Theater
+123223,Attacker
+101401,Bullet Raid
+101406,Glimpse Maneuver
+101411,Falling Blast
+101416,Armament Barrage
+101417,Hyper Burst
+101418,Stealth Annihilation
+101421,Dimensional Observer
+101423,Attacker
+109301,Scarlet Impression
+109306,Yellowish Strike
+109311,Ultramarine Dynamo
+109316,Aylaism Sketch
+109317,Omnichromatic World!
+109318,Prismatic Ribbon
+109321,My Heart'll Do My Painting!
+109323,Amplifier
+102501,Thundering Rush
+102506,Great Cross Strike
+102511,Whirling Thrash
+102516,Crimson Slash
+102517,Weave of Voidness
+102518,Flashes of Steel
+102521,Path of Anatta
+102523,Attacker
+124201,Ballad of Bamboos
+124206,Coda of Butterflies
+124211,Verse of Breeze
+124216,Flight of Clouds
+124217,Vision of Mountains
+124218,Whirl of Stars
+124221,Silk Dance
+124223,Support
+122301,Hunting Path
+122306,Feather Thrust
+122311,Dashing Claws
+122316,Bare Fangs
+122317,Sky-ripping Arcflash
+122318,Feral Echo
+122321,Wolfish Twilight
+122323,Amplifier
+125201,Reddening Flash
+125206,Shattering Kick
+125211,Bursting Plunge
+125216,Engine Vortex
+125217,Magnetic Blast
+125218,Flash Punch
+125221,Powered Roar
+125223,Attacker
+126301,Prismatic Order
+126306,Cosmic Descent
+126311,Swift Verdict
+126316,Darting Pursuit
+126317,Celestial Edge
+126318,Advent of Justice
+126321,Echoing Twins
+126323,Amplifier
+127301,Hadal Vortex
+127306,Crushing Spout
+127311,Pelagic Severance
+127316,Stygian Waves
+127317,Elegy of Atlantis
+127318,Tidal Phantom
+127321,Seafoam Mirage
+127323,Attacker
+128201,Astral Edge
+128206,Stellar Cross
+128211,Entangled Heart
+128216,Annihilating Meteor Shower
+128217,World Weaver
+128218,Star Mirage
+128221,Never-ending Conflict
+128223,Attacker
+108401,Blazing Burst
+108406,Fiery Glimpse
+108411,Flame Siphon
+108416,Scalding Blade
+108417,Hyper Reversal
+108418,Pincer Intimidation
+108421,Veteran's Reflex
+108423,Tank
+152401,Approach
+152406,Adjudicate
+152411,Asunder
+152416,Tabula Akasha
+152417,Stance of Serpent and Songbird
+152418,Blinding Wings
+152421,Blade of History
+152423,Attacker
+129201,Sonic Intrusion
+129206,High-Frequency Synth
+129211,Pursue Command
+129216,Phase Reversal Sequence
+129217,Anonymous Audiovisual
+129218,Hacking Protocol
+129221,Source Infiltration
+129223,Support
+117401,Swirling Darkstar
+117406,Reddened Naught
+117411,Waning Trajectory
+117416,Gibbous Halo
+117417,Sanguine Verdict
+117418,Befalling Demise
+117421,Moonlit Coronation
+117423,Annihilator
+130201,Steel Charge
+130206,Flying Sparks
+130211,Steadfast Foundation
+130216,Whirling Strike
+130217,Solar Reactor
+130218,Shattering Punch
+130221,Surefooted
+130223,Tank
+124301,Shattered Melody
+124306,Lingering Notes
+124311,Yearning in Spring
+124316,Gem Tone
+124317,Lost Chord
+124318,Eradication
+124321,Court Ballad
+124323,Tank
+121301,Arctic Current
+121306,Strigine Assault
+121311,Frosty Fusillade
+121316,Biting Wind
+121317,Bleak Oblivion
+121318,Point Blank
+121321,Moment of Clarity
+121323,Tank
+102601,Whirl of Light
+102606,Fiery Thunderclap
+102611,Flying Flare
+102616,Pyro Blade
+102617,Dazzling Flare
+102618,Raging Blaze
+102621,Night Flare
+102623,Attacker
+131201,Esotericism: Homer
+131206,Esotericism: Collapse
+131211,Esotericism: Slash
+131216,Raging Gust
+131217,Skyward Flash
+131218,Homer Break
+131221,Thunder Outflux
+131223,Attacker
+105501,Thunderflare Storm
+105506,Starbeam Deconstruction
+105511,Comet Burst
+105516,Radiant Surge
+105517,Decisive Detonation!
+105518,Orbital Interference
+105521,Astral Armament
+105523,Tank
+132301,Vanishing Star
+132306,Ethereal Mirage
+132311,Celestial Aria
+132316,Doomsday Proverb
+132317,Merciful Confession
+132318,Galactic Blessing
+132321,Divine Vision
+132323,Observer
+133301,Shadow's Guile
+133306,Joker's Trickery
+133311,Danza Distópica
+133316,Exile at Night
+133317,Invitation to a Radiant Dream
+133318,Golden Blessing
+133321,Unpredictable Tricks
+133323,House of Cards
+153501,Flaming Chord
+153506,Thunderous Transposition
+153511,Rhythmic Piercing
+153516,Reverberating Legato
+153517,Fugal Sonata
+153518,Resplendent Symphony
+153521,Classical Romanticism
+153523,Attacker
+132201,Vorpal Hellblade
+132206,Orbital Barrage
+132211,Ferrous Scarring
+132216,Algorithm Decomposition
+132217,Absolute Deduction
+132218,Phantom Grid
+132221,Magic Maiden's Strike
+132223,Attacker
+113401,Ignited Slash
+113406,Fiery Covenant
+113411,Scorching Sweep
+113416,Wildfire Unbound
+113417,Thus Descends the Eternal Flame
+113418,Infernal Silhouette
+113421,Cremating Judgment
+113423,Amplifier
+135301,Yamato
+135306,Beowulf
+135311,Mirage Edge
+135316,Trigger Heart
+135317,Sin Devil Trigger
+135318,Judgment Cut Fall
+135321,Devil Hunter Skill
+135323,Attacker
+136301,Devil Sword Dante
+136306,Dr. Faust
+136311,Balrog
+136316,Trigger Heart
+136317,Sin Devil Trigger
+136318,Dance Macabre - Flash
+136321,Devil Hunter Skill
+136323,Attacker
+104501,Twilight Judgment
+104506,Radiant Retribution
+104511,Severed Sea
+104516,Serpent Lashblade
+104517,Final Prayer
+104518,Chiaroscuro Concordance
+104521,Abyssal Rebirth
+104523,Attacker
+137201,Staccato Slash
+137206,Spiral Bind
+137211,Silk Snare
+137216,Pattern Cut
+137217,Severing Finale
+137218,Needle Drop
+137221,Rending Fang
+137223,Attacker
+138301,Raging Thornfire
+138306,Blazing Pierce
+138311,Twisted Prominence
+138316,Draconic Prelude
+138317,Ember Renewal
+138318,Malevolent Revival
+138321,Purging Judgment
+138323,Amplifier
+103501,Veil Pierce
+103506,Scattered Delusion
+103511,Mirror of Impermanence
+103516,Winged Captivity
+103517,Cosmic Rebirth
+103518,Galactic Hymn
+103521,Light of Awakening
+103523,Attacker
