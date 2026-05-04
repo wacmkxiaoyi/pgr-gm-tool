@@ -79,16 +79,15 @@
   display: grid;
   justify-items: start;
   align-content: start;
-  gap: 12px;
+  gap: 10px;
 }
 
-.database-player-card-avatar-ring {
+.database-player-card-avatar-stage {
   position: relative;
-  display: grid;
-  place-items: center;
   width: 148px;
-  aspect-ratio: 1;
-  padding: 10px;
+  height: 168px;
+  box-sizing: border-box;
+  padding-bottom: 20px;
   border-radius: 32px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
@@ -98,6 +97,16 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 16px 30px rgba(15, 23, 42, 0.22),
     0 0 22px rgba(56, 189, 248, 0.12);
+  overflow: visible;
+}
+
+.database-player-card-avatar-ring {
+  position: absolute;
+  inset: 0 0 20px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border-radius: 32px;
   overflow: hidden;
 }
 
@@ -121,7 +130,6 @@
   opacity: 0.75;
 }
 
-.database-player-card-avatar-frame-image,
 .database-player-card-avatar-image,
 .database-player-card-avatar-fallback {
   position: absolute;
@@ -143,10 +151,17 @@
 }
 
 .database-player-card-avatar-frame-image {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
   z-index: 3;
   display: block;
   object-fit: contain;
   pointer-events: none;
+  transform: scale(1.1);
+  transform-origin: center;
 }
 
 .database-player-card-avatar-frame-image[hidden],
@@ -184,35 +199,112 @@
   position: relative;
   z-index: 1;
   display: grid;
+  align-self: start;
   align-content: start;
   gap: 12px;
   padding-top: 4px;
   justify-items: end;
   text-align: right;
+  pointer-events: none;
 }
 
-.database-player-card-name {
+.database-player-card-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.database-player-card-resources {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 10px;
-  justify-self: end;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
-    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
-  border: 1px solid var(--player-level-exp-border);
-  color: #eef6ff;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 16px 30px rgba(15, 23, 42, 0.18),
-    0 0 20px rgba(56, 189, 248, 0.08);
+  flex-wrap: wrap;
+  pointer-events: auto;
 }
 
-.database-player-card-name strong,
+.database-player-card-resource {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.56);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 22px rgba(15, 23, 42, 0.14);
+}
+
+.database-player-card-resource-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.database-player-card-resource-value {
+  position: relative;
+  color: #f8fbff;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  white-space: nowrap;
+  -webkit-text-stroke: 0.45px rgba(6, 11, 30, 0.88);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 6px rgba(255, 255, 255, 0.2),
+    0 0 14px rgba(96, 165, 250, 0.28),
+    0 2px 10px rgba(15, 23, 42, 0.5);
+}
+
+.database-player-card-resource-value-rainbow {
+  color: #fff8ff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 8px rgba(253, 224, 255, 0.42),
+    0 0 16px rgba(217, 70, 239, 0.38),
+    0 0 22px rgba(99, 102, 241, 0.3),
+    0 2px 10px rgba(15, 23, 42, 0.52);
+}
+
+.database-player-card-resource-value-black {
+  color: #fff8ec;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.26),
+    0 0 8px rgba(254, 215, 170, 0.34),
+    0 0 16px rgba(251, 146, 60, 0.34),
+    0 0 22px rgba(245, 158, 11, 0.24),
+    0 2px 10px rgba(15, 23, 42, 0.52);
+}
+
+.database-player-card-resource-value-serum {
+  color: #f2fdff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 8px rgba(186, 230, 253, 0.36),
+    0 0 16px rgba(34, 211, 238, 0.34),
+    0 0 22px rgba(14, 165, 233, 0.24),
+    0 2px 10px rgba(15, 23, 42, 0.52);
+}
+
+.database-player-card-resource-value-money {
+  color: #fffbea;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 8px rgba(254, 243, 199, 0.34),
+    0 0 16px rgba(250, 204, 21, 0.34),
+    0 0 22px rgba(245, 158, 11, 0.22),
+    0 2px 10px rgba(15, 23, 42, 0.52);
+}
+
 .database-player-card-tag strong,
-.database-player-card-uid {
+.database-player-card-name {
   color: #eef6ff;
   font-size: 13px;
   font-weight: 800;
@@ -221,57 +313,74 @@
   text-shadow: 0 0 12px rgba(125, 211, 252, 0.2);
 }
 
-.database-player-card-name strong.is-editable,
+.database-player-card-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 135px;
+  z-index: 5;
+  display: block;
+  width: auto;
+  margin: 0;
+  padding: 0 6px 2px;
+  color: #eef6ff;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow:
+    0 0 14px rgba(96, 165, 250, 0.28),
+    0 6px 18px rgba(15, 23, 42, 0.32);
+}
+
+.database-player-card-name.is-editable,
 .database-player-card-tag strong.is-editable,
+.database-player-card-resource-value.is-editable,
 .database-player-card-stat-value.is-editable {
   cursor: pointer;
   transition: color 0.18s ease, text-shadow 0.18s ease;
 }
 
-.database-player-card-name strong.is-editable:hover,
+.database-player-card-name.is-editable:hover,
 .database-player-card-tag strong.is-editable:hover,
+.database-player-card-resource-value.is-editable:hover,
 .database-player-card-stat-value.is-editable:hover,
-.database-player-card-name strong.is-editable:focus-visible,
+.database-player-card-name.is-editable:focus-visible,
 .database-player-card-tag strong.is-editable:focus-visible,
+.database-player-card-resource-value.is-editable:focus-visible,
 .database-player-card-stat-value.is-editable:focus-visible {
   color: #ffffff;
   outline: none;
   text-shadow: 0 0 18px rgba(125, 211, 252, 0.42);
 }
 
-.database-player-card-name strong.is-editing,
+.database-player-card-name.is-editing,
 .database-player-card-tag strong.is-editing,
+.database-player-card-resource-value.is-editing,
 .database-player-card-stat-value.is-editing {
   cursor: text;
 }
 
-.database-player-card-uid {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  justify-self: end;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
-    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
-  border: 1px solid var(--player-level-exp-border);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 16px 30px rgba(15, 23, 42, 0.18),
-    0 0 20px rgba(56, 189, 248, 0.08);
-}
-
-.database-player-card-tags {
+.database-player-card-meta-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  width: max-content;
 }
 
 .database-player-card-tag-likes {
   justify-self: start;
+}
+
+.database-player-card-meta-row .database-player-card-tag {
+  flex: 0 0 auto;
 }
 
 .database-player-card-tag-likes .database-player-card-tag-label {
@@ -284,9 +393,9 @@
 .database-player-card-tag {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 44px;
-  padding: 0 16px;
+  padding: 0 14px;
   border-radius: 16px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
@@ -312,19 +421,22 @@
   position: relative;
   z-index: 1;
   display: flex;
+  align-self: end;
   justify-content: center;
   align-items: end;
-  min-height: 220px;
-  padding-top: 8px;
+  min-height: 212px;
+  padding-top: 0;
+  pointer-events: none;
 }
 
 .database-player-card-level-hud {
   position: relative;
   width: min(100%, 360px);
-  min-height: 220px;
+  min-height: 212px;
   display: flex;
   align-items: end;
   justify-content: center;
+  pointer-events: none;
 }
 
 .database-player-card-level-orb {
@@ -350,6 +462,7 @@
     0 0 0 1px rgba(96, 165, 250, 0.12),
     0 18px 40px var(--player-level-shadow),
     0 0 30px var(--player-level-glow);
+  pointer-events: auto;
 }
 
 .database-player-card-level-orb::before,
@@ -435,6 +548,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 16px 30px rgba(15, 23, 42, 0.22),
     0 0 22px rgba(56, 189, 248, 0.12);
+  pointer-events: auto;
 }
 
 .database-player-card-stat-label {
@@ -455,6 +569,16 @@
   color: #eef6ff;
   white-space: nowrap;
   text-shadow: 0 0 12px rgba(125, 211, 252, 0.28);
+}
+
+.database-player-card-stat-value-exp {
+  color: #f8fcff;
+  -webkit-text-stroke: 0.45px rgba(6, 11, 30, 0.88);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24),
+    0 0 8px rgba(191, 219, 254, 0.28),
+    0 0 16px rgba(56, 189, 248, 0.32),
+    0 2px 10px rgba(15, 23, 42, 0.5);
 }
 
 .database-player-inline-input,
@@ -491,15 +615,33 @@
   }
 
   .database-player-card-avatar-shell {
-    justify-items: center;
+    justify-items: start;
+  }
+
+  .database-player-card-avatar-stage {
+    width: 148px;
+    height: 168px;
   }
 
   .database-player-card-tag-likes {
-    justify-self: center;
+    justify-self: start;
+  }
+
+  .database-player-card-meta-row {
+    transform: scale(0.96);
+    transform-origin: left top;
   }
 
   .database-player-card-copy {
     justify-items: end;
+  }
+
+  .database-player-card-name-row {
+    justify-content: center;
+  }
+
+  .database-player-card-resources {
+    justify-content: center;
   }
 
   .database-player-card-stats {

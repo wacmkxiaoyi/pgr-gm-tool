@@ -166,31 +166,46 @@
                     <div class="database-player-card-background" id="player-card-background" aria-hidden="true" hidden></div>
                     <div class="database-player-card-glow" aria-hidden="true"></div>
                     <div class="database-player-card-avatar-shell">
-                      <div class="database-player-card-avatar-ring">
-                        <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-i18n-alt="dashboard.playerFrameAlt" data-player-edit-field="head_frame_id" hidden>
-                        <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-i18n-alt="dashboard.playerAvatarAlt" data-player-edit-field="head_portrait_id" hidden>
-                        <div class="database-player-card-avatar-fallback" id="player-card-avatar-fallback" aria-hidden="true"></div>
-                        <button class="database-player-card-avatar-frame-hitbox" id="player-card-avatar-frame-hitbox" type="button" aria-label="切换头像框" data-i18n-aria-label="dashboard.playerFrameAlt"></button>
+                      <div class="database-player-card-avatar-stage">
+                        <div class="database-player-card-avatar-ring">
+                          <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-i18n-alt="dashboard.playerFrameAlt" data-player-edit-field="head_frame_id" hidden>
+                          <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-i18n-alt="dashboard.playerAvatarAlt" data-player-edit-field="head_portrait_id" hidden>
+                          <div class="database-player-card-avatar-fallback" id="player-card-avatar-fallback" aria-hidden="true"></div>
+                          <button class="database-player-card-avatar-frame-hitbox" id="player-card-avatar-frame-hitbox" type="button" aria-label="切换头像框" data-i18n-aria-label="dashboard.playerFrameAlt"></button>
+                        </div>
+                        <strong class="database-player-card-name" id="player-card-name" data-player-edit-field="name">--</strong>
                       </div>
-                      <span class="database-player-card-tag database-player-card-tag-likes">
-                        <span class="database-player-card-tag-label" aria-label="点赞" data-i18n-aria-label="dashboard.playerLikes">👍</span>
-                        <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
-                      </span>
-                    </div>
-                    <div class="database-player-card-copy">
-                      <span class="database-player-card-name">
-                        <span class="database-player-card-tag-label" data-i18n="dashboard.playerName">昵称</span>
-                        <strong id="player-card-name" data-player-edit-field="name">--</strong>
-                      </span>
-                      <span class="database-player-card-uid">
-                        <span class="database-player-card-tag-label" data-i18n="dashboard.accountsUid">识别码</span>
-                        <strong id="player-card-inline-uid">--</strong>
-                      </span>
-                      <div class="database-player-card-tags">
+                      <div class="database-player-card-meta-row">
                         <span class="database-player-card-tag">
                           <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">性别</span>
                           <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
                         </span>
+                        <span class="database-player-card-tag database-player-card-tag-likes">
+                          <span class="database-player-card-tag-label" aria-label="点赞" data-i18n-aria-label="dashboard.playerLikes">👍</span>
+                          <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="database-player-card-copy">
+                      <div class="database-player-card-name-row">
+                        <div class="database-player-card-resources" aria-label="玩家资源">
+                          <span class="database-player-card-resource">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem02sp.png" alt="彩虹卡">
+                            <strong class="database-player-card-resource-value database-player-card-resource-value-rainbow" id="player-card-rainbow-card" data-player-edit-field="rainbow_card">0</strong>
+                          </span>
+                          <span class="database-player-card-resource">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem.png" alt="黑卡">
+                            <strong class="database-player-card-resource-value database-player-card-resource-value-black" id="player-card-black-card" data-player-edit-field="black_card">0</strong>
+                          </span>
+                          <span class="database-player-card-resource">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumeactionpoint.png" alt="血清">
+                            <strong class="database-player-card-resource-value database-player-card-resource-value-serum" id="player-card-serum" data-player-edit-field="serum">0</strong>
+                          </span>
+                          <span class="database-player-card-resource">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumemoney.png" alt="螺母">
+                            <strong class="database-player-card-resource-value database-player-card-resource-value-money" id="player-card-money" data-player-edit-field="money">0</strong>
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div class="database-player-card-stats" aria-label="玩家阶级与经验" data-i18n-aria-label="dashboard.playerStatsAria">
@@ -201,7 +216,7 @@
                         </div>
                         <div class="database-player-card-exp-bar">
                           <span class="database-player-card-stat-label" data-i18n="dashboard.playerExp">经验</span>
-                          <strong class="database-player-card-stat-value" id="player-card-exp">0</strong>
+                          <strong class="database-player-card-stat-value database-player-card-stat-value-exp" id="player-card-exp" data-player-edit-field="exp">0</strong>
                         </div>
                       </div>
                     </div>

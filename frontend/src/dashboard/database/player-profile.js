@@ -6,6 +6,11 @@ const PLAYER_FIELD_LABELS = {
   gender: 'runtime.playerFieldGender',
   likes: 'runtime.playerFieldLikes',
   level: 'runtime.playerFieldLevel',
+  exp: 'runtime.playerFieldExp',
+  money: 'runtime.playerFieldMoney',
+  serum: 'runtime.playerFieldSerum',
+  black_card: 'runtime.playerFieldBlackCard',
+  rainbow_card: 'runtime.playerFieldRainbowCard',
 };
 const PLAYER_GENDER_OPTIONS = [
   { value: '2', labelKey: 'dashboard.playerGenderMale' },
@@ -29,11 +34,14 @@ const {
   playerCardAvatarImage,
   playerCardAvatarFallback,
   playerCardName,
-  playerCardInlineUid,
   playerCardGender,
   playerCardLikes,
   playerCardLevel,
   playerCardExp,
+  playerCardMoney,
+  playerCardSerum,
+  playerCardBlackCard,
+  playerCardRainbowCard,
 } = dom;
 
 const PLAYER_CARD_MIN_ASPECT_RATIO = 1.2;
@@ -83,6 +91,51 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
     validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerLevelInvalid')),
+  },
+  exp: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.exp ?? 0),
+    getRawValue: (profile) => profile?.exp ?? 0,
+    element: () => playerCardExp,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerExpInvalid')),
+  },
+  money: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.money ?? 0),
+    getRawValue: (profile) => profile?.money ?? 0,
+    element: () => playerCardMoney,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerMoneyInvalid')),
+  },
+  serum: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.serum ?? 0),
+    getRawValue: (profile) => profile?.serum ?? 0,
+    element: () => playerCardSerum,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerSerumInvalid')),
+  },
+  black_card: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.black_card ?? 0),
+    getRawValue: (profile) => profile?.black_card ?? 0,
+    element: () => playerCardBlackCard,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerBlackCardInvalid')),
+  },
+  rainbow_card: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.rainbow_card ?? 0),
+    getRawValue: (profile) => profile?.rainbow_card ?? 0,
+    element: () => playerCardRainbowCard,
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerRainbowCardInvalid')),
   },
   head_portrait_id: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.head_portrait_id),
@@ -638,9 +691,6 @@ app.resetPlayerProfileView = () => {
   if (playerCardName instanceof HTMLElement) {
     playerCardName.textContent = '--';
   }
-  if (playerCardInlineUid instanceof HTMLElement) {
-    playerCardInlineUid.textContent = state.selectedAccountUid ?? app.translate('common.notAvailable');
-  }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = '--';
   }
@@ -651,7 +701,19 @@ app.resetPlayerProfileView = () => {
     playerCardLikes.textContent = '--';
   }
   if (playerCardExp instanceof HTMLElement) {
-      playerCardExp.textContent = '0';
+    playerCardExp.textContent = '0';
+  }
+  if (playerCardMoney instanceof HTMLElement) {
+    playerCardMoney.textContent = '0';
+  }
+  if (playerCardSerum instanceof HTMLElement) {
+    playerCardSerum.textContent = '0';
+  }
+  if (playerCardBlackCard instanceof HTMLElement) {
+    playerCardBlackCard.textContent = '0';
+  }
+  if (playerCardRainbowCard instanceof HTMLElement) {
+    playerCardRainbowCard.textContent = '0';
   }
 
   app.resetPlayerCardAvatarFrame();
@@ -670,13 +732,9 @@ app.renderPlayerProfile = (profile) => {
   const levelLabel = app.formatPlayerFieldValue(profile?.level);
   const nameLabel = app.formatPlayerFieldValue(profile?.name);
   const likesLabel = app.formatPlayerFieldValue(profile?.likes);
-  const profileUid = app.normalizeAccountUid(profile?.uid ?? state.selectedAccountUid);
 
   if (playerCardName instanceof HTMLElement) {
     playerCardName.textContent = nameLabel;
-  }
-  if (playerCardInlineUid instanceof HTMLElement) {
-    playerCardInlineUid.textContent = profileUid ?? app.translate('common.notAvailable');
   }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = genderLabel;
@@ -688,7 +746,19 @@ app.renderPlayerProfile = (profile) => {
     playerCardLikes.textContent = likesLabel;
   }
   if (playerCardExp instanceof HTMLElement) {
-    playerCardExp.textContent = '0';
+    playerCardExp.textContent = app.formatPlayerFieldValue(profile?.exp ?? 0);
+  }
+  if (playerCardMoney instanceof HTMLElement) {
+    playerCardMoney.textContent = app.formatPlayerFieldValue(profile?.money ?? 0);
+  }
+  if (playerCardSerum instanceof HTMLElement) {
+    playerCardSerum.textContent = app.formatPlayerFieldValue(profile?.serum ?? 0);
+  }
+  if (playerCardBlackCard instanceof HTMLElement) {
+    playerCardBlackCard.textContent = app.formatPlayerFieldValue(profile?.black_card ?? 0);
+  }
+  if (playerCardRainbowCard instanceof HTMLElement) {
+    playerCardRainbowCard.textContent = app.formatPlayerFieldValue(profile?.rainbow_card ?? 0);
   }
 
   app.setPlayerCardAvatar(app.getPlayerResourceUrlByField('head_portrait_id', profile?.head_portrait_id ?? null));
@@ -705,7 +775,18 @@ app.handlePlayerCardBackgroundActivate = (event) => {
     return;
   }
 
-  if (target !== playerCardBackground) {
+  const ignoreSelector = [
+    '.database-player-card-avatar-shell',
+    '.database-player-card-copy .database-player-card-resources',
+    '.database-player-card-level-orb',
+    '.database-player-card-exp-bar',
+    '[data-player-edit-field]',
+    'input',
+    'select',
+    'button',
+  ].join(', ');
+
+  if (target !== playerCardBackground && target.closest(ignoreSelector)) {
     return;
   }
 
@@ -828,6 +909,7 @@ export const initDatabasePlayerProfileFeature = () => {
 
   if (playerCard instanceof HTMLElement) {
     playerCard.addEventListener('transitionend', app.queuePlayerCardBackgroundAspectSync);
+    playerCard.addEventListener('click', app.handlePlayerCardBackgroundActivate);
   }
 
   if (playerCardBackground instanceof HTMLElement) {
@@ -846,36 +928,27 @@ export const initDatabasePlayerProfileFeature = () => {
     });
   }
 
-  if (playerCardAvatarShell instanceof HTMLElement) {
-    playerCardAvatarShell.addEventListener('click', (event) => {
-      if (
-        event.target instanceof HTMLElement
-        && (
-          event.target.closest('.database-player-card-avatar-ring')
-          || event.target.closest('.database-player-card-tag-likes')
-        )
-      ) {
+  const playerCardAvatarStage = playerCardAvatarShell?.querySelector('.database-player-card-avatar-stage');
+
+  if (playerCardAvatarStage instanceof HTMLElement) {
+    playerCardAvatarStage.addEventListener('click', (event) => {
+      if (!(event.target instanceof HTMLElement)) {
         return;
       }
 
-      app.openPlayerPortraitPicker('head_portrait_id');
-    });
-  }
-
-  if (playerCardAvatarRing instanceof HTMLElement) {
-    playerCardAvatarRing.addEventListener('click', (event) => {
       if (
-        event.target instanceof HTMLElement
-        && (
-          event.target.closest('.database-player-card-avatar-image')
-          || event.target.closest('.database-player-card-avatar-fallback')
-        )
+        event.target.closest('.database-player-card-avatar-image')
+        || event.target.closest('.database-player-card-avatar-fallback')
       ) {
+        event.stopPropagation();
+        app.openPlayerPortraitPicker('head_portrait_id');
         return;
       }
 
-      event.stopPropagation();
-      app.openPlayerPortraitPicker('head_frame_id');
+      if (event.target.closest('.database-player-card-avatar-ring')) {
+        event.stopPropagation();
+        app.openPlayerPortraitPicker('head_frame_id');
+      }
     });
   }
 

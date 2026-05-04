@@ -114,6 +114,11 @@ class PlayerProfileResponse(BaseModel):
     gender: int | None = None
     level: int | None = None
     likes: int | None = None
+    exp: int = 0
+    money: int = 0
+    serum: int = 0
+    black_card: int = 0
+    rainbow_card: int = 0
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
     use_background_id: int | None = None

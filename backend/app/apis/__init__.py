@@ -59,6 +59,7 @@ from backend.app.services.api_errors import raise_http_error
 router = APIRouter(prefix="/api")
 
 PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
+PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
 
 
 @router.get("/health")
@@ -250,7 +251,7 @@ async def update_selected_database_player_profile(
         raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
 
     field_name = str(payload.field or "").strip().lower()
-    if field_name not in {"name", "gender", "level", "likes", "head_portrait_id", "head_frame_id", "use_background_id"}:
+    if field_name not in {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     if field_name == "name":
@@ -270,7 +271,7 @@ async def update_selected_database_player_profile(
             raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         update_payload = UpdatePlayerProfilePayload(gender=normalized_gender)
-    elif field_name in {"level", "likes"}:
+    elif field_name in {"level", "likes"} | PLAYER_PROFILE_INVENTORY_FIELDS:
         try:
             normalized_number = int(payload.value)
         except (TypeError, ValueError) as error:

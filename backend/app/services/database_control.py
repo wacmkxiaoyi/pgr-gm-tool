@@ -300,6 +300,15 @@ def _inventory_item_template(item_id: int, quantity: int) -> dict[str, Any]:
     }
 
 
+PLAYER_PROFILE_ITEM_FIELD_MAP = {
+    "exp": 7,
+    "money": 1,
+    "serum": 4,
+    "black_card": 3,
+    "rainbow_card": 5,
+}
+
+
 class DatabaseController:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
@@ -330,6 +339,7 @@ class DatabaseController:
 
     async def update_player_profile(self, uid: int, payload: UpdatePlayerProfilePayload) -> PlayerProfileRecord | None:
         update_fields: dict[str, Any] = {}
+        inventory_field_updates: dict[str, int] = {}
         if payload.name is not None:
             update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['name']}"] = payload.name
         if payload.gender is not None:
@@ -338,6 +348,16 @@ class DatabaseController:
             update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['level']}"] = payload.level
         if payload.likes is not None:
             update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['likes']}"] = payload.likes
+        if payload.exp is not None:
+            inventory_field_updates["exp"] = payload.exp
+        if payload.money is not None:
+            inventory_field_updates["money"] = payload.money
+        if payload.serum is not None:
+            inventory_field_updates["serum"] = payload.serum
+        if payload.black_card is not None:
+            inventory_field_updates["black_card"] = payload.black_card
+        if payload.rainbow_card is not None:
+            inventory_field_updates["rainbow_card"] = payload.rainbow_card
         if payload.head_portrait_id is not None:
             update_fields["player_data.CurrHeadPortraitId"] = payload.head_portrait_id
         if payload.head_frame_id is not None:
@@ -345,25 +365,74 @@ class DatabaseController:
         if payload.use_background_id is not None:
             update_fields[PLAYER_BACKGROUND_ID_FIELD] = payload.use_background_id
 
-        if not update_fields:
+        if not update_fields and not inventory_field_updates:
             return await self.get_player_profile(uid)
 
+        if update_fields:
+            client = create_mongo_client(self._settings)
+
+            try:
+                collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
+                result = await collection.update_one(
+                    {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
+                    {"$set": update_fields},
+                )
+            finally:
+                with contextlib.suppress(Exception):  # noqa: BLE001
+                    client.close()
+
+            if result.matched_count <= 0:
+                return None
+
+        for field_name, quantity in inventory_field_updates.items():
+            updated = await self.update_player_profile_item_quantity(uid, PLAYER_PROFILE_ITEM_FIELD_MAP[field_name], quantity)
+            if not updated:
+                return None
+
+        return await self.get_player_profile(uid)
+
+    async def update_player_profile_item_quantity(self, uid: int, item_id: int, quantity: int) -> bool:
         client = create_mongo_client(self._settings)
 
         try:
-            collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
-            result = await collection.update_one(
-                {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
-                {"$set": update_fields},
+            collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
+            document = await collection.find_one(
+                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"items": 1},
             )
+
+            if isinstance(document, dict):
+                raw_items = list(document.get("items") or [])
+                item_found = False
+                for raw_item in raw_items:
+                    if not isinstance(raw_item, dict):
+                        continue
+
+                    current_item_id = _parse_optional_int(raw_item.get("_id"))
+                    if current_item_id != item_id:
+                        continue
+
+                    raw_item["Count"] = Int64(quantity)
+                    item_found = True
+                    break
+
+                if not item_found:
+                    raw_items.append(_inventory_item_template(item_id, quantity))
+
+                result = await collection.update_one(
+                    {"_id": document.get("_id")},
+                    {"$set": {"items": raw_items}},
+                )
+                return result.matched_count > 0
+
+            result = await collection.insert_one({
+                "uid": Int64(uid),
+                "items": [_inventory_item_template(item_id, quantity)],
+            })
+            return bool(result.inserted_id)
         finally:
             with contextlib.suppress(Exception):  # noqa: BLE001
                 client.close()
-
-        if result.matched_count <= 0:
-            return None
-
-        return await self.get_player_profile(uid)
 
     async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE) -> AccountListResponse:
         current_page = max(1, int(page))
@@ -659,6 +728,7 @@ class DatabaseController:
         head_portrait_id = _parse_optional_int(player_data.get("CurrHeadPortraitId"))
         head_frame_id = _parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
         use_background_id = _parse_optional_int(document.get(PLAYER_BACKGROUND_ID_FIELD))
+        inventory_quantities = await self.get_inventory_quantities(uid)
 
         return PlayerProfileRecord(
             uid=normalized_uid,
@@ -666,6 +736,11 @@ class DatabaseController:
             gender=_parse_optional_int(player_data.get("Gender")),
             level=_parse_optional_int(player_data.get("Level")),
             likes=_parse_optional_int(player_data.get("Likes")),
+            exp=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["exp"], 0),
+            money=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["money"], 0),
+            serum=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["serum"], 0),
+            black_card=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["black_card"], 0),
+            rainbow_card=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["rainbow_card"], 0),
             head_portrait_id=head_portrait_id,
             head_frame_id=head_frame_id,
             use_background_id=use_background_id,
