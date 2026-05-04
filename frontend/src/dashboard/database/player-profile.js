@@ -8,7 +8,7 @@ const PLAYER_FIELD_LABELS = {
   level: '等级',
 };
 const PLAYER_GENDER_OPTIONS = [
-  { value: '0', label: '男' },
+  { value: '2', label: '男' },
   { value: '1', label: '女' },
 ];
 
@@ -53,7 +53,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     element: () => playerCardGender,
     editorType: 'select',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (value === '0' || value === '1' ? '' : '性别仅允许为男或女。'),
+    validate: (value) => (value === '2' || value === '1' ? '' : '性别仅允许为男或女。'),
     options: PLAYER_GENDER_OPTIONS,
   },
   likes: {

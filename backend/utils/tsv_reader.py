@@ -1,5 +1,6 @@
 import ast
 import csv
+import json
 import re
 from pathlib import Path
 
@@ -341,9 +342,12 @@ class TSVReader:
 
         if stripped.startswith("[") and stripped.endswith("]"):
             try:
-                parsed = ast.literal_eval(stripped)
+                parsed = json.loads(stripped)
             except (ValueError, SyntaxError):
-                return value
+                try:
+                    parsed = ast.literal_eval(stripped)
+                except (ValueError, SyntaxError):
+                    return value
             if isinstance(parsed, list):
                 return parsed
 

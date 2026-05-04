@@ -176,11 +176,15 @@ Object.assign(app, {
   },
   getPlayerGenderLabel: (gender) => {
     if (gender === 0) {
-      return '男';
+      return '未设置';
     }
 
     if (gender === 1) {
       return '女';
+    }
+
+    if (gender === 2) {
+      return '男';
     }
 
     return '--';
