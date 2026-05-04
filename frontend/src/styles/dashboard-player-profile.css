@@ -139,6 +139,7 @@
   border: 0;
   background: transparent;
   appearance: none;
+  pointer-events: none;
 }
 
 .database-player-card-avatar-frame-image {

@@ -835,10 +835,6 @@ export const initDatabasePlayerProfileFeature = () => {
   }
 
   if (playerCardAvatarFrameHitbox instanceof HTMLButtonElement) {
-    playerCardAvatarFrameHitbox.addEventListener('click', (event) => {
-      event.stopPropagation();
-      app.openPlayerPortraitPicker('head_frame_id');
-    });
     playerCardAvatarFrameHitbox.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter' && event.key !== ' ') {
         return;
@@ -868,7 +864,13 @@ export const initDatabasePlayerProfileFeature = () => {
 
   if (playerCardAvatarRing instanceof HTMLElement) {
     playerCardAvatarRing.addEventListener('click', (event) => {
-      if (event.target instanceof HTMLElement && event.target.closest('.database-player-card-avatar-frame-hitbox')) {
+      if (
+        event.target instanceof HTMLElement
+        && (
+          event.target.closest('.database-player-card-avatar-image')
+          || event.target.closest('.database-player-card-avatar-fallback')
+        )
+      ) {
         return;
       }
 

@@ -25,7 +25,7 @@
 
           <nav class="sidebar-nav">
             <a class="sidebar-link is-active" href="#server-management" data-dashboard-page="server-management" data-i18n="dashboard.sidebarServerManagement">游戏服务器管理</a>
-            <a class="sidebar-link" href="#database-management" data-dashboard-page="database-management" data-i18n="dashboard.sidebarDatabaseManagement">数据库服务管理</a>
+            <a class="sidebar-link" href="#database-management" data-dashboard-page="database-management" data-i18n="dashboard.sidebarDatabaseManagement">用户数据管理</a>
           </nav>
 
           <div class="sidebar-footer">
@@ -89,16 +89,16 @@
           </section>
 
           <!-- Database management -->
-          <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="数据库服务管理" hidden>
+          <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="用户数据管理" hidden>
             <header class="dashboard-topbar">
               <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" data-i18n-aria-label="dashboard.toggleSidebar" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
             </header>
 
             <div class="dashboard-content database-page">
-              <nav class="dashboard-subnav page-subnav database-subnav" aria-label="数据库服务管理次级导航" data-i18n-aria-label="dashboard.databaseSubnavAria">
-                <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">服务状态</button>
+              <nav class="dashboard-subnav page-subnav database-subnav" aria-label="用户数据管理次级导航" data-i18n-aria-label="dashboard.databaseSubnavAria">
+                <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">数据库状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">玩家信息</button>
+                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
 
@@ -106,7 +106,7 @@
                 <div class="database-panel-header">
                   <div>
                     <span class="section-tag">Database</span>
-                    <h2 id="database-service-status-title" data-i18n="dashboard.databaseStatusTitle">服务状态</h2>
+                    <h2 id="database-service-status-title" data-i18n="dashboard.databaseStatusTitle">数据库状态</h2>
                   </div>
                   <small id="database-status-interval">距离下次健康检查: --</small>
                 </div>
@@ -151,7 +151,7 @@
                 <div class="database-panel-header database-panel-header-compact database-player-panel-header">
                   <div>
                     <span class="section-tag">Player</span>
-                    <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">玩家信息</h2>
+                    <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">用户名片</h2>
                   </div>
                   <div class="database-player-profile-meta" hidden>
                     <small class="database-player-profile-summary" id="database-player-profile-summary" hidden></small>
@@ -161,7 +161,7 @@
                 <div class="database-player-empty" id="database-player-profile-state" data-i18n="dashboard.playerProfileChooseAccount">请先在账号管理中选定一个用户。</div>
 
                 <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
-                  <article class="database-player-card" aria-label="玩家人物名片" data-i18n-aria-label="dashboard.playerCardAria">
+                  <article class="database-player-card" aria-label="用户名片" data-i18n-aria-label="dashboard.playerCardAria">
                     <div class="database-player-card-background" id="player-card-background" aria-hidden="true" hidden></div>
                     <div class="database-player-card-glow" aria-hidden="true"></div>
                     <div class="database-player-card-avatar-shell">
@@ -367,7 +367,7 @@
         </div>
         <p id="player-portrait-picker-description" class="login-modal-message" data-i18n="runtime.playerPickerResourceDescription">请选择要应用到玩家名片上的资源。</p>
         <div class="player-portrait-picker-meta">
-          <span id="player-portrait-picker-current">当前选择：--</span>
+          <span id="player-portrait-picker-current">当前使用：--</span>
         </div>
         <div class="player-portrait-picker-grid" id="player-portrait-picker-grid"></div>
         <div class="player-portrait-picker-toolbar">
