@@ -27,7 +27,7 @@ app.closeControlModal = () => {
   }
 
   if (controlModalEyebrow instanceof HTMLElement) {
-    controlModalEyebrow.textContent = '提示';
+    controlModalEyebrow.textContent = app.translate('dashboard.modalEyebrowDefault');
     controlModalEyebrow.classList.remove('is-success');
   }
 
@@ -43,8 +43,8 @@ app.openControlModal = (message, options = {}) => {
 
   const titleElement = controlModal.querySelector('#server-modal-title');
   const {
-    title = '操作提示',
-    eyebrow = '提示',
+    title = app.translate('dashboard.modalTitleDefault'),
+    eyebrow = app.translate('dashboard.modalEyebrowDefault'),
     icon = '!',
     tone = 'default',
   } = options;
@@ -71,10 +71,10 @@ app.openControlModal = (message, options = {}) => {
   }
 };
 
-app.openSuccessModal = (message, title = '操作成功') => {
+app.openSuccessModal = (message, title = app.translate('dashboard.modalSuccessTitle')) => {
   app.openControlModal(message, {
     title,
-    eyebrow: '操作成功',
+    eyebrow: app.translate('dashboard.modalSuccessEyebrow'),
     icon: '✓',
     tone: 'success',
   });
@@ -90,7 +90,7 @@ app.closeLogoutConfirmModal = () => {
 
   if (logoutButton instanceof HTMLButtonElement) {
     logoutButton.disabled = false;
-    logoutButton.textContent = '退出登录';
+    logoutButton.textContent = app.translate('dashboard.logout');
   }
 
   if (state.lastLogoutFocusedControl instanceof HTMLElement) {
@@ -120,13 +120,12 @@ app.submitLogout = async () => {
   logoutConfirmSubmitButton.disabled = true;
   if (logoutButton instanceof HTMLButtonElement) {
     logoutButton.disabled = true;
-    logoutButton.textContent = '正在退出...';
+    logoutButton.textContent = app.translate('dashboard.logoutPending');
   }
 
   try {
-    await fetch('/api/logout', {
+    await app.apiFetch('/api/logout', {
       method: 'POST',
-      credentials: 'include',
     });
   } finally {
     window.location.assign('/login');

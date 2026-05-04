@@ -15,24 +15,32 @@
       <section class="login-panel" aria-labelledby="login-title">
         <div class="login-card">
           <div class="login-header">
-            <span class="login-badge">WACMK PGR Management</span>
-            <h2 id="login-title">登陆</h2>
+            <span class="login-badge" data-i18n="common.appName">WACMK PGR Management</span>
+            <h2 id="login-title" data-i18n="login.title">登录</h2>
           </div>
 
           <form class="login-form">
             <label>
-              <span>账号</span>
-              <input type="text" name="username" placeholder="请输入账号" autocomplete="username" />
+              <span data-i18n="login.username">账号</span>
+              <input type="text" name="username" data-i18n-placeholder="login.usernamePlaceholder" placeholder="请输入账号" autocomplete="username" />
             </label>
 
             <label>
-              <span>密码</span>
-              <input type="password" name="password" placeholder="请输入密码" autocomplete="current-password" />
+              <span data-i18n="login.password">密码</span>
+              <input type="password" name="password" data-i18n-placeholder="login.passwordPlaceholder" placeholder="请输入密码" autocomplete="current-password" />
             </label>
 
-            <button type="submit">登录</button>
+            <button type="submit" data-i18n="login.submit">登录</button>
             <p class="hint" aria-live="polite"></p>
           </form>
+
+          <div class="locale-switcher-shell">
+            <label class="locale-switcher-label" for="login-locale-switcher" data-i18n="login.switcherLabel">语言</label>
+            <select class="locale-switcher" id="login-locale-switcher" data-locale-switcher data-i18n-aria-label="login.switcherLabel" aria-label="Language switcher">
+              <option value="zh-CN" data-i18n="common.localeZh">中文</option>
+              <option value="en-US" data-i18n="common.localeEn">English</option>
+            </select>
+          </div>
         </div>
       </section>
     </main>
@@ -43,17 +51,17 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow">登录失败</p>
-            <h3 id="login-modal-title">请检查账号和密码</h3>
+            <p class="login-modal-eyebrow" data-i18n="login.failedEyebrow">登录失败</p>
+            <h3 id="login-modal-title" data-i18n="login.failedTitle">请检查账号和密码</h3>
           </div>
         </div>
         <p id="login-modal-message" class="login-modal-message"></p>
         <div class="login-modal-actions">
-          <button type="button" class="login-modal-button" data-login-modal-close>知道了</button>
+          <button type="button" class="login-modal-button" data-login-modal-close data-i18n="common.gotIt">知道了</button>
         </div>
       </section>
     </div>
 
-    <script src="./src/app.js"></script>
+    <script type="module" src="./src/app.js"></script>
   </body>
 </html>

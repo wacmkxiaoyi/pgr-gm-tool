@@ -34,7 +34,7 @@ app.resetAccountPasswordForm = () => {
   if (accountPasswordConfirmInput instanceof HTMLInputElement) {
     accountPasswordConfirmInput.value = '';
   }
-  app.setAccountPasswordFeedback('密码长度需大于等于 6 位。');
+  app.setAccountPasswordFeedback(app.translate('runtime.accountPasswordDefaultFeedback'));
 };
 
 app.closeAccountPasswordModal = () => {
@@ -60,8 +60,11 @@ app.openAccountPasswordModal = (account, trigger) => {
   state.pendingPasswordAccount = account;
   state.lastPasswordFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   if (accountPasswordTarget instanceof HTMLElement) {
-    const username = typeof account?.username === 'string' && account.username ? account.username : '--';
-    accountPasswordTarget.textContent = `目标账户：UID ${account.uid ?? '--'}（用户名 ${username}）`;
+    const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
+    accountPasswordTarget.textContent = app.translate('runtime.accountPasswordTarget', {
+      uid: account.uid ?? app.translate('common.notAvailable'),
+      username,
+    });
   }
   app.resetAccountPasswordForm();
   accountPasswordModal.hidden = false;
@@ -77,14 +80,14 @@ app.getAccountPasswordValidationMessage = () => {
   const confirmPassword = accountPasswordConfirmInput instanceof HTMLInputElement ? accountPasswordConfirmInput.value : '';
 
   if (password.length < 6) {
-    return { valid: false, message: '新密码长度必须大于等于 6 位。' };
+    return { valid: false, message: app.translate('runtime.accountPasswordTooShort') };
   }
 
   if (password !== confirmPassword) {
-    return { valid: false, message: '两次输入的密码不一致。' };
+    return { valid: false, message: app.translate('runtime.accountPasswordMismatch') };
   }
 
-  return { valid: true, message: '密码校验通过，可以提交。' };
+  return { valid: true, message: app.translate('runtime.accountPasswordValid') };
 };
 
 app.updateAccountPasswordValidationState = () => {
@@ -108,23 +111,18 @@ app.submitAccountPasswordReset = async () => {
   accountPasswordConfirmButton.disabled = true;
 
   try {
-    const response = await fetch('/api/database-accounts/password', {
+    await app.apiFetch('/api/database-accounts/password', {
       method: 'PUT',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ uid: state.pendingPasswordAccount.uid, password }),
     });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '重置密码失败');
-    }
 
     app.closeAccountPasswordModal();
-    app.openSuccessModal(`UID ${targetUid} 的密码已重置。`, '密码重置成功');
+    app.openSuccessModal(app.translate('runtime.accountPasswordResetSuccess', { uid: targetUid }), app.translate('runtime.accountPasswordResetSuccessTitle'));
   } catch (error) {
-    app.setAccountPasswordFeedback(error instanceof Error ? error.message : '重置密码失败', 'is-error');
+    app.setAccountPasswordFeedback(app.apiErrorMessage(error, 'runtime.accountPasswordResetFailed'), 'is-error');
   } finally {
     accountPasswordConfirmButton.disabled = false;
   }
@@ -151,8 +149,11 @@ app.openAccountDeleteModal = (account, trigger) => {
 
   state.pendingDeleteAccount = account;
   state.lastDeleteFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
-  const username = typeof account?.username === 'string' && account.username ? account.username : '--';
-  accountDeleteMessage.textContent = `确认删除 UID ${account.uid ?? '--'}（用户名 ${username}）吗？`;
+  const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
+  accountDeleteMessage.textContent = app.translate('runtime.accountDeleteConfirm', {
+    uid: account.uid ?? app.translate('common.notAvailable'),
+    username,
+  });
   accountDeleteModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -173,7 +174,7 @@ app.removeAccountRow = (uid) => {
 
   const remainingRows = dom.databaseAccountsBody.querySelectorAll('tr').length;
   if (remainingRows === 0) {
-    app.setAccountsState('当前页账户已全部移除，重新进入账号管理后可重新加载。', 'is-empty');
+    app.setAccountsState(app.translate('runtime.accountDeleteRemainingEmpty'), 'is-empty');
   }
 
   app.updateAccountSelectionUi();
@@ -194,10 +195,10 @@ app.confirmDeleteAccount = async () => {
 
     app.removeAccountRow(state.pendingDeleteAccount.uid);
     app.closeAccountDeleteModal();
-    app.openSuccessModal(`UID ${targetUid} 已从当前列表移除。`, '删除完成');
+    app.openSuccessModal(app.translate('runtime.accountDeleteSuccess', { uid: targetUid }), app.translate('runtime.accountDeleteSuccessTitle'));
   } catch (error) {
     app.closeAccountDeleteModal();
-    app.openControlModal(error instanceof Error ? error.message : '删除账户失败');
+    app.openControlModal(error instanceof Error ? error.message : app.translate('runtime.accountDeleteFailed'));
   } finally {
     accountDeleteConfirmButton.disabled = false;
   }

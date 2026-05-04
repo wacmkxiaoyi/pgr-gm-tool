@@ -10,7 +10,7 @@ app.updateStatusActionButtons = (payload) => {
 
   const controls = app.getControlState(payload?.controls);
   if (controls) {
-    startButton.textContent = typeof controls.start_label === 'string' ? controls.start_label : '启动';
+    startButton.textContent = typeof controls.start_label_key === 'string' ? app.translate(controls.start_label_key) : app.translate('runtime.serverStart');
     startButton.disabled = Boolean(controls.start_disabled);
     stopButton.disabled = Boolean(controls.stop_disabled);
     logButton.disabled = Boolean(controls.log_disabled);
@@ -18,8 +18,8 @@ app.updateStatusActionButtons = (payload) => {
     state.serverControlState = controls;
 
     if (logButton.disabled && app.isLogModalOpen()) {
-      app.appendLogContent('\n[日志流结束] 服务器当前不可查看日志。\n');
-      app.setLogConnectionState('已关闭', 'is-ended');
+      app.appendLogContent(app.translate('runtime.serverLogClosedMessage'));
+      app.setLogConnectionState(app.translate('runtime.serverLogClosedState'), 'is-ended');
       app.closeLogStream();
     }
 
@@ -28,7 +28,7 @@ app.updateStatusActionButtons = (payload) => {
   }
 
   const allHealthy = app.isSnapshotHealthy(payload);
-  startButton.textContent = '启动';
+  startButton.textContent = app.translate('runtime.serverStart');
   startButton.disabled = allHealthy;
   stopButton.disabled = !allHealthy;
   logButton.disabled = !allHealthy;
@@ -43,7 +43,7 @@ app.startServer = async () => {
   }
 
   startButton.disabled = true;
-  startButton.textContent = '启动中...';
+  startButton.textContent = app.translate('runtime.serverStarting');
   stopButton.disabled = true;
   if (logButton instanceof HTMLButtonElement) {
     logButton.disabled = true;
@@ -53,28 +53,20 @@ app.startServer = async () => {
   }
 
   try {
-    const response = await fetch('/api/server-control/start', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '服务器启动请求失败。');
-    }
+    const payload = await app.apiFetch('/api/server-control/start', { method: 'POST' });
 
     const controls = app.getControlState(payload?.controls);
     app.updateStatusActionButtons({ controls });
 
     if (typeof controls?.startup_error === 'string' && controls.startup_error) {
       state.serverControlFailureMessage = controls.startup_error;
-      app.openControlModal(controls.startup_error);
+      app.openControlModal(app.resolveUiTextToken(controls.startup_error));
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : '服务器启动请求失败。';
+    const message = app.apiErrorMessage(error, 'runtime.serverStartFailed');
     state.serverControlFailureMessage = message;
     app.openControlModal(message);
-    startButton.textContent = '启动';
+    startButton.textContent = app.translate('runtime.serverStart');
     startButton.disabled = false;
     stopButton.disabled = true;
     if (logButton instanceof HTMLButtonElement) {
@@ -103,21 +95,13 @@ app.stopServer = async () => {
   }
 
   try {
-    const response = await fetch('/api/server-control/stop', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '服务器停止请求失败。');
-    }
+    const payload = await app.apiFetch('/api/server-control/stop', { method: 'POST' });
 
     const controls = app.getControlState(payload?.controls);
     app.updateStatusActionButtons({ controls });
     await app.loadStatus();
   } catch (error) {
-    const message = error instanceof Error ? error.message : '服务器停止请求失败。';
+    const message = app.apiErrorMessage(error, 'runtime.serverStopFailed');
     app.openControlModal(message);
     await app.loadStatus();
   }

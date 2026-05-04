@@ -2,15 +2,17 @@ import { app } from '../shared.js';
 
 const PLAYER_NAME_PATTERN = /^[\u4e00-\u9fa5A-Za-z0-9 _-]+$/;
 const PLAYER_FIELD_LABELS = {
-  name: '昵称',
-  gender: '性别',
-  likes: '点赞',
-  level: '等级',
+  name: 'runtime.playerFieldName',
+  gender: 'runtime.playerFieldGender',
+  likes: 'runtime.playerFieldLikes',
+  level: 'runtime.playerFieldLevel',
 };
 const PLAYER_GENDER_OPTIONS = [
-  { value: '2', label: '男' },
-  { value: '1', label: '女' },
+  { value: '2', labelKey: 'dashboard.playerGenderMale' },
+  { value: '1', labelKey: 'dashboard.playerGenderFemale' },
 ];
+
+const getPlayerFieldLabel = (field) => app.translate(PLAYER_FIELD_LABELS[field] ?? field);
 
 const { dom, state } = app;
 const {
@@ -41,10 +43,10 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     normalize: (value) => String(value).trim(),
     validate: (value) => {
       if (value.length <= 0) {
-        return '昵称不能为空。';
+        return app.translate('runtime.playerNameRequired');
       }
 
-      return PLAYER_NAME_PATTERN.test(value) ? '' : '昵称仅允许中文、英文、数字、空格、下划线和短横线。';
+      return PLAYER_NAME_PATTERN.test(value) ? '' : app.translate('runtime.playerNameInvalid');
     },
   },
   gender: {
@@ -53,7 +55,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     element: () => playerCardGender,
     editorType: 'select',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (value === '2' || value === '1' ? '' : '性别仅允许为男或女。'),
+    validate: (value) => (value === '2' || value === '1' ? '' : app.translate('runtime.playerGenderInvalid')),
     options: PLAYER_GENDER_OPTIONS,
   },
   likes: {
@@ -63,7 +65,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : '点赞必须为大于等于 0 的整数。'),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerLikesInvalid')),
   },
   level: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.level),
@@ -72,7 +74,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : '等级必须为大于等于 0 的整数。'),
+    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerLevelInvalid')),
   },
   head_portrait_id: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.head_portrait_id),
@@ -115,7 +117,7 @@ app.setPlayerEditableState = (field, editable) => {
   element.setAttribute('tabindex', editable ? '0' : '-1');
   if (editable) {
     element.setAttribute('role', 'button');
-    element.setAttribute('title', config?.editorType === 'picker' ? `点击后选择${app.getPortraitPickerLabel(field)}` : '点击后按回车确认修改');
+    element.setAttribute('title', config?.editorType === 'picker' ? app.translate('runtime.playerEditPickerTitle', { label: app.getPortraitPickerLabel(field) }) : app.translate('runtime.playerEditInputTitle'));
   } else {
     element.removeAttribute('role');
     element.removeAttribute('title');
@@ -179,10 +181,10 @@ app.beginPlayerProfileEdit = (field) => {
   if (config.editorType === 'select') {
     const select = document.createElement('select');
     select.className = 'database-player-inline-select';
-    select.setAttribute('aria-label', `编辑${PLAYER_FIELD_LABELS[field] ?? field}`);
+    select.setAttribute('aria-label', app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }));
 
     const options = Array.isArray(config.options) ? config.options : [];
-    select.innerHTML = options.map((option) => `<option value="${option.value}">${option.label}</option>`).join('');
+    select.innerHTML = options.map((option) => `<option value="${option.value}">${app.translate(option.labelKey ?? option.label ?? option.value)}</option>`).join('');
     select.value = String(rawValue);
     element.appendChild(select);
     select.focus();
@@ -215,7 +217,7 @@ app.beginPlayerProfileEdit = (field) => {
   input.className = 'database-player-inline-input';
   input.value = String(rawValue);
   input.inputMode = config.inputMode;
-  input.setAttribute('aria-label', `编辑${PLAYER_FIELD_LABELS[field] ?? field}`);
+  input.setAttribute('aria-label', app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }));
   element.appendChild(input);
   input.focus();
   input.select();
@@ -266,7 +268,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
     return;
   }
 
-  if (app.isGameServerHealthy() && !window.confirm('游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！')) {
+  if (app.isGameServerHealthy() && !window.confirm(app.translate('runtime.playerEditConfirmRisk'))) {
     app.stopPlayerProfileEdit(field);
     return;
   }
@@ -281,18 +283,13 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
   const requestValue = field === 'name' ? normalizedValue : Number.parseInt(normalizedValue, 10);
 
   try {
-    const response = await fetch('/api/database-players/selected', {
+    const payload = await app.apiFetch('/api/database-players/selected', {
       method: 'PUT',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ field, value: requestValue }),
     });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '修改玩家信息失败');
-    }
 
     state.playerProfileEditState = null;
     app.clearPlayerProfileSummaryMessage();
@@ -300,7 +297,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
   } catch (error) {
     currentState.pending = false;
     app.renderPlayerProfile(state.playerProfileData);
-    app.openControlModal(error instanceof Error ? error.message : '修改玩家信息失败');
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }
 };
 
@@ -441,7 +438,7 @@ app.resetPlayerProfileView = () => {
     playerCardName.textContent = '--';
   }
   if (playerCardInlineUid instanceof HTMLElement) {
-    playerCardInlineUid.textContent = `UID ${state.selectedAccountUid ?? '--'}`;
+      playerCardInlineUid.textContent = `UID ${state.selectedAccountUid ?? app.translate('common.notAvailable')}`;
   }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = '--';
@@ -453,7 +450,7 @@ app.resetPlayerProfileView = () => {
     playerCardLikes.textContent = '--';
   }
   if (playerCardExp instanceof HTMLElement) {
-    playerCardExp.textContent = '0';
+      playerCardExp.textContent = '0';
   }
 
   app.resetPlayerCardAvatarFrame();
@@ -476,7 +473,7 @@ app.renderPlayerProfile = (profile) => {
     playerCardName.textContent = nameLabel;
   }
   if (playerCardInlineUid instanceof HTMLElement) {
-    playerCardInlineUid.textContent = `UID ${profileUid ?? '--'}`;
+      playerCardInlineUid.textContent = `UID ${profileUid ?? app.translate('common.notAvailable')}`;
   }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = genderLabel;
@@ -507,9 +504,9 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   if (databasePlayerProfileSubnavButton instanceof HTMLButtonElement) {
     databasePlayerProfileSubnavButton.disabled = !accessible;
     if (!healthy) {
-      databasePlayerProfileSubnavButton.title = '仅在数据库服务正常时允许查看玩家信息';
+      databasePlayerProfileSubnavButton.title = app.translate('runtime.playerProfileAccessTitle');
     } else if (state.selectedAccountUid === null) {
-      databasePlayerProfileSubnavButton.title = '请先在账号管理中选定一个用户';
+      databasePlayerProfileSubnavButton.title = app.translate('runtime.playerProfileNeedAccountTitle');
     } else {
       databasePlayerProfileSubnavButton.title = '';
     }
@@ -518,12 +515,12 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   if (databasePlayerProfileSummary instanceof HTMLElement) {
     const summaryMeta = databasePlayerProfileSummary.parentElement;
     if (!healthy) {
-      summaryMessage = '仅在数据库服务正常时可查看';
-    } else if (state.selectedAccountUid === null) {
-      summaryMessage = '请先在账号管理中选定一个用户';
-    } else if (state.playerProfileLoading) {
-      summaryMessage = '正在加载玩家资料...';
-    }
+        summaryMessage = app.translate('dashboard.accountsUnavailable');
+      } else if (state.selectedAccountUid === null) {
+        summaryMessage = app.translate('dashboard.playerProfileChooseAccount');
+      } else if (state.playerProfileLoading) {
+        summaryMessage = app.translate('runtime.playerProfileLoading');
+      }
 
     databasePlayerProfileSummary.textContent = summaryMessage;
     databasePlayerProfileSummary.hidden = summaryMessage.length <= 0;
@@ -537,7 +534,7 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   }
 
   if (!healthy) {
-    app.setPlayerProfileState('数据库服务正常后可查看玩家信息。', 'is-muted');
+    app.setPlayerProfileState(app.translate('runtime.playerProfileUnavailable'), 'is-muted');
     if (app.isDatabasePlayerProfileSectionActive()) {
       app.setActiveDatabaseTab('database-service-status-section');
     }
@@ -545,7 +542,7 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   }
 
   if (state.selectedAccountUid === null) {
-    app.setPlayerProfileState('请先在账号管理中选定一个用户。', 'is-muted');
+    app.setPlayerProfileState(app.translate('dashboard.playerProfileChooseAccount'), 'is-muted');
     if (app.isDatabasePlayerProfileSectionActive()) {
       app.setActiveDatabaseTab('database-accounts-section');
     }
@@ -553,7 +550,7 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   }
 
   if (!state.playerProfileData) {
-    app.setPlayerProfileState(state.playerProfileLoading ? '正在加载玩家资料...' : '进入该分栏后可查看当前选定用户的玩家资料。', state.playerProfileLoading ? 'is-loading' : 'is-muted');
+    app.setPlayerProfileState(state.playerProfileLoading ? app.translate('runtime.playerProfileLoading') : app.translate('runtime.playerProfilePrompt'), state.playerProfileLoading ? 'is-loading' : 'is-muted');
   }
 };
 
@@ -565,19 +562,15 @@ app.loadSelectedPlayerProfile = async () => {
 
   state.playerProfileLoading = true;
   app.updatePlayerProfileAccess();
-  app.setPlayerProfileState('正在加载玩家资料...', 'is-loading');
+  app.setPlayerProfileState(app.translate('runtime.playerProfileLoading'), 'is-loading');
 
   try {
-    const response = await fetch('/api/database-players/selected', { credentials: 'include' });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '加载玩家信息失败');
-    }
+    const payload = await app.apiFetch('/api/database-players/selected');
 
     app.renderPlayerProfile(payload);
   } catch (error) {
     state.playerProfileData = null;
-    app.setPlayerProfileState(error instanceof Error ? error.message : '加载玩家信息失败', 'is-error');
+    app.setPlayerProfileState(app.apiErrorMessage(error, 'runtime.playerProfileLoadFailed'), 'is-error');
   } finally {
     state.playerProfileLoading = false;
     app.updatePlayerProfileAccess();

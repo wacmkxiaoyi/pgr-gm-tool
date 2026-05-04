@@ -36,6 +36,13 @@ LOG_SNAPSHOT_MAX_BYTES = 64 * 1024
 LOG_RETRY_INTERVAL_MS = 3000
 
 
+def _ui_text_token(key: str, details: dict[str, object] | None = None) -> str:
+    payload: dict[str, object] = {'key': key}
+    if details:
+        payload['details'] = details
+    return json.dumps(payload, ensure_ascii=False)
+
+
 @dataclass(frozen=True)
 class HealthCheckRecord:
     checked_at: str
@@ -262,7 +269,7 @@ async def health_check_loop(settings: Settings) -> None:
 @dataclass
 class ServerControlSnapshot:
     visible: bool
-    start_label: str
+    start_label_key: str
     start_disabled: bool
     stop_disabled: bool
     log_disabled: bool
@@ -332,7 +339,7 @@ class ServerController:
         async with self._lock:
             if not self.controls_visible():
                 self._startup_state = "idle"
-                self._startup_error = "服务器启动文件不存在，无法执行启动操作。"
+                self._startup_error = _ui_text_token('server.binary_missing')
                 return self.get_snapshot(all_healthy=False)
 
             if self.is_process_running():
@@ -368,7 +375,7 @@ class ServerController:
         except Exception as error:  # noqa: BLE001
             async with self._lock:
                 self._startup_state = "start_failed"
-                self._startup_error = f"启动命令执行失败: {error}"
+                self._startup_error = _ui_text_token('server.start_command_failed', {'reason': str(error)})
             return
 
         deadline = asyncio.get_running_loop().time() + STARTUP_PROCESS_APPEAR_TIMEOUT_SECONDS
@@ -383,7 +390,7 @@ class ServerController:
             if asyncio.get_running_loop().time() >= deadline:
                 async with self._lock:
                     self._startup_state = "start_failed"
-                    self._startup_error = "未检测到服务器进程，启动失败。"
+                    self._startup_error = _ui_text_token('server.start_process_not_detected')
                 return
 
             await asyncio.sleep(STARTUP_PROCESS_POLL_INTERVAL_SECONDS)
@@ -478,15 +485,15 @@ class ServerController:
         yield f"retry: {LOG_RETRY_INTERVAL_MS}\n\n"
 
         if not self.log_file_exists():
-            yield self._encode_sse_event("log-error", {"message": f"未找到运行时日志文件: {self.runtime_log_path}"})
-            yield self._encode_sse_event("log-end", {"message": "日志流已结束。"})
+            yield self._encode_sse_event("log-error", {"code": "server.log_file_missing", "details": {"path": str(self.runtime_log_path)}})
+            yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
             return
 
         try:
             snapshot_text, offset, file_identity = await asyncio.to_thread(self._read_log_tail_bytes)
         except OSError as error:
-            yield self._encode_sse_event("log-error", {"message": f"读取日志文件失败: {error}"})
-            yield self._encode_sse_event("log-end", {"message": "日志流已结束。"})
+            yield self._encode_sse_event("log-error", {"code": "server.log_file_read_failed", "details": {"reason": str(error)}})
+            yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
             return
 
         yield self._encode_sse_event("log-snapshot", {"text": snapshot_text})
@@ -497,27 +504,27 @@ class ServerController:
                 return
 
             if not self.is_process_running():
-                yield self._encode_sse_event("log-end", {"message": "服务器已停止，日志流已结束。"})
+                yield self._encode_sse_event("log-end", {"code": "server.log_stream_stopped"})
                 return
 
             if not self.log_file_exists():
-                yield self._encode_sse_event("log-error", {"message": "日志文件已不存在。"})
-                yield self._encode_sse_event("log-end", {"message": "日志流已结束。"})
+                yield self._encode_sse_event("log-error", {"code": "server.log_file_deleted"})
+                yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                 return
 
             try:
                 chunk, next_offset, next_file_identity = await asyncio.to_thread(self._read_log_bytes_from_offset, offset)
             except OSError as error:
-                yield self._encode_sse_event("log-error", {"message": f"读取日志文件失败: {error}"})
-                yield self._encode_sse_event("log-end", {"message": "日志流已结束。"})
+                yield self._encode_sse_event("log-error", {"code": "server.log_file_read_failed", "details": {"reason": str(error)}})
+                yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                 return
 
             if next_offset < offset or next_file_identity != file_identity:
                 try:
                     snapshot_text, offset, file_identity = await asyncio.to_thread(self._read_log_tail_bytes)
                 except OSError as error:
-                    yield self._encode_sse_event("log-error", {"message": f"读取日志文件失败: {error}"})
-                    yield self._encode_sse_event("log-end", {"message": "日志流已结束。"})
+                    yield self._encode_sse_event("log-error", {"code": "server.log_file_read_failed", "details": {"reason": str(error)}})
+                    yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                     return
 
                 yield self._encode_sse_event("log-reset", {"text": snapshot_text})
@@ -563,7 +570,7 @@ class ServerController:
         if startup_state == "starting":
             return ServerControlSnapshot(
                 visible=visible,
-                start_label="启动中...",
+                start_label_key="runtime.serverStarting",
                 start_disabled=True,
                 stop_disabled=True,
                 log_disabled=False,
@@ -575,7 +582,7 @@ class ServerController:
         if startup_state == "running":
             return ServerControlSnapshot(
                 visible=visible,
-                start_label="启动",
+                start_label_key="runtime.serverStart",
                 start_disabled=True,
                 stop_disabled=False,
                 log_disabled=False,
@@ -587,7 +594,7 @@ class ServerController:
         start_error = startup_error if startup_state == "start_failed" else None
         return ServerControlSnapshot(
             visible=visible,
-            start_label="启动",
+            start_label_key="runtime.serverStart",
             start_disabled=not visible,
             stop_disabled=True,
             log_disabled=True,
@@ -610,7 +617,7 @@ def get_server_control_snapshot(settings: Settings, controller: ServerController
     snapshot = controller.get_snapshot(all_healthy=all_healthy)
     return {
         "visible": snapshot.visible,
-        "start_label": snapshot.start_label,
+        "start_label_key": snapshot.start_label_key,
         "start_disabled": snapshot.start_disabled,
         "stop_disabled": snapshot.stop_disabled,
         "log_disabled": snapshot.log_disabled,

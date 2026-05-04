@@ -41,13 +41,13 @@ app.renderPlayerPortraitPicker = () => {
   state.playerPortraitPickerState.totalPages = totalPages;
 
   if (playerPortraitPickerTitle instanceof HTMLElement) {
-    playerPortraitPickerTitle.textContent = `选择${app.getPortraitPickerLabel(field)}`;
+    playerPortraitPickerTitle.textContent = app.translate('runtime.portraitPickerTitle', { label: app.getPortraitPickerLabel(field) });
   }
   if (playerPortraitPickerEyebrow instanceof HTMLElement) {
-    playerPortraitPickerEyebrow.textContent = `${app.getPortraitPickerLabel(field)}选择`;
+    playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', { label: app.getPortraitPickerLabel(field) });
   }
   if (playerPortraitPickerCurrent instanceof HTMLElement) {
-    playerPortraitPickerCurrent.textContent = `当前选择：${app.getPortraitPickerCurrentName(field)}`;
+    playerPortraitPickerCurrent.textContent = app.translate('runtime.portraitPickerCurrent', { name: app.getPortraitPickerCurrentName(field) });
   }
   if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
     playerPortraitPickerConfirmButton.disabled = !Number.isFinite(state.playerPortraitPickerState.selectedId);
@@ -117,11 +117,11 @@ app.submitPlayerPortraitPicker = async () => {
   }
 
   if (selectedId === null || selectedId === undefined) {
-    app.openControlModal('请选择一个可用资源。');
+    app.openControlModal(app.translate('runtime.portraitPickerMissing'));
     return;
   }
 
-  if (app.isGameServerHealthy() && !window.confirm('游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！')) {
+  if (app.isGameServerHealthy() && !window.confirm(app.translate('runtime.playerEditConfirmRisk'))) {
     app.closePlayerPortraitPicker();
     return;
   }
@@ -133,25 +133,20 @@ app.submitPlayerPortraitPicker = async () => {
   playerPortraitPickerConfirmButton.disabled = true;
 
   try {
-    const response = await fetch('/api/database-players/selected', {
+    const payload = await app.apiFetch('/api/database-players/selected', {
       method: 'PUT',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ field, value: selectedId }),
     });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '修改玩家信息失败');
-    }
 
     app.closePlayerPortraitPicker();
     app.clearPlayerProfileSummaryMessage();
     app.renderPlayerProfile(payload);
   } catch (error) {
     playerPortraitPickerConfirmButton.disabled = false;
-    app.openControlModal(error instanceof Error ? error.message : '修改玩家信息失败');
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }
 };
 

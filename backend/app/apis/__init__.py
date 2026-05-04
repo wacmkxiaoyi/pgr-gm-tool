@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 
-from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
+from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
@@ -43,6 +43,7 @@ from backend.app.services.server_control import (
     run_health_check_once,
 )
 from backend.app.services.auth import SESSION_COOKIE_NAME, create_session, delete_session, get_session
+from backend.app.services.api_errors import raise_http_error
 
 router = APIRouter(prefix="/api")
 
@@ -102,7 +103,7 @@ async def database_accounts(
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     if not is_database_snapshot_healthy(snapshot):
-        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法访问账号管理。")
+        raise_http_error(409, "database.unhealthy_accounts_access")
 
     controller = request.app.state.database_controller
     return await controller.list_accounts(page=page, page_size=page_size)
@@ -111,7 +112,7 @@ async def database_accounts(
 def _get_active_session(login_session_token: str | None) -> object:
     session = get_session(login_session_token)
     if session is None:
-        raise HTTPException(status_code=401, detail="当前会话未登录或已失效。")
+        raise_http_error(401, "auth.session_invalid")
     return session
 
 
@@ -144,11 +145,11 @@ async def set_database_account_selection(
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     if not is_database_snapshot_healthy(snapshot):
-        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法选定账户。")
+        raise_http_error(409, "database.unhealthy_account_selection")
 
     controller = request.app.state.database_controller
     if not await controller.account_exists(payload.uid):
-        raise HTTPException(status_code=404, detail="未找到对应 UID 的账户。")
+        raise_http_error(404, "account.not_found", {"uid": payload.uid})
 
     active_session.selected_account_uid = payload.uid
     return SelectedAccountResponse(selected_uid=payload.uid)
@@ -173,15 +174,15 @@ async def reset_database_account_password(
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     if not is_database_snapshot_healthy(snapshot):
-        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法重置密码。")
+        raise_http_error(409, "database.unhealthy_password_reset")
 
     if len(payload.password) < 6:
-        raise HTTPException(status_code=422, detail="新密码长度必须大于等于 6 位。")
+        raise_http_error(422, "account.password_too_short", {"field": "password", "min_length": 6})
 
     controller = request.app.state.database_controller
     updated = await controller.update_account_password(payload.uid, payload.password)
     if not updated:
-        raise HTTPException(status_code=404, detail="未找到对应 UID 的账户。")
+        raise_http_error(404, "account.not_found", {"uid": payload.uid})
 
     return ResetAccountPasswordResponse(uid=payload.uid, updated=True)
 
@@ -195,20 +196,20 @@ async def get_selected_database_player_profile(
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     if not is_database_snapshot_healthy(snapshot):
-        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法查看玩家信息。")
+        raise_http_error(409, "database.unhealthy_player_view")
 
     selected_uid = getattr(active_session, "selected_account_uid", None)
     if selected_uid is None:
-        raise HTTPException(status_code=409, detail="请先在账号管理中选定一个用户。")
+        raise_http_error(409, "account.selection_required")
 
     controller = request.app.state.database_controller
     if not await controller.account_exists(selected_uid):
         active_session.selected_account_uid = None
-        raise HTTPException(status_code=404, detail="当前选定用户已不存在，请重新选择。")
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
 
     profile = await controller.get_player_profile(selected_uid)
     if profile is None:
-        raise HTTPException(status_code=404, detail="未找到对应 UID 的玩家信息。")
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
     return PlayerProfileResponse(**profile.model_dump())
 
@@ -223,82 +224,82 @@ async def update_selected_database_player_profile(
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     if not is_database_snapshot_healthy(snapshot):
-        raise HTTPException(status_code=409, detail="数据库服务未处于正常状态，暂时无法修改玩家信息。")
+        raise_http_error(409, "database.unhealthy_player_update")
 
     selected_uid = getattr(active_session, "selected_account_uid", None)
     if selected_uid is None:
-        raise HTTPException(status_code=409, detail="请先在账号管理中选定一个用户。")
+        raise_http_error(409, "account.selection_required")
 
     controller = request.app.state.database_controller
     if not await controller.account_exists(selected_uid):
         active_session.selected_account_uid = None
-        raise HTTPException(status_code=404, detail="当前选定用户已不存在，请重新选择。")
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
 
     field_name = str(payload.field or "").strip().lower()
     if field_name not in {"name", "gender", "level", "likes", "head_portrait_id", "head_frame_id"}:
-        raise HTTPException(status_code=422, detail="当前字段不允许修改。")
+        raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     if field_name == "name":
         normalized_value = str(payload.value).strip()
         if not normalized_value:
-            raise HTTPException(status_code=422, detail="昵称不能为空。")
+            raise_http_error(422, "player.name_required", {"field": field_name})
         if not re.match(PLAYER_NAME_PATTERN, normalized_value):
-            raise HTTPException(status_code=422, detail="昵称仅允许中文、英文、数字、空格、下划线和短横线。")
+            raise_http_error(422, "player.name_invalid", {"field": field_name})
         update_payload = UpdatePlayerProfilePayload(name=normalized_value)
     elif field_name == "gender":
         try:
             normalized_gender = int(payload.value)
         except (TypeError, ValueError) as error:
-            raise HTTPException(status_code=422, detail="性别仅允许为男或女。") from error
+            raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         if normalized_gender not in {0, 1}:
-            raise HTTPException(status_code=422, detail="性别仅允许为男或女。")
+            raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         update_payload = UpdatePlayerProfilePayload(gender=normalized_gender)
     elif field_name in {"level", "likes"}:
         try:
             normalized_number = int(payload.value)
         except (TypeError, ValueError) as error:
-            raise HTTPException(status_code=422, detail="请输入有效的整数。") from error
+            raise_http_error(422, "player.integer_invalid", {"field": field_name})
 
         if normalized_number < 0:
-            raise HTTPException(status_code=422, detail="数值不能小于 0。")
+            raise_http_error(422, "player.value_below_zero", {"field": field_name, "min": 0})
 
         update_payload = UpdatePlayerProfilePayload(**{field_name: normalized_number})
     elif field_name == "head_portrait_id":
         try:
             normalized_portrait_id = int(payload.value)
         except (TypeError, ValueError) as error:
-            raise HTTPException(status_code=422, detail="请输入有效的头像 ID。") from error
+            raise_http_error(422, "player.portrait_id_invalid", {"field": field_name})
 
         if normalized_portrait_id < 0:
-            raise HTTPException(status_code=422, detail="头像 ID 不能小于 0。")
+            raise_http_error(422, "player.portrait_id_below_zero", {"field": field_name, "min": 0})
 
         portrait_map = get_player_portrait_url_map()
         if normalized_portrait_id != 0 and normalized_portrait_id not in portrait_map:
-            raise HTTPException(status_code=404, detail="未找到对应头像资源。")
+            raise_http_error(404, "player.portrait_not_found", {"field": field_name, "id": normalized_portrait_id})
 
         update_payload = UpdatePlayerProfilePayload(head_portrait_id=normalized_portrait_id)
     elif field_name == "head_frame_id":
         try:
             normalized_frame_id = int(payload.value)
         except (TypeError, ValueError) as error:
-            raise HTTPException(status_code=422, detail="请输入有效的头像框 ID。") from error
+            raise_http_error(422, "player.frame_id_invalid", {"field": field_name})
 
         if normalized_frame_id < 0:
-            raise HTTPException(status_code=422, detail="头像框 ID 不能小于 0。")
+            raise_http_error(422, "player.frame_id_below_zero", {"field": field_name, "min": 0})
 
         frame_map = get_player_portrait_frame_url_map()
         if normalized_frame_id != 0 and normalized_frame_id not in frame_map:
-            raise HTTPException(status_code=404, detail="未找到对应头像框资源。")
+            raise_http_error(404, "player.frame_not_found", {"field": field_name, "id": normalized_frame_id})
 
         update_payload = UpdatePlayerProfilePayload(head_frame_id=normalized_frame_id)
     else:
-        raise HTTPException(status_code=422, detail="当前字段不允许修改。")
+        raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     profile = await controller.update_player_profile(selected_uid, update_payload)
     if profile is None:
-        raise HTTPException(status_code=404, detail="未找到对应 UID 的玩家信息。")
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
     return PlayerProfileResponse(**profile.model_dump())
 
@@ -343,7 +344,7 @@ async def stream_server_logs(request: Request) -> StreamingResponse:
     health_snapshot = get_health_snapshot(settings)
     all_healthy = is_health_snapshot_healthy(health_snapshot)
     if not controller.can_view_logs(all_healthy=all_healthy):
-        raise HTTPException(status_code=409, detail="服务器未处于可查看日志状态。")
+        raise_http_error(409, "server.logs_unavailable")
 
     return StreamingResponse(
         controller.stream_logs(request),
@@ -368,17 +369,17 @@ async def get_server_config(request: Request) -> ServerConfigResponse:
     )
 
     if not controls["visible"]:
-        raise HTTPException(status_code=404, detail="未找到可用的服务器配置。")
+        raise_http_error(404, "server.config_unavailable")
 
     if controls["start_disabled"]:
-        raise HTTPException(status_code=409, detail="服务器启动时不允许修改配置。")
+        raise_http_error(409, "server.config_readonly_while_running")
 
     try:
         config_text = settings.read_server_config_text()
     except FileNotFoundError as error:
-        raise HTTPException(status_code=404, detail=f"未找到配置文件: {settings.server_config_path}") from error
+        raise_http_error(404, "server.config_not_found", {"path": str(settings.server_config_path)})
     except OSError as error:
-        raise HTTPException(status_code=500, detail=f"读取配置文件失败: {error}") from error
+        raise_http_error(500, "server.config_read_failed", {"reason": str(error)})
 
     return ServerConfigResponse(
         path=str(settings.server_config_path),
@@ -399,18 +400,18 @@ async def save_server_config(request: Request, payload: SaveServerConfigRequest)
     )
 
     if not controls["visible"]:
-        raise HTTPException(status_code=404, detail="未找到可用的服务器配置。")
+        raise_http_error(404, "server.config_unavailable")
 
     if controls["start_disabled"]:
-        raise HTTPException(status_code=409, detail="服务器启动时不允许修改配置。")
+        raise_http_error(409, "server.config_readonly_while_running")
 
     try:
         parsed = json.loads(payload.text)
     except json.JSONDecodeError as error:
-        raise HTTPException(status_code=422, detail=f"JSON 格式无效: {error.msg} (第 {error.lineno} 行, 第 {error.colno} 列)") from error
+        raise_http_error(422, "server.config_invalid_json", {"reason": error.msg, "line": error.lineno, "column": error.colno})
 
     if not isinstance(parsed, dict):
-        raise HTTPException(status_code=422, detail="配置文件顶层必须是 JSON 对象。")
+        raise_http_error(422, "server.config_root_not_object")
 
     try:
         settings.server_config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -422,7 +423,7 @@ async def save_server_config(request: Request, payload: SaveServerConfigRequest)
         await run_database_health_check_once(settings)
         refreshed_text = settings.read_server_config_text()
     except OSError as error:
-        raise HTTPException(status_code=500, detail=f"保存配置文件失败: {error}") from error
+        raise_http_error(500, "server.config_save_failed", {"reason": str(error)})
 
     return ServerConfigResponse(
         path=str(settings.server_config_path),
@@ -436,7 +437,7 @@ async def login(request: Request, payload: LoginRequest, response: Response) -> 
     settings = request.app.state.settings
     session = create_session(payload.username, payload.password, settings)
     if session is None:
-        raise HTTPException(status_code=401, detail="账号或密码错误")
+        raise_http_error(401, "auth.invalid_credentials")
     response.set_cookie(
         key=SESSION_COOKIE_NAME,
         value=session.token,

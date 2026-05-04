@@ -1,4 +1,17 @@
+import { apiFetch, getLocalizedApiErrorMessage, initI18n, subscribeLocaleChange, t } from './i18n.js';
+
 const form = document.querySelector('.login-form');
+
+const renderLoginStaticState = () => {
+  const title = document.querySelector('title');
+  if (title) {
+    title.textContent = t('common.appName');
+  }
+};
+
+initI18n(document, renderLoginStaticState);
+subscribeLocaleChange(renderLoginStaticState);
+renderLoginStaticState();
 
 if (form) {
   const hint = form.querySelector('.hint');
@@ -103,7 +116,7 @@ if (form) {
 
     if (!username || !password) {
       if (hint) {
-        hint.textContent = '请输入账号和密码。';
+        hint.textContent = t('login.emptyFields');
       }
       return;
     }
@@ -114,53 +127,40 @@ if (form) {
 
     if (button) {
       button.disabled = true;
-      button.textContent = '正在进入后台...';
+      button.textContent = t('login.submitting');
     }
     if (hint) {
-      hint.textContent = '正在验证身份...';
+      hint.textContent = t('login.authenticating');
     }
 
-    fetch('/api/login', {
+    apiFetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
       body: JSON.stringify({ username, password }),
     })
-      .then(async (response) => {
-        if (!response.ok) {
-          const payload = await response.json().catch(() => null);
-          throw new Error(payload?.detail || '账号或密码错误，请重新输入。');
-        }
-        return response.json();
-      })
       .then(() => {
         window.location.assign('/');
       })
       .catch((error) => {
         if (button) {
           button.disabled = false;
-          button.textContent = '登录';
+          button.textContent = t('login.submit');
         }
 
-        openModal(error.message);
+        openModal(getLocalizedApiErrorMessage(error, undefined, 'login.invalidCredentials'));
       });
   });
 }
 
-fetch('/api/session', {
-  credentials: 'include',
-})
+apiFetch('/api/session')
   .then(async (response) => {
-    if (!response.ok) {
-      return null;
-    }
-
-    return response.json();
+    return response;
   })
   .then((session) => {
     if (session?.authenticated && window.location.pathname === '/login') {
       window.location.assign('/');
     }
-  });
+  })
+  .catch(() => null);

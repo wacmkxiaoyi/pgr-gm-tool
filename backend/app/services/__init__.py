@@ -3,12 +3,13 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from backend.app.apis import router
 from backend.app.services.database_control import DatabaseController, database_health_check_loop
 from backend.app.services.server_control import ServerController, health_check_loop
 
 
 def init_app(app, settings):
+    from backend.app.apis import router
+
     app.state.settings = settings
     app.state.pgr_server_controller = ServerController(settings)
     app.state.database_controller = DatabaseController(settings)

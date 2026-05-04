@@ -96,18 +96,6 @@
   container-type: inline-size;
 }
 
-.status-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.status-card-name {
-  font-weight: 700;
-  color: var(--text);
-}
-
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -152,6 +140,17 @@
   color: var(--muted);
   font-size: 12px;
   line-height: 1.5;
+}
+
+.status-card-details-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.status-card-details-header .status-badge {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .status-card-details strong {

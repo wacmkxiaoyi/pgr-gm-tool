@@ -39,7 +39,7 @@ app.replaceLogContent = (text) => {
     return;
   }
 
-  logModalContent.textContent = typeof text === 'string' && text ? text : '日志文件当前没有内容。';
+  logModalContent.textContent = typeof text === 'string' && text ? text : app.translate('runtime.serverLogEmpty');
   window.requestAnimationFrame(app.scrollLogToBottom);
 };
 
@@ -49,7 +49,7 @@ app.appendLogContent = (text) => {
   }
 
   const shouldStick = app.isLogPinnedToBottom();
-  const hadPlaceholder = logModalContent.textContent === '点击“查看日志”后显示最近日志。' || logModalContent.textContent === '日志文件当前没有内容。';
+  const hadPlaceholder = logModalContent.textContent === app.translate('runtime.serverLogInitialContent') || logModalContent.textContent === app.translate('runtime.serverLogEmpty');
   logModalContent.textContent = hadPlaceholder ? text : `${logModalContent.textContent}${text}`;
 
   if (shouldStick) {
@@ -89,7 +89,7 @@ app.openLogModal = () => {
   state.lastLogFocusedControl = document.activeElement;
   logModal.hidden = false;
   app.setBodyModalOpen(true);
-  app.setLogConnectionState('连接中...', 'is-pending');
+  app.setLogConnectionState(app.translate('runtime.serverLogConnecting'), 'is-pending');
 
   const closeButton = logModal.querySelector('[data-server-log-close].login-modal-button');
   if (closeButton instanceof HTMLElement) {
@@ -109,6 +109,18 @@ app.parseLogEventPayload = (event) => {
   }
 };
 
+app.resolveLogEventMessage = (payload, fallbackKey) => {
+  if (payload?.code) {
+    return app.apiErrorMessage(app.createApiError(payload), fallbackKey);
+  }
+
+  if (payload?.message) {
+    return app.resolveUiTextToken(payload.message);
+  }
+
+  return app.translate(fallbackKey);
+};
+
 app.startLogStream = () => {
   if (!(logButton instanceof HTMLButtonElement) || logButton.disabled) {
     return;
@@ -116,25 +128,25 @@ app.startLogStream = () => {
 
   app.closeLogStream();
   app.openLogModal();
-  app.replaceLogContent('正在加载最近日志...');
+  app.replaceLogContent(app.translate('runtime.serverLogLoading'));
   state.logStreamEnded = false;
 
   const currentControls = app.getControlState(state.serverControlState);
   if (logModalPath instanceof HTMLElement) {
-    const runtimeLogPath = typeof currentControls?.runtime_log_path === 'string' ? currentControls.runtime_log_path : '--';
-    logModalPath.textContent = `运行日志: ${runtimeLogPath}`;
+      const runtimeLogPath = typeof currentControls?.runtime_log_path === 'string' ? currentControls.runtime_log_path : app.translate('common.notAvailable');
+      logModalPath.textContent = app.translate('runtime.serverLogPath', { path: runtimeLogPath });
   }
 
   const eventSource = new EventSource('/api/server-control/logs', { withCredentials: true });
   state.logEventSource = eventSource;
 
   eventSource.addEventListener('open', () => {
-    app.setLogConnectionState('实时跟随中', 'is-live');
+    app.setLogConnectionState(app.translate('runtime.serverLogLive'), 'is-live');
   });
 
   eventSource.addEventListener('log-snapshot', (event) => {
     const payload = app.parseLogEventPayload(event);
-    app.replaceLogContent(payload?.text ?? '日志文件当前没有内容。');
+    app.replaceLogContent(payload?.text ?? app.translate('runtime.serverLogEmpty'));
   });
 
   eventSource.addEventListener('log-append', (event) => {
@@ -144,24 +156,20 @@ app.startLogStream = () => {
 
   eventSource.addEventListener('log-reset', (event) => {
     const payload = app.parseLogEventPayload(event);
-    app.replaceLogContent(payload?.text ?? '日志已刷新。');
+    app.replaceLogContent(payload?.text ?? app.translate('runtime.serverLogRefreshed'));
   });
 
   eventSource.addEventListener('log-error', (event) => {
     const payload = app.parseLogEventPayload(event);
-    if (payload?.message) {
-      app.appendLogContent(`\n[日志流错误] ${payload.message}\n`);
-    }
-    app.setLogConnectionState('连接异常', 'is-error');
+    app.appendLogContent(app.translate('runtime.serverLogStreamError', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogFileReadFailedApi') }));
+    app.setLogConnectionState(app.translate('runtime.serverLogErrorState'), 'is-error');
   });
 
   eventSource.addEventListener('log-end', (event) => {
     const payload = app.parseLogEventPayload(event);
-    if (payload?.message) {
-      app.appendLogContent(`\n[日志流结束] ${payload.message}\n`);
-    }
+    app.appendLogContent(app.translate('runtime.serverLogStreamEnded', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogStreamEndedApi') }));
     state.logStreamEnded = true;
-    app.setLogConnectionState('已结束', 'is-ended');
+    app.setLogConnectionState(app.translate('runtime.serverLogEndedState'), 'is-ended');
     app.closeLogStream();
   });
 
@@ -170,7 +178,7 @@ app.startLogStream = () => {
       return;
     }
 
-    app.setLogConnectionState('连接中断，正在重连...', 'is-pending');
+    app.setLogConnectionState(app.translate('runtime.serverLogReconnecting'), 'is-pending');
   };
 };
 
@@ -181,7 +189,7 @@ export const initStatusLogFeature = () => {
 
   if (logModalClearButton instanceof HTMLButtonElement) {
     logModalClearButton.addEventListener('click', () => {
-      app.replaceLogContent('日志显示已清空，等待新的日志输出...');
+      app.replaceLogContent(app.translate('runtime.serverLogCleared'));
     });
   }
 };

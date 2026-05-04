@@ -56,6 +56,78 @@
   text-align: center;
 }
 
+.locale-switcher-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.34);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+.locale-switcher-label {
+  color: #3c2f52;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.82;
+}
+
+.locale-switcher {
+  min-width: 104px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  padding: 7px 32px 7px 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 249, 255, 0.76)),
+    rgba(255, 255, 255, 0.7);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 6px 16px rgba(255, 79, 160, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.26) inset;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    border-color 0.22s ease,
+    background 0.22s ease;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 249, 255, 0.76)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%237c5cf6' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M2.25 4.5 6 8.25 9.75 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 0, right 12px center;
+  background-size: auto, 12px 12px;
+}
+
+.locale-switcher:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 79, 160, 0.28);
+  box-shadow:
+    0 14px 28px rgba(255, 79, 160, 0.16),
+    0 0 22px rgba(56, 189, 248, 0.14);
+}
+
+.locale-switcher:focus {
+  transform: translateY(-1px);
+  border-color: rgba(255, 79, 160, 0.72);
+  box-shadow:
+    0 0 0 4px rgba(255, 79, 160, 0.14),
+    0 16px 34px rgba(67, 78, 117, 0.2);
+}
+
 .login-badge {
   display: inline-flex;
   align-items: center;
@@ -197,6 +269,15 @@
   .login-card {
     padding: 24px 20px;
     border-radius: 24px;
+  }
+
+  .locale-switcher-shell {
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .locale-switcher {
+    min-width: 96px;
   }
 
   .login-header h2 {

@@ -13,6 +13,12 @@ class LoginResponse(BaseModel):
     expires_at: str | None = None
 
 
+class ApiErrorResponse(BaseModel):
+    code: str
+    message: str
+    details: dict[str, object] | None = None
+
+
 class SessionResponse(BaseModel):
     authenticated: bool
 

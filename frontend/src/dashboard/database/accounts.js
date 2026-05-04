@@ -15,7 +15,7 @@ const {
 
 app.renderSelectedAccountBadge = () => {
   if (databaseSelectedAccountLabel instanceof HTMLElement) {
-    databaseSelectedAccountLabel.textContent = `已选定用户：${state.selectedAccountUid ?? '--'}`;
+    databaseSelectedAccountLabel.textContent = app.translate('dashboard.selectedUser', { uid: state.selectedAccountUid ?? app.translate('common.notAvailable') });
   }
 };
 
@@ -30,7 +30,7 @@ app.updateAccountSelectionUi = () => {
       const isSelected = uid !== null && uid === state.selectedAccountUid;
       const isPending = uid !== null && uid === state.accountSelectionPendingUid;
 
-      button.textContent = isSelected ? '已选定' : (isPending ? '选定中...' : '选定');
+      button.textContent = isSelected ? app.translate('dashboard.accountSelected') : (isPending ? app.translate('dashboard.accountSelecting') : app.translate('dashboard.accountSelect'));
       button.disabled = isSelected || isPending || state.accountSelectionPendingUid !== null;
       button.classList.toggle('is-selected', isSelected);
     });
@@ -51,18 +51,13 @@ app.setSelectedAccountUid = (uid) => {
 
 app.clearSelectedAccount = async () => {
   try {
-    const response = await fetch('/api/database-accounts/selection', {
+    const payload = await app.apiFetch('/api/database-accounts/selection', {
       method: 'DELETE',
-      credentials: 'include',
     });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '清空已选定用户失败');
-    }
 
     app.setSelectedAccountUid(payload?.selected_uid ?? null);
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '清空已选定用户失败');
+    throw new Error(app.apiErrorMessage(error, 'runtime.clearSelectedAccountFailed'));
   }
 };
 
@@ -93,7 +88,10 @@ app.showAccountsTable = () => {
 
 app.updateAccountsPagination = () => {
   if (databaseAccountsPaginationLabel instanceof HTMLElement) {
-    databaseAccountsPaginationLabel.textContent = `第 ${state.accountsTotalPages === 0 ? 0 : state.accountsCurrentPage} / ${state.accountsTotalPages} 页`;
+    databaseAccountsPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
+      page: state.accountsTotalPages === 0 ? 0 : state.accountsCurrentPage,
+      totalPages: state.accountsTotalPages,
+    });
   }
 
   if (databaseAccountsPrevButton instanceof HTMLButtonElement) {
@@ -116,9 +114,9 @@ app.renderAccountRows = (items) => {
       <td>${item?.username ?? '--'}</td>
       <td>
         <div class="accounts-row-actions">
-          <button class="status-action-button status-action-button-log" type="button" data-account-action="select" data-account-uid="${item?.uid ?? ''}">选定</button>
-          <button class="status-action-button status-action-button-config" type="button" data-account-action="password" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">重置密码</button>
-          <button class="status-action-button status-action-button-stop" type="button" data-account-action="delete" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">删除</button>
+          <button class="status-action-button status-action-button-log" type="button" data-account-action="select" data-account-uid="${item?.uid ?? ''}">${app.translate('dashboard.accountSelect')}</button>
+          <button class="status-action-button status-action-button-config" type="button" data-account-action="password" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">${app.translate('dashboard.accountResetPassword')}</button>
+          <button class="status-action-button status-action-button-stop" type="button" data-account-action="delete" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">${app.translate('dashboard.accountDelete')}</button>
         </div>
       </td>
     </tr>
@@ -129,11 +127,7 @@ app.renderAccountRows = (items) => {
 
 app.loadSelectedAccount = async () => {
   try {
-    const response = await fetch('/api/database-accounts/selection', { credentials: 'include' });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '加载已选定用户失败');
-    }
+    const payload = await app.apiFetch('/api/database-accounts/selection');
 
     app.setSelectedAccountUid(payload?.selected_uid ?? null);
   } catch {
@@ -148,7 +142,7 @@ app.selectDatabaseAccount = async (uid) => {
   }
 
   if (!app.isDatabaseHealthy()) {
-    app.openControlModal('数据库服务未处于正常状态，暂时无法选定账户。');
+    app.openControlModal(app.translate('runtime.databaseUnhealthySelectBlocked'));
     return;
   }
 
@@ -156,22 +150,21 @@ app.selectDatabaseAccount = async (uid) => {
   app.updateAccountSelectionUi();
 
   try {
-    const response = await fetch('/api/database-accounts/selection', {
+    const payload = await app.apiFetch('/api/database-accounts/selection', {
       method: 'PUT',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ uid: normalizedUid }),
     });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '选定账户失败');
-    }
 
     app.setSelectedAccountUid(payload?.selected_uid ?? normalizedUid);
+    if (app.canAccessPlayerProfile()) {
+      app.setActiveDatabaseTab('database-player-profile-section');
+      void app.loadSelectedPlayerProfile();
+    }
   } catch (error) {
-    app.openControlModal(error instanceof Error ? error.message : '选定账户失败');
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.selectAccountFailed'));
   } finally {
     state.accountSelectionPendingUid = null;
     app.updateAccountSelectionUi();
@@ -183,13 +176,13 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (databaseAccountsSubnavButton instanceof HTMLButtonElement) {
     databaseAccountsSubnavButton.disabled = !healthy;
-    databaseAccountsSubnavButton.title = healthy ? '' : '仅在数据库服务正常时允许查看账号管理';
+    databaseAccountsSubnavButton.title = healthy ? '' : app.translate('runtime.accountsAccessTitle');
   }
 
   if (databaseAccountsSummary instanceof HTMLElement) {
     databaseAccountsSummary.textContent = healthy
-      ? (state.accountsHasLoaded ? '账户列表已加载，每页 25 条' : '数据库服务正常，可查看账户列表')
-      : '仅在数据库服务正常时可查看';
+      ? (state.accountsHasLoaded ? app.translate('dashboard.accountsLoaded') : app.translate('dashboard.accountsReady'))
+      : app.translate('dashboard.accountsUnavailable');
   }
 
   if (!healthy) {
@@ -198,7 +191,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
     if (databaseAccountsBody instanceof HTMLElement) {
       databaseAccountsBody.innerHTML = '';
     }
-    app.setAccountsState('数据库服务正常后可查看账户列表。', 'is-muted');
+    app.setAccountsState(app.translate('dashboard.accountsStateReady'), 'is-muted');
 
     if (app.isDatabaseAccountsSectionActive()) {
       app.setActiveDatabaseTab('database-service-status-section');
@@ -252,14 +245,10 @@ app.loadDatabaseAccounts = async (page = 1) => {
   state.accountsLoading = true;
   state.accountsCurrentPage = Math.max(1, page);
   app.updateAccountsPagination();
-  app.setAccountsState('正在加载账户列表...', 'is-loading');
+  app.setAccountsState(app.translate('dashboard.accountsStateLoading'), 'is-loading');
 
   try {
-    const response = await fetch(`/api/database-accounts?page=${state.accountsCurrentPage}&page_size=25`, { credentials: 'include' });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '加载账户列表失败');
-    }
+    const payload = await app.apiFetch(`/api/database-accounts?page=${state.accountsCurrentPage}&page_size=25`);
 
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.accountsCurrentPage = typeof payload?.page === 'number' ? payload.page : state.accountsCurrentPage;
@@ -268,14 +257,14 @@ app.loadDatabaseAccounts = async (page = 1) => {
 
     if (databaseAccountsSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseAccountsSummary.textContent = `共 ${total} 个账户，每页 25 条`;
+      databaseAccountsSummary.textContent = app.translate('dashboard.accountsSummaryTotal', { total });
     }
 
     if (items.length === 0) {
       if (databaseAccountsBody instanceof HTMLElement) {
         databaseAccountsBody.innerHTML = '';
       }
-      app.setAccountsState('暂无账户数据。', 'is-empty');
+      app.setAccountsState(app.translate('dashboard.accountsStateEmpty'), 'is-empty');
     } else {
       app.renderAccountRows(items);
       app.showAccountsTable();
@@ -285,7 +274,7 @@ app.loadDatabaseAccounts = async (page = 1) => {
     if (databaseAccountsBody instanceof HTMLElement) {
       databaseAccountsBody.innerHTML = '';
     }
-    app.setAccountsState(error instanceof Error ? error.message : '加载账户列表失败', 'is-error');
+    app.setAccountsState(app.apiErrorMessage(error, 'runtime.loadAccountsFailed'), 'is-error');
   } finally {
     state.accountsLoading = false;
     app.updateAccountsPagination();

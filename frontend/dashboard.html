@@ -15,25 +15,25 @@
       <!-- Dashboard shell -->
       <div class="dashboard-layout">
         <!-- Primary navigation -->
-        <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="后台导航">
+        <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="后台导航" data-i18n-aria-label="dashboard.sidebarAria">
           <div class="sidebar-brand">
             <div>
               <strong>WACMK PGR</strong>
-              <span>管理后台</span>
+              <span data-i18n="dashboard.sidebarSubtitle">管理后台</span>
             </div>
           </div>
 
           <nav class="sidebar-nav">
-            <a class="sidebar-link is-active" href="#server-management" data-dashboard-page="server-management">游戏服务器管理</a>
-            <a class="sidebar-link" href="#database-management" data-dashboard-page="database-management">数据库服务管理</a>
+            <a class="sidebar-link is-active" href="#server-management" data-dashboard-page="server-management" data-i18n="dashboard.sidebarServerManagement">游戏服务器管理</a>
+            <a class="sidebar-link" href="#database-management" data-dashboard-page="database-management" data-i18n="dashboard.sidebarDatabaseManagement">数据库服务管理</a>
           </nav>
 
           <div class="sidebar-footer">
             <div class="sidebar-status">
               <span class="status-dot"></span>
-              <span>系统运行正常</span>
+              <span data-i18n="dashboard.sidebarHealthy">系统运行正常</span>
             </div>
-            <button class="logout-button sidebar-logout" type="button">退出登录</button>
+            <button class="logout-button sidebar-logout" type="button" data-i18n="dashboard.logout">退出登录</button>
           </div>
         </aside>
 
@@ -41,10 +41,10 @@
           <!-- Server management -->
           <section class="dashboard-page is-active" id="server-management" data-dashboard-panel="server-management" aria-labelledby="server-management-title">
             <header class="dashboard-topbar">
-              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
+              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" data-i18n-aria-label="dashboard.toggleSidebar" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
 
               <div class="topbar-copy">
-                <h1 id="server-management-title">游戏服务器管理</h1>
+                <h1 id="server-management-title" data-i18n="dashboard.title">游戏服务器管理</h1>
               </div>
             </header>
 
@@ -53,13 +53,13 @@
                 <div class="status-meta status-meta-row">
                   <div class="status-meta-list">
                     <span id="status-server-version">服务器版本号: --</span>
-                    <span id="status-interval">健康检查时间间隔: --</span>
+                    <span id="status-interval">距离下次健康检查: --</span>
                   </div>
                   <div class="status-controls" id="status-controls" hidden>
-                    <button class="status-action-button status-action-button-start" type="button">启动</button>
-                    <button class="status-action-button status-action-button-stop" type="button">停止</button>
-                    <button class="status-action-button status-action-button-log" type="button">查看日志</button>
-                    <button class="status-action-button status-action-button-config" type="button">修改配置</button>
+                    <button class="status-action-button status-action-button-start" type="button" data-i18n="runtime.serverStart">启动</button>
+                    <button class="status-action-button status-action-button-stop" type="button" data-i18n="dashboard.serverStop">停止</button>
+                    <button class="status-action-button status-action-button-log" type="button" data-i18n="dashboard.serverViewLogs">查看日志</button>
+                    <button class="status-action-button status-action-button-config" type="button" data-i18n="dashboard.serverEditConfig">修改配置</button>
                   </div>
                 </div>
               </section>
@@ -68,9 +68,9 @@
                 <div class="status-section-header">
                   <div>
                     <span class="section-tag">SDK</span>
-                    <h2 id="sdk-status-title">SDK 服务器状态</h2>
+                    <h2 id="sdk-status-title" data-i18n="dashboard.statusSdkTitle">SDK 服务器状态</h2>
                   </div>
-                  <small>HTTP / HTTPS 检查</small>
+                  <small data-i18n="dashboard.statusSdkHint">HTTP / HTTPS 检查</small>
                 </div>
                 <div class="status-grid" id="sdk-status-grid"></div>
               </section>
@@ -79,9 +79,9 @@
                 <div class="status-section-header">
                   <div>
                     <span class="section-tag">GAME</span>
-                    <h2 id="game-status-title">游戏服务器状态</h2>
+                    <h2 id="game-status-title" data-i18n="dashboard.statusGameTitle">游戏服务器状态</h2>
                   </div>
-                  <small>TCP 连接检查</small>
+                  <small data-i18n="dashboard.statusGameHint">TCP 连接检查</small>
                 </div>
                 <div class="status-grid" id="game-status-grid"></div>
               </section>
@@ -91,14 +91,14 @@
           <!-- Database management -->
           <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="数据库服务管理" hidden>
             <header class="dashboard-topbar">
-              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
+              <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" data-i18n-aria-label="dashboard.toggleSidebar" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
             </header>
 
             <div class="dashboard-content database-page">
-              <nav class="dashboard-subnav page-subnav database-subnav" aria-label="数据库服务管理次级导航">
-                <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true">服务状态</button>
-                <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled>账号管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled>玩家信息</button>
+              <nav class="dashboard-subnav page-subnav database-subnav" aria-label="数据库服务管理次级导航" data-i18n-aria-label="dashboard.databaseSubnavAria">
+                <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">服务状态</button>
+                <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
+                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">玩家信息</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户：--</div>
               </nav>
 
@@ -106,7 +106,7 @@
                 <div class="database-panel-header">
                   <div>
                     <span class="section-tag">Database</span>
-                    <h2 id="database-service-status-title">服务状态</h2>
+                    <h2 id="database-service-status-title" data-i18n="dashboard.databaseStatusTitle">服务状态</h2>
                   </div>
                   <small id="database-status-interval">距离下次健康检查: --</small>
                 </div>
@@ -118,21 +118,21 @@
                 <div class="database-panel-header database-panel-header-compact">
                   <div>
                     <span class="section-tag">Accounts</span>
-                    <h2 id="database-accounts-title">账号管理</h2>
-                    <p class="database-panel-description">展示 MongoDB 中 accounts 集合的账户数据，每页固定 25 条记录。</p>
+                    <h2 id="database-accounts-title" data-i18n="dashboard.accountsTitle">账号管理</h2>
+                    <p class="database-panel-description" data-i18n="dashboard.accountsDescription">展示 MongoDB 中 accounts 集合的账户数据，每页固定 25 条记录。</p>
                   </div>
-                  <small class="database-accounts-summary" id="database-accounts-summary">仅在数据库服务正常时可查看</small>
+                  <small class="database-accounts-summary" id="database-accounts-summary" data-i18n="dashboard.accountsUnavailable">仅在数据库服务正常时可查看</small>
                 </div>
 
                 <div class="accounts-table-shell">
-                  <div class="accounts-state" id="database-accounts-state">数据库服务正常后可查看账户列表。</div>
+                  <div class="accounts-state" id="database-accounts-state" data-i18n="dashboard.accountsStateReady">数据库服务正常后可查看账户列表。</div>
                   <div class="accounts-table-scroll" id="database-accounts-table-shell" hidden>
                     <table class="accounts-table" aria-describedby="database-accounts-summary">
                       <thead>
                         <tr>
-                          <th scope="col">UID</th>
-                          <th scope="col">用户名</th>
-                          <th scope="col">操作</th>
+                          <th scope="col" data-i18n="dashboard.accountsUid">UID</th>
+                          <th scope="col" data-i18n="dashboard.accountsUsername">用户名</th>
+                          <th scope="col" data-i18n="dashboard.accountsAction">操作</th>
                         </tr>
                       </thead>
                       <tbody id="database-accounts-body"></tbody>
@@ -141,9 +141,9 @@
                 </div>
 
                 <div class="accounts-pagination">
-                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-prev" disabled>上一页</button>
+                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-prev" disabled data-i18n="dashboard.accountsPrev">上一页</button>
                   <span class="accounts-pagination-label" id="database-accounts-pagination">第 0 / 0 页</span>
-                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-next" disabled>下一页</button>
+                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-next" disabled data-i18n="dashboard.accountsNext">下一页</button>
                 </div>
               </section>
 
@@ -151,22 +151,22 @@
                 <div class="database-panel-header database-panel-header-compact database-player-panel-header">
                   <div>
                     <span class="section-tag">Player</span>
-                    <h2 id="database-player-profile-title">玩家信息</h2>
+                    <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">玩家信息</h2>
                   </div>
                   <div class="database-player-profile-meta" hidden>
                     <small class="database-player-profile-summary" id="database-player-profile-summary" hidden></small>
                   </div>
                 </div>
 
-                <div class="database-player-empty" id="database-player-profile-state">请先在账号管理中选定一个用户。</div>
+                <div class="database-player-empty" id="database-player-profile-state" data-i18n="dashboard.playerProfileChooseAccount">请先在账号管理中选定一个用户。</div>
 
                 <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
-                  <article class="database-player-card" aria-label="玩家人物名片">
+                  <article class="database-player-card" aria-label="玩家人物名片" data-i18n-aria-label="dashboard.playerCardAria">
                     <div class="database-player-card-glow" aria-hidden="true"></div>
                     <div class="database-player-card-avatar-shell">
                       <div class="database-player-card-avatar-ring">
-                        <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-player-edit-field="head_frame_id" hidden>
-                        <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-player-edit-field="head_portrait_id" hidden>
+                        <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-i18n-alt="dashboard.playerFrameAlt" data-player-edit-field="head_frame_id" hidden>
+                        <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-i18n-alt="dashboard.playerAvatarAlt" data-player-edit-field="head_portrait_id" hidden>
                         <div class="database-player-card-avatar-fallback" id="player-card-avatar-fallback" aria-hidden="true"></div>
                       </div>
                     </div>
@@ -175,22 +175,22 @@
                       <span class="database-player-card-uid" id="player-card-inline-uid">UID --</span>
                       <div class="database-player-card-tags">
                         <span class="database-player-card-tag">
-                          <span class="database-player-card-tag-label">点赞</span>
+                          <span class="database-player-card-tag-label" data-i18n="dashboard.playerLikes">点赞</span>
                           <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
                         </span>
                         <span class="database-player-card-tag">
-                          <span class="database-player-card-tag-label">性别</span>
+                          <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">性别</span>
                           <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
                         </span>
                       </div>
                     </div>
-                    <div class="database-player-card-stats" aria-label="玩家等级与经验值">
+                    <div class="database-player-card-stats" aria-label="玩家阶级与经验" data-i18n-aria-label="dashboard.playerStatsAria">
                       <div class="database-player-card-stat">
-                        <span class="database-player-card-stat-label">等级</span>
+                        <span class="database-player-card-stat-label" data-i18n="dashboard.playerLevel">阶级</span>
                         <strong class="database-player-card-stat-value" id="player-card-level" data-player-edit-field="level">--</strong>
                       </div>
                       <div class="database-player-card-stat">
-                        <span class="database-player-card-stat-label">经验值</span>
+                        <span class="database-player-card-stat-label" data-i18n="dashboard.playerExp">经验</span>
                         <strong class="database-player-card-stat-value" id="player-card-exp">0</strong>
                       </div>
                     </div>
@@ -210,13 +210,13 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" id="server-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" id="server-modal-eyebrow">启动失败</p>
-            <h3 id="server-modal-title">服务器未能成功启动</h3>
+            <p class="login-modal-eyebrow" id="server-modal-eyebrow" data-i18n="dashboard.modalEyebrowDefault">提示</p>
+            <h3 id="server-modal-title" data-i18n="dashboard.modalTitleDefault">操作提示</h3>
           </div>
         </div>
         <p id="server-modal-message" class="login-modal-message"></p>
         <div class="login-modal-actions">
-          <button type="button" class="login-modal-button" data-server-modal-close>知道了</button>
+          <button type="button" class="login-modal-button" data-server-modal-close data-i18n="dashboard.controlAcknowledge">知道了</button>
         </div>
       </section>
     </div>
@@ -227,16 +227,16 @@
       <section class="login-modal-card server-log-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-log-title" aria-describedby="server-log-content">
         <div class="login-modal-header server-log-modal-header">
           <div>
-            <p class="login-modal-eyebrow">实时日志</p>
-            <h3 id="server-log-title">服务器日志</h3>
+            <p class="login-modal-eyebrow" data-i18n="runtime.serverLogLive">实时日志</p>
+            <h3 id="server-log-title" data-i18n="runtime.serverLogTitle">服务器日志</h3>
           </div>
-          <span class="server-log-status" id="server-log-status">未连接</span>
+          <span class="server-log-status" id="server-log-status" data-i18n="runtime.serverLogDisconnected">未连接</span>
         </div>
         <p class="server-log-path" id="server-log-path">日志文件: --</p>
-        <pre class="server-log-content" id="server-log-content">点击“查看日志”后显示最近日志。</pre>
+        <pre class="server-log-content" id="server-log-content" data-i18n="runtime.serverLogInitialContent">点击“查看日志”后显示最近日志。</pre>
         <div class="login-modal-actions server-log-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-log-clear>清空显示</button>
-          <button type="button" class="login-modal-button" data-server-log-close>关闭</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-log-clear data-i18n="runtime.serverLogClear">清空显示</button>
+          <button type="button" class="login-modal-button" data-server-log-close data-i18n="common.close">关闭</button>
         </div>
       </section>
     </div>
@@ -247,13 +247,13 @@
       <section class="login-modal-card server-config-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-config-title" aria-describedby="server-config-description">
         <div class="login-modal-header server-config-modal-header">
           <div>
-            <p class="login-modal-eyebrow">JSON 配置</p>
-            <h3 id="server-config-title">修改服务器配置</h3>
+            <p class="login-modal-eyebrow" data-i18n="runtime.configModalEyebrow">JSON 配置</p>
+            <h3 id="server-config-title" data-i18n="runtime.configModalTitle">修改服务器配置</h3>
           </div>
-          <span class="server-config-status" id="server-config-status">未加载</span>
+          <span class="server-config-status" id="server-config-status" data-i18n="runtime.configModalIdle">未加载</span>
         </div>
         <p class="server-config-path" id="server-config-path">配置文件: --</p>
-        <p class="server-config-description" id="server-config-description">仅在服务器未启动时允许保存，保存前会校验 JSON 语法。</p>
+        <p class="server-config-description" id="server-config-description" data-i18n="runtime.configModalDescription">仅在服务器未启动时允许保存，保存前会校验 JSON 语法。</p>
         <div class="server-config-editor-shell">
           <div class="server-config-editor-gutter" id="server-config-editor-gutter" aria-hidden="true"></div>
           <div class="server-config-editor-surface">
@@ -267,14 +267,15 @@
               autocapitalize="off"
               wrap="off"
               aria-label="config.json 编辑器"
+              data-i18n-aria-label="runtime.configEditorAria"
             ></textarea>
           </div>
         </div>
-        <p class="server-config-feedback" id="server-config-feedback">点击“修改配置”后加载 config.json。</p>
+        <p class="server-config-feedback" id="server-config-feedback" data-i18n="dashboard.configEditorEmptyHint">点击“修改配置”后加载 config.json。</p>
         <div class="login-modal-actions server-config-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-reload>重新加载</button>
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-close>关闭</button>
-          <button type="button" class="login-modal-button" data-server-config-save>保存</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-reload data-i18n="runtime.configReload">重新加载</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-close data-i18n="common.close">关闭</button>
+          <button type="button" class="login-modal-button" data-server-config-save data-i18n="runtime.configSave">保存</button>
         </div>
       </section>
     </div>
@@ -286,14 +287,14 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow">删除确认</p>
-            <h3 id="account-delete-title">确认删除账户</h3>
+            <p class="login-modal-eyebrow" data-i18n="runtime.accountDeleteEyebrow">删除确认</p>
+            <h3 id="account-delete-title" data-i18n="runtime.accountDeleteTitle">确认删除账户</h3>
           </div>
         </div>
-        <p id="account-delete-message" class="login-modal-message">确认删除该账户吗？</p>
+        <p id="account-delete-message" class="login-modal-message" data-i18n="runtime.accountDeleteDefaultMessage">确认删除该账户吗？</p>
         <div class="login-modal-actions account-delete-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-delete-close>取消</button>
-          <button type="button" class="login-modal-button login-modal-button-danger" id="account-delete-confirm">确认删除</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-delete-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button login-modal-button-danger" id="account-delete-confirm" data-i18n="runtime.accountDeleteSubmit">确认删除</button>
         </div>
       </section>
     </div>
@@ -304,22 +305,22 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow">密码管理</p>
-            <h3 id="account-password-title">重置密码</h3>
+            <p class="login-modal-eyebrow" data-i18n="runtime.accountPasswordEyebrow">密码管理</p>
+            <h3 id="account-password-title" data-i18n="runtime.accountPasswordTitle">重置密码</h3>
           </div>
         </div>
-        <p id="account-password-description" class="login-modal-message">请为指定账户设置新的密码。</p>
+        <p id="account-password-description" class="login-modal-message" data-i18n="runtime.accountPasswordDescription">请为指定账户设置新的密码。</p>
         <div class="account-password-form">
           <p class="account-password-target" id="account-password-target">目标账户：--</p>
-          <label class="account-password-label" for="account-password-input">新密码</label>
+          <label class="account-password-label" for="account-password-input" data-i18n="runtime.accountPasswordNew">新密码</label>
           <input class="account-password-input" id="account-password-input" type="password" autocomplete="new-password" />
-          <label class="account-password-label" for="account-password-confirm-input">确认新密码</label>
+          <label class="account-password-label" for="account-password-confirm-input" data-i18n="runtime.accountPasswordConfirm">确认新密码</label>
           <input class="account-password-input" id="account-password-confirm-input" type="password" autocomplete="new-password" />
-          <p class="account-password-feedback" id="account-password-feedback">密码长度需大于等于 6 位。</p>
+          <p class="account-password-feedback" id="account-password-feedback" data-i18n="runtime.accountPasswordDefaultFeedback">密码长度需大于等于 6 位。</p>
         </div>
         <div class="login-modal-actions account-password-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-password-close>取消</button>
-          <button type="button" class="login-modal-button" id="account-password-confirm">确认</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-password-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="account-password-confirm" data-i18n="common.confirm">确认</button>
         </div>
       </section>
     </div>
@@ -331,14 +332,14 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow">退出确认</p>
-            <h3 id="logout-confirm-title">确认退出登录</h3>
+            <p class="login-modal-eyebrow" data-i18n="dashboard.logoutConfirmEyebrow">退出确认</p>
+            <h3 id="logout-confirm-title" data-i18n="dashboard.logoutConfirmTitle">确认退出登录</h3>
           </div>
         </div>
-        <p id="logout-confirm-message" class="login-modal-message">确认退出当前登录状态吗？</p>
+        <p id="logout-confirm-message" class="login-modal-message" data-i18n="dashboard.logoutConfirmMessage">确认退出当前登录状态吗？</p>
         <div class="login-modal-actions logout-confirm-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close>取消</button>
-          <button type="button" class="login-modal-button" id="logout-confirm-submit">确认退出</button>
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="logout-confirm-submit" data-i18n="dashboard.logoutConfirmSubmit">确认退出</button>
         </div>
       </section>
     </div>
@@ -350,19 +351,19 @@
         <div class="login-modal-header">
           <span class="login-modal-icon" id="player-portrait-picker-icon" aria-hidden="true">◎</span>
           <div>
-            <p class="login-modal-eyebrow" id="player-portrait-picker-eyebrow">资源选择</p>
-            <h3 id="player-portrait-picker-title">选择资源</h3>
+            <p class="login-modal-eyebrow" id="player-portrait-picker-eyebrow" data-i18n="runtime.playerPickerResourceEyebrow">资源选择</p>
+            <h3 id="player-portrait-picker-title" data-i18n="runtime.playerPickerResourceTitle">选择资源</h3>
           </div>
         </div>
-        <p id="player-portrait-picker-description" class="login-modal-message">请选择要应用到玩家名片上的资源。</p>
+        <p id="player-portrait-picker-description" class="login-modal-message" data-i18n="runtime.playerPickerResourceDescription">请选择要应用到玩家名片上的资源。</p>
         <div class="player-portrait-picker-meta">
           <span id="player-portrait-picker-current">当前选择：--</span>
         </div>
         <div class="player-portrait-picker-grid" id="player-portrait-picker-grid"></div>
         <div class="player-portrait-picker-toolbar">
           <div class="login-modal-actions player-portrait-picker-actions">
-            <button type="button" class="login-modal-button login-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-close>取消</button>
-            <button type="button" class="login-modal-button" id="player-portrait-picker-confirm" disabled>确认</button>
+            <button type="button" class="login-modal-button login-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-close data-i18n="common.cancel">取消</button>
+            <button type="button" class="login-modal-button" id="player-portrait-picker-confirm" disabled data-i18n="runtime.playerPickerConfirm">确认</button>
           </div>
         </div>
       </section>

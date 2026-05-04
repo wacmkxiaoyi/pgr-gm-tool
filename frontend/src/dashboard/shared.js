@@ -1,3 +1,5 @@
+import { ApiError, apiFetch, getLocale, getLocalizedApiErrorMessage, resolveUiTextToken, subscribeLocaleChange, t } from '../i18n.js';
+
 const selectAll = (selector) => Array.from(document.querySelectorAll(selector));
 
 export const dom = {
@@ -129,19 +131,20 @@ export const state = {
   pendingPasswordAccount: null,
   lastPasswordFocusedControl: null,
   lastLogoutFocusedControl: null,
+  locale: getLocale(),
   timerId: null,
   countdownTimerId: null,
   historyGridResizeObserver: null,
 };
 
 export const constants = {
-  CONFIG_EDITOR_EMPTY_HINT: '点击“修改配置”后加载 config.json。',
+  CONFIG_EDITOR_EMPTY_HINT: 'dashboard.configEditorEmptyHint',
   HISTORY_SLOT_COUNT: 10,
   jsonTokenRegex: /("(?:\\u[a-fA-F\d]{4}|\\[^u]|[^\\"])*")([\t ]*:)?|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g,
   stateMeta: {
-    healthy: { label: '正常', className: 'status-ok' },
-    unhealthy: { label: '异常', className: 'status-down' },
-    unknown: { label: '未知', className: 'status-unknown' },
+    healthy: { labelKey: 'dashboard.stateHealthy', className: 'status-ok' },
+    unhealthy: { labelKey: 'dashboard.stateUnhealthy', className: 'status-down' },
+    unknown: { labelKey: 'dashboard.stateUnknown', className: 'status-unknown' },
   },
 };
 
@@ -150,6 +153,7 @@ export const app = { dom, state, constants };
 Object.assign(app, {
   getControlState: (controls) => (controls && typeof controls === 'object' ? controls : null),
   historyStateClass: (serviceState) => constants.stateMeta[serviceState]?.className ?? 'status-unknown',
+  getStatusLabel: (serviceState) => t(constants.stateMeta[serviceState]?.labelKey ?? constants.stateMeta.unknown.labelKey, {}, state.locale),
   getHistoryGrids: () => [dom.sdkGrid, dom.gameGrid, dom.databaseGrid].filter(Boolean),
   getActiveDashboardPage: () => dom.dashboardPages.find((page) => page.classList.contains('is-active')) ?? null,
   getServiceHealthState: (service) => service?.latest?.state ?? 'unknown',
@@ -176,18 +180,18 @@ Object.assign(app, {
   },
   getPlayerGenderLabel: (gender) => {
     if (gender === 0) {
-      return '未设置';
+      return t('dashboard.playerGenderUnset', {}, state.locale);
     }
 
     if (gender === 1) {
-      return '女';
+      return t('dashboard.playerGenderFemale', {}, state.locale);
     }
 
     if (gender === 2) {
-      return '男';
+      return t('dashboard.playerGenderMale', {}, state.locale);
     }
 
-    return '--';
+    return t('common.notAvailable', {}, state.locale);
   },
   formatPlayerFieldValue: (value) => {
     if (value === null || value === undefined || value === '') {
@@ -224,7 +228,7 @@ Object.assign(app, {
       .filter((item) => item.id !== null)
       .sort((left, right) => left.id - right.id);
   },
-  getPortraitPickerLabel: (field) => (field === 'head_frame_id' ? '头像框' : '头像'),
+  getPortraitPickerLabel: (field) => t(field === 'head_frame_id' ? 'dashboard.portraitFrame' : 'dashboard.portrait', {}, state.locale),
   getPortraitPickerCurrentValue: (field) => {
     if (!state.playerProfileData) {
       return null;
@@ -234,7 +238,7 @@ Object.assign(app, {
   },
   getPortraitPickerCurrentName: (field) => {
     const currentValue = app.getPortraitPickerCurrentValue(field);
-    return app.getPlayerPortraitNameByField(field, currentValue) || (currentValue === null ? '--' : String(currentValue));
+    return app.getPlayerPortraitNameByField(field, currentValue) || (currentValue === null ? t('common.notAvailable', {}, state.locale) : String(currentValue));
   },
   getPortraitPickerPageSize: () => {
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1280;
@@ -259,7 +263,7 @@ Object.assign(app, {
   isGameServerHealthy: (payload = state.latestStatusSnapshot) => app.isServiceHealthy(app.getGameSection(payload)?.services?.[0]),
   formatTime: (iso) => {
     if (!iso) {
-      return '暂无记录';
+      return t('dashboard.statusNoRecords', {}, state.locale);
     }
 
     const date = new Date(iso);
@@ -267,9 +271,18 @@ Object.assign(app, {
       return iso;
     }
 
-    return date.toLocaleString('zh-CN', { hour12: false });
+    return date.toLocaleString(state.locale, { hour12: false });
   },
   setBodyModalOpen: (open) => {
     document.body.classList.toggle('login-modal-open', open);
   },
+  translate: (key, params = {}) => t(key, params, state.locale),
+  apiFetch,
+  apiErrorMessage: (error, fallbackKey = 'runtime.apiUnknown') => getLocalizedApiErrorMessage(error, state.locale, fallbackKey),
+  resolveUiTextToken: (token) => resolveUiTextToken(token, state.locale),
+  createApiError: (payload, status = null) => new ApiError({ code: payload?.code, details: payload?.details, message: payload?.message, status }),
+});
+
+subscribeLocaleChange((locale) => {
+  state.locale = locale;
 });

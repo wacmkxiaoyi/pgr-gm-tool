@@ -45,12 +45,12 @@ app.updateNextHealthCheckLabel = () => {
   }
 
   if (typeof state.nextHealthCheckAtMs !== 'number') {
-    intervalLabel.textContent = '距离下次健康检查: --';
+    intervalLabel.textContent = app.translate('dashboard.nextHealthCheckIdle');
     return;
   }
 
   const remainingSeconds = Math.max(0, Math.ceil((state.nextHealthCheckAtMs - Date.now()) / 1000));
-  intervalLabel.textContent = `距离下次健康检查: ${remainingSeconds}s`;
+  intervalLabel.textContent = app.translate('dashboard.nextHealthCheck', { seconds: remainingSeconds });
 };
 
 app.updateDatabaseHealthCheckLabel = () => {
@@ -59,43 +59,43 @@ app.updateDatabaseHealthCheckLabel = () => {
   }
 
   if (typeof state.nextDatabaseHealthCheckAtMs !== 'number') {
-    databaseIntervalLabel.textContent = '距离下次健康检查: --';
+    databaseIntervalLabel.textContent = app.translate('dashboard.databaseStatusIntervalIdle');
     return;
   }
 
   const remainingSeconds = Math.max(0, Math.ceil((state.nextDatabaseHealthCheckAtMs - Date.now()) / 1000));
-  databaseIntervalLabel.textContent = `距离下次健康检查: ${remainingSeconds}s`;
+  databaseIntervalLabel.textContent = app.translate('dashboard.databaseStatusInterval', { seconds: remainingSeconds });
 };
 
 app.renderCard = (item) => {
   const meta = constants.stateMeta[item.latest?.state] ?? constants.stateMeta.unknown;
+  const badgeLabel = app.getStatusLabel(item.latest?.state);
   const checkedAt = item.latest?.checked_at ?? null;
-  const latency = typeof item.latest?.latency_ms === 'number' ? `${item.latest.latency_ms} ms` : '未知耗时';
+  const latency = typeof item.latest?.latency_ms === 'number' ? `${item.latest.latency_ms} ms` : app.translate('dashboard.statusUnknownLatency');
   const statusCode = typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
   const history = Array.isArray(item.history) ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse() : [];
   const emptySlots = Math.max(0, constants.HISTORY_SLOT_COUNT - history.length);
 
   return `
     <article class="status-card status-card-${meta.className === 'status-ok' ? 'healthy' : meta.className === 'status-down' ? 'unhealthy' : 'muted'}">
-      <div class="status-card-header">
-        <strong class="status-card-name">${item.title}</strong>
-        <span class="status-badge ${meta.className}">${meta.label}</span>
-      </div>
       <div class="status-card-details">
-        <strong>${item.url}</strong>
-        <span>${item.latest?.message ?? '等待首次检查结果'}</span>
-        <span>最近检查: ${app.formatTime(checkedAt)}</span>
-        <span>耗时: ${latency}${statusCode ? ` · ${statusCode}` : ''}</span>
+        <div class="status-card-details-header">
+          <strong>${item.url}</strong>
+          <span class="status-badge ${meta.className}">${badgeLabel}</span>
+        </div>
+        <span>${item.latest?.message ? app.resolveUiTextToken(item.latest.message) : app.translate('dashboard.statusFirstCheckPending')}</span>
+        <span>${app.translate('dashboard.statusLastChecked', { time: app.formatTime(checkedAt) })}</span>
+        <span>${app.translate('dashboard.statusLatency', { latency: `${latency}${statusCode ? ` · ${statusCode}` : ''}` })}</span>
       </div>
-      <div class="status-history-grid" aria-label="${item.title} 历史状态">
+      <div class="status-history-grid" aria-label="${app.translate('dashboard.statusHistoryAria', { title: item.title })}">
         ${Array.from({ length: emptySlots })
           .map(() => '<div class="status-history-item is-empty" aria-hidden="true"></div>')
           .join('')}
         ${history
           .map(
             (entry) => `
-              <div class="status-history-item ${app.historyStateClass(entry.state)}" title="${app.formatTime(entry.checked_at)} · ${entry.message}">
-                <span>${entry.state === 'healthy' ? '正常' : entry.state === 'unhealthy' ? '异常' : '未知'}</span>
+              <div class="status-history-item ${app.historyStateClass(entry.state)}" title="${app.formatTime(entry.checked_at)} · ${app.resolveUiTextToken(entry.message)}">
+                <span>${app.getStatusLabel(entry.state)}</span>
                 <small>${app.formatTime(entry.checked_at)}</small>
               </div>
             `,
@@ -128,7 +128,7 @@ app.renderSnapshot = (payload) => {
   }
 
   if (serverVersionLabel) {
-    serverVersionLabel.textContent = `服务器版本号: ${payload?.server_version ?? '--'}`;
+    serverVersionLabel.textContent = app.translate('dashboard.serverVersion', { version: payload?.server_version ?? app.translate('common.notAvailable') });
   }
 
   if (statusControls instanceof HTMLElement) {
@@ -151,7 +151,7 @@ app.renderSnapshot = (payload) => {
   const startupError = controls?.startup_error;
   if (typeof startupError === 'string' && startupError && startupError !== state.serverControlFailureMessage) {
     state.serverControlFailureMessage = startupError;
-    app.openControlModal(startupError);
+    app.openControlModal(app.resolveUiTextToken(startupError));
   } else if (!startupError) {
     state.serverControlFailureMessage = null;
   }
@@ -186,12 +186,7 @@ app.renderDatabaseSnapshot = (payload) => {
 
 app.loadStatus = async () => {
   try {
-    const response = await fetch('/api/server-status', { credentials: 'include' });
-    if (!response.ok) {
-      throw new Error('加载状态失败');
-    }
-
-    const payload = await response.json();
+    const payload = await app.apiFetch('/api/server-status');
     app.renderSnapshot(payload);
     return typeof payload?.interval_seconds === 'number' ? payload.interval_seconds : 60;
   } catch {
@@ -214,12 +209,7 @@ app.loadStatus = async () => {
 
 app.loadAppInfo = async () => {
   try {
-    const response = await fetch('/api/app-info', { credentials: 'include' });
-    if (!response.ok) {
-      return;
-    }
-
-    const payload = await response.json();
+    const payload = await app.apiFetch('/api/app-info');
     state.serverControlsVisible = Boolean(payload?.server_controls_visible);
     state.playerPortraitUrlMap = payload?.player_portrait_url_map && typeof payload.player_portrait_url_map === 'object' ? payload.player_portrait_url_map : {};
     state.playerPortraitFrameUrlMap = payload?.player_portrait_frame_url_map && typeof payload.player_portrait_frame_url_map === 'object' ? payload.player_portrait_frame_url_map : {};
@@ -242,12 +232,7 @@ app.loadAppInfo = async () => {
 
 app.loadDatabaseStatus = async () => {
   try {
-    const response = await fetch('/api/database-status', { credentials: 'include' });
-    if (!response.ok) {
-      throw new Error('加载数据库状态失败');
-    }
-
-    const payload = await response.json();
+    const payload = await app.apiFetch('/api/database-status');
     app.renderDatabaseSnapshot(payload);
     return typeof payload?.interval_seconds === 'number' ? payload.interval_seconds : 60;
   } catch {

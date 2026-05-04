@@ -110,30 +110,30 @@ app.getConfigValidation = (text) => {
   try {
     const parsed = JSON.parse(text);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return {
+          valid: false,
+          message: app.translate('dashboard.configJsonRootInvalid'),
+        };
+      }
+
+      return {
+        valid: true,
+        message: app.translate('dashboard.configJsonValid'),
+      };
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        return {
+          valid: false,
+          message: error.message || app.translate('dashboard.configJsonInvalid'),
+        };
+      }
+
       return {
         valid: false,
-        message: 'config.json 顶层必须是 JSON 对象。',
+        message: app.translate('dashboard.configJsonInvalid'),
       };
     }
-
-    return {
-      valid: true,
-      message: 'JSON 语法正确，可以保存。',
-    };
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return {
-        valid: false,
-        message: error.message || 'JSON 语法无效。',
-      };
-    }
-
-    return {
-      valid: false,
-      message: 'JSON 语法无效。',
-    };
-  }
-};
+  };
 
 app.updateConfigEditorState = () => {
   const text = state.configEditorValue;
@@ -156,15 +156,15 @@ app.updateConfigEditorState = () => {
 
   if (state.configIsLoading) {
     configSaveButton.disabled = true;
-    app.setConfigStatus('加载中...', 'is-pending');
-    app.setConfigFeedback('正在读取 config.json ...');
+    app.setConfigStatus(app.translate('dashboard.configStatusLoading'), 'is-pending');
+    app.setConfigFeedback(app.translate('dashboard.configFeedbackLoading'));
     return;
   }
 
   if (state.configIsSaving) {
     configSaveButton.disabled = true;
-    app.setConfigStatus('保存中...', 'is-pending');
-    app.setConfigFeedback('正在保存 config.json ...');
+    app.setConfigStatus(app.translate('dashboard.configStatusSaving'), 'is-pending');
+    app.setConfigFeedback(app.translate('dashboard.configFeedbackSaving'));
     return;
   }
 
@@ -172,25 +172,25 @@ app.updateConfigEditorState = () => {
   configSaveButton.disabled = !canEdit || !validation.valid || text === state.configLastSavedValue;
 
   if (!state.configLoadedOnce) {
-    app.setConfigStatus('未加载');
-    app.setConfigFeedback(constants.CONFIG_EDITOR_EMPTY_HINT);
+    app.setConfigStatus(app.translate('dashboard.configStatusIdle'));
+    app.setConfigFeedback(app.translate(constants.CONFIG_EDITOR_EMPTY_HINT));
     return;
   }
 
   if (!canEdit) {
-    app.setConfigStatus('只读', 'is-warning');
-    app.setConfigFeedback('服务器已启动，当前仅允许查看配置。', 'is-warning');
+    app.setConfigStatus(app.translate('dashboard.configStatusReadonly'), 'is-warning');
+    app.setConfigFeedback(app.translate('dashboard.configFeedbackReadonly'), 'is-warning');
     return;
   }
 
   if (validation.valid) {
     const dirty = text !== state.configLastSavedValue;
-    app.setConfigStatus(dirty ? '已修改' : '已同步', dirty ? 'is-pending' : 'is-valid');
-    app.setConfigFeedback(dirty ? '检测到未保存修改。' : validation.message, dirty ? 'is-pending' : 'is-valid');
+    app.setConfigStatus(dirty ? app.translate('dashboard.configStatusDirty') : app.translate('dashboard.configStatusSynced'), dirty ? 'is-pending' : 'is-valid');
+    app.setConfigFeedback(dirty ? app.translate('dashboard.configFeedbackDirty') : validation.message, dirty ? 'is-pending' : 'is-valid');
     return;
   }
 
-  app.setConfigStatus('语法错误', 'is-error');
+  app.setConfigStatus(app.translate('dashboard.configStatusSyntaxError'), 'is-error');
   app.setConfigFeedback(validation.message, 'is-error');
 };
 
@@ -240,30 +240,26 @@ app.loadServerConfig = async () => {
   app.updateConfigEditorState();
 
   try {
-    const response = await fetch('/api/server-control/config', { credentials: 'include' });
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '读取配置文件失败。');
-    }
+    const payload = await app.apiFetch('/api/server-control/config');
 
     if (configModalPath instanceof HTMLElement) {
-      configModalPath.textContent = `配置文件: ${payload?.path ?? '--'}`;
+      configModalPath.textContent = app.translate('dashboard.configPath', { path: payload?.path ?? app.translate('common.notAvailable') });
     }
 
     state.configLoadedOnce = true;
     state.configLastSavedValue = typeof payload?.text === 'string' ? payload.text : '';
     app.setConfigEditorValue(state.configLastSavedValue);
-    app.setConfigStatus('已加载', 'is-valid');
-    app.setConfigFeedback('config.json 已加载，可以开始编辑。', 'is-valid');
+    app.setConfigStatus(app.translate('dashboard.configStatusLoaded'), 'is-valid');
+    app.setConfigFeedback(app.translate('dashboard.configFeedbackLoaded'), 'is-valid');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '读取配置文件失败。';
+    const message = app.apiErrorMessage(error, 'dashboard.configReadFailed');
     if (configModalPath instanceof HTMLElement) {
-      configModalPath.textContent = '配置文件: --';
+      configModalPath.textContent = app.translate('dashboard.configPath', { path: app.translate('common.notAvailable') });
     }
     state.configLoadedOnce = false;
     state.configLastSavedValue = '';
     app.setConfigEditorValue('');
-    app.setConfigStatus('加载失败', 'is-error');
+    app.setConfigStatus(app.translate('dashboard.configStatusLoadFailed'), 'is-error');
     app.setConfigFeedback(message, 'is-error');
   } finally {
     state.configIsLoading = false;
@@ -278,7 +274,7 @@ app.saveServerConfig = async () => {
 
   const validation = app.getConfigValidation(state.configEditorValue);
   if (!validation.valid) {
-    app.setConfigStatus('语法错误', 'is-error');
+    app.setConfigStatus(app.translate('dashboard.configStatusSyntaxError'), 'is-error');
     app.setConfigFeedback(validation.message, 'is-error');
     return;
   }
@@ -287,32 +283,26 @@ app.saveServerConfig = async () => {
   app.updateConfigEditorState();
 
   try {
-    const response = await fetch('/api/server-control/config', {
+    const payload = await app.apiFetch('/api/server-control/config', {
       method: 'PUT',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ text: state.configEditorValue }),
     });
 
-    const payload = await response.json().catch(() => null);
-    if (!response.ok) {
-      throw new Error(payload?.detail || '保存配置文件失败。');
-    }
-
     state.configLoadedOnce = true;
     state.configLastSavedValue = typeof payload?.text === 'string' ? payload.text : state.configEditorValue;
     if (configModalPath instanceof HTMLElement) {
-      configModalPath.textContent = `配置文件: ${payload?.path ?? '--'}`;
+      configModalPath.textContent = app.translate('dashboard.configPath', { path: payload?.path ?? app.translate('common.notAvailable') });
     }
     app.setConfigEditorValue(state.configLastSavedValue);
-    app.setConfigStatus('已保存', 'is-valid');
-    app.setConfigFeedback('配置已保存，后端已重新读取 config.json。', 'is-valid');
+    app.setConfigStatus(app.translate('dashboard.configStatusSaved'), 'is-valid');
+    app.setConfigFeedback(app.translate('dashboard.configFeedbackSaved'), 'is-valid');
     await app.loadStatus();
   } catch (error) {
-    const message = error instanceof Error ? error.message : '保存配置文件失败。';
-    app.setConfigStatus('保存失败', 'is-error');
+    const message = app.apiErrorMessage(error, 'dashboard.configSaveFailed');
+    app.setConfigStatus(app.translate('dashboard.configStatusSaveFailed'), 'is-error');
     app.setConfigFeedback(message, 'is-error');
     await app.loadStatus();
   } finally {
@@ -327,7 +317,7 @@ app.openConfigEditor = async () => {
   }
 
   if (configModalPath instanceof HTMLElement) {
-    configModalPath.textContent = '配置文件: --';
+    configModalPath.textContent = app.translate('dashboard.configPath', { path: app.translate('common.notAvailable') });
   }
   app.openConfigModal();
   await app.loadServerConfig();
