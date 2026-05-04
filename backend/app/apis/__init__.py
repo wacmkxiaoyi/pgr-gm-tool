@@ -24,6 +24,8 @@ from backend.app.apis.schemas import (
 )
 from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
 from backend.app.services.player_portrait import (
+    get_player_background_name_map,
+    get_player_background_url_map,
     get_player_portrait_frame_name_map,
     get_player_portrait_frame_url_map,
     get_player_portrait_name_map,
@@ -69,6 +71,8 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_portrait_frame_url_map": get_player_portrait_frame_url_map(),
         "player_portrait_name_map": get_player_portrait_name_map(),
         "player_portrait_frame_name_map": get_player_portrait_frame_name_map(),
+        "player_background_url_map": get_player_background_url_map(),
+        "player_background_name_map": get_player_background_name_map(),
     })
 
 
@@ -236,7 +240,7 @@ async def update_selected_database_player_profile(
         raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
 
     field_name = str(payload.field or "").strip().lower()
-    if field_name not in {"name", "gender", "level", "likes", "head_portrait_id", "head_frame_id"}:
+    if field_name not in {"name", "gender", "level", "likes", "head_portrait_id", "head_frame_id", "use_background_id"}:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     if field_name == "name":
@@ -294,6 +298,20 @@ async def update_selected_database_player_profile(
             raise_http_error(404, "player.frame_not_found", {"field": field_name, "id": normalized_frame_id})
 
         update_payload = UpdatePlayerProfilePayload(head_frame_id=normalized_frame_id)
+    elif field_name == "use_background_id":
+        try:
+            normalized_background_id = int(payload.value)
+        except (TypeError, ValueError) as error:
+            raise_http_error(422, "player.background_id_invalid", {"field": field_name})
+
+        if normalized_background_id < 0:
+            raise_http_error(422, "player.background_id_below_zero", {"field": field_name, "min": 0})
+
+        background_map = get_player_background_url_map()
+        if normalized_background_id != 0 and normalized_background_id not in background_map:
+            raise_http_error(404, "player.background_not_found", {"field": field_name, "id": normalized_background_id})
+
+        update_payload = UpdatePlayerProfilePayload(use_background_id=normalized_background_id)
     else:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 

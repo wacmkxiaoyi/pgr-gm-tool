@@ -189,6 +189,7 @@
 .database-player-profile-shell {
   display: grid;
   gap: 18px;
+  justify-items: center;
 }
 
 @media (max-width: 640px) {

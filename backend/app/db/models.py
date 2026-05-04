@@ -25,6 +25,7 @@ class PlayerProfileRecord(BaseModel):
     likes: int | None = None
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
+    use_background_id: int | None = None
 
 
 class UpdatePlayerProfilePayload(BaseModel):
@@ -34,3 +35,4 @@ class UpdatePlayerProfilePayload(BaseModel):
     likes: int | None = None
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
+    use_background_id: int | None = None

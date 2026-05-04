@@ -36,6 +36,8 @@ const rerenderLocaleSensitiveViews = () => {
     app.renderPlayerProfile(state.playerProfileData);
   }
 
+  app.queuePlayerCardBackgroundAspectSync?.();
+
   if (state.playerPortraitPickerState) {
     app.renderPlayerPortraitPicker();
   }

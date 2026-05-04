@@ -53,6 +53,7 @@ ACCOUNT_COLLECTION_NAME = "accounts"
 ACCOUNT_PAGE_SIZE = 25
 PLAYER_COLLECTION_NAME = "players"
 PLAYER_HEAD_FRAME_ID_FIELD = "CurrHeadFrameId"
+PLAYER_BACKGROUND_ID_FIELD = "use_background_id"
 PLAYER_EDITABLE_FIELDS = {
     "name": "Name",
     "gender": "Gender",
@@ -305,6 +306,8 @@ class DatabaseController:
             update_fields["player_data.CurrHeadPortraitId"] = payload.head_portrait_id
         if payload.head_frame_id is not None:
             update_fields[f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}"] = payload.head_frame_id
+        if payload.use_background_id is not None:
+            update_fields[PLAYER_BACKGROUND_ID_FIELD] = payload.use_background_id
 
         if not update_fields:
             return await self.get_player_profile(uid)
@@ -374,6 +377,7 @@ class DatabaseController:
                     "player_data.Likes": 1,
                     "player_data.CurrHeadPortraitId": 1,
                     f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}": 1,
+                    PLAYER_BACKGROUND_ID_FIELD: 1,
                 },
             )
         finally:
@@ -393,6 +397,7 @@ class DatabaseController:
 
         head_portrait_id = _parse_optional_int(player_data.get("CurrHeadPortraitId"))
         head_frame_id = _parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
+        use_background_id = _parse_optional_int(document.get(PLAYER_BACKGROUND_ID_FIELD))
 
         return PlayerProfileRecord(
             uid=normalized_uid,
@@ -402,6 +407,7 @@ class DatabaseController:
             likes=_parse_optional_int(player_data.get("Likes")),
             head_portrait_id=head_portrait_id,
             head_frame_id=head_frame_id,
+            use_background_id=use_background_id,
         )
 
 

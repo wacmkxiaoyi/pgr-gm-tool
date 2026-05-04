@@ -1,4 +1,16 @@
 .database-player-card {
+  --player-level-progress: 0;
+  --player-level-angle: 210deg;
+  --player-level-core-start: rgba(56, 189, 248, 0.22);
+  --player-level-core-end: rgba(99, 102, 241, 0.26);
+  --player-level-ring-start: rgba(34, 211, 238, 0.88);
+  --player-level-ring-mid: rgba(99, 102, 241, 0.94);
+  --player-level-ring-end: rgba(168, 85, 247, 0.78);
+  --player-level-glow: rgba(56, 189, 248, 0.28);
+  --player-level-shadow: rgba(37, 99, 235, 0.2);
+  --player-level-exp-start: rgba(15, 23, 42, 0.84);
+  --player-level-exp-end: rgba(30, 41, 59, 0.72);
+  --player-level-exp-border: rgba(96, 165, 250, 0.28);
   position: relative;
   display: grid;
   grid-template-columns: 176px minmax(0, 1fr);
@@ -18,6 +30,26 @@
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     0 28px 52px rgba(76, 99, 173, 0.16);
+  width: 100%;
+  max-width: 100%;
+}
+
+.database-player-card-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: saturate(1.08) contrast(1.02);
+}
+
+.database-player-card-background.is-editable {
+  cursor: pointer;
+}
+
+.database-player-card-background[hidden] {
+  display: none;
 }
 
 .database-player-card::before {
@@ -47,6 +79,7 @@
   display: grid;
   justify-items: start;
   align-content: start;
+  gap: 12px;
 }
 
 .database-player-card-avatar-ring {
@@ -58,13 +91,22 @@
   padding: 10px;
   border-radius: 32px;
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(224, 242, 254, 0.42)),
-    linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(56, 189, 248, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.82);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
+    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
+  border: 1px solid var(--player-level-exp-border);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    0 24px 38px rgba(99, 102, 241, 0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 16px 30px rgba(15, 23, 42, 0.22),
+    0 0 22px rgba(56, 189, 248, 0.12);
   overflow: hidden;
+}
+
+.database-player-card-avatar-ring.is-editable,
+.database-player-card-background.is-editable,
+.database-player-card-avatar-frame-hitbox.is-editable,
+.database-player-card-avatar-image.is-editable,
+.database-player-card-avatar-fallback.is-editable {
+  cursor: pointer;
 }
 
 .database-player-card-avatar-ring::before {
@@ -86,6 +128,17 @@
   inset: 10px;
   width: calc(100% - 20px);
   height: calc(100% - 20px);
+}
+
+.database-player-card-avatar-frame-hitbox {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  appearance: none;
 }
 
 .database-player-card-avatar-frame-image {
@@ -138,32 +191,54 @@
 }
 
 .database-player-card-name {
-  font-size: clamp(28px, 4vw, 38px);
-  line-height: 1.05;
-  color: #1e1b4b;
-  text-align: right;
-  text-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: end;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
+    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
+  border: 1px solid var(--player-level-exp-border);
+  color: #eef6ff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 16px 30px rgba(15, 23, 42, 0.18),
+    0 0 20px rgba(56, 189, 248, 0.08);
 }
 
-.database-player-card-name.is-editable,
+.database-player-card-name strong,
+.database-player-card-tag strong,
+.database-player-card-uid {
+  color: #eef6ff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(125, 211, 252, 0.2);
+}
+
+.database-player-card-name strong.is-editable,
 .database-player-card-tag strong.is-editable,
 .database-player-card-stat-value.is-editable {
   cursor: pointer;
   transition: color 0.18s ease, text-shadow 0.18s ease;
 }
 
-.database-player-card-name.is-editable:hover,
+.database-player-card-name strong.is-editable:hover,
 .database-player-card-tag strong.is-editable:hover,
 .database-player-card-stat-value.is-editable:hover,
-.database-player-card-name.is-editable:focus-visible,
+.database-player-card-name strong.is-editable:focus-visible,
 .database-player-card-tag strong.is-editable:focus-visible,
 .database-player-card-stat-value.is-editable:focus-visible {
-  color: #4338ca;
+  color: #ffffff;
   outline: none;
-  text-shadow: 0 10px 24px rgba(79, 70, 229, 0.18);
+  text-shadow: 0 0 18px rgba(125, 211, 252, 0.42);
 }
 
-.database-player-card-name.is-editing,
+.database-player-card-name strong.is-editing,
 .database-player-card-tag strong.is-editing,
 .database-player-card-stat-value.is-editing {
   cursor: text;
@@ -172,16 +247,19 @@
 .database-player-card-uid {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   justify-self: end;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 16px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, rgba(124, 92, 246, 0.12), rgba(56, 189, 248, 0.12));
-  border: 1px solid rgba(99, 102, 241, 0.18);
-  color: #312e81;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.05em;
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
+    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
+  border: 1px solid var(--player-level-exp-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 16px 30px rgba(15, 23, 42, 0.18),
+    0 0 20px rgba(56, 189, 248, 0.08);
 }
 
 .database-player-card-tags {
@@ -191,6 +269,17 @@
   justify-content: flex-end;
 }
 
+.database-player-card-tag-likes {
+  justify-self: start;
+}
+
+.database-player-card-tag-likes .database-player-card-tag-label {
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: 0 0 14px rgba(125, 211, 252, 0.2);
+}
+
 .database-player-card-tag {
   display: inline-flex;
   align-items: center;
@@ -198,70 +287,173 @@
   min-height: 44px;
   padding: 0 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  color: #1f2a44;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
+    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
+  border: 1px solid var(--player-level-exp-border);
+  color: #eef6ff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 16px 30px rgba(15, 23, 42, 0.18),
+    0 0 20px rgba(56, 189, 248, 0.08);
 }
 
 .database-player-card-tag-label {
-  color: var(--muted);
+  color: rgba(191, 219, 254, 0.76);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.12);
 }
 
 .database-player-card-stats {
   grid-area: stats;
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  min-height: 220px;
+  padding-top: 8px;
 }
 
-.database-player-card-stat {
+.database-player-card-level-hud {
   position: relative;
-  overflow: hidden;
-  display: grid;
-  gap: 10px;
-  padding: 20px 22px;
-  border-radius: 22px;
-  background:
-    linear-gradient(145deg, rgba(247, 250, 255, 0.92), rgba(236, 245, 255, 0.8)),
-    linear-gradient(135deg, rgba(124, 92, 246, 0.06), rgba(56, 189, 248, 0.08));
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.88),
-    0 16px 26px rgba(99, 102, 241, 0.08);
+  width: min(100%, 360px);
+  min-height: 220px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
 }
 
-.database-player-card-stat::after {
+.database-player-card-level-orb {
+  position: absolute;
+  left: 50%;
+  bottom: 76px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  width: 136px;
+  aspect-ratio: 1;
+  padding: 16px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.34), transparent 36%),
+    radial-gradient(circle at 68% 72%, var(--player-level-core-end), transparent 54%),
+    linear-gradient(150deg, rgba(6, 11, 30, 0.94), rgba(18, 30, 54, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(96, 165, 250, 0.12),
+    0 18px 40px var(--player-level-shadow),
+    0 0 30px var(--player-level-glow);
+}
+
+.database-player-card-level-orb::before,
+.database-player-card-level-orb::after {
   content: "";
   position: absolute;
-  inset: auto -18px -18px auto;
-  width: 92px;
-  height: 92px;
+  inset: 8px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 68%);
+}
+
+.database-player-card-level-orb::before {
+  background: conic-gradient(from var(--player-level-angle), var(--player-level-ring-start), var(--player-level-ring-mid), var(--player-level-ring-end), var(--player-level-ring-start));
+  -webkit-mask: radial-gradient(circle, transparent 58%, #000 60%);
+  mask: radial-gradient(circle, transparent 58%, #000 60%);
+  box-shadow: 0 0 18px var(--player-level-glow);
+}
+
+.database-player-card-level-orb::after {
+  inset: 16px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 42%),
+    radial-gradient(circle at center, var(--player-level-core-start), transparent 72%);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.database-player-card-level-label,
+.database-player-card-level-value,
+.database-player-card-stat-label,
+.database-player-card-stat-value {
+  position: relative;
+  z-index: 1;
+}
+
+.database-player-card-level-label {
+  color: rgba(191, 219, 254, 0.84);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.database-player-card-level-value {
+  color: #eef6ff;
+  font-size: clamp(32px, 5vw, 42px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 16px rgba(96, 165, 250, 0.38);
+}
+
+.database-player-card-level-value.is-editable {
+  cursor: pointer;
+  transition: color 0.18s ease, text-shadow 0.18s ease;
+}
+
+.database-player-card-level-value.is-editable:hover,
+.database-player-card-level-value.is-editable:focus-visible {
+  color: #ffffff;
+  outline: none;
+  text-shadow: 0 0 22px rgba(125, 211, 252, 0.48);
+}
+
+.database-player-card-level-value.is-editing {
+  cursor: text;
+}
+
+.database-player-card-exp-bar {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 320px);
+  min-height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14), transparent 38%),
+    linear-gradient(90deg, var(--player-level-exp-start), var(--player-level-exp-end));
+  border: 1px solid var(--player-level-exp-border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 16px 30px rgba(15, 23, 42, 0.22),
+    0 0 22px rgba(56, 189, 248, 0.12);
 }
 
 .database-player-card-stat-label {
-  position: relative;
-  z-index: 1;
-  color: var(--muted);
+  color: rgba(191, 219, 254, 0.76);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .database-player-card-stat-value {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(26px, 4vw, 34px);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   line-height: 1;
-  color: #1e1b4b;
+  color: #eef6ff;
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(125, 211, 252, 0.28);
 }
 
 .database-player-inline-input,
@@ -293,10 +485,16 @@
       "stats";
     gap: 22px;
     padding: 22px;
+    min-height: 0 !important;
+    max-width: 100% !important;
   }
 
   .database-player-card-avatar-shell {
     justify-items: center;
+  }
+
+  .database-player-card-tag-likes {
+    justify-self: center;
   }
 
   .database-player-card-copy {
@@ -304,6 +502,23 @@
   }
 
   .database-player-card-stats {
-    grid-template-columns: 1fr;
+    min-height: 196px;
+    padding-top: 0;
+  }
+
+  .database-player-card-level-hud {
+    width: 100%;
+    min-height: 196px;
+  }
+
+  .database-player-card-level-orb {
+    bottom: 68px;
+    width: 124px;
+  }
+
+  .database-player-card-exp-bar {
+    width: min(100%, 290px);
+    min-height: 54px;
+    padding: 0 18px;
   }
 }

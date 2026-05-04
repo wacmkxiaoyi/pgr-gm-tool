@@ -99,7 +99,7 @@
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">服务状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">玩家信息</button>
-                <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户：--</div>
+                <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
 
               <section class="database-panel database-tab-panel is-active" id="database-service-status-section" data-database-tab-panel="database-service-status-section" aria-labelledby="database-service-status-title">
@@ -162,22 +162,30 @@
 
                 <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
                   <article class="database-player-card" aria-label="玩家人物名片" data-i18n-aria-label="dashboard.playerCardAria">
+                    <div class="database-player-card-background" id="player-card-background" aria-hidden="true" hidden></div>
                     <div class="database-player-card-glow" aria-hidden="true"></div>
                     <div class="database-player-card-avatar-shell">
                       <div class="database-player-card-avatar-ring">
                         <img class="database-player-card-avatar-frame-image" id="player-card-avatar-frame-image" alt="玩家头像框" data-i18n-alt="dashboard.playerFrameAlt" data-player-edit-field="head_frame_id" hidden>
                         <img class="database-player-card-avatar-image" id="player-card-avatar-image" alt="玩家头像" data-i18n-alt="dashboard.playerAvatarAlt" data-player-edit-field="head_portrait_id" hidden>
                         <div class="database-player-card-avatar-fallback" id="player-card-avatar-fallback" aria-hidden="true"></div>
+                        <button class="database-player-card-avatar-frame-hitbox" id="player-card-avatar-frame-hitbox" type="button" aria-label="切换头像框" data-i18n-aria-label="dashboard.playerFrameAlt"></button>
                       </div>
+                      <span class="database-player-card-tag database-player-card-tag-likes">
+                        <span class="database-player-card-tag-label" aria-label="点赞" data-i18n-aria-label="dashboard.playerLikes">👍</span>
+                        <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
+                      </span>
                     </div>
                     <div class="database-player-card-copy">
-                      <strong class="database-player-card-name" id="player-card-name" data-player-edit-field="name">--</strong>
-                      <span class="database-player-card-uid" id="player-card-inline-uid">UID --</span>
+                      <span class="database-player-card-name">
+                        <span class="database-player-card-tag-label" data-i18n="dashboard.playerName">昵称</span>
+                        <strong id="player-card-name" data-player-edit-field="name">--</strong>
+                      </span>
+                      <span class="database-player-card-uid">
+                        <span class="database-player-card-tag-label" data-i18n="dashboard.accountsUid">识别码</span>
+                        <strong id="player-card-inline-uid">--</strong>
+                      </span>
                       <div class="database-player-card-tags">
-                        <span class="database-player-card-tag">
-                          <span class="database-player-card-tag-label" data-i18n="dashboard.playerLikes">点赞</span>
-                          <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
-                        </span>
                         <span class="database-player-card-tag">
                           <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">性别</span>
                           <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
@@ -185,13 +193,15 @@
                       </div>
                     </div>
                     <div class="database-player-card-stats" aria-label="玩家阶级与经验" data-i18n-aria-label="dashboard.playerStatsAria">
-                      <div class="database-player-card-stat">
-                        <span class="database-player-card-stat-label" data-i18n="dashboard.playerLevel">阶级</span>
-                        <strong class="database-player-card-stat-value" id="player-card-level" data-player-edit-field="level">--</strong>
-                      </div>
-                      <div class="database-player-card-stat">
-                        <span class="database-player-card-stat-label" data-i18n="dashboard.playerExp">经验</span>
-                        <strong class="database-player-card-stat-value" id="player-card-exp">0</strong>
+                      <div class="database-player-card-level-hud">
+                        <div class="database-player-card-level-orb">
+                          <span class="database-player-card-level-label" data-i18n="dashboard.playerLevel">阶级</span>
+                          <strong class="database-player-card-level-value" id="player-card-level" data-player-edit-field="level">--</strong>
+                        </div>
+                        <div class="database-player-card-exp-bar">
+                          <span class="database-player-card-stat-label" data-i18n="dashboard.playerExp">经验</span>
+                          <strong class="database-player-card-stat-value" id="player-card-exp">0</strong>
+                        </div>
                       </div>
                     </div>
                   </article>

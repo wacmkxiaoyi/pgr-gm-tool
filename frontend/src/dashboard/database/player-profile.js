@@ -20,9 +20,12 @@ const {
   databasePlayerProfileState,
   databasePlayerProfileShell,
   databasePlayerProfileSummary,
+  playerCard,
+  playerCardBackground,
   playerCardAvatarShell,
   playerCardAvatarRing,
   playerCardAvatarFrameImage,
+  playerCardAvatarFrameHitbox,
   playerCardAvatarImage,
   playerCardAvatarFallback,
   playerCardName,
@@ -32,6 +35,11 @@ const {
   playerCardLevel,
   playerCardExp,
 } = dom;
+
+const PLAYER_CARD_MIN_ASPECT_RATIO = 1.2;
+const PLAYER_CARD_MAX_ASPECT_RATIO = 2.6;
+const PLAYER_CARD_MOBILE_BREAKPOINT = 640;
+const PLAYER_LEVEL_CAP = 500;
 
 const PLAYER_PROFILE_EDITABLE_FIELDS = {
   name: {
@@ -88,6 +96,12 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     element: () => playerCardAvatarFrameImage,
     editorType: 'picker',
   },
+  use_background_id: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.use_background_id),
+    getRawValue: (profile) => profile?.use_background_id ?? null,
+    element: () => playerCard,
+    editorType: 'picker',
+  },
 };
 
 app.getPlayerProfileEditValue = (field) => {
@@ -101,6 +115,10 @@ app.getPlayerProfileEditValue = (field) => {
 
   if (field === 'head_frame_id') {
     return state.playerProfileData.head_frame_id ?? null;
+  }
+
+  if (field === 'use_background_id') {
+    return state.playerProfileData.use_background_id ?? null;
   }
 
   return PLAYER_PROFILE_EDITABLE_FIELDS[field]?.getRawValue(state.playerProfileData) ?? null;
@@ -117,11 +135,76 @@ app.setPlayerEditableState = (field, editable) => {
   element.setAttribute('tabindex', editable ? '0' : '-1');
   if (editable) {
     element.setAttribute('role', 'button');
-    element.setAttribute('title', config?.editorType === 'picker' ? app.translate('runtime.playerEditPickerTitle', { label: app.getPortraitPickerLabel(field) }) : app.translate('runtime.playerEditInputTitle'));
+    element.setAttribute('title', config?.editorType === 'picker' ? app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }) : app.translate('runtime.playerEditInputTitle'));
   } else {
     element.removeAttribute('role');
     element.removeAttribute('title');
   }
+
+  if (field === 'use_background_id' && playerCardBackground instanceof HTMLElement) {
+    playerCardBackground.classList.toggle('is-editable', editable);
+    if (editable) {
+      playerCardBackground.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+    } else {
+      playerCardBackground.removeAttribute('title');
+    }
+  }
+
+  if (field === 'head_frame_id') {
+    if (playerCardAvatarRing instanceof HTMLElement) {
+      playerCardAvatarRing.classList.toggle('is-editable', editable);
+      playerCardAvatarRing.setAttribute('tabindex', editable ? '0' : '-1');
+      if (editable) {
+        playerCardAvatarRing.setAttribute('role', 'button');
+      } else {
+        playerCardAvatarRing.removeAttribute('role');
+      }
+      if (editable) {
+        playerCardAvatarRing.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+      } else {
+        playerCardAvatarRing.removeAttribute('title');
+      }
+    }
+
+    if (playerCardAvatarFrameHitbox instanceof HTMLButtonElement) {
+      playerCardAvatarFrameHitbox.classList.toggle('is-editable', editable);
+      playerCardAvatarFrameHitbox.disabled = !editable;
+      playerCardAvatarFrameHitbox.tabIndex = editable ? 0 : -1;
+      if (editable) {
+        playerCardAvatarFrameHitbox.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+      } else {
+        playerCardAvatarFrameHitbox.removeAttribute('title');
+      }
+    }
+  }
+};
+
+app.syncPlayerCardLevelTheme = (levelValue) => {
+  if (!(playerCard instanceof HTMLElement)) {
+    return;
+  }
+
+  const parsedLevel = Number.parseInt(String(levelValue ?? ''), 10);
+  const normalizedLevel = Number.isFinite(parsedLevel) ? Math.max(0, parsedLevel) : 0;
+  const progress = Math.min(1, normalizedLevel / PLAYER_LEVEL_CAP);
+  const hue = 192 + (progress * 108);
+  const angle = 210 + Math.round(progress * 96);
+  const glowAlpha = 0.28 + (progress * 0.34);
+  const shadowAlpha = 0.2 + (progress * 0.18);
+  const expBorderAlpha = 0.28 + (progress * 0.22);
+
+  playerCard.style.setProperty('--player-level-progress', progress.toFixed(3));
+  playerCard.style.setProperty('--player-level-angle', `${angle}deg`);
+  playerCard.style.setProperty('--player-level-core-start', `hsla(${Math.round(hue - 22)} 92% 64% / ${0.2 + (progress * 0.16)})`);
+  playerCard.style.setProperty('--player-level-core-end', `hsla(${Math.round(hue + 12)} 95% 60% / ${0.26 + (progress * 0.18)})`);
+  playerCard.style.setProperty('--player-level-ring-start', `hsla(${Math.round(hue - 28)} 100% 66% / 0.92)`);
+  playerCard.style.setProperty('--player-level-ring-mid', `hsla(${Math.round(hue + 4)} 98% 64% / 0.96)`);
+  playerCard.style.setProperty('--player-level-ring-end', `hsla(${Math.round(hue + 44)} 100% 72% / ${0.78 + (progress * 0.16)})`);
+  playerCard.style.setProperty('--player-level-glow', `hsla(${Math.round(hue - 16)} 100% 62% / ${glowAlpha.toFixed(3)})`);
+  playerCard.style.setProperty('--player-level-shadow', `hsla(${Math.round(hue + 10)} 92% 52% / ${shadowAlpha.toFixed(3)})`);
+  playerCard.style.setProperty('--player-level-exp-start', `hsla(${Math.round(hue - 26)} 42% 10% / 0.9)`);
+  playerCard.style.setProperty('--player-level-exp-end', `hsla(${Math.round(hue + 8)} 56% 18% / ${0.72 + (progress * 0.12)})`);
+  playerCard.style.setProperty('--player-level-exp-border', `hsla(${Math.round(hue - 10)} 100% 72% / ${expBorderAlpha.toFixed(3)})`);
 };
 
 app.syncPlayerEditableStates = () => {
@@ -268,7 +351,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
     return;
   }
 
-  if (app.isGameServerHealthy() && !window.confirm(app.translate('runtime.playerEditConfirmRisk'))) {
+  if (!app.confirmPlayerMutationRisk()) {
     app.stopPlayerProfileEdit(field);
     return;
   }
@@ -338,6 +421,107 @@ app.resetPlayerCardAvatarFrame = () => {
   }
 };
 
+app.resetPlayerCardBackground = () => {
+  if (!(playerCardBackground instanceof HTMLElement)) {
+    return;
+  }
+
+  playerCardBackground.style.removeProperty('background-image');
+  playerCardBackground.hidden = true;
+  state.playerCardBackgroundAspectRatio = null;
+  app.syncPlayerCardBackgroundAspect();
+};
+
+app.clearPlayerCardInlineSize = () => {
+  if (!(playerCard instanceof HTMLElement)) {
+    return;
+  }
+
+  playerCard.style.removeProperty('width');
+  playerCard.style.removeProperty('max-width');
+  playerCard.style.removeProperty('min-height');
+};
+
+app.queuePlayerCardBackgroundAspectSync = () => {
+  if (state.playerCardResizeRafId) {
+    window.cancelAnimationFrame(state.playerCardResizeRafId);
+  }
+
+  state.playerCardResizeRafId = window.requestAnimationFrame(() => {
+    state.playerCardResizeRafId = null;
+    app.syncPlayerCardBackgroundAspect();
+  });
+};
+
+app.resolvePlayerBackgroundAspectRatio = (source) => {
+  const normalizedSource = typeof source === 'string' ? source.trim() : '';
+  if (!normalizedSource) {
+    state.playerCardBackgroundAspectRatio = null;
+    app.queuePlayerCardBackgroundAspectSync();
+    return;
+  }
+
+  const cachedAspectRatio = state.playerBackgroundAspectRatioMap[normalizedSource];
+  if (Number.isFinite(cachedAspectRatio) && cachedAspectRatio > 0) {
+    state.playerCardBackgroundAspectRatio = cachedAspectRatio;
+    app.queuePlayerCardBackgroundAspectSync();
+    return;
+  }
+
+  const image = new Image();
+  image.addEventListener('load', () => {
+    const naturalWidth = Number(image.naturalWidth);
+    const naturalHeight = Number(image.naturalHeight);
+    if (!Number.isFinite(naturalWidth) || !Number.isFinite(naturalHeight) || naturalWidth <= 0 || naturalHeight <= 0) {
+      return;
+    }
+
+    const aspectRatio = naturalWidth / naturalHeight;
+    state.playerBackgroundAspectRatioMap[normalizedSource] = aspectRatio;
+    if (typeof playerCardBackground?.style?.backgroundImage === 'string' && playerCardBackground.style.backgroundImage.includes(normalizedSource)) {
+      state.playerCardBackgroundAspectRatio = aspectRatio;
+      app.queuePlayerCardBackgroundAspectSync();
+    }
+  });
+  image.src = normalizedSource;
+};
+
+app.syncPlayerCardBackgroundAspect = () => {
+  if (!(playerCard instanceof HTMLElement) || !(databasePlayerProfileShell instanceof HTMLElement) || playerCard.hidden || databasePlayerProfileShell.hidden) {
+    return;
+  }
+
+  if (window.innerWidth <= PLAYER_CARD_MOBILE_BREAKPOINT) {
+    app.clearPlayerCardInlineSize();
+    return;
+  }
+
+  const rawAspectRatio = state.playerCardBackgroundAspectRatio;
+  if (!Number.isFinite(rawAspectRatio) || rawAspectRatio <= 0) {
+    app.clearPlayerCardInlineSize();
+    return;
+  }
+
+  const targetAspectRatio = Math.min(PLAYER_CARD_MAX_ASPECT_RATIO, Math.max(PLAYER_CARD_MIN_ASPECT_RATIO, rawAspectRatio));
+  app.clearPlayerCardInlineSize();
+
+  const shellRect = databasePlayerProfileShell.getBoundingClientRect();
+  const cardRect = playerCard.getBoundingClientRect();
+  const maxWidth = Math.floor(shellRect.width);
+  const baseHeight = Math.ceil(cardRect.height);
+  if (!Number.isFinite(maxWidth) || maxWidth <= 0 || !Number.isFinite(baseHeight) || baseHeight <= 0) {
+    return;
+  }
+
+  const idealWidth = Math.ceil(baseHeight * targetAspectRatio);
+  const appliedWidth = Math.max(Math.ceil(cardRect.width), Math.min(maxWidth, idealWidth));
+  const appliedHeight = Math.max(baseHeight, Math.ceil(appliedWidth / targetAspectRatio));
+
+  playerCard.style.width = '100%';
+  playerCard.style.maxWidth = `${appliedWidth}px`;
+  playerCard.style.minHeight = `${appliedHeight}px`;
+};
+
 app.setPlayerCardAvatar = (source) => {
   const normalizedSource = typeof source === 'string' ? source.trim() : '';
   if (!(playerCardAvatarImage instanceof HTMLImageElement)) {
@@ -369,6 +553,23 @@ app.setPlayerCardAvatarFrame = (source) => {
 
   playerCardAvatarFrameImage.hidden = false;
   playerCardAvatarFrameImage.src = normalizedSource;
+};
+
+app.setPlayerCardBackground = (source) => {
+  const normalizedSource = typeof source === 'string' ? source.trim() : '';
+  if (!(playerCardBackground instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!normalizedSource) {
+    app.resetPlayerCardBackground();
+    return;
+  }
+
+  playerCardBackground.hidden = false;
+  playerCardBackground.style.backgroundImage = `linear-gradient(145deg, rgba(12, 18, 38, 0.18), rgba(12, 18, 38, 0.58)), url("${normalizedSource}")`;
+  app.resolvePlayerBackgroundAspectRatio(normalizedSource);
+  app.queuePlayerCardBackgroundAspectSync();
 };
 
 app.setPlayerProfileState = (message, tone = '') => {
@@ -438,7 +639,7 @@ app.resetPlayerProfileView = () => {
     playerCardName.textContent = '--';
   }
   if (playerCardInlineUid instanceof HTMLElement) {
-      playerCardInlineUid.textContent = `UID ${state.selectedAccountUid ?? app.translate('common.notAvailable')}`;
+    playerCardInlineUid.textContent = state.selectedAccountUid ?? app.translate('common.notAvailable');
   }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = '--';
@@ -455,6 +656,8 @@ app.resetPlayerProfileView = () => {
 
   app.resetPlayerCardAvatarFrame();
   app.resetPlayerCardAvatar();
+  app.resetPlayerCardBackground();
+  app.syncPlayerCardLevelTheme(0);
   app.syncPlayerEditableStates();
 };
 
@@ -473,7 +676,7 @@ app.renderPlayerProfile = (profile) => {
     playerCardName.textContent = nameLabel;
   }
   if (playerCardInlineUid instanceof HTMLElement) {
-      playerCardInlineUid.textContent = `UID ${profileUid ?? app.translate('common.notAvailable')}`;
+    playerCardInlineUid.textContent = profileUid ?? app.translate('common.notAvailable');
   }
   if (playerCardGender instanceof HTMLElement) {
     playerCardGender.textContent = genderLabel;
@@ -488,10 +691,26 @@ app.renderPlayerProfile = (profile) => {
     playerCardExp.textContent = '0';
   }
 
-  app.setPlayerCardAvatar(app.getPlayerPortraitUrlByField('head_portrait_id', profile?.head_portrait_id ?? null));
-  app.setPlayerCardAvatarFrame(app.getPlayerPortraitUrlByField('head_frame_id', profile?.head_frame_id ?? null));
+  app.setPlayerCardAvatar(app.getPlayerResourceUrlByField('head_portrait_id', profile?.head_portrait_id ?? null));
+  app.setPlayerCardAvatarFrame(app.getPlayerResourceUrlByField('head_frame_id', profile?.head_frame_id ?? null));
+  app.setPlayerCardBackground(app.getPlayerResourceUrlByField('use_background_id', profile?.use_background_id ?? null));
+  app.syncPlayerCardLevelTheme(profile?.level);
   app.syncPlayerEditableStates();
   app.showPlayerProfile();
+};
+
+app.handlePlayerCardBackgroundActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  if (target !== playerCardBackground) {
+    return;
+  }
+
+  event.stopPropagation();
+  app.openPlayerPortraitPicker('use_background_id');
 };
 
 app.canAccessPlayerProfile = (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null;
@@ -607,9 +826,39 @@ export const initDatabasePlayerProfileFeature = () => {
     });
   }
 
+  if (playerCard instanceof HTMLElement) {
+    playerCard.addEventListener('transitionend', app.queuePlayerCardBackgroundAspectSync);
+  }
+
+  if (playerCardBackground instanceof HTMLElement) {
+    playerCardBackground.addEventListener('click', app.handlePlayerCardBackgroundActivate);
+  }
+
+  if (playerCardAvatarFrameHitbox instanceof HTMLButtonElement) {
+    playerCardAvatarFrameHitbox.addEventListener('click', (event) => {
+      event.stopPropagation();
+      app.openPlayerPortraitPicker('head_frame_id');
+    });
+    playerCardAvatarFrameHitbox.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      app.openPlayerPortraitPicker('head_frame_id');
+    });
+  }
+
   if (playerCardAvatarShell instanceof HTMLElement) {
     playerCardAvatarShell.addEventListener('click', (event) => {
-      if (event.target instanceof HTMLElement && event.target.closest('.database-player-card-avatar-ring')) {
+      if (
+        event.target instanceof HTMLElement
+        && (
+          event.target.closest('.database-player-card-avatar-ring')
+          || event.target.closest('.database-player-card-tag-likes')
+        )
+      ) {
         return;
       }
 
@@ -619,6 +868,10 @@ export const initDatabasePlayerProfileFeature = () => {
 
   if (playerCardAvatarRing instanceof HTMLElement) {
     playerCardAvatarRing.addEventListener('click', (event) => {
+      if (event.target instanceof HTMLElement && event.target.closest('.database-player-card-avatar-frame-hitbox')) {
+        return;
+      }
+
       event.stopPropagation();
       app.openPlayerPortraitPicker('head_frame_id');
     });
@@ -637,4 +890,6 @@ export const initDatabasePlayerProfileFeature = () => {
       app.openPlayerPortraitPicker('head_frame_id');
     });
   }
+
+  window.addEventListener('resize', app.queuePlayerCardBackgroundAspectSync);
 };

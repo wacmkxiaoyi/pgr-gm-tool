@@ -28,9 +28,12 @@ export const dom = {
   databasePlayerProfileState: document.querySelector('#database-player-profile-state'),
   databasePlayerProfileShell: document.querySelector('#database-player-profile-shell'),
   databasePlayerProfileSummary: document.querySelector('#database-player-profile-summary'),
+  playerCard: document.querySelector('.database-player-card'),
+  playerCardBackground: document.querySelector('#player-card-background'),
   playerCardAvatarShell: document.querySelector('.database-player-card-avatar-shell'),
   playerCardAvatarRing: document.querySelector('.database-player-card-avatar-ring'),
   playerCardAvatarFrameImage: document.querySelector('#player-card-avatar-frame-image'),
+  playerCardAvatarFrameHitbox: document.querySelector('#player-card-avatar-frame-hitbox'),
   playerCardAvatarImage: document.querySelector('#player-card-avatar-image'),
   playerCardAvatarFallback: document.querySelector('#player-card-avatar-fallback'),
   playerCardName: document.querySelector('#player-card-name'),
@@ -125,6 +128,11 @@ export const state = {
   playerPortraitFrameUrlMap: {},
   playerPortraitNameMap: {},
   playerPortraitFrameNameMap: {},
+  playerBackgroundUrlMap: {},
+  playerBackgroundNameMap: {},
+  playerBackgroundAspectRatioMap: {},
+  playerCardBackgroundAspectRatio: null,
+  playerCardResizeRafId: null,
   latestStatusSnapshot: null,
   pendingDeleteAccount: null,
   lastDeleteFocusedControl: null,
@@ -200,47 +208,86 @@ Object.assign(app, {
 
     return String(value);
   },
-  normalizePortraitId: (value) => {
+  normalizePlayerResourceId: (value) => {
     const parsed = Number.parseInt(String(value ?? ''), 10);
     return Number.isFinite(parsed) ? parsed : null;
   },
-  getPlayerPortraitUrlByField: (field, id) => {
+  getPlayerResourceMapByField: (field) => {
+    if (field === 'head_frame_id') {
+      return state.playerPortraitFrameUrlMap;
+    }
+
+    if (field === 'use_background_id') {
+      return state.playerBackgroundUrlMap;
+    }
+
+    return state.playerPortraitUrlMap;
+  },
+  getPlayerResourceNameMapByField: (field) => {
+    if (field === 'head_frame_id') {
+      return state.playerPortraitFrameNameMap;
+    }
+
+    if (field === 'use_background_id') {
+      return state.playerBackgroundNameMap;
+    }
+
+    return state.playerPortraitNameMap;
+  },
+  getPlayerResourceUrlByField: (field, id) => {
     if (id === null || id === undefined) {
       return '';
     }
 
-    const map = field === 'head_frame_id' ? state.playerPortraitFrameUrlMap : state.playerPortraitUrlMap;
+    const map = app.getPlayerResourceMapByField(field);
     return typeof map?.[id] === 'string' ? map[id] : '';
   },
-  getPlayerPortraitNameByField: (field, id) => {
+  getPlayerResourceNameByField: (field, id) => {
     if (id === null || id === undefined) {
       return '';
     }
 
-    const map = field === 'head_frame_id' ? state.playerPortraitFrameNameMap : state.playerPortraitNameMap;
+    const map = app.getPlayerResourceNameMapByField(field);
     return typeof map?.[id] === 'string' ? map[id] : '';
   },
-  getPortraitPickerMap: (field) => (field === 'head_frame_id' ? state.playerPortraitFrameUrlMap : state.playerPortraitUrlMap),
-  getPortraitPickerEntries: (field) => {
-    const map = app.getPortraitPickerMap(field);
+  getPlayerResourcePickerEntries: (field) => {
+    const map = app.getPlayerResourceMapByField(field);
     return Object.entries(map)
-      .map(([id, url]) => ({ id: app.normalizePortraitId(id), url: typeof url === 'string' ? url : '' }))
+      .map(([id, url]) => ({ id: app.normalizePlayerResourceId(id), url: typeof url === 'string' ? url : '' }))
       .filter((item) => item.id !== null)
       .sort((left, right) => left.id - right.id);
   },
-  getPortraitPickerLabel: (field) => t(field === 'head_frame_id' ? 'dashboard.portraitFrame' : 'dashboard.portrait', {}, state.locale),
-  getPortraitPickerCurrentValue: (field) => {
+  getPlayerResourceLabel: (field) => {
+    if (field === 'head_frame_id') {
+      return t('dashboard.portraitFrame', {}, state.locale);
+    }
+
+    if (field === 'use_background_id') {
+      return t('dashboard.background', {}, state.locale);
+    }
+
+    return t('dashboard.portrait', {}, state.locale);
+  },
+  getPlayerResourceCurrentValue: (field) => {
     if (!state.playerProfileData) {
       return null;
     }
 
-    return field === 'head_frame_id' ? state.playerProfileData.head_frame_id ?? null : state.playerProfileData.head_portrait_id ?? null;
+    if (field === 'head_frame_id') {
+      return state.playerProfileData.head_frame_id ?? null;
+    }
+
+    if (field === 'use_background_id') {
+      return state.playerProfileData.use_background_id ?? null;
+    }
+
+    return state.playerProfileData.head_portrait_id ?? null;
   },
-  getPortraitPickerCurrentName: (field) => {
-    const currentValue = app.getPortraitPickerCurrentValue(field);
-    return app.getPlayerPortraitNameByField(field, currentValue) || (currentValue === null ? t('common.notAvailable', {}, state.locale) : String(currentValue));
+  getPlayerResourceCurrentName: (field) => {
+    const currentValue = app.getPlayerResourceCurrentValue(field);
+    return app.getPlayerResourceNameByField(field, currentValue) || (currentValue === null ? t('common.notAvailable', {}, state.locale) : String(currentValue));
   },
-  getPortraitPickerPageSize: () => {
+  getPlayerResourcePickerPageSize: () => {
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1280;
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 720;
     const cardWidth = 126;
@@ -252,9 +299,20 @@ Object.assign(app, {
     const rows = Math.max(2, Math.floor((viewportHeight - verticalPadding) / (cardHeight + gap)));
     return Math.max(4, columns * rows);
   },
-  getPortraitPickerPages: (field) => {
-    const entries = app.getPortraitPickerEntries(field);
+  getPlayerResourcePickerPages: (field) => {
+    const entries = app.getPlayerResourcePickerEntries(field);
     return { entries, totalPages: 1 };
+  },
+  canEditPlayerField: (field) => {
+    const value = app.getPlayerProfileEditValue(field);
+    return value !== null && value !== undefined;
+  },
+  confirmPlayerMutationRisk: () => {
+    if (!app.isGameServerHealthy()) {
+      return true;
+    }
+
+    return window.confirm(app.translate('runtime.playerEditConfirmRisk'));
   },
   getGameSection: (payload = state.latestStatusSnapshot) => {
     const sections = Array.isArray(payload?.sections) ? payload.sections : [];

@@ -215,6 +215,8 @@ app.loadAppInfo = async () => {
     state.playerPortraitFrameUrlMap = payload?.player_portrait_frame_url_map && typeof payload.player_portrait_frame_url_map === 'object' ? payload.player_portrait_frame_url_map : {};
     state.playerPortraitNameMap = payload?.player_portrait_name_map && typeof payload.player_portrait_name_map === 'object' ? payload.player_portrait_name_map : {};
     state.playerPortraitFrameNameMap = payload?.player_portrait_frame_name_map && typeof payload.player_portrait_frame_name_map === 'object' ? payload.player_portrait_frame_name_map : {};
+    state.playerBackgroundUrlMap = payload?.player_background_url_map && typeof payload.player_background_url_map === 'object' ? payload.player_background_url_map : {};
+    state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
     if (!state.serverControlsVisible) {
       state.serverControlState = null;
     }

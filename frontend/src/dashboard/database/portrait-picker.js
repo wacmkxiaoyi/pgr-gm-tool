@@ -35,19 +35,19 @@ app.renderPlayerPortraitPicker = () => {
   }
 
   const { field } = state.playerPortraitPickerState;
-  const { entries, totalPages } = app.getPortraitPickerPages(field);
+  const { entries, totalPages } = app.getPlayerResourcePickerPages(field);
   state.playerPortraitPickerState.page = 1;
-  state.playerPortraitPickerState.pageSize = app.getPortraitPickerPageSize();
+  state.playerPortraitPickerState.pageSize = app.getPlayerResourcePickerPageSize();
   state.playerPortraitPickerState.totalPages = totalPages;
 
   if (playerPortraitPickerTitle instanceof HTMLElement) {
-    playerPortraitPickerTitle.textContent = app.translate('runtime.portraitPickerTitle', { label: app.getPortraitPickerLabel(field) });
+    playerPortraitPickerTitle.textContent = app.translate('runtime.portraitPickerTitle', { label: app.getPlayerResourceLabel(field) });
   }
   if (playerPortraitPickerEyebrow instanceof HTMLElement) {
-    playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', { label: app.getPortraitPickerLabel(field) });
+    playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', { label: app.getPlayerResourceLabel(field) });
   }
   if (playerPortraitPickerCurrent instanceof HTMLElement) {
-    playerPortraitPickerCurrent.textContent = app.translate('runtime.portraitPickerCurrent', { name: app.getPortraitPickerCurrentName(field) });
+    playerPortraitPickerCurrent.textContent = app.translate('runtime.portraitPickerCurrent', { name: app.getPlayerResourceCurrentName(field) });
   }
   if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
     playerPortraitPickerConfirmButton.disabled = !Number.isFinite(state.playerPortraitPickerState.selectedId);
@@ -55,12 +55,12 @@ app.renderPlayerPortraitPicker = () => {
 
   playerPortraitPickerGrid.innerHTML = entries.map((entry) => {
     const isSelected = entry.id === state.playerPortraitPickerState.selectedId;
-    const url = entry.url || app.getPlayerPortraitUrlByField(field, entry.id);
-    const name = app.getPlayerPortraitNameByField(field, entry.id) || String(entry.id);
+    const url = entry.url || app.getPlayerResourceUrlByField(field, entry.id);
+    const name = app.getPlayerResourceNameByField(field, entry.id) || String(entry.id);
     return `
       <button type="button" class="player-portrait-picker-item ${isSelected ? 'is-selected' : ''}" data-player-portrait-id="${entry.id}">
         <span class="player-portrait-picker-item-preview">
-          <img src="${url}" alt="${app.getPortraitPickerLabel(field)} ${entry.id}">
+          <img src="${url}" alt="${app.getPlayerResourceLabel(field)} ${entry.id}">
         </span>
         <strong>${name}</strong>
       </button>
@@ -69,12 +69,13 @@ app.renderPlayerPortraitPicker = () => {
 };
 
 app.openPlayerPortraitPicker = (field) => {
-  const currentValue = app.getPlayerProfileEditValue(field);
-  if (currentValue === null || currentValue === undefined) {
+  if (!app.canEditPlayerField(field)) {
     return;
   }
 
-  const availableEntries = app.getPortraitPickerEntries(field);
+  const currentValue = app.getPlayerProfileEditValue(field);
+
+  const availableEntries = app.getPlayerResourcePickerEntries(field);
   const initialSelectedId = availableEntries.some((entry) => entry.id === currentValue) ? currentValue : null;
 
   if (state.playerProfileEditState?.field && state.playerProfileEditState.field !== field) {
@@ -86,7 +87,7 @@ app.openPlayerPortraitPicker = (field) => {
   state.playerPortraitPickerState = {
     field,
     page: 1,
-    pageSize: app.getPortraitPickerPageSize(),
+    pageSize: app.getPlayerResourcePickerPageSize(),
     totalPages: 1,
     selectedId: initialSelectedId,
   };
@@ -121,7 +122,7 @@ app.submitPlayerPortraitPicker = async () => {
     return;
   }
 
-  if (app.isGameServerHealthy() && !window.confirm(app.translate('runtime.playerEditConfirmRisk'))) {
+  if (!app.confirmPlayerMutationRisk()) {
     app.closePlayerPortraitPicker();
     return;
   }
@@ -161,7 +162,7 @@ app.handlePlayerPortraitPickerClick = (event) => {
     return;
   }
 
-  const selectedId = app.normalizePortraitId(button.dataset.playerPortraitId);
+  const selectedId = app.normalizePlayerResourceId(button.dataset.playerPortraitId);
   if (selectedId === null) {
     return;
   }
