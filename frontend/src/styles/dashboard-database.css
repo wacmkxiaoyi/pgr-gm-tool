@@ -166,8 +166,7 @@
 
 .database-item-actions {
   display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
 }
 
@@ -175,8 +174,47 @@
   flex: 0 0 auto;
 }
 
-.database-item-search-shell {
+.database-item-toolbar {
   flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 20px;
+}
+
+.database-item-control {
+  flex: 0 1 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.database-item-sort-select {
+  min-width: 108px;
+  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.database-item-sort-select:focus {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+#database-weapon-actions .database-item-toolbar {
+  flex: 1 1 auto;
+}
+
+.database-item-search-shell {
+  flex: 0 1 auto;
   display: flex;
   justify-content: center;
 }
@@ -236,6 +274,116 @@
 .item-management-table {
   min-width: 640px;
   table-layout: fixed;
+}
+
+.weapon-management-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.weapon-management-col-row {
+  width: 72px;
+}
+
+.weapon-management-col-name {
+  width: 220px;
+}
+
+.weapon-management-col-character {
+  width: 220px;
+}
+
+.weapon-management-col-type {
+  width: 100px;
+}
+
+.weapon-management-col-star {
+  width: 88px;
+}
+
+.weapon-management-col-enhance {
+  width: 140px;
+}
+
+.weapon-management-col-actions {
+  width: 180px;
+}
+
+.weapon-management-media-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.weapon-management-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.weapon-management-icon-fallback {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+}
+
+.weapon-management-star,
+.weapon-management-enhancement {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.weapon-management-star {
+  letter-spacing: 1px;
+}
+
+.weapon-management-star.is-empty,
+.weapon-management-enhancement.is-empty {
+  color: var(--muted);
+}
+
+.weapon-star-tier-2 {
+  color: #16a34a;
+}
+
+.weapon-star-tier-3 {
+  color: #2563eb;
+}
+
+.weapon-star-tier-4 {
+  color: #7c3aed;
+}
+
+.weapon-star-tier-5 {
+  color: #ea580c;
+}
+
+.weapon-star-tier-6 {
+  color: #dc2626;
+}
+
+.weapon-enhancement-tier-0 {
+  color: #111827;
+}
+
+.weapon-enhancement-tier-1 {
+  color: #16a34a;
+}
+
+.weapon-enhancement-tier-2 {
+  color: #2563eb;
+}
+
+.weapon-enhancement-tier-3 {
+  color: #7c3aed;
+}
+
+.weapon-enhancement-tier-4 {
+  color: #ea580c;
 }
 
 .item-management-col-id {
@@ -317,10 +465,20 @@
 @media (max-width: 720px) {
   .database-item-actions {
     flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .database-item-toolbar {
+    order: 2;
+    width: 100%;
+  }
+
+  .database-item-control {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .database-item-search-shell {
-    order: 3;
     width: 100%;
   }
 }

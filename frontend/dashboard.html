@@ -99,6 +99,7 @@
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">数据库状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
+                <button class="subnav-link" type="button" data-database-tab="database-weapon-management-section" id="database-weapon-management-subnav" aria-controls="database-weapon-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
@@ -237,8 +238,28 @@
                 <div class="database-item-management-shell" id="database-item-management-shell" hidden>
                   <div class="database-item-actions" id="database-item-actions">
                     <button class="status-action-button status-action-button-stop" type="button" id="database-item-clear" data-item-management-action="clear" data-i18n="dashboard.itemManagementClear">清空物品</button>
-                    <div class="database-item-search-shell" id="database-item-search-shell">
-                      <input class="database-item-search-input" type="search" id="database-item-search-input" data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder" placeholder="输入道具名后回车搜索">
+                    <div class="database-item-toolbar">
+                      <label class="database-item-control" for="database-item-search-input">
+                        <span data-i18n="dashboard.itemManagementNameFilter">名称过滤</span>
+                        <div class="database-item-search-shell" id="database-item-search-shell">
+                          <input class="database-item-search-input" type="search" id="database-item-search-input" data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder" placeholder="输入道具名后回车搜索">
+                        </div>
+                      </label>
+                      <label class="database-item-control" for="database-item-sort-field">
+                        <span data-i18n="dashboard.itemManagementSortBy">排序字段</span>
+                        <select class="database-item-sort-select" id="database-item-sort-field" data-i18n-aria-label="dashboard.itemManagementSortBy" aria-label="排序字段">
+                          <option value="item_id" data-i18n="dashboard.itemManagementSortById">物品 ID</option>
+                          <option value="name" data-i18n="dashboard.itemManagementSortByName">名称</option>
+                          <option value="quantity" data-i18n="dashboard.itemManagementSortByQuantity">数量</option>
+                        </select>
+                      </label>
+                      <label class="database-item-control" for="database-item-sort-order">
+                        <span data-i18n="dashboard.itemManagementSortOrder">排序方向</span>
+                        <select class="database-item-sort-select" id="database-item-sort-order" data-i18n-aria-label="dashboard.itemManagementSortOrder" aria-label="排序方向">
+                          <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
+                          <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
+                        </select>
+                      </label>
                     </div>
                     <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-item-add" data-item-management-action="add-item" data-i18n="dashboard.itemManagementAddItem">新增物品</button>
                   </div>
@@ -255,7 +276,7 @@
                         <thead>
                           <tr>
                             <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
-                            <th scope="col" data-i18n="dashboard.itemManagementItemName">名字</th>
+                            <th scope="col" data-i18n="dashboard.itemManagementItemName">名称</th>
                             <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
                             <th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
                           </tr>
@@ -267,6 +288,83 @@
                       <button class="status-action-button status-action-button-log" type="button" id="database-item-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
                       <span id="database-item-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
                       <button class="status-action-button status-action-button-log" type="button" id="database-item-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="database-panel database-item-panel database-tab-panel" id="database-weapon-management-section" data-database-tab-panel="database-weapon-management-section" aria-labelledby="database-weapon-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div>
+                    <span class="section-tag">Weapons</span>
+                    <h2 id="database-weapon-management-title" data-i18n="dashboard.weaponManagementTitle">武器管理</h2>
+                  </div>
+                  <small class="database-weapon-management-summary" id="database-weapon-management-summary" data-i18n="dashboard.weaponManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                </div>
+
+                <div class="database-player-empty" id="database-weapon-management-state" data-i18n="dashboard.weaponManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-item-management-shell" id="database-weapon-management-shell" hidden>
+                  <div class="database-item-actions" id="database-weapon-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-weapon-clear" data-weapon-management-action="clear" data-i18n="dashboard.weaponManagementClear">清空未穿戴武器</button>
+                    <div class="database-item-toolbar">
+                      <label class="database-item-control" for="database-weapon-search-input">
+                        <span data-i18n="dashboard.weaponManagementNameFilter">名称过滤</span>
+                        <div class="database-item-search-shell" id="database-weapon-search-shell">
+                          <input class="database-item-search-input" type="search" id="database-weapon-search-input" data-i18n-placeholder="dashboard.weaponManagementSearchPlaceholder" placeholder="输入装备名后回车搜索">
+                        </div>
+                      </label>
+                      <label class="database-item-control" for="database-weapon-sort-field">
+                        <span data-i18n="dashboard.weaponManagementSortBy">排序字段</span>
+                        <select class="database-item-sort-select" id="database-weapon-sort-field" data-i18n-aria-label="dashboard.weaponManagementSortBy" aria-label="排序字段">
+                          <option value="name" data-i18n="dashboard.weaponManagementSortByName">名称</option>
+                          <option value="character" data-i18n="dashboard.weaponManagementSortByCharacter">穿戴角色</option>
+                          <option value="type" data-i18n="dashboard.weaponManagementSortByType">类型</option>
+                          <option value="star" data-i18n="dashboard.weaponManagementSortByStar">星级</option>
+                          <option value="enhancement" data-i18n="dashboard.weaponManagementSortByEnhancement">综合强化等级</option>
+                        </select>
+                      </label>
+                      <label class="database-item-control" for="database-weapon-sort-order">
+                        <span data-i18n="dashboard.weaponManagementSortOrder">排序方向</span>
+                        <select class="database-item-sort-select" id="database-weapon-sort-order" data-i18n-aria-label="dashboard.weaponManagementSortOrder" aria-label="排序方向">
+                          <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
+                          <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
+                        </select>
+                      </label>
+                    </div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-weapon-add" data-weapon-management-action="add-weapon" data-i18n="dashboard.weaponManagementAdd">新增武器</button>
+                  </div>
+
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll" id="database-weapon-management-table-shell">
+                      <table class="accounts-table weapon-management-table" aria-describedby="database-weapon-management-summary">
+                        <colgroup>
+                          <col class="weapon-management-col-row">
+                          <col class="weapon-management-col-name">
+                          <col class="weapon-management-col-character">
+                          <col class="weapon-management-col-type">
+                          <col class="weapon-management-col-star">
+                          <col class="weapon-management-col-enhance">
+                          <col class="weapon-management-col-actions">
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementName">名称</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementCharacter">穿戴角色</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementType">类型</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementStar">星级</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="database-weapon-management-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-weapon-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-next" data-i18n="dashboard.accountsNext">下一页</button>
                     </div>
                   </div>
                 </div>
@@ -441,7 +539,7 @@
             <thead>
               <tr>
                 <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
-                <th scope="col" data-i18n="dashboard.itemManagementItemName">名字</th>
+                <th scope="col" data-i18n="dashboard.itemManagementItemName">名称</th>
                 <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
               </tr>
             </thead>

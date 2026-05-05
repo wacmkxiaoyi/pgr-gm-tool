@@ -14,6 +14,8 @@ const {
   databaseItemManagementPrevButton,
   databaseItemManagementNextButton,
   databaseItemManagementPaginationLabel,
+  databaseItemSortFieldSelect,
+  databaseItemSortOrderSelect,
   databaseItemSearchInput,
 } = dom;
 
@@ -95,6 +97,24 @@ app.renderItemRows = (items) => {
       </td>
     </tr>
   `).join('') : '';
+};
+
+app.syncItemManagementSortControls = () => {
+  if (databaseItemSortFieldSelect instanceof HTMLSelectElement) {
+    databaseItemSortFieldSelect.value = state.itemManagementSortBy;
+  }
+
+  if (databaseItemSortOrderSelect instanceof HTMLSelectElement) {
+    databaseItemSortOrderSelect.value = state.itemManagementSortOrder;
+  }
+};
+
+app.applyItemManagementSort = () => {
+  const nextSortBy = databaseItemSortFieldSelect instanceof HTMLSelectElement ? databaseItemSortFieldSelect.value : state.itemManagementSortBy;
+  const nextSortOrder = databaseItemSortOrderSelect instanceof HTMLSelectElement ? databaseItemSortOrderSelect.value : state.itemManagementSortOrder;
+  state.itemManagementSortBy = nextSortBy === 'name' || nextSortBy === 'quantity' ? nextSortBy : 'item_id';
+  state.itemManagementSortOrder = nextSortOrder === 'desc' ? 'desc' : 'asc';
+  app.syncItemManagementSortControls();
 };
 
 app.reloadItemManagementCurrentPage = async () => {
@@ -287,6 +307,15 @@ app.syncItemManagementKeywordInput = () => {
   }
 };
 
+app.rerenderItemManagementLocale = () => {
+  app.syncItemManagementSortControls();
+  app.syncItemManagementKeywordInput();
+
+  if (app.canAccessItemManagement() && state.itemManagementHasLoaded) {
+    void app.loadSelectedAccountItems(state.itemManagementCurrentPage);
+  }
+};
+
 app.loadSelectedAccountItems = async (page = 1) => {
   if (!app.canAccessItemManagement() || state.itemManagementLoading) {
     app.updateItemManagementPagination();
@@ -306,6 +335,8 @@ app.loadSelectedAccountItems = async (page = 1) => {
     if (state.itemManagementKeyword) {
       search.set('keyword', state.itemManagementKeyword);
     }
+    search.set('sort_by', state.itemManagementSortBy);
+    search.set('sort_order', state.itemManagementSortOrder);
 
     const payload = await app.apiFetch(`/api/database-items/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
@@ -345,6 +376,7 @@ app.updateItemManagementAccess = (payload = state.databaseHealthSnapshot) => {
   const accessible = app.canAccessItemManagement(payload);
 
   app.syncItemManagementKeywordInput();
+  app.syncItemManagementSortControls();
 
   if (databaseItemManagementSubnavButton instanceof HTMLButtonElement) {
     databaseItemManagementSubnavButton.disabled = !accessible;
@@ -443,6 +475,8 @@ app.handleItemManagementActionClick = (event) => {
 };
 
 export const initDatabaseItemManagementFeature = () => {
+  app.syncItemManagementSortControls();
+
   if (databaseItemManagementShell instanceof HTMLElement) {
     databaseItemManagementShell.addEventListener('click', app.handleItemManagementActionClick);
     databaseItemManagementShell.addEventListener('click', app.handleItemQuantityActivate);
@@ -474,6 +508,26 @@ export const initDatabaseItemManagementFeature = () => {
 
       event.preventDefault();
       state.itemManagementKeyword = databaseItemSearchInput.value.trim();
+      state.itemManagementCurrentPage = 1;
+      if (app.canAccessItemManagement()) {
+        void app.loadSelectedAccountItems(1);
+      }
+    });
+  }
+
+  if (databaseItemSortFieldSelect instanceof HTMLSelectElement) {
+    databaseItemSortFieldSelect.addEventListener('change', () => {
+      app.applyItemManagementSort();
+      state.itemManagementCurrentPage = 1;
+      if (app.canAccessItemManagement()) {
+        void app.loadSelectedAccountItems(1);
+      }
+    });
+  }
+
+  if (databaseItemSortOrderSelect instanceof HTMLSelectElement) {
+    databaseItemSortOrderSelect.addEventListener('change', () => {
+      app.applyItemManagementSort();
       state.itemManagementCurrentPage = 1;
       if (app.canAccessItemManagement()) {
         void app.loadSelectedAccountItems(1);

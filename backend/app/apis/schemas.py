@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class LoginRequest(BaseModel):
@@ -38,6 +38,16 @@ class AppInfoResponse(BaseModel):
     player_background_url_map: dict[int, str]
     player_background_name_map: dict[int, str]
     item_name_map: dict[int, str]
+    weapon_name_map: dict[int, str]
+    weapon_type_map: dict[int, int]
+    weapon_type_name_map: dict[int, str]
+    weapon_star_map: dict[int, int]
+    weapon_site_map: dict[int, str]
+    weapon_icon_url_map: dict[int, str]
+    weapon_breakthrough_level_limit_map: dict[int, dict[int, int]]
+    weapon_breakthrough_max_map: dict[int, dict[str, int]]
+    character_log_name_map: dict[int, str]
+    character_head_icon_url_map: dict[int, str]
 
 
 class InventoryItemResponse(BaseModel):
@@ -47,6 +57,40 @@ class InventoryItemResponse(BaseModel):
 
 class InventoryListResponse(BaseModel):
     items: list[InventoryItemResponse] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
+class WeaponResonanceResponse(BaseModel):
+    Slot: int | None = None
+    Type: int | None = None
+    CharacterId: int | None = None
+    TemplateId: int | None = None
+
+
+class WeaponOverrunResponse(BaseModel):
+    Level: int | None = None
+    ActiveSuits: list[int] = Field(default_factory=list)
+    ChoseSuit: int | None = None
+
+
+class WeaponItemResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    TemplateId: int
+    CharacterId: int | None = None
+    Level: int | None = None
+    Exp: int | None = None
+    Breakthrough: int | None = None
+    ResonanceInfo: list[WeaponResonanceResponse] = Field(default_factory=list)
+    WeaponOverrunData: WeaponOverrunResponse | None = None
+
+
+class WeaponListResponse(BaseModel):
+    items: list[WeaponItemResponse] = Field(default_factory=list)
     page: int = 1
     page_size: int = 10
     total: int = 0

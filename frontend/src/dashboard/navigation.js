@@ -136,6 +136,12 @@ app.initNavigation = () => {
         return;
       }
 
+      if (tabId === 'database-weapon-management-section' && app.canAccessWeaponManagement()) {
+        app.updateWeaponManagementAccess();
+        void app.loadSelectedAccountWeapons(app.state.weaponManagementCurrentPage);
+        return;
+      }
+
       if (tabId === 'database-item-management-section' && app.canAccessItemManagement()) {
         app.updateItemManagementAccess();
         void app.loadSelectedAccountItems(app.state.itemManagementCurrentPage);

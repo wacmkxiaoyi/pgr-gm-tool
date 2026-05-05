@@ -45,13 +45,19 @@ app.setSelectedAccountUid = (uid) => {
   app.updateAccountSelectionUi();
   app.resetPlayerProfileView();
   if (previousUid !== state.selectedAccountUid) {
+    app.clearWeaponManagementKeyword();
+    app.resetWeaponManagementView();
     app.clearItemManagementKeyword();
     app.resetItemManagementView();
   }
   app.updatePlayerProfileAccess();
+  app.updateWeaponManagementAccess();
   app.updateItemManagementAccess();
   if (app.isDatabasePlayerProfileSectionActive() && app.canAccessPlayerProfile()) {
     void app.loadSelectedPlayerProfile();
+  }
+  if (app.isDatabaseWeaponManagementSectionActive() && app.canAccessWeaponManagement()) {
+    void app.loadSelectedAccountWeapons(1);
   }
   if (app.isDatabaseItemManagementSectionActive() && app.canAccessItemManagement()) {
     void app.loadSelectedAccountItems(1);
@@ -206,12 +212,14 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
       app.setActiveDatabaseTab('database-service-status-section');
     }
     app.updatePlayerProfileAccess(payload);
+    app.updateWeaponManagementAccess(payload);
     app.updateItemManagementAccess(payload);
     return;
   }
 
   app.updateAccountsPagination();
   app.updatePlayerProfileAccess(payload);
+  app.updateWeaponManagementAccess(payload);
   app.updateItemManagementAccess(payload);
 };
 

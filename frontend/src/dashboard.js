@@ -23,6 +23,9 @@ const rerenderLocaleSensitiveViews = () => {
   app.updateDatabaseAccountsAccess();
   app.updatePlayerProfileAccess();
   app.updateItemManagementAccess();
+  app.updateWeaponManagementAccess();
+  app.rerenderItemManagementLocale?.();
+  app.rerenderWeaponManagementLocale?.();
   app.updateStatusActionButtons({ controls: app.getControlState(state.serverControlState), sections: state.latestStatusSnapshot?.sections ?? [] });
 
   if (state.latestStatusSnapshot) {

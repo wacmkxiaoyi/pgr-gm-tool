@@ -181,6 +181,12 @@ app.renderDatabaseSnapshot = (payload) => {
   if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null && app.isDatabasePlayerProfileSectionActive()) {
     void app.loadSelectedPlayerProfile();
   }
+  if (app.isDatabaseWeaponManagementSectionActive()) {
+    app.updateWeaponManagementAccess(payload);
+    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
+      void app.loadSelectedAccountWeapons(state.weaponManagementCurrentPage);
+    }
+  }
   if (app.isDatabaseItemManagementSectionActive()) {
     app.updateItemManagementAccess(payload);
     if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
@@ -226,6 +232,16 @@ app.loadAppInfo = async () => {
     state.playerBackgroundUrlMap = payload?.player_background_url_map && typeof payload.player_background_url_map === 'object' ? payload.player_background_url_map : {};
     state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
     state.itemNameMap = payload?.item_name_map && typeof payload.item_name_map === 'object' ? payload.item_name_map : {};
+    state.weaponNameMap = payload?.weapon_name_map && typeof payload.weapon_name_map === 'object' ? payload.weapon_name_map : {};
+    state.weaponTypeMap = payload?.weapon_type_map && typeof payload.weapon_type_map === 'object' ? payload.weapon_type_map : {};
+    state.weaponTypeNameMap = payload?.weapon_type_name_map && typeof payload.weapon_type_name_map === 'object' ? payload.weapon_type_name_map : {};
+    state.weaponStarMap = payload?.weapon_star_map && typeof payload.weapon_star_map === 'object' ? payload.weapon_star_map : {};
+    state.weaponSiteMap = payload?.weapon_site_map && typeof payload.weapon_site_map === 'object' ? payload.weapon_site_map : {};
+    state.weaponIconUrlMap = payload?.weapon_icon_url_map && typeof payload.weapon_icon_url_map === 'object' ? payload.weapon_icon_url_map : {};
+    state.weaponBreakthroughLevelLimitMap = payload?.weapon_breakthrough_level_limit_map && typeof payload.weapon_breakthrough_level_limit_map === 'object' ? payload.weapon_breakthrough_level_limit_map : {};
+    state.weaponBreakthroughMaxMap = payload?.weapon_breakthrough_max_map && typeof payload.weapon_breakthrough_max_map === 'object' ? payload.weapon_breakthrough_max_map : {};
+    state.characterLogNameMap = payload?.character_log_name_map && typeof payload.character_log_name_map === 'object' ? payload.character_log_name_map : {};
+    state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
     if (!state.serverControlsVisible) {
       state.serverControlState = null;
     }
@@ -238,6 +254,16 @@ app.loadAppInfo = async () => {
     state.playerLevelMax = 0;
     state.playerLevelMaxExpMap = {};
     state.itemNameMap = {};
+    state.weaponNameMap = {};
+    state.weaponTypeMap = {};
+    state.weaponTypeNameMap = {};
+    state.weaponStarMap = {};
+    state.weaponSiteMap = {};
+    state.weaponIconUrlMap = {};
+    state.weaponBreakthroughLevelLimitMap = {};
+    state.weaponBreakthroughMaxMap = {};
+    state.characterLogNameMap = {};
+    state.characterHeadIconUrlMap = {};
     if (statusControls instanceof HTMLElement) {
       statusControls.hidden = true;
     }

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from typing import Literal
 
 from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
@@ -29,22 +30,33 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemRequest,
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
+    WeaponListResponse,
 )
 from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
-from backend.app.services.player_portrait import (
-    get_item_name_map,
+from backend.app.services.player.player_equips import (
+    get_weapon_breakthrough_level_limit_map,
+    get_weapon_breakthrough_max_map,
+    get_weapon_icon_url_map,
+    get_weapon_name_map,
+    get_weapon_site_map,
+    get_weapon_star_map,
+    get_weapon_type_map,
+    get_weapon_type_name_map,
+)
+from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.player_profile import (
+    get_character_head_icon_url_map,
+    get_character_log_name_map,
     get_player_background_name_map,
     get_player_background_url_map,
-    get_player_portrait_frame_name_map,
-    get_player_portrait_frame_url_map,
-    get_player_portrait_name_map,
-    get_player_portrait_url_map,
-)
-from backend.app.services.player_level import (
     get_player_level_allowed_exp_max,
     get_player_level_max,
     get_player_level_max_exp,
     get_player_level_max_exp_map,
+    get_player_portrait_frame_name_map,
+    get_player_portrait_frame_url_map,
+    get_player_portrait_name_map,
+    get_player_portrait_url_map,
 )
 from backend.app.services.database_control import (
     get_database_health_snapshot,
@@ -94,6 +106,16 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_url_map": get_player_background_url_map(),
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
+        "weapon_name_map": get_weapon_name_map(),
+        "weapon_type_map": get_weapon_type_map(),
+        "weapon_type_name_map": get_weapon_type_name_map(),
+        "weapon_star_map": get_weapon_star_map(),
+        "weapon_site_map": get_weapon_site_map(),
+        "weapon_icon_url_map": get_weapon_icon_url_map(),
+        "weapon_breakthrough_level_limit_map": get_weapon_breakthrough_level_limit_map(),
+        "weapon_breakthrough_max_map": get_weapon_breakthrough_max_map(),
+        "character_log_name_map": get_character_log_name_map(),
+        "character_head_icon_url_map": get_character_head_icon_url_map(),
     })
 
 
@@ -130,8 +152,8 @@ async def database_accounts(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_accounts_access")
 
-    controller = request.app.state.database_controller
-    return await controller.list_accounts(page=page, page_size=page_size)
+    accounts_service = request.app.state.database_accounts_service
+    return await accounts_service.list_accounts(page=page, page_size=page_size)
 
 
 def _get_active_session(login_session_token: str | None) -> object:
@@ -139,6 +161,19 @@ def _get_active_session(login_session_token: str | None) -> object:
     if session is None:
         raise_http_error(401, "auth.session_invalid")
     return session
+
+
+async def _get_selected_uid_or_error(request: Request, active_session: object) -> int:
+    selected_uid = getattr(active_session, "selected_account_uid", None)
+    if selected_uid is None:
+        raise_http_error(409, "account.selection_required")
+
+    accounts_service = request.app.state.database_accounts_service
+    if not await accounts_service.account_exists(selected_uid):
+        active_session.selected_account_uid = None
+        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+
+    return selected_uid
 
 
 @router.get("/database-accounts/selection", response_model=SelectedAccountResponse)
@@ -152,8 +187,8 @@ async def get_database_account_selection(
     if selected_uid is None:
         return SelectedAccountResponse(selected_uid=None)
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
+    accounts_service = request.app.state.database_accounts_service
+    if not await accounts_service.account_exists(selected_uid):
         active_session.selected_account_uid = None
         return SelectedAccountResponse(selected_uid=None)
 
@@ -172,8 +207,8 @@ async def set_database_account_selection(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_account_selection")
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(payload.uid):
+    accounts_service = request.app.state.database_accounts_service
+    if not await accounts_service.account_exists(payload.uid):
         raise_http_error(404, "account.not_found", {"uid": payload.uid})
 
     active_session.selected_account_uid = payload.uid
@@ -204,8 +239,8 @@ async def reset_database_account_password(
     if len(payload.password) < 6:
         raise_http_error(422, "account.password_too_short", {"field": "password", "min_length": 6})
 
-    controller = request.app.state.database_controller
-    updated = await controller.update_account_password(payload.uid, payload.password)
+    accounts_service = request.app.state.database_accounts_service
+    updated = await accounts_service.update_account_password(payload.uid, payload.password)
     if not updated:
         raise_http_error(404, "account.not_found", {"uid": payload.uid})
 
@@ -223,16 +258,9 @@ async def get_selected_database_player_profile(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_player_view")
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
-
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
-
-    profile = await controller.get_player_profile(selected_uid)
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    profile_service = request.app.state.player_profile_service
+    profile = await profile_service.get_player_profile(selected_uid)
     if profile is None:
         raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
@@ -251,14 +279,8 @@ async def update_selected_database_player_profile(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_player_update")
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
-
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    profile_service = request.app.state.player_profile_service
 
     field_name = str(payload.field or "").strip().lower()
     if field_name not in {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}:
@@ -276,7 +298,7 @@ async def update_selected_database_player_profile(
     elif field_name == "gender":
         try:
             normalized_gender = int(payload.value)
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError):
             raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         if normalized_gender not in {0, 1}:
@@ -286,7 +308,7 @@ async def update_selected_database_player_profile(
     elif field_name in {"level", "likes"} | PLAYER_PROFILE_INVENTORY_FIELDS:
         try:
             normalized_number = int(payload.value)
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError):
             raise_http_error(422, "player.integer_invalid", {"field": field_name})
 
         if normalized_number < 0:
@@ -302,7 +324,7 @@ async def update_selected_database_player_profile(
             })
 
         if field_name == "exp":
-            current_profile = await controller.get_player_profile(selected_uid)
+            current_profile = await profile_service.get_player_profile(selected_uid)
             if current_profile is None:
                 raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
@@ -322,7 +344,7 @@ async def update_selected_database_player_profile(
                 })
 
         if field_name == "level":
-            current_profile = await controller.get_player_profile(selected_uid)
+            current_profile = await profile_service.get_player_profile(selected_uid)
             if current_profile is None:
                 raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
@@ -347,7 +369,7 @@ async def update_selected_database_player_profile(
     elif field_name == "head_portrait_id":
         try:
             normalized_portrait_id = int(payload.value)
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError):
             raise_http_error(422, "player.portrait_id_invalid", {"field": field_name})
 
         if normalized_portrait_id < 0:
@@ -361,7 +383,7 @@ async def update_selected_database_player_profile(
     elif field_name == "head_frame_id":
         try:
             normalized_frame_id = int(payload.value)
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError):
             raise_http_error(422, "player.frame_id_invalid", {"field": field_name})
 
         if normalized_frame_id < 0:
@@ -375,7 +397,7 @@ async def update_selected_database_player_profile(
     elif field_name == "use_background_id":
         try:
             normalized_background_id = int(payload.value)
-        except (TypeError, ValueError) as error:
+        except (TypeError, ValueError):
             raise_http_error(422, "player.background_id_invalid", {"field": field_name})
 
         if normalized_background_id < 0:
@@ -389,7 +411,7 @@ async def update_selected_database_player_profile(
     else:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
-    profile = await controller.update_player_profile(selected_uid, update_payload)
+    profile = await profile_service.update_player_profile(selected_uid, update_payload)
     if profile is None:
         raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
@@ -402,6 +424,8 @@ async def get_selected_database_items(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=10),
     keyword: str | None = Query(default=None),
+    sort_by: Literal["item_id", "name", "quantity"] = Query(default="item_id"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
     login_session_token: str | None = Cookie(default=None),
 ) -> InventoryListResponse:
     active_session = _get_active_session(login_session_token)
@@ -410,16 +434,17 @@ async def get_selected_database_items(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_player_view")
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    items_service = request.app.state.player_items_service
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
-
-    return await controller.list_inventory_items(selected_uid, page=page, page_size=page_size, keyword=keyword)
+    return await items_service.list_inventory_items(
+        selected_uid,
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
 
 
 @router.post("/database-items/selected", response_model=AddInventoryItemsResponse)
@@ -434,14 +459,8 @@ async def add_selected_database_items(
     if not is_database_snapshot_healthy(snapshot):
         raise_http_error(409, "database.unhealthy_item_update")
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
-
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    items_service = request.app.state.player_items_service
 
     requested_items = payload.items if isinstance(payload.items, list) else []
     if not requested_items:
@@ -449,7 +468,7 @@ async def add_selected_database_items(
 
     item_name_map = get_item_name_map()
     merged_items: dict[int, int] = {}
-    current_quantities = await controller.get_inventory_quantities(selected_uid)
+    current_quantities = await items_service.get_inventory_quantities(selected_uid)
 
     for item in requested_items:
         item_id = int(item.item_id)
@@ -474,11 +493,41 @@ async def add_selected_database_items(
         if current_quantities.get(item_id, 0) + merged_items[item_id] > 99999:
             raise_http_error(422, "item.add_total_above_max", {"item_id": item_id})
 
-    result = await controller.add_inventory_items(
+    result = await items_service.add_inventory_items(
         selected_uid,
         [{"item_id": item_id, "quantity": quantity} for item_id, quantity in merged_items.items()],
     )
     return AddInventoryItemsResponse(**result)
+
+
+@router.get("/database-weapons/selected", response_model=WeaponListResponse)
+async def get_selected_database_weapons(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    sort_by: Literal["name", "character", "type", "star", "enhancement"] = Query(default="character"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
+    login_session_token: str | None = Cookie(default=None),
+) -> WeaponListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    weapons = await equips_service.list_character_weapons(
+        selected_uid,
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+    return WeaponListResponse.model_validate(weapons.model_dump(by_alias=True))
 
 
 @router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)
@@ -496,16 +545,10 @@ async def delete_selected_database_item(
     if 1 <= item_id <= 18:
         raise_http_error(409, "item.delete_protected", {"item_id": item_id})
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    items_service = request.app.state.player_items_service
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
-
-    deleted = await controller.delete_inventory_item(selected_uid, item_id)
+    deleted = await items_service.delete_inventory_item(selected_uid, item_id)
     if not deleted:
         raise_http_error(404, "item.not_found", {"item_id": item_id})
 
@@ -539,16 +582,10 @@ async def update_selected_database_item(
     if quantity > 99999:
         raise_http_error(422, "item.quantity_above_max")
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    items_service = request.app.state.player_items_service
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
-
-    updated = await controller.update_inventory_item_quantity(selected_uid, item_id, quantity)
+    updated = await items_service.update_inventory_item_quantity(selected_uid, item_id, quantity)
     if not updated:
         raise_http_error(404, "item.not_found", {"item_id": item_id})
 
@@ -569,16 +606,10 @@ async def clear_selected_database_items(
 
     keyword = str(payload.keyword or "").strip()
 
-    selected_uid = getattr(active_session, "selected_account_uid", None)
-    if selected_uid is None:
-        raise_http_error(409, "account.selection_required")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    items_service = request.app.state.player_items_service
 
-    controller = request.app.state.database_controller
-    if not await controller.account_exists(selected_uid):
-        active_session.selected_account_uid = None
-        raise_http_error(404, "account.selected_account_missing", {"uid": selected_uid})
-
-    deleted_count = await controller.clear_inventory_items_by_keyword(selected_uid, keyword)
+    deleted_count = await items_service.clear_inventory_items_by_keyword(selected_uid, keyword)
     return ClearInventoryItemsResponse(keyword=keyword, deleted_count=deleted_count)
 
 
