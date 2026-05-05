@@ -142,6 +142,26 @@ ERROR_MESSAGES = {
         'zh-CN': '未找到对应物品，或该物品不属于当前选定用户。',
         'en-US': 'The item was not found or does not belong to the selected user.',
     },
+    'weapon.not_found': {
+        'zh-CN': '未找到对应武器，或该武器不属于当前选定用户。',
+        'en-US': 'The weapon was not found or does not belong to the selected user.',
+    },
+    'weapon.delete_equipped_forbidden': {
+        'zh-CN': '已穿戴的武器不允许删除。',
+        'en-US': 'Equipped weapons cannot be deleted.',
+    },
+    'weapon.add_template_invalid': {
+        'zh-CN': '所选武器模板无效或不可用。',
+        'en-US': 'The selected weapon template is invalid or unavailable.',
+    },
+    'weapon.equips_missing': {
+        'zh-CN': '当前用户缺少可参考的武器数据，无法新增武器。',
+        'en-US': 'No existing weapon data was found for the current user.',
+    },
+    'weapon.add_failed': {
+        'zh-CN': '新增武器失败。',
+        'en-US': 'Failed to add weapons.',
+    },
     'item.keyword_required_for_clear': {
         'zh-CN': '请先输入搜索条件后再清空物品。',
         'en-US': 'Enter a search keyword before clearing items.',

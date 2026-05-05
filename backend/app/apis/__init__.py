@@ -8,12 +8,17 @@ from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
+    AddWeaponRequest,
+    AddWeaponResponse,
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
+    ClearWeaponsRequest,
+    ClearWeaponsResponse,
     DatabaseHealthStatusResponse,
+    DeleteWeaponResponse,
     DeleteInventoryItemResponse,
     HealthStatusResponse,
     InventoryListResponse,
@@ -528,6 +533,84 @@ async def get_selected_database_weapons(
         sort_order=sort_order,
     )
     return WeaponListResponse.model_validate(weapons.model_dump(by_alias=True))
+
+
+@router.post("/database-weapons/selected", response_model=AddWeaponResponse)
+async def add_selected_database_weapon(
+    request: Request,
+    payload: AddWeaponRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.add_weapons(selected_uid, payload.template_ids)
+    except ValueError as error:
+        if str(error) == "weapon.template_invalid":
+            raise_http_error(422, "weapon.add_template_invalid", {"template_ids": payload.template_ids})
+        if str(error) == "weapon.equips_missing":
+            raise_http_error(404, "weapon.equips_missing", {"uid": selected_uid})
+        if str(error) == "weapon.add_failed":
+            raise_http_error(500, "weapon.add_failed", {"template_ids": payload.template_ids})
+        raise
+
+    return AddWeaponResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.api_route("/database-weapons/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)
+async def clear_selected_database_weapons(
+    request: Request,
+    payload: ClearWeaponsRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> ClearWeaponsResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    keyword = str(payload.keyword or "").strip()
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    result = await equips_service.clear_unequipped_weapons_by_keyword(selected_uid, keyword)
+    return ClearWeaponsResponse(keyword=keyword, deleted_count=result.deleted_count)
+
+
+@router.delete("/database-weapons/selected/{record_id}", response_model=DeleteWeaponResponse)
+async def delete_selected_database_weapon(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        deleted = await equips_service.delete_unequipped_weapon(selected_uid, record_id)
+    except ValueError as error:
+        if str(error) == "weapon.equipped_delete_forbidden":
+            raise_http_error(409, "weapon.delete_equipped_forbidden", {"record_id": record_id})
+        raise
+
+    if not deleted:
+        raise_http_error(404, "weapon.not_found", {"record_id": record_id})
+
+    return DeleteWeaponResponse(_id=record_id, deleted=True)
 
 
 @router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)

@@ -437,6 +437,27 @@
   width: 140px;
 }
 
+.weapon-add-table tbody td:last-child {
+  width: 88px;
+}
+
+.weapon-add-col-select {
+  width: 88px;
+}
+
+.weapon-add-row {
+  cursor: pointer;
+}
+
+.weapon-add-row.is-selected {
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.08), rgba(56, 189, 248, 0.06));
+}
+
+.weapon-add-radio {
+  width: 18px;
+  height: 18px;
+}
+
 .item-add-quantity-input {
   width: 100%;
   padding: 8px 10px;

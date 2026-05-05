@@ -188,28 +188,40 @@ app.renderWeaponRows = (items) => {
   }
 
   databaseWeaponManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
+    const recordId = item?._id ?? item?.record_id ?? null;
     const templateId = item?.TemplateId ?? null;
+    const weaponName = app.getWeaponNameByTemplateId(templateId);
     const iconUrl = app.getWeaponIconByTemplateId(templateId);
     const characterId = item?.CharacterId ?? null;
+    const characterName = app.getCharacterNameByCharacterId(characterId);
     const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
+    const isEquipped = Number(characterId) !== 0;
     const rowNumber = ((state.weaponManagementCurrentPage - 1) * 10) + index + 1;
     return `
       <tr>
         <td>${rowNumber}</td>
-        <td>${app.renderWeaponMediaCell(iconUrl, app.getWeaponNameByTemplateId(templateId))}</td>
-        <td>${app.renderWeaponMediaCell(characterIconUrl, app.getCharacterNameByCharacterId(characterId), false)}</td>
+        <td>${app.renderWeaponMediaCell(iconUrl, weaponName)}</td>
+        <td>${app.renderWeaponMediaCell(characterIconUrl, characterName, false)}</td>
         <td>${app.getWeaponTypeByTemplateId(templateId)}</td>
         <td>${app.renderWeaponStar(templateId)}</td>
         <td>${app.renderWeaponEnhancementLevel(item)}</td>
         <td>
           <div class="accounts-row-actions">
             <button class="status-action-button status-action-button-log" type="button" data-weapon-management-action="detail">${app.translate('dashboard.weaponManagementDetail')}</button>
-            <button class="status-action-button status-action-button-stop" type="button" data-weapon-management-action="delete">${app.translate('dashboard.weaponManagementDelete')}</button>
+            <button class="status-action-button status-action-button-stop" type="button" data-weapon-management-action="delete" data-weapon-record-id="${recordId ?? ''}" data-weapon-template-id="${templateId ?? ''}" data-weapon-name="${weaponName}" data-weapon-character-id="${characterId ?? ''}" data-weapon-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.weaponManagementDelete')}</button>
           </div>
         </td>
       </tr>
     `;
   }).join('') : '';
+};
+
+app.reloadWeaponManagementCurrentPage = async () => {
+  const targetPage = Math.max(1, state.weaponManagementCurrentPage);
+  await app.loadSelectedAccountWeapons(targetPage);
+  if (state.weaponManagementTotalPages > 0 && state.weaponManagementCurrentPage > state.weaponManagementTotalPages) {
+    await app.loadSelectedAccountWeapons(state.weaponManagementTotalPages);
+  }
 };
 
 app.syncWeaponManagementSortControls = () => {
@@ -393,12 +405,12 @@ app.handleWeaponManagementActionClick = (event) => {
   }
 
   if (button.dataset.weaponManagementAction === 'clear') {
-    app.openControlModal(app.translate('runtime.weaponManagementClearPending'));
+    app.openClearWeaponsModal(state.weaponManagementKeyword.trim(), button);
     return;
   }
 
   if (button.dataset.weaponManagementAction === 'add-weapon') {
-    app.openControlModal(app.translate('runtime.weaponManagementAddPending'));
+    app.openWeaponAddModal(button);
     return;
   }
 
@@ -408,7 +420,23 @@ app.handleWeaponManagementActionClick = (event) => {
   }
 
   if (button.dataset.weaponManagementAction === 'delete') {
-    app.openControlModal(app.translate('runtime.weaponManagementDeletePending'));
+    const recordId = Number.parseInt(button.dataset.weaponRecordId ?? '', 10);
+    const characterId = Number.parseInt(button.dataset.weaponCharacterId ?? '', 10);
+    if (!Number.isFinite(recordId)) {
+      return;
+    }
+
+    if (Number.isFinite(characterId) && characterId !== 0) {
+      app.openControlModal(app.translate('runtime.weaponDeleteEquippedForbidden'));
+      return;
+    }
+
+    app.openWeaponDeleteModal({
+      recordId,
+      templateId: button.dataset.weaponTemplateId ?? '--',
+      weaponName: button.dataset.weaponName ?? app.translate('common.notAvailable'),
+      characterName: button.dataset.weaponCharacterName ?? app.translate('common.notAvailable'),
+    }, button);
   }
 };
 

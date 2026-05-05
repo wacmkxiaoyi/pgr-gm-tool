@@ -525,9 +525,26 @@
             <h3 id="item-add-title" data-i18n="runtime.itemAddTitle">选择要新增的物品</h3>
           </div>
         </div>
-        <p id="item-add-description" class="login-modal-message" data-i18n="runtime.itemAddDescription">通过搜索选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
-        <div class="item-add-search-shell">
-          <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
+        <p id="item-add-description" class="login-modal-message" data-i18n="runtime.itemAddDescription">通过搜索和排序选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
+        <div class="database-item-controls item-add-search-shell">
+          <label class="database-item-control" for="item-add-search-input">
+            <span data-i18n="dashboard.itemManagementNameFilter">名称过滤</span>
+            <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
+          </label>
+          <label class="database-item-control" for="item-add-sort-field">
+            <span data-i18n="dashboard.itemManagementSortBy">排序字段</span>
+            <select class="database-item-sort-select" id="item-add-sort-field" data-i18n-aria-label="dashboard.itemManagementSortBy" aria-label="排序字段">
+              <option value="item_id" data-i18n="dashboard.itemManagementSortById">物品 ID</option>
+              <option value="name" data-i18n="dashboard.itemManagementSortByName">名称</option>
+            </select>
+          </label>
+          <label class="database-item-control" for="item-add-sort-order">
+            <span data-i18n="dashboard.itemManagementSortOrder">排序方向</span>
+            <select class="database-item-sort-select" id="item-add-sort-order" data-i18n-aria-label="dashboard.itemManagementSortOrder" aria-label="排序方向">
+              <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
+              <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
+            </select>
+          </label>
         </div>
         <div class="item-add-table-shell">
           <table class="accounts-table item-add-table">
@@ -550,6 +567,65 @@
         <div class="login-modal-actions item-add-actions">
           <button type="button" class="login-modal-button login-modal-button-secondary" data-item-add-close data-i18n="common.cancel">取消</button>
           <button type="button" class="login-modal-button" id="item-add-submit" data-i18n="runtime.itemAddSubmit">确认新增</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="weapon-add-modal">
+      <div class="login-modal-backdrop" data-weapon-add-close></div>
+      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="weapon-add-title" aria-describedby="weapon-add-description">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">+</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="runtime.weaponAddEyebrow">新增武器</p>
+            <h3 id="weapon-add-title" data-i18n="runtime.weaponAddTitle">选择要新增的武器</h3>
+          </div>
+        </div>
+        <p id="weapon-add-description" class="login-modal-message" data-i18n="runtime.weaponAddDescription">通过搜索和排序选择武器，勾选多项后可批量提交。</p>
+        <div class="database-item-controls item-add-search-shell">
+          <label class="database-item-control" for="weapon-add-search-input">
+            <span data-i18n="dashboard.weaponManagementNameFilter">名称过滤</span>
+            <input class="database-item-search-input item-add-search-input" type="search" id="weapon-add-search-input" data-i18n-placeholder="runtime.weaponAddSearchPlaceholder" placeholder="输入武器名进行搜索">
+          </label>
+          <label class="database-item-control" for="weapon-add-sort-field">
+            <span data-i18n="dashboard.weaponManagementSortBy">排序字段</span>
+            <select class="database-item-sort-select" id="weapon-add-sort-field" data-i18n-aria-label="dashboard.weaponManagementSortBy" aria-label="排序字段">
+              <option value="star" data-i18n="dashboard.weaponManagementSortByStar">星级</option>
+              <option value="name" data-i18n="dashboard.weaponManagementSortByName">名称</option>
+              <option value="type" data-i18n="dashboard.weaponManagementSortByType">类型</option>
+            </select>
+          </label>
+          <label class="database-item-control" for="weapon-add-sort-order">
+            <span data-i18n="dashboard.weaponManagementSortOrder">排序方向</span>
+            <select class="database-item-sort-select" id="weapon-add-sort-order" data-i18n-aria-label="dashboard.weaponManagementSortOrder" aria-label="排序方向">
+              <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
+              <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
+            </select>
+          </label>
+        </div>
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table weapon-add-table">
+            <colgroup>
+              <col>
+              <col class="weapon-management-col-type">
+              <col class="weapon-management-col-star">
+              <col class="weapon-add-col-select">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col" data-i18n="dashboard.weaponManagementName">名称</th>
+                <th scope="col" data-i18n="dashboard.weaponManagementType">类型</th>
+                <th scope="col" data-i18n="dashboard.weaponManagementStar">星级</th>
+                <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+              </tr>
+            </thead>
+            <tbody id="weapon-add-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="weapon-add-empty-state" data-i18n="dashboard.weaponAddEmpty">当前没有匹配的武器。</div>
+        </div>
+        <div class="login-modal-actions item-add-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-weapon-add-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="weapon-add-submit" data-i18n="runtime.weaponAddSubmit">确认新增</button>
         </div>
       </section>
     </div>

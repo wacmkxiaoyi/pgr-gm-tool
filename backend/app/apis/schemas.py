@@ -97,6 +97,29 @@ class WeaponListResponse(BaseModel):
     total_pages: int = 0
 
 
+class ClearWeaponsRequest(BaseModel):
+    keyword: str | None = None
+
+
+class ClearWeaponsResponse(BaseModel):
+    keyword: str
+    deleted_count: int
+
+
+class AddWeaponRequest(BaseModel):
+    template_ids: list[int] = Field(min_length=1)
+
+
+class AddWeaponResponse(BaseModel):
+    added: bool
+    added_count: int
+
+
+class DeleteWeaponResponse(BaseModel):
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    deleted: bool
+
+
 class ClearInventoryItemsRequest(BaseModel):
     keyword: str | None = None
 

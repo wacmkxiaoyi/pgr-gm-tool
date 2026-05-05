@@ -35,3 +35,13 @@ class WeaponListResponse(BaseModel):
     page_size: int = 10
     total: int = 0
     total_pages: int = 0
+
+
+class ClearWeaponsResponse(BaseModel):
+    keyword: str
+    deleted_count: int
+
+
+class AddWeaponResponse(BaseModel):
+    added: bool
+    added_count: int

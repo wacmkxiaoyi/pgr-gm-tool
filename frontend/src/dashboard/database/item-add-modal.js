@@ -4,6 +4,8 @@ const { dom, state } = app;
 const {
   itemAddModal,
   itemAddSearchInput,
+  itemAddSortFieldSelect,
+  itemAddSortOrderSelect,
   itemAddTableBody,
   itemAddEmptyState,
   itemAddCloseTargets,
@@ -18,19 +20,52 @@ app.getAddableItemCatalog = () => {
       itemId: Number.parseInt(itemId, 10),
       itemName: String(itemName ?? '').trim(),
     }))
-    .filter((item) => Number.isFinite(item.itemId) && item.itemId > 18 && item.itemName)
-    .sort((left, right) => left.itemId - right.itemId);
+    .filter((item) => Number.isFinite(item.itemId) && item.itemId > 18 && item.itemName);
+};
+
+app.syncItemAddSortControls = () => {
+  if (itemAddSortFieldSelect instanceof HTMLSelectElement) {
+    itemAddSortFieldSelect.value = state.itemAddSortBy;
+  }
+
+  if (itemAddSortOrderSelect instanceof HTMLSelectElement) {
+    itemAddSortOrderSelect.value = state.itemAddSortOrder;
+  }
+};
+
+app.applyItemAddSort = () => {
+  const nextSortBy = itemAddSortFieldSelect instanceof HTMLSelectElement ? itemAddSortFieldSelect.value : state.itemAddSortBy;
+  const nextSortOrder = itemAddSortOrderSelect instanceof HTMLSelectElement ? itemAddSortOrderSelect.value : state.itemAddSortOrder;
+  state.itemAddSortBy = nextSortBy === 'name' ? 'name' : 'item_id';
+  state.itemAddSortOrder = nextSortOrder === 'desc' ? 'desc' : 'asc';
+  app.syncItemAddSortControls();
+};
+
+app.compareItemAddCatalogEntries = (left, right) => {
+  if (state.itemAddSortBy === 'name') {
+    const nameComparison = left.itemName.localeCompare(right.itemName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
+    if (nameComparison !== 0) {
+      return nameComparison;
+    }
+  } else {
+    const idComparison = left.itemId - right.itemId;
+    if (idComparison !== 0) {
+      return idComparison;
+    }
+  }
+
+  return left.itemId - right.itemId;
 };
 
 app.getFilteredAddableItemCatalog = () => {
   const keyword = state.itemAddSearchKeyword.trim().toLowerCase();
-  const catalog = app.getAddableItemCatalog();
-  if (!keyword) {
-    return catalog.slice(0, ITEM_ADD_VISIBLE_LIMIT);
-  }
-
-  return catalog
-    .filter((item) => item.itemName.toLowerCase().includes(keyword))
+  const direction = state.itemAddSortOrder === 'desc' ? -1 : 1;
+  return app.getAddableItemCatalog()
+    .filter((item) => !keyword || item.itemName.toLowerCase().includes(keyword))
+    .sort((left, right) => app.compareItemAddCatalogEntries(left, right) * direction)
     .slice(0, ITEM_ADD_VISIBLE_LIMIT);
 };
 
@@ -66,11 +101,15 @@ app.renderItemAddModalRows = () => {
 
 app.resetItemAddModalState = () => {
   state.itemAddSearchKeyword = '';
+  state.itemAddSortBy = 'item_id';
+  state.itemAddSortOrder = 'asc';
   state.itemAddDraftQuantities = {};
   state.itemAddSubmitting = false;
   if (itemAddSearchInput instanceof HTMLInputElement) {
     itemAddSearchInput.value = '';
   }
+
+  app.syncItemAddSortControls();
 };
 
 app.closeItemAddModal = () => {
@@ -172,6 +211,8 @@ app.submitItemAddModal = async () => {
 };
 
 export const initDatabaseItemAddModalFeature = () => {
+  app.syncItemAddSortControls();
+
   itemAddCloseTargets.forEach((target) => {
     target.addEventListener('click', app.closeItemAddModal);
   });
@@ -179,6 +220,20 @@ export const initDatabaseItemAddModalFeature = () => {
   if (itemAddSearchInput instanceof HTMLInputElement) {
     itemAddSearchInput.addEventListener('input', () => {
       state.itemAddSearchKeyword = itemAddSearchInput.value.trim();
+      app.renderItemAddModalRows();
+    });
+  }
+
+  if (itemAddSortFieldSelect instanceof HTMLSelectElement) {
+    itemAddSortFieldSelect.addEventListener('change', () => {
+      app.applyItemAddSort();
+      app.renderItemAddModalRows();
+    });
+  }
+
+  if (itemAddSortOrderSelect instanceof HTMLSelectElement) {
+    itemAddSortOrderSelect.addEventListener('change', () => {
+      app.applyItemAddSort();
       app.renderItemAddModalRows();
     });
   }
