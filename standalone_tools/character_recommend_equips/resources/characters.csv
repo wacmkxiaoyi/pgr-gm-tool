@@ -1,77 +1,77 @@
-Id,Name,Version
-1011002,Lee,Palefire
-1021001,Lucia,Lotus
-1031001,Liv,Eclipse
-1041002,Bianca,Zero
-1051001,Nanami,Storm
-1061002,Kamui,Bastion
-1071002,Karenina,Blast
-1081002,Watanabe,Nightblade
-1021002,Lucia,Dawn
-1031002,Liv,Lux
-1011003,Lee,Entropy
-1031003,Liv,Luminance
-1061003,Kamui,Tenebrion
-1071003,Karenina,Ember
-1051003,Nanami,Pulse
-1021003,Lucia,Crimson Abyss
-1081003,Watanabe,Astral
-1091002,Ayla,Brilliance
-1041003,Bianca,Veritas
-1111002,Sophia,Silverfang
-1121002,Chrome,Arclight
-1021004,Lucia,Plume
-1131002,Vera,Rozen
-1511003,Camu,Crocotta
-1141003,Rosetta,Rigor
-1521003,Qu,Pavo
-1161002,Changyu,Qilin
-1171003,Luna,Laurel
-1181003,2B,2B
-1191003,9S,9S
-1201003,A2,A2
-1211002,Wanshi,Hypnos
-1531003,Selena,Tempest
-1121003,Chrome,Glory
-1221002,No.21,XXI
-1131003,Vera,Garnet
-1541003,Roland,Flambeau
-1031004,Liv,Empyrea
-1531004,Selena,Capriccio
-1551003,Pulao,Dragontoll
-1051004,Nanami,Starfarer
-1561003,Haicma,Starveil
-1071004,Karenina,Scire
-1571003,Noan,Arca
-1041004,Bianca,Stigmata
-1231002,Bambinata,Vitrum
-1011004,Lee,Hyperreal
-1091003,Ayla,Kaleido
-1021005,Lucia,Crimson Weave
-1241002,Hanying,Zitherwoe
-1221003,No.21,Feral
-1251002,Noctis,Indomitus
-1261003,Alisa,Echo
-1271003,Lamia,Lost Lullaby
-1281002,BLACK★ROCK SHOOTER,BLACK★ROCK SHOOTER
-1081004,Watanabe,Epitaph
-1521004,Qu,Shukra
-1291002,Teddy,Decryptor
-1171004,Luna,Oblivion
-1301002,Bridget,Ardeo
-1241003,Hanying,Solacetune
-1211003,Wanshi,Lucid Dreamer
-1021006,Lucia,Pyroath
-1311002,Yata,Fulgor
-1051005,Nanami,Startrail
-1321003,Ishmael,Parhelion
-1331003,Lilith,Daemonissa
-1531005,Selena,Pianissimo
-1341002,Jetavie,Daybreak
-1131004,Vera,Geiravor
-1351003,Vergil,Vergil
-1361003,Dante,Dante
-1041005,Bianca,Crepuscule
-1371002,Discord,Secator
-1381003,Veronica,Aegis
-1031005,Liv,Limpidity
+Id,LogName
+1011002,Lee: Palefire
+1021001,Lucia: Lotus
+1031001,Liv: Eclipse
+1041002,Bianca: Zero
+1051001,Nanami: Storm
+1061002,Kamui: Bastion
+1071002,Karenina: Blast
+1081002,Watanabe: Nightblade
+1021002,Lucia: Dawn
+1031002,Liv: Lux
+1011003,Lee: Entropy
+1031003,Liv: Luminance
+1061003,Kamui: Tenebrion
+1071003,Karenina: Ember
+1051003,Nanami: Pulse
+1021003,Lucia: Crimson Abyss
+1081003,Watanabe: Astral
+1091002,Ayla: Brilliance
+1041003,Bianca: Veritas
+1111002,Sophia: Silverfang
+1121002,Chrome: Arclight
+1021004,Lucia: Plume
+1131002,Vera: Rozen
+1511003,Camu: Crocotta
+1141003,Rosetta: Rigor
+1521003,Qu: Pavo
+1161002,Changyu: Qilin
+1171003,Luna: Laurel
+1181003,2B
+1191003,9S
+1201003,A2
+1211002,Wanshi: Hypnos
+1531003,Selena: Tempest
+1121003,Chrome: Glory
+1221002,No.21: XXI
+1131003,Vera: Garnet
+1541003,Roland: Flambeau
+1031004,Liv: Empyrea
+1531004,Selena: Capriccio
+1551003,Pulao: Dragontoll
+1051004,Nanami: Starfarer
+1561003,Haicma: Starveil
+1071004,Karenina: Scire
+1571003,Noan: Arca
+1041004,Bianca: Stigmata
+1231002,Bambinata: Vitrum
+1011004,Lee: Hyperreal
+1091003,Ayla: Kaleido
+1021005,Lucia: Crimson Weave
+1241002,Hanying: Zitherwoe
+1221003,No. 21: Feral
+1251002,Noctis: Indomitus
+1261003,Alisa: Echo
+1271003,Lamia: Lost Lullaby
+1281002,BLACK★ROCK SHOOTER
+1081004,Watanabe: Epitaph
+1521004,Qu: Shukra
+1291002,Teddy: Decryptor
+1171004,Luna: Oblivion
+1301002,Bridget: Ardeo
+1241003,Hanying: Solacetune
+1211003,Wanshi: Lucid Dreamer
+1021006,Lucia: Pyroath
+1311002,Yata: Fulgor
+1051005,Nanami: Startrail
+1321003,Ishmael: Parhelion
+1331003,Lilith: Daemonissa
+1531005,Selena: Pianissimo
+1341002,Jetavie: Daybreak
+1131004,Vera: Geiravor
+1351003,Vergil
+1361003,Dante
+1041005,Bianca: Crepuscule
+1371002,Discord: Secator
+1381003,Veronica: Aegis
+1031005,Liv: Limpidity

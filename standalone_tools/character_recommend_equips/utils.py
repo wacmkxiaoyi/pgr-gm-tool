@@ -57,10 +57,10 @@ def get_id_map_from_csv(path: Path | str) -> Dict[str, int]:
     return id_map
 
 
-def fetch_recommend_table(name: str, version: str) -> Dict[str, Optional[str]]:
+def fetch_recommend_table(character_full_name) -> Dict[str, Optional[str]]:
     """Fetch recommended weapon, CUB, and memory placement data from wiki.
 
-    The target page is built from ``WIKI_URL`` and ``f"/{name}:_{version}"``.
+    The target page is built from ``WIKI_URL`` and ``f"/character_full_name"``.
 
     Returns:
         A dictionary with keys:
@@ -72,10 +72,7 @@ def fetch_recommend_table(name: str, version: str) -> Dict[str, Optional[str]]:
 
     Missing items are returned as ``None``.
     """
-    if name in ('9S', '2B', 'A2', 'BLACK★ROCK SHOOTER', 'Vergil', 'Dante'):
-        url = f"{WIKI_URL.rstrip('/')}/{name}"
-    else:
-        url = f"{WIKI_URL.rstrip('/')}/{name}:_{'_'.join(version.split(' '))}"
+    url = f"{WIKI_URL.rstrip('/')}/{'_'.join(character_full_name.split(' '))}"
     session = requests.Session()
     session.headers.update(REQUEST_HEADERS)
     response = session.get(url, timeout=15)
@@ -93,7 +90,7 @@ def fetch_recommend_table(name: str, version: str) -> Dict[str, Optional[str]]:
 
     for p in soup.find_all("p"):
         text = p.get_text(" ", strip=True)
-        if name == 'Discord' and version == 'Secator':
+        if character_full_name == 'Discord: Secator':
             result["weapon"] = 'Osseous Guillotine'
         elif text.startswith("Optimal Weapon:"):
             link = p.find("a")
@@ -138,7 +135,7 @@ def fetch_recommend_table(name: str, version: str) -> Dict[str, Optional[str]]:
             memory_title = title_div
             break
 
-    if name == 'Haicma' and version == 'Starveil':
+    if character_full_name == 'Haicma: Starveil':
         result['memories'] = ['Isabel'] * 6
     elif memory_title is not None:
         memory_text = memory_title.find_next_sibling("div", class_="cb-text")
@@ -229,11 +226,10 @@ def get_resonance(name, attrib_skills_map, character_skills_map, weapon_skills_m
     }
 
  
-def build_character_ids(character: str, c_id: int, character_skills_map, weapon_id_map, weapon_skills_map, memory_id_map, attrib_skills_map):
-    c_name, c_version = character.split(':')
-    logger.info('Fetching %s (%s)', c_name, c_version)
+def build_character_ids(character_full_name: str, c_id: int, character_skills_map, weapon_id_map, weapon_skills_map, memory_id_map, attrib_skills_map):
+    logger.info('Fetching %s', character_full_name)
 
-    recommend_table = fetch_recommend_table(c_name, c_version)
+    recommend_table = fetch_recommend_table(character_full_name)
 
     row = {}
 
