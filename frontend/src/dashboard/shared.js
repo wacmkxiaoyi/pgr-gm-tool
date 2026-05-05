@@ -152,6 +152,8 @@ export const state = {
   playerProfileData: null,
   playerProfileEditState: null,
   playerPortraitPickerState: null,
+  playerLevelMax: 0,
+  playerLevelMaxExpMap: {},
   playerPortraitUrlMap: {},
   playerPortraitFrameUrlMap: {},
   playerPortraitNameMap: {},

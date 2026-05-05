@@ -532,6 +532,7 @@
 .database-player-card-exp-bar {
   position: relative;
   z-index: 1;
+  overflow: hidden;
   width: min(100%, 320px);
   min-height: 58px;
   display: inline-flex;
@@ -549,6 +550,28 @@
     0 16px 30px rgba(15, 23, 42, 0.22),
     0 0 22px rgba(56, 189, 248, 0.12);
   pointer-events: auto;
+}
+
+.database-player-card-exp-bar::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: inherit;
+  width: calc(var(--player-exp-progress, 0) * 100%);
+  max-width: calc(100% - 8px);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.02) 26%),
+    linear-gradient(90deg, rgba(125, 211, 252, 0.28), rgba(251, 191, 36, 0.22));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 16px rgba(125, 211, 252, 0.14);
+  opacity: 0.96;
+  pointer-events: none;
+}
+
+.database-player-card-exp-bar > * {
+  position: relative;
+  z-index: 1;
 }
 
 .database-player-card-stat-label {

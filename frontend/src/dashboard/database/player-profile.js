@@ -47,7 +47,77 @@ const {
 const PLAYER_CARD_MIN_ASPECT_RATIO = 1.2;
 const PLAYER_CARD_MAX_ASPECT_RATIO = 2.6;
 const PLAYER_CARD_MOBILE_BREAKPOINT = 640;
-const PLAYER_LEVEL_CAP = 500;
+const PLAYER_INT32_MAX = 2147483647;
+
+const getConfiguredPlayerLevelMax = () => {
+  const parsedMax = Number.parseInt(String(state.playerLevelMax ?? ''), 10);
+  return Number.isFinite(parsedMax) && parsedMax >= 0 ? parsedMax : 0;
+};
+
+const getConfiguredPlayerLevelExpMax = (levelValue) => {
+  const normalizedLevel = Number.parseInt(String(levelValue ?? ''), 10);
+  if (!Number.isFinite(normalizedLevel) || normalizedLevel < 0) {
+    return null;
+  }
+
+  const rawMaxExp = state.playerLevelMaxExpMap?.[normalizedLevel];
+  const parsedMaxExp = Number.parseInt(String(rawMaxExp ?? ''), 10);
+  return Number.isFinite(parsedMaxExp) && parsedMaxExp >= 0 ? parsedMaxExp : null;
+};
+
+const getPlayerLevelInputMax = () => getConfiguredPlayerLevelMax();
+
+const getPlayerExpInputMax = (levelValue) => {
+  const levelMax = getConfiguredPlayerLevelMax();
+  const currentLevel = Number.parseInt(String(levelValue ?? ''), 10);
+  if (!Number.isFinite(currentLevel) || currentLevel < 0) {
+    return null;
+  }
+
+  const configuredMaxExp = getConfiguredPlayerLevelExpMax(currentLevel);
+  if (configuredMaxExp === null) {
+    return null;
+  }
+
+  if (currentLevel >= levelMax) {
+    return configuredMaxExp;
+  }
+
+  return Math.max(0, configuredMaxExp - 1);
+};
+
+const validateNonNegativeInteger = (value, invalidKey) => (/^\d+$/.test(value) ? '' : app.translate(invalidKey));
+
+const validateInt32Field = (value, invalidKey) => {
+  const invalidMessage = validateNonNegativeInteger(value, invalidKey);
+  if (invalidMessage) {
+    return invalidMessage;
+  }
+
+  const parsedValue = Number.parseInt(value, 10);
+  if (parsedValue > PLAYER_INT32_MAX) {
+    return app.translate('runtime.playerInt32MaxExceeded', { max: PLAYER_INT32_MAX });
+  }
+
+  return '';
+};
+
+const getPlayerExpProgress = (profile) => {
+  const level = Number.parseInt(String(profile?.level ?? ''), 10);
+  const exp = Number.parseInt(String(profile?.exp ?? ''), 10);
+  const maxExp = getConfiguredPlayerLevelExpMax(level);
+  if (!Number.isFinite(level) || level < 0 || !Number.isFinite(exp) || exp < 0 || !Number.isFinite(maxExp) || maxExp <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, exp / maxExp));
+};
+
+const getPlayerExpDisplayValue = (profile) => {
+  const expLabel = app.formatPlayerFieldValue(profile?.exp ?? 0);
+  const maxExpLabel = app.formatPlayerFieldValue(getConfiguredPlayerLevelExpMax(profile?.level));
+  return `${expLabel} / ${maxExpLabel}`;
+};
 
 const PLAYER_PROFILE_EDITABLE_FIELDS = {
   name: {
@@ -81,7 +151,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerLikesInvalid')),
+    validate: (value) => validateInt32Field(value, 'runtime.playerLikesInvalid'),
   },
   level: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.level),
@@ -90,7 +160,19 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerLevelInvalid')),
+    validate: (value) => {
+      if (!/^\d+$/.test(value)) {
+        return app.translate('runtime.playerLevelInvalid');
+      }
+
+      const parsedValue = Number.parseInt(value, 10);
+      const maxLevel = getPlayerLevelInputMax();
+      if (parsedValue > maxLevel) {
+        return app.translate('runtime.playerLevelMaxExceeded', { maxLevel });
+      }
+
+      return '';
+    },
   },
   exp: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.exp ?? 0),
@@ -99,7 +181,20 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerExpInvalid')),
+    validate: (value) => {
+      if (!/^\d+$/.test(value)) {
+        return app.translate('runtime.playerExpInvalid');
+      }
+
+      const parsedValue = Number.parseInt(value, 10);
+      const currentLevel = state.playerProfileData?.level;
+      const maxExp = getPlayerExpInputMax(currentLevel);
+      if (maxExp !== null && parsedValue > maxExp) {
+        return app.translate('runtime.playerExpMaxExceeded', { maxExp });
+      }
+
+      return '';
+    },
   },
   money: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.money ?? 0),
@@ -108,7 +203,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerMoneyInvalid')),
+    validate: (value) => validateInt32Field(value, 'runtime.playerMoneyInvalid'),
   },
   serum: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.serum ?? 0),
@@ -117,7 +212,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerSerumInvalid')),
+    validate: (value) => validateInt32Field(value, 'runtime.playerSerumInvalid'),
   },
   black_card: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.black_card ?? 0),
@@ -126,7 +221,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerBlackCardInvalid')),
+    validate: (value) => validateInt32Field(value, 'runtime.playerBlackCardInvalid'),
   },
   rainbow_card: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.rainbow_card ?? 0),
@@ -135,7 +230,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
-    validate: (value) => (/^\d+$/.test(value) ? '' : app.translate('runtime.playerRainbowCardInvalid')),
+    validate: (value) => validateInt32Field(value, 'runtime.playerRainbowCardInvalid'),
   },
   head_portrait_id: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.head_portrait_id),
@@ -239,7 +334,8 @@ app.syncPlayerCardLevelTheme = (levelValue) => {
 
   const parsedLevel = Number.parseInt(String(levelValue ?? ''), 10);
   const normalizedLevel = Number.isFinite(parsedLevel) ? Math.max(0, parsedLevel) : 0;
-  const progress = Math.min(1, normalizedLevel / PLAYER_LEVEL_CAP);
+  const levelCap = getConfiguredPlayerLevelMax();
+  const progress = levelCap > 0 ? Math.min(1, normalizedLevel / levelCap) : 0;
   const hue = 192 + (progress * 108);
   const angle = 210 + Math.round(progress * 96);
   const glowAlpha = 0.28 + (progress * 0.34);
@@ -258,6 +354,15 @@ app.syncPlayerCardLevelTheme = (levelValue) => {
   playerCard.style.setProperty('--player-level-exp-start', `hsla(${Math.round(hue - 26)} 42% 10% / 0.9)`);
   playerCard.style.setProperty('--player-level-exp-end', `hsla(${Math.round(hue + 8)} 56% 18% / ${0.72 + (progress * 0.12)})`);
   playerCard.style.setProperty('--player-level-exp-border', `hsla(${Math.round(hue - 10)} 100% 72% / ${expBorderAlpha.toFixed(3)})`);
+};
+
+app.syncPlayerCardExpProgress = (profile) => {
+  if (!(playerCard instanceof HTMLElement)) {
+    return;
+  }
+
+  const progress = getPlayerExpProgress(profile);
+  playerCard.style.setProperty('--player-exp-progress', progress.toFixed(3));
 };
 
 app.syncPlayerEditableStates = () => {
@@ -701,7 +806,7 @@ app.resetPlayerProfileView = () => {
     playerCardLikes.textContent = '--';
   }
   if (playerCardExp instanceof HTMLElement) {
-    playerCardExp.textContent = '0';
+    playerCardExp.textContent = '-- / --';
   }
   if (playerCardMoney instanceof HTMLElement) {
     playerCardMoney.textContent = '0';
@@ -720,6 +825,7 @@ app.resetPlayerProfileView = () => {
   app.resetPlayerCardAvatar();
   app.resetPlayerCardBackground();
   app.syncPlayerCardLevelTheme(0);
+  app.syncPlayerCardExpProgress(null);
   app.syncPlayerEditableStates();
 };
 
@@ -746,7 +852,7 @@ app.renderPlayerProfile = (profile) => {
     playerCardLikes.textContent = likesLabel;
   }
   if (playerCardExp instanceof HTMLElement) {
-    playerCardExp.textContent = app.formatPlayerFieldValue(profile?.exp ?? 0);
+    playerCardExp.textContent = getPlayerExpDisplayValue(profile);
   }
   if (playerCardMoney instanceof HTMLElement) {
     playerCardMoney.textContent = app.formatPlayerFieldValue(profile?.money ?? 0);
@@ -765,6 +871,7 @@ app.renderPlayerProfile = (profile) => {
   app.setPlayerCardAvatarFrame(app.getPlayerResourceUrlByField('head_frame_id', profile?.head_frame_id ?? null));
   app.setPlayerCardBackground(app.getPlayerResourceUrlByField('use_background_id', profile?.use_background_id ?? null));
   app.syncPlayerCardLevelTheme(profile?.level);
+  app.syncPlayerCardExpProgress(profile);
   app.syncPlayerEditableStates();
   app.showPlayerProfile();
 };

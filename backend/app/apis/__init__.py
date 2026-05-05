@@ -40,6 +40,12 @@ from backend.app.services.player_portrait import (
     get_player_portrait_name_map,
     get_player_portrait_url_map,
 )
+from backend.app.services.player_level import (
+    get_player_level_allowed_exp_max,
+    get_player_level_max,
+    get_player_level_max_exp,
+    get_player_level_max_exp_map,
+)
 from backend.app.services.database_control import (
     get_database_health_snapshot,
     is_database_snapshot_healthy,
@@ -60,6 +66,8 @@ router = APIRouter(prefix="/api")
 
 PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
 PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
+PLAYER_PROFILE_INT32_FIELDS = {"likes", "money", "serum", "black_card", "rainbow_card"}
+PLAYER_PROFILE_INT32_MAX = 2147483647
 
 
 @router.get("/health")
@@ -77,6 +85,8 @@ async def app_info(request: Request) -> AppInfoResponse:
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
         "server_controls_visible": controller.controls_visible(),
+        "player_level_max": get_player_level_max(),
+        "player_level_max_exp_map": get_player_level_max_exp_map(),
         "player_portrait_url_map": get_player_portrait_url_map(),
         "player_portrait_frame_url_map": get_player_portrait_frame_url_map(),
         "player_portrait_name_map": get_player_portrait_name_map(),
@@ -254,6 +264,8 @@ async def update_selected_database_player_profile(
     if field_name not in {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
+    player_level_max = get_player_level_max()
+
     if field_name == "name":
         normalized_value = str(payload.value).strip()
         if not normalized_value:
@@ -280,7 +292,58 @@ async def update_selected_database_player_profile(
         if normalized_number < 0:
             raise_http_error(422, "player.value_below_zero", {"field": field_name, "min": 0})
 
-        update_payload = UpdatePlayerProfilePayload(**{field_name: normalized_number})
+        if field_name == "level" and normalized_number > player_level_max:
+            raise_http_error(422, "player.level_above_max", {"field": field_name, "max": player_level_max})
+
+        if field_name in PLAYER_PROFILE_INT32_FIELDS and normalized_number > PLAYER_PROFILE_INT32_MAX:
+            raise_http_error(422, "player.value_above_int32_max", {
+                "field": field_name,
+                "max": PLAYER_PROFILE_INT32_MAX,
+            })
+
+        if field_name == "exp":
+            current_profile = await controller.get_player_profile(selected_uid)
+            if current_profile is None:
+                raise_http_error(404, "player.not_found", {"uid": selected_uid})
+
+            current_level = current_profile.level
+            if current_level is None:
+                raise_http_error(422, "player.level_missing", {"field": "level"})
+
+            allowed_exp_max = get_player_level_allowed_exp_max(current_level)
+            if allowed_exp_max is None:
+                raise_http_error(422, "player.level_not_defined", {"field": "level", "level": current_level})
+
+            if normalized_number > allowed_exp_max:
+                raise_http_error(422, "player.exp_above_max", {
+                    "field": field_name,
+                    "level": current_level,
+                    "max": allowed_exp_max,
+                })
+
+        if field_name == "level":
+            current_profile = await controller.get_player_profile(selected_uid)
+            if current_profile is None:
+                raise_http_error(404, "player.not_found", {"uid": selected_uid})
+
+            update_data: dict[str, int] = {field_name: normalized_number}
+            current_exp = current_profile.exp
+            if current_exp < 0:
+                current_exp = 0
+
+            if get_player_level_max_exp(normalized_number) is None:
+                raise_http_error(422, "player.level_not_defined", {"field": field_name, "level": normalized_number})
+
+            allowed_exp_max = get_player_level_allowed_exp_max(normalized_number)
+            if allowed_exp_max is None:
+                raise_http_error(422, "player.level_not_defined", {"field": field_name, "level": normalized_number})
+
+            if current_exp > allowed_exp_max:
+                update_data["exp"] = allowed_exp_max
+
+            update_payload = UpdatePlayerProfilePayload(**update_data)
+        else:
+            update_payload = UpdatePlayerProfilePayload(**{field_name: normalized_number})
     elif field_name == "head_portrait_id":
         try:
             normalized_portrait_id = int(payload.value)

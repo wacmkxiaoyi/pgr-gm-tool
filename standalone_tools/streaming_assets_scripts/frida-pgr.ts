@@ -1,3 +1,4 @@
+// script from Yentis, see original instruction: https://discord.com/channels/1109243478325596250/1115067916342276146/1491569941013332068
 import 'frida-il2cpp-bridge';
 
 Il2Cpp.perform(() => {

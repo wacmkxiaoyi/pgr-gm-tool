@@ -1,5 +1,5 @@
 """
-Script from Yon, modification version, origin script: https://discord.com/channels/1109243478325596250/1115067916342276146/1489988922845958326
+Modification version, origin script from Yon: https://discord.com/channels/1109243478325596250/1115067916342276146/1489988922845958326
 """
 
 import os

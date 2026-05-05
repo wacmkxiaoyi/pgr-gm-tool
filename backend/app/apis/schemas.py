@@ -29,6 +29,8 @@ class AppInfoResponse(BaseModel):
     mongo_db: str
     mongo_configured: bool
     server_controls_visible: bool
+    player_level_max: int
+    player_level_max_exp_map: dict[int, int]
     player_portrait_url_map: dict[int, str]
     player_portrait_frame_url_map: dict[int, str]
     player_portrait_name_map: dict[int, str]

@@ -86,6 +86,26 @@ ERROR_MESSAGES = {
         'zh-CN': '数值不能小于 0。',
         'en-US': 'The value cannot be less than 0.',
     },
+    'player.level_above_max': {
+        'zh-CN': '等级不能超过最大等级 {max}。',
+        'en-US': 'Level cannot exceed the maximum level {max}.',
+    },
+    'player.level_missing': {
+        'zh-CN': '当前玩家等级缺失，无法校验经验上限。',
+        'en-US': 'The current player level is missing, so the EXP limit cannot be validated.',
+    },
+    'player.level_not_defined': {
+        'zh-CN': '等级 {level} 未在玩家等级表中定义。',
+        'en-US': 'Level {level} is not defined in the player level table.',
+    },
+    'player.exp_above_max': {
+        'zh-CN': '当前等级允许的最大经验值为 {max}。',
+        'en-US': 'The maximum EXP allowed for the current level is {max}.',
+    },
+    'player.value_above_int32_max': {
+        'zh-CN': '数值不能超过 32 位整数上限 {max}。',
+        'en-US': 'The value cannot exceed the 32-bit integer limit {max}.',
+    },
     'player.portrait_id_invalid': {
         'zh-CN': '请输入有效的头像 ID。',
         'en-US': 'Enter a valid portrait ID.',
