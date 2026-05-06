@@ -8,6 +8,7 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import PlayerProfileRecord, UpdatePlayerProfilePayload
+from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_items_service import PlayerItemsService
 
 
@@ -28,6 +29,16 @@ PLAYER_PROFILE_ITEM_FIELD_MAP = {
     "black_card": 3,
     "rainbow_card": 5,
 }
+PLAYER_DOCUMENT_FIELD_PATHS = {
+    "name": "player_data.Name",
+    "gender": "player_data.Gender",
+    "level": "player_data.Level",
+    "likes": "player_data.Likes",
+    "head_portrait_id": "player_data.CurrHeadPortraitId",
+    "head_frame_id": f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}",
+    "use_background_id": PLAYER_BACKGROUND_ID_FIELD,
+}
+PLAYER_DATA_SCHEMA_PATH = "player_data"
 
 
 def _unwrap_bson_numeric(value: Any) -> Any:
@@ -62,21 +73,42 @@ def _parse_optional_string(value: Any) -> str | None:
 
 
 class PlayerProfileService:
-    def __init__(self, settings: Settings, items_service: PlayerItemsService) -> None:
+    def __init__(self, settings: Settings, items_service: PlayerItemsService, schema_runtime: DatabaseSchemaRuntime) -> None:
         self._settings = settings
         self._items_service = items_service
+        self._schema_runtime = schema_runtime
+        self._collection_schema = schema_runtime.get_collection_schema(PLAYER_COLLECTION_NAME)
+
+    def _get_player_schema(self) -> CompiledCollectionSchema:
+        if self._collection_schema is None:
+            raise RuntimeError(f"Missing schema for collection: {PLAYER_COLLECTION_NAME}")
+        return self._collection_schema
+
+    def _sanitize_player_data(self, player_data: Any) -> dict[str, Any]:
+        sanitized = self._get_player_schema().sanitize_read(player_data, PLAYER_DATA_SCHEMA_PATH)
+        return sanitized if isinstance(sanitized, dict) else {}
+
+    def _sanitize_player_document(self, document: Any) -> dict[str, Any]:
+        sanitized = self._get_player_schema().sanitize_document(document)
+        return sanitized if isinstance(sanitized, dict) else {}
+
+    def _allows_player_field(self, path: str) -> bool:
+        return self._get_player_schema().allows_field(path)
+
+    def _filter_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
+        return self._get_player_schema().normalize_update_fields(update_fields)
 
     async def update_player_profile(self, uid: int, payload: UpdatePlayerProfilePayload) -> PlayerProfileRecord | None:
         update_fields: dict[str, Any] = {}
         inventory_field_updates: dict[str, int] = {}
         if payload.name is not None:
-            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['name']}"] = payload.name
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["name"]] = payload.name
         if payload.gender is not None:
-            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['gender']}"] = payload.gender
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["gender"]] = payload.gender
         if payload.level is not None:
-            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['level']}"] = payload.level
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["level"]] = payload.level
         if payload.likes is not None:
-            update_fields[f"player_data.{PLAYER_EDITABLE_FIELDS['likes']}"] = payload.likes
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["likes"]] = payload.likes
         if payload.exp is not None:
             inventory_field_updates["exp"] = payload.exp
         if payload.money is not None:
@@ -88,11 +120,13 @@ class PlayerProfileService:
         if payload.rainbow_card is not None:
             inventory_field_updates["rainbow_card"] = payload.rainbow_card
         if payload.head_portrait_id is not None:
-            update_fields["player_data.CurrHeadPortraitId"] = payload.head_portrait_id
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["head_portrait_id"]] = payload.head_portrait_id
         if payload.head_frame_id is not None:
-            update_fields[f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}"] = payload.head_frame_id
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["head_frame_id"]] = payload.head_frame_id
         if payload.use_background_id is not None:
-            update_fields[PLAYER_BACKGROUND_ID_FIELD] = payload.use_background_id
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["use_background_id"]] = payload.use_background_id
+
+        update_fields = self._filter_update_fields(update_fields)
 
         if not update_fields and not inventory_field_updates:
             return await self.get_player_profile(uid)
@@ -129,7 +163,7 @@ class PlayerProfileService:
             )
 
             if isinstance(document, dict):
-                raw_items = list(document.get("items") or [])
+                raw_items = self._items_service.sanitize_inventory_items(document.get("items"))
                 item_found = False
                 for raw_item in raw_items:
                     if not isinstance(raw_item, dict):
@@ -185,7 +219,8 @@ class PlayerProfileService:
         if not document:
             return None
 
-        player_data = document.get("player_data") if isinstance(document, dict) else None
+        normalized_document = self._sanitize_player_document(document)
+        player_data = self._sanitize_player_data(normalized_document.get("player_data"))
         if not isinstance(player_data, dict):
             return None
 
@@ -195,7 +230,7 @@ class PlayerProfileService:
 
         head_portrait_id = _parse_optional_int(player_data.get("CurrHeadPortraitId"))
         head_frame_id = _parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
-        use_background_id = _parse_optional_int(document.get(PLAYER_BACKGROUND_ID_FIELD))
+        use_background_id = _parse_optional_int(normalized_document.get(PLAYER_BACKGROUND_ID_FIELD))
         inventory_quantities = await self._items_service.get_inventory_quantities(uid)
 
         return PlayerProfileRecord(

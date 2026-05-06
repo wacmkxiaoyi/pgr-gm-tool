@@ -3,13 +3,13 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from backend.utils.tsv_reader import TSVReader
+from backend.app.utils.tsv_reader import TSVReader
 
 
-EQUIP_TSV_PATH = Path("backend/resources/Equip.tsv")
-EQUIP_RES_TSV_PATH = Path("backend/resources/EquipRes.tsv")
-ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("backend/resources/ArchiveWeaponGroup.tsv")
-EQUIP_BREAK_THROUGH_TSV_PATH = Path("backend/resources/EquipBreakThrough.tsv")
+EQUIP_TSV_PATH = Path("resources/Equip.tsv")
+EQUIP_RES_TSV_PATH = Path("resources/EquipRes.tsv")
+ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("resources/ArchiveWeaponGroup.tsv")
+EQUIP_BREAK_THROUGH_TSV_PATH = Path("resources/EquipBreakThrough.tsv")
 ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
 
 

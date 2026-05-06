@@ -11,6 +11,7 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, WeaponItemRecord, WeaponListResponse, WeaponOverrunRecord, WeaponResonanceRecord
+from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_equips import (
     get_weapon_breakthrough_level_limit_map,
     get_weapon_name_map,
@@ -25,6 +26,10 @@ CHARACTERS_COLLECTION_NAME = "characters"
 ITEM_PAGE_SIZE = 10
 WeaponSortField = Literal["name", "character", "type", "star", "enhancement"]
 WeaponSortOrder = Literal["asc", "desc"]
+CHARACTER_LIST_SCHEMA_PATH = "characters"
+FASHIONS_SCHEMA_PATH = "fashions"
+EQUIPS_SCHEMA_PATH = "equips"
+EQUIP_ITEM_SCHEMA_PATH = "equips.0"
 
 
 def _unwrap_bson_numeric(value: Any) -> Any:
@@ -219,14 +224,6 @@ def _matching_uid_query(uid: int) -> dict[str, Any]:
     }
 
 
-def _collect_weapon_field_names(raw_equips: list[Any]) -> set[str]:
-    field_names: set[str] = set()
-    for raw_equip in raw_equips:
-        if isinstance(raw_equip, dict):
-            field_names.update(raw_equip.keys())
-    return field_names
-
-
 def _get_next_weapon_record_id(raw_equips: list[Any]) -> int:
     existing_ids = sorted({
         current_id
@@ -245,45 +242,66 @@ def _get_next_weapon_record_id(raw_equips: list[Any]) -> int:
     return next_id
 
 
-def _build_weapon_document(template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
-    present_fields = _collect_weapon_field_names(raw_equips)
-    if not present_fields:
-        present_fields = {
-            "_id",
-            "TemplateId",
-            "CharacterId",
-            "Level",
-            "Exp",
-            "Breakthrough",
-            "ResonanceInfo",
-        }
-
-    default_document = {
-        "_id": _get_next_weapon_record_id(raw_equips),
-        "TemplateId": template_id,
-        "CharacterId": 0,
-        "Level": 1,
-        "Exp": 0,
-        "Breakthrough": 0,
-        "ResonanceInfo": [],
-        "UnconfirmedResonanceInfo": [],
-        "AwakeSlotList": [],
-        "IsLock": False,
-        "CreateTime": Int64(int(time.time())),
-        "WeaponOverrunData": {},
-        "IsRecycle": False,
-    }
-
-    return {
-        field_name: field_value
-        for field_name, field_value in default_document.items()
-        if field_name in present_fields
-    }
-
-
 class PlayerEquipsService:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, schema_runtime: DatabaseSchemaRuntime) -> None:
         self._settings = settings
+        self._schema_runtime = schema_runtime
+        self._collection_schema = schema_runtime.get_collection_schema(CHARACTERS_COLLECTION_NAME)
+
+    def _get_characters_schema(self) -> CompiledCollectionSchema:
+        if self._collection_schema is None:
+            raise RuntimeError(f"Missing schema for collection: {CHARACTERS_COLLECTION_NAME}")
+        return self._collection_schema
+
+    def _sanitize_characters_document(self, document: Any) -> dict[str, Any]:
+        sanitized = self._get_characters_schema().sanitize_document(document)
+        return sanitized if isinstance(sanitized, dict) else {}
+
+    def _sanitize_character_list(self, raw_characters: Any) -> list[dict[str, Any]]:
+        sanitized = self._get_characters_schema().sanitize_read(raw_characters, CHARACTER_LIST_SCHEMA_PATH)
+        return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def _sanitize_fashions(self, raw_fashions: Any) -> list[dict[str, Any]]:
+        sanitized = self._get_characters_schema().sanitize_read(raw_fashions, FASHIONS_SCHEMA_PATH)
+        return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def _sanitize_equips(self, raw_equips: Any) -> list[dict[str, Any]]:
+        sanitized = self._get_characters_schema().sanitize_read(raw_equips, EQUIPS_SCHEMA_PATH)
+        return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def _build_equips_update(self, equips: list[dict[str, Any]]) -> dict[str, Any]:
+        normalized_update = self._get_characters_schema().normalize_update_fields({
+            "equips": self._sanitize_equips(equips),
+        })
+        if "equips" not in normalized_update:
+            raise RuntimeError("Failed to normalize equips update")
+        return normalized_update
+
+    def _build_weapon_document(self, template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
+        now = int(time.time())
+        equip_document = self._get_characters_schema().materialize_write({
+            "_id": _get_next_weapon_record_id(raw_equips),
+            "TemplateId": template_id,
+            "CharacterId": 0,
+            "Level": 1,
+            "Exp": 0,
+            "Breakthrough": 0,
+            "ResonanceInfo": [],
+            "UnconfirmedResonanceInfo": [],
+            "AwakeSlotList": [],
+            "IsLock": False,
+            "CreateTime": Int64(now),
+            "WeaponOverrunData": {},
+            "IsRecycle": False,
+        }, EQUIP_ITEM_SCHEMA_PATH)
+
+        if not isinstance(equip_document, dict):
+            raise RuntimeError("Failed to materialize weapon schema")
+
+        if "CreateTime" in equip_document:
+            equip_document["CreateTime"] = Int64(now)
+
+        return equip_document
 
     async def add_weapons(self, uid: int, template_ids: list[int]) -> AddWeaponResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
@@ -299,19 +317,23 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(_matching_uid_query(uid), {"equips": 1})
-            raw_equips = list(document.get("equips") or []) if isinstance(document, dict) else []
-            if not raw_equips:
+            if not isinstance(document, dict):
                 raise ValueError("weapon.equips_missing")
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
 
             weapon_documents = []
             for normalized_template_id in normalized_template_ids:
-                weapon_document = _build_weapon_document(normalized_template_id, raw_equips)
+                weapon_document = self._build_weapon_document(normalized_template_id, raw_equips)
                 weapon_documents.append(weapon_document)
                 raw_equips.append(weapon_document)
 
+            normalized_update = self._build_equips_update(raw_equips)
+
             result = await collection.update_one(
-                _matching_uid_query(uid),
-                {"$push": {"equips": {"$each": weapon_documents}}},
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -333,10 +355,14 @@ class PlayerEquipsService:
                 {"equips": 1},
             )
 
-            raw_equips = document.get("equips") if isinstance(document, dict) else []
+            if not isinstance(document, dict):
+                return False
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
             target_exists = False
 
-            for raw_equip in raw_equips if isinstance(raw_equips, list) else []:
+            for raw_equip in raw_equips:
                 if not isinstance(raw_equip, dict):
                     continue
 
@@ -358,9 +384,16 @@ class PlayerEquipsService:
             if not target_exists:
                 return False
 
+            remaining_equips = [
+                raw_equip
+                for raw_equip in raw_equips
+                if _parse_optional_int(raw_equip.get("_id")) != normalized_record_id
+            ]
+            normalized_update = self._build_equips_update(remaining_equips)
+
             result = await collection.update_one(
-                _matching_uid_query(uid),
-                {"$pull": {"equips": {"_id": normalized_record_id}}},
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -392,7 +425,8 @@ class PlayerEquipsService:
             with contextlib.suppress(Exception):
                 client.close()
 
-        raw_equips = document.get("equips") if isinstance(document, dict) else []
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
         weapon_name_map = get_weapon_name_map()
         character_name_map = get_character_log_name_map()
         weapon_type_name_map = get_weapon_type_name_map()
@@ -400,7 +434,9 @@ class PlayerEquipsService:
         breakthrough_level_limit_map = get_weapon_breakthrough_level_limit_map()
         normalized_items: list[WeaponItemRecord] = []
 
-        for raw_equip in raw_equips if isinstance(raw_equips, list) else []:
+        allows_overrun_data = self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
+
+        for raw_equip in raw_equips:
             if not isinstance(raw_equip, dict):
                 continue
 
@@ -430,7 +466,7 @@ class PlayerEquipsService:
                 Exp=_parse_optional_int(raw_equip.get("Exp")),
                 Breakthrough=_parse_optional_int(raw_equip.get("Breakthrough")),
                 ResonanceInfo=_normalize_weapon_resonance_list(raw_equip.get("ResonanceInfo")),
-                WeaponOverrunData=_normalize_weapon_overrun_data(raw_equip.get("WeaponOverrunData")),
+                WeaponOverrunData=_normalize_weapon_overrun_data(raw_equip.get("WeaponOverrunData")) if allows_overrun_data else None,
             ))
 
         normalized_items.sort(
@@ -477,13 +513,17 @@ class PlayerEquipsService:
                 {"equips": 1},
             )
 
-            raw_equips = document.get("equips") if isinstance(document, dict) else []
+            if not isinstance(document, dict):
+                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
             weapon_name_map = get_weapon_name_map()
             character_name_map = get_character_log_name_map()
             weapon_type_name_map = get_weapon_type_name_map()
             deletable_record_ids: list[int] = []
 
-            for raw_equip in raw_equips if isinstance(raw_equips, list) else []:
+            for raw_equip in raw_equips:
                 if not isinstance(raw_equip, dict):
                     continue
 
@@ -513,9 +553,19 @@ class PlayerEquipsService:
             if not deletable_record_ids:
                 return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
 
+            remaining_equips = [
+                raw_equip
+                for raw_equip in raw_equips
+                if _parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
+            ]
+            if len(remaining_equips) == len(raw_equips):
+                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+            normalized_update = self._build_equips_update(remaining_equips)
+
             result = await collection.update_one(
-                _matching_uid_query(uid),
-                {"$pull": {"equips": {"_id": {"$in": deletable_record_ids}}}},
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
             )
         finally:
             with contextlib.suppress(Exception):

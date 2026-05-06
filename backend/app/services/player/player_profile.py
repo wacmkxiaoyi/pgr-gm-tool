@@ -3,14 +3,14 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from backend.utils.tsv_reader import TSVReader
+from backend.app.utils.tsv_reader import TSVReader
 
 
-HEAD_PORTRAIT_TSV_PATH = Path("backend/resources/HeadPortrait.tsv")
-BACKGROUND_TSV_PATH = Path("backend/resources/Background.tsv")
-CHARACTER_TSV_PATH = Path("backend/resources/Character.tsv")
-FASHION_TSV_PATH = Path("backend/resources/Fashion.tsv")
-PLAYER_LEVEL_TSV_PATH = Path("backend/resources/Player.tsv")
+HEAD_PORTRAIT_TSV_PATH = Path("resources/HeadPortrait.tsv")
+BACKGROUND_TSV_PATH = Path("resources/Background.tsv")
+CHARACTER_TSV_PATH = Path("resources/Character.tsv")
+FASHION_TSV_PATH = Path("resources/Fashion.tsv")
+PLAYER_LEVEL_TSV_PATH = Path("resources/Player.tsv")
 PORTRAIT_TYPE = "1"
 PORTRAIT_FRAME_TYPE = "2"
 ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"

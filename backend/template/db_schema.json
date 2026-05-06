@@ -1,0 +1,664 @@
+{
+  "default": {
+    "schema": {
+      "accounts[*]": {
+        "_id": {
+          "type": "ObjectId"
+        },
+        "uid": {
+          "type": "number"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      },
+      "players[*]": {
+        "_id": {
+          "type": "ObjectId"
+        },
+        "token": {
+          "type": "string"
+        },
+        "player_data": {
+          "type": "object",
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Name": {
+              "type": "string",
+              "default": "XiaoyiBabi"
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            },
+            "Gender": {
+              "type": "number",
+              "default": 0
+            },
+            "Sign": {
+              "type": "string",
+              "default": ""
+            },
+            "DisplayCharId": {
+              "type": "number",
+              "default": 1021001
+            },
+            "DisplayCharIdList": {
+              "type": "array",
+              "default": [1021001],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                }
+              }
+            },
+            "Birthday": {
+              "type": "null",
+              "default": null
+            },
+            "HonorLevel": {
+              "type": "number",
+              "default": 1
+            },
+            "ServerId": {
+              "type": "string",
+              "default": "1"
+            },
+            "Likes": {
+              "type": "number",
+              "default": 0
+            },
+            "CurrTeamId": {
+              "type": "number",
+              "default": 1
+            },
+            "ChallengeEventId": {
+              "type": "number",
+              "default": 0
+            },
+            "CurrHeadPortraitId": {
+              "type": "number",
+              "default": 9000001
+            },
+            "CurrHeadFrameId": {
+              "type": "number",
+              "default": 0
+            },
+            "CurrMedalId": {
+              "type": "number",
+              "default": 0
+            },
+            "AppearanceShowType": {
+              "type": "number",
+              "default": 0
+            },
+            "DailyReceiveGiftCount": {
+              "type": "number",
+              "default": 0
+            },
+            "DailyActivenessRewardStatus": {
+              "type": "number",
+              "default": 0
+            },
+            "WeeklyActivenessRewardStatus": {
+              "type": "number",
+              "default": 0
+            },
+            "Marks": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                }
+              }
+            },
+            "GuideData": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                }
+              }
+            },
+            "Communications": {
+              "type": "array",
+              "default": [102],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                }
+              }
+            },
+            "ShowCharacters": {
+              "type": "array",
+              "default": []
+            },
+            "ShieldFuncList": {
+              "type": "array",
+              "default": []
+            },
+            "AppearanceSettingInfo": {
+              "type": "object",
+              "schema": {
+                "TitleType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "CharacterType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "FashionType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "WeaponFashionType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "DormitoryType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "DormitoryId": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            },
+            "LastLoginTime": {
+              "type": "number",
+              "default": 0
+            },
+            "ReportTime": {
+              "type": "number",
+              "default": 0
+            },
+            "ChangeNameTime": {
+              "type": "number",
+              "default": 0
+            },
+            "Flags": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "head_portraits": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "LeftCount": {
+              "type": "number",
+              "default": 1
+            },
+            "BeginTime": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "gather_rewards": {
+          "type": "array",
+          "default": []
+        },
+        "use_background_id": {
+          "type": "number",
+          "default": 14000001
+        },
+        "team_groups": {
+          "type": "array",
+          "default": [
+            {
+              "k": 1,
+              "v": {
+                "TeamType": 1,
+                "TeamId": 1,
+                "CaptainPos": 1,
+                "FirstFightPos": 1,
+                "TeamData": [
+                  {
+                    "k": 1,
+                    "v": 1021001
+                  }
+                ],
+                "TeamName": ""
+              }
+            }
+          ],
+          "schema": {
+            "k": {
+              "type": "number",
+              "default": 1
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "TeamType": {
+                  "type": "number",
+                  "default": 1
+                },
+                "TeamId": {
+                  "type": "number",
+                  "default": 1
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 1
+                },
+                "FirstFightPos": {
+                  "type": "number",
+                  "default": 1
+                },
+                "TeamData": {
+                  "type": "array",
+                  "default": [
+                    {
+                      "k": 1,
+                      "v": 1021001
+                    }
+                  ],
+                  "schema": {
+                    "k": {
+                      "type": "number",
+                      "default": 1
+                    },
+                    "v": {
+                      "type": "number",
+                      "default": 1021001
+                    }
+                  }
+                },
+                "TeamName": {
+                  "type": "string",
+                  "default": ""
+                }
+              }
+            }
+          }
+        }
+      },
+      "characters[*]": {
+        "_id": {
+          "type": "ObjectId"
+        },
+        "uid": {
+          "type": "number"
+        },
+        "characters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            },
+            "Exp": {
+              "type": "number",
+              "default": 0
+            },
+            "Quality": {
+              "type": "number"
+            },
+            "InitQuality": {
+              "type": "number"
+            },
+            "Star": {
+              "type": "number",
+              "default": 0
+            },
+            "Grade": {
+              "type": "number",
+              "default": 1
+            },
+            "SkillList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                },
+                "Level": {
+                  "type": "number",
+                  "default": 1
+                }
+              }
+            },
+            "EnhanceSkillList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                },
+                "Level": {
+                  "type": "number",
+                  "default": 1
+                }
+              }
+            },
+            "FashionId": {
+              "type": "number"
+            },
+            "CreateTime": {
+              "type": "number"
+            },
+            "TrustLv": {
+              "type": "number",
+              "default": 0
+            },
+            "TrustExp": {
+              "type": "number",
+              "default": 0
+            },
+            "Ability": {
+              "type": "number",
+              "default": 0
+            },
+            "LiberateLv": {
+              "type": "number",
+              "default": 1
+            },
+            "CharacterHeadInfo": {
+              "type": "object",
+              "schema": {
+                "HeadFashionId": {
+                  "type": "number"
+                },
+                "HeadFashionType": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        "fashions": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "IsLock": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "equips": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "TemplateId": {
+              "type": "number"
+            },
+            "CharacterId": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            },
+            "Exp": {
+              "type": "number",
+              "default": 0
+            },
+            "Breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "ResonanceInfo": {
+              "type": "array",
+              "default": []
+            },
+            "UnconfirmedResonanceInfo": {
+              "type": "array",
+              "default": []
+            },
+            "AwakeSlotList": {
+              "type": "array",
+              "default": []
+            },
+            "IsLock": {
+              "type": "boolean",
+              "default": false
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            },
+            "IsRecycle": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      },
+      "inventory[*]": {
+        "_id": {
+          "type": "ObjectId"
+        },
+        "uid": {
+          "type": "number"
+        },
+        "items": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "BuyTimes": {
+              "type": "number",
+              "default": 0
+            },
+            "TotalBuyTimes": {
+              "type": "number",
+              "default": 0
+            },
+            "LastBuyTime": {
+              "type": "number",
+              "default": 0
+            },
+            "RefreshTime": {
+              "type": "number",
+              "default": 0
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      },
+      "stages[*]": {
+        "uid": {
+          "type": "number"
+        },
+        "stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "StageId": {
+                  "type": "number"
+                },
+                "StarsMark": {
+                  "type": "number",
+                  "default": 7
+                },
+                "Passed": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "PassTimesToday": {
+                  "type": "number",
+                  "default": 0
+                },
+                "PassTimesTotal": {
+                  "type": "number",
+                  "default": 1
+                },
+                "BuyCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Score": {
+                  "type": "number",
+                  "default": 0
+                },
+                "LastPassTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RefreshTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CreateTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "BestRecordTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "LastRecordTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "BestCardIds": {
+                  "type": "array",
+                  "default": [1021001],
+                  "schema": {
+                    "_id": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "LastCardIds": {
+                  "type": "array",
+                  "default": [1021001],
+                  "schema": {
+                    "_id": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "4.0": {
+    "schema_changes": {
+      "added": {
+        "characters[*]": {
+          "characters": {
+            "schema": {
+              "MagicList": {
+                "type": "array",
+                "default": []
+              },
+              "LiberateAureoleId": {
+                "type": "number",
+                "default": 0
+              },
+              "NewFlag": {
+                "type": "number",
+                "default": 0
+              },
+              "RandomFashion": {
+                "type": "boolean",
+                "default": false
+              },
+              "CollectState": {
+                "type": "boolean",
+                "default": false
+              },
+              "IsEnhanceSkillNotice": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          },
+          "equips": {
+            "schema": {
+              "WeaponOverrunData": {
+                "type": "object",
+                "default": {}
+              }
+            }
+          },
+          "fashions": {
+            "schema": {
+              "IsRandom": {
+                "type": "boolean",
+                "default": false
+              },
+              "WeaponFashionId": {
+                "type": "number",
+                "default": 0
+              }
+            }
+          }
+        },
+        "stages[*]": {
+          "stages": {
+            "schema": {
+              "v": {
+                "schema": {
+                  "Achievement": {
+                    "type": "number",
+                    "default": 0
+                  }
+                }
+              }
+            }
+          },
+          "course": {
+            "type": "array",
+            "default": []
+          }
+        }
+      },
+      "removed": {},
+      "updated": {}
+    }
+  }
+}

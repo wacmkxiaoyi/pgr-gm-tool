@@ -3,10 +3,10 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
-from backend.utils.tsv_reader import TSVReader
+from backend.app.utils.tsv_reader import TSVReader
 
 
-ITEM_TSV_PATH = Path("backend/resources/Item.tsv")
+ITEM_TSV_PATH = Path("resources/Item.tsv")
 
 
 @lru_cache(maxsize=1)

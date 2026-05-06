@@ -6,6 +6,7 @@ import math
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AccountListResponse, AccountRecord
+from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 
 
 ACCOUNT_COLLECTION_NAME = "accounts"
@@ -20,8 +21,19 @@ def _parse_account_uid(value: object) -> int:
 
 
 class DatabaseAccountsService:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, schema_runtime: DatabaseSchemaRuntime) -> None:
         self._settings = settings
+        self._schema_runtime = schema_runtime
+        self._collection_schema = schema_runtime.get_collection_schema(ACCOUNT_COLLECTION_NAME)
+
+    def _get_account_schema(self) -> CompiledCollectionSchema:
+        if self._collection_schema is None:
+            raise RuntimeError(f"Missing schema for collection: {ACCOUNT_COLLECTION_NAME}")
+        return self._collection_schema
+
+    def _sanitize_account_document(self, document: object, *, fill_defaults: bool = True) -> dict[str, object]:
+        sanitized = self._get_account_schema().sanitize_document(document, fill_defaults=fill_defaults)
+        return sanitized if isinstance(sanitized, dict) else {}
 
     async def account_exists(self, uid: int) -> bool:
         client = create_mongo_client(self._settings)
@@ -36,6 +48,9 @@ class DatabaseAccountsService:
         return document is not None
 
     async def update_account_password(self, uid: int, password: str) -> bool:
+        if not self._get_account_schema().allows_field("password"):
+            return False
+
         client = create_mongo_client(self._settings)
 
         try:
@@ -64,11 +79,12 @@ class DatabaseAccountsService:
 
         items = [
             AccountRecord(
-                id=str(document.get("_id", "")),
-                uid=_parse_account_uid(document.get("uid")),
-                username=str(document.get("username", "")),
+                id=str(normalized_document.get("_id", "")),
+                uid=_parse_account_uid(normalized_document.get("uid")),
+                username=str(normalized_document.get("username", "")),
             )
             for document in documents
+            for normalized_document in [self._sanitize_account_document(document, fill_defaults=False)]
         ]
         total_pages = math.ceil(total / normalized_page_size) if total > 0 else 0
 

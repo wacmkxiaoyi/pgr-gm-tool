@@ -3,6 +3,7 @@ import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from backend.app.services.db_schema_runtime import init_database_schema_runtime
 from backend.app.services.database_accounts import DatabaseAccountsService
 from backend.app.services.database_control import database_health_check_loop
 from backend.app.services.player.player_equips_service import PlayerEquipsService
@@ -15,11 +16,13 @@ def init_app(app, settings):
     from backend.app.apis import router
 
     app.state.settings = settings
+    app.state.db_schema_runtime = init_database_schema_runtime(settings.server_version)
     app.state.pgr_server_controller = ServerController(settings)
-    app.state.database_accounts_service = DatabaseAccountsService(settings)
-    app.state.player_items_service = PlayerItemsService(settings)
-    app.state.player_profile_service = PlayerProfileService(settings, app.state.player_items_service)
-    app.state.player_equips_service = PlayerEquipsService(settings)
+    app.state.database_accounts_service = DatabaseAccountsService(settings, app.state.db_schema_runtime)
+    app.state.player_items_service = PlayerItemsService(settings, app.state.db_schema_runtime)
+    app.state.player_profile_service = PlayerProfileService(settings, app.state.player_items_service, app.state.db_schema_runtime)
+    app.state.player_equips_service = PlayerEquipsService(settings, app.state.db_schema_runtime)
+    app.state.stages_schema_available = app.state.db_schema_runtime.has_collection("stages")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

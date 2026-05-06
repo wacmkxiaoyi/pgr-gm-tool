@@ -505,7 +505,7 @@ async def add_selected_database_items(
     return AddInventoryItemsResponse(**result)
 
 
-@router.get("/database-weapons/selected", response_model=WeaponListResponse)
+@router.get("/database-weapons/selected", response_model=WeaponListResponse, response_model_exclude_none=True)
 async def get_selected_database_weapons(
     request: Request,
     page: int = Query(default=1, ge=1),
@@ -532,7 +532,7 @@ async def get_selected_database_weapons(
         sort_by=sort_by,
         sort_order=sort_order,
     )
-    return WeaponListResponse.model_validate(weapons.model_dump(by_alias=True))
+    return weapons
 
 
 @router.post("/database-weapons/selected", response_model=AddWeaponResponse)
@@ -561,7 +561,7 @@ async def add_selected_database_weapon(
             raise_http_error(500, "weapon.add_failed", {"template_ids": payload.template_ids})
         raise
 
-    return AddWeaponResponse.model_validate(result.model_dump(by_alias=True))
+    return result
 
 
 @router.api_route("/database-weapons/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)

@@ -11,6 +11,7 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import InventoryItemRecord, InventoryListResponse
+from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_items import get_item_name_map
 
 
@@ -20,6 +21,8 @@ EXCLUDED_ITEM_ID_MIN = 1
 EXCLUDED_ITEM_ID_MAX = 18
 InventorySortField = Literal["item_id", "name", "quantity"]
 InventorySortOrder = Literal["asc", "desc"]
+INVENTORY_ITEMS_SCHEMA_PATH = "items"
+INVENTORY_ITEM_SCHEMA_PATH = "items.0"
 
 
 def _unwrap_bson_numeric(value: Any) -> Any:
@@ -63,26 +66,54 @@ def _inventory_sort_key(item: InventoryItemRecord, item_name_map: dict[int, str]
     return item.item_id, item.item_id
 
 
-def _inventory_item_template(item_id: int, quantity: int) -> dict[str, Any]:
-    now = int(time.time())
-    return {
-        "_id": item_id,
-        "Count": Int64(quantity),
-        "BuyTimes": 0,
-        "TotalBuyTimes": 0,
-        "LastBuyTime": Int64(0),
-        "RefreshTime": Int64(0),
-        "CreateTime": Int64(now),
-    }
-
-
 class PlayerItemsService:
-    def __init__(self, settings: Settings) -> None:
+    def __init__(self, settings: Settings, schema_runtime: DatabaseSchemaRuntime) -> None:
         self._settings = settings
+        self._schema_runtime = schema_runtime
+        self._collection_schema = schema_runtime.get_collection_schema(INVENTORY_COLLECTION_NAME)
 
-    @staticmethod
-    def inventory_item_template(item_id: int, quantity: int) -> dict[str, Any]:
-        return _inventory_item_template(item_id, quantity)
+    def _get_inventory_schema(self) -> CompiledCollectionSchema:
+        if self._collection_schema is None:
+            raise RuntimeError(f"Missing schema for collection: {INVENTORY_COLLECTION_NAME}")
+        return self._collection_schema
+
+    def _sanitize_raw_items(self, raw_items: Any) -> list[dict[str, Any]]:
+        sanitized = self._get_inventory_schema().sanitize_read(raw_items, INVENTORY_ITEMS_SCHEMA_PATH)
+        return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def sanitize_inventory_items(self, raw_items: Any) -> list[dict[str, Any]]:
+        return self._sanitize_raw_items(raw_items)
+
+    def _normalize_inventory_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
+        return self._get_inventory_schema().normalize_update_fields(update_fields)
+
+    def _sanitize_inventory_document(self, document: Any) -> dict[str, Any]:
+        sanitized = self._get_inventory_schema().sanitize_document(document)
+        return sanitized if isinstance(sanitized, dict) else {}
+
+    def inventory_item_template(self, item_id: int, quantity: int) -> dict[str, Any]:
+        now = int(time.time())
+        item_document = self._get_inventory_schema().materialize_write({
+            "_id": item_id,
+            "Count": Int64(quantity),
+            "BuyTimes": 0,
+            "TotalBuyTimes": 0,
+            "LastBuyTime": Int64(0),
+            "RefreshTime": Int64(0),
+            "CreateTime": Int64(now),
+        }, INVENTORY_ITEM_SCHEMA_PATH)
+
+        if not isinstance(item_document, dict):
+            raise RuntimeError("Failed to materialize inventory item schema")
+
+        if "Count" in item_document:
+            item_document["Count"] = Int64(quantity)
+        for time_field in ("LastBuyTime", "RefreshTime", "CreateTime"):
+            if time_field not in item_document:
+                continue
+            item_document[time_field] = Int64(now if time_field == "CreateTime" else 0)
+
+        return item_document
 
     async def list_inventory_items(
         self,
@@ -108,10 +139,10 @@ class PlayerItemsService:
             with contextlib.suppress(Exception):
                 client.close()
 
-        raw_items = document.get("items") if isinstance(document, dict) else []
+        raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
         item_name_map = get_item_name_map()
         normalized_items: list[InventoryItemRecord] = []
-        for raw_item in raw_items if isinstance(raw_items, list) else []:
+        for raw_item in raw_items:
             if not isinstance(raw_item, dict):
                 continue
 
@@ -176,10 +207,10 @@ class PlayerItemsService:
                 {"items": 1},
             )
 
-            raw_items = document.get("items") if isinstance(document, dict) else []
+            raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
             item_name_map = get_item_name_map()
             deletable_item_ids: list[int] = []
-            for raw_item in raw_items if isinstance(raw_items, list) else []:
+            for raw_item in raw_items:
                 if not isinstance(raw_item, dict):
                     continue
 
@@ -214,9 +245,33 @@ class PlayerItemsService:
         client = create_mongo_client(self._settings)
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
+            document = await collection.find_one(
+                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"items": 1},
+            )
+
+            raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
+            updated = False
+            for raw_item in raw_items:
+                if not isinstance(raw_item, dict):
+                    continue
+                current_item_id = _parse_optional_int(raw_item.get("_id"))
+                if current_item_id != item_id:
+                    continue
+                raw_item["Count"] = Int64(quantity)
+                updated = True
+                break
+
+            if not updated or not isinstance(document, dict):
+                return False
+
+            normalized_update = self._normalize_inventory_update_fields({"items": raw_items})
+            if "items" not in normalized_update:
+                return False
+
             result = await collection.update_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}, "items._id": item_id},
-                {"$set": {"items.$.Count": Int64(quantity)}},
+                {"_id": document.get("_id")},
+                {"$set": {"items": normalized_update["items"]}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -233,7 +288,7 @@ class PlayerItemsService:
                 {"items": 1},
             )
 
-            raw_items = list(document.get("items") or []) if isinstance(document, dict) else []
+            raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
             existing_item_by_id: dict[int, dict[str, Any]] = {}
             for raw_item in raw_items:
                 if not isinstance(raw_item, dict):
@@ -255,18 +310,20 @@ class PlayerItemsService:
                     updated_count += 1
                     continue
 
-                inventory_item = _inventory_item_template(item_id, quantity)
+                inventory_item = self.inventory_item_template(item_id, quantity)
                 raw_items.append(inventory_item)
                 existing_item_by_id[item_id] = inventory_item
                 created_count += 1
 
             if isinstance(document, dict):
+                normalized_document = self._sanitize_inventory_document(document)
                 result = await collection.update_one(
                     {"_id": document.get("_id")},
-                    {"$set": {"items": raw_items}},
+                    {"$set": {"items": self._normalize_inventory_update_fields({"items": raw_items}).get("items", normalized_document.get("items", []))}},
                 )
             else:
-                result = await collection.insert_one({"uid": Int64(uid), "items": raw_items})
+                inventory_document = self._sanitize_inventory_document({"uid": Int64(uid), "items": raw_items})
+                result = await collection.insert_one(inventory_document)
                 if not result.inserted_id:
                     raise RuntimeError("Failed to create inventory document")
         finally:
@@ -291,9 +348,9 @@ class PlayerItemsService:
             with contextlib.suppress(Exception):
                 client.close()
 
-        raw_items = document.get("items") if isinstance(document, dict) else []
+        raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
         quantities: dict[int, int] = {}
-        for raw_item in raw_items if isinstance(raw_items, list) else []:
+        for raw_item in raw_items:
             if not isinstance(raw_item, dict):
                 continue
 
