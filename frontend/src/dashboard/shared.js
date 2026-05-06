@@ -26,6 +26,8 @@ export const dom = {
   databaseAccountsPrevButton: document.querySelector('#database-accounts-prev'),
   databaseAccountsNextButton: document.querySelector('#database-accounts-next'),
   databaseAccountsPaginationLabel: document.querySelector('#database-accounts-pagination'),
+  databaseAccountsJumpInput: document.querySelector('#database-accounts-jump-input'),
+  databaseAccountsJumpButton: document.querySelector('#database-accounts-jump-button'),
   databaseSelectedAccountLabel: document.querySelector('#database-selected-account'),
   databasePlayerProfileState: document.querySelector('#database-player-profile-state'),
   databasePlayerProfileShell: document.querySelector('#database-player-profile-shell'),
@@ -38,6 +40,8 @@ export const dom = {
   databaseWeaponManagementPrevButton: document.querySelector('#database-weapon-management-prev'),
   databaseWeaponManagementNextButton: document.querySelector('#database-weapon-management-next'),
   databaseWeaponManagementPaginationLabel: document.querySelector('#database-weapon-management-pagination'),
+  databaseWeaponManagementJumpInput: document.querySelector('#database-weapon-management-jump-input'),
+  databaseWeaponManagementJumpButton: document.querySelector('#database-weapon-management-jump-button'),
   databaseWeaponManagementActions: document.querySelector('#database-weapon-actions'),
   databaseWeaponClearButton: document.querySelector('#database-weapon-clear'),
   databaseWeaponSortFieldSelect: document.querySelector('#database-weapon-sort-field'),
@@ -52,6 +56,8 @@ export const dom = {
   databaseItemManagementPrevButton: document.querySelector('#database-item-management-prev'),
   databaseItemManagementNextButton: document.querySelector('#database-item-management-next'),
   databaseItemManagementPaginationLabel: document.querySelector('#database-item-management-pagination'),
+  databaseItemManagementJumpInput: document.querySelector('#database-item-management-jump-input'),
+  databaseItemManagementJumpButton: document.querySelector('#database-item-management-jump-button'),
   databaseItemManagementActions: document.querySelector('#database-item-actions'),
   databaseItemClearButton: document.querySelector('#database-item-clear'),
   databaseItemSortFieldSelect: document.querySelector('#database-item-sort-field'),
@@ -447,6 +453,19 @@ Object.assign(app, {
   apiErrorMessage: (error, fallbackKey = 'runtime.apiUnknown') => getLocalizedApiErrorMessage(error, state.locale, fallbackKey),
   resolveUiTextToken: (token) => resolveUiTextToken(token, state.locale),
   createApiError: (payload, status = null) => new ApiError({ code: payload?.code, details: payload?.details, message: payload?.message, status }),
+  normalizePaginationTargetPage: (value, totalPages) => {
+    const parsed = Number.parseInt(String(value ?? '').trim(), 10);
+    if (!Number.isFinite(parsed)) {
+      return null;
+    }
+
+    const safeTotalPages = Number.isFinite(Number(totalPages)) ? Math.max(0, Number(totalPages)) : 0;
+    if (safeTotalPages <= 0) {
+      return null;
+    }
+
+    return Math.min(Math.max(parsed, 1), safeTotalPages);
+  },
 });
 
 subscribeLocaleChange((locale) => {

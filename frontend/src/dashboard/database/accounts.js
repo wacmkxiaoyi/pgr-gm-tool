@@ -10,6 +10,8 @@ const {
   databaseAccountsPrevButton,
   databaseAccountsNextButton,
   databaseAccountsPaginationLabel,
+  databaseAccountsJumpInput,
+  databaseAccountsJumpButton,
   databaseSelectedAccountLabel,
 } = dom;
 
@@ -116,6 +118,31 @@ app.updateAccountsPagination = () => {
   if (databaseAccountsNextButton instanceof HTMLButtonElement) {
     databaseAccountsNextButton.disabled = state.accountsLoading || state.accountsTotalPages === 0 || state.accountsCurrentPage >= state.accountsTotalPages || !app.isDatabaseHealthy();
   }
+
+  const jumpDisabled = state.accountsLoading || state.accountsTotalPages === 0 || !app.isDatabaseHealthy();
+
+  if (databaseAccountsJumpInput instanceof HTMLInputElement) {
+    databaseAccountsJumpInput.disabled = jumpDisabled;
+  }
+
+  if (databaseAccountsJumpButton instanceof HTMLButtonElement) {
+    databaseAccountsJumpButton.disabled = jumpDisabled;
+  }
+};
+
+app.submitAccountsPageJump = () => {
+  if (!(databaseAccountsJumpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const targetPage = app.normalizePaginationTargetPage(databaseAccountsJumpInput.value, state.accountsTotalPages);
+  databaseAccountsJumpInput.value = '';
+
+  if (targetPage === null || targetPage === state.accountsCurrentPage) {
+    return;
+  }
+
+  void app.loadDatabaseAccounts(targetPage);
 };
 
 app.renderAccountRows = (items) => {
@@ -319,5 +346,20 @@ export const initDatabaseAccountsFeature = () => {
         void app.loadDatabaseAccounts(state.accountsCurrentPage + 1);
       }
     });
+  }
+
+  if (databaseAccountsJumpInput instanceof HTMLInputElement) {
+    databaseAccountsJumpInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      app.submitAccountsPageJump();
+    });
+  }
+
+  if (databaseAccountsJumpButton instanceof HTMLButtonElement) {
+    databaseAccountsJumpButton.addEventListener('click', app.submitAccountsPageJump);
   }
 };

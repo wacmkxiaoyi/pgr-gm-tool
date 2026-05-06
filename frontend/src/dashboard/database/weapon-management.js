@@ -12,6 +12,8 @@ const {
   databaseWeaponManagementPrevButton,
   databaseWeaponManagementNextButton,
   databaseWeaponManagementPaginationLabel,
+  databaseWeaponManagementJumpInput,
+  databaseWeaponManagementJumpButton,
   databaseWeaponSortFieldSelect,
   databaseWeaponSortOrderSelect,
   databaseWeaponSearchInput,
@@ -180,6 +182,31 @@ app.updateWeaponManagementPagination = () => {
   if (databaseWeaponManagementNextButton instanceof HTMLButtonElement) {
     databaseWeaponManagementNextButton.disabled = state.weaponManagementLoading || state.weaponManagementTotalPages === 0 || state.weaponManagementCurrentPage >= state.weaponManagementTotalPages || !app.canAccessWeaponManagement();
   }
+
+  const jumpDisabled = state.weaponManagementLoading || state.weaponManagementTotalPages === 0 || !app.canAccessWeaponManagement();
+
+  if (databaseWeaponManagementJumpInput instanceof HTMLInputElement) {
+    databaseWeaponManagementJumpInput.disabled = jumpDisabled;
+  }
+
+  if (databaseWeaponManagementJumpButton instanceof HTMLButtonElement) {
+    databaseWeaponManagementJumpButton.disabled = jumpDisabled;
+  }
+};
+
+app.submitWeaponManagementPageJump = () => {
+  if (!(databaseWeaponManagementJumpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const targetPage = app.normalizePaginationTargetPage(databaseWeaponManagementJumpInput.value, state.weaponManagementTotalPages);
+  databaseWeaponManagementJumpInput.value = '';
+
+  if (targetPage === null || targetPage === state.weaponManagementCurrentPage) {
+    return;
+  }
+
+  void app.loadSelectedAccountWeapons(targetPage);
 };
 
 app.renderWeaponRows = (items) => {
@@ -496,5 +523,20 @@ export const initDatabaseWeaponManagementFeature = () => {
         void app.loadSelectedAccountWeapons(state.weaponManagementCurrentPage + 1);
       }
     });
+  }
+
+  if (databaseWeaponManagementJumpInput instanceof HTMLInputElement) {
+    databaseWeaponManagementJumpInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      app.submitWeaponManagementPageJump();
+    });
+  }
+
+  if (databaseWeaponManagementJumpButton instanceof HTMLButtonElement) {
+    databaseWeaponManagementJumpButton.addEventListener('click', app.submitWeaponManagementPageJump);
   }
 };

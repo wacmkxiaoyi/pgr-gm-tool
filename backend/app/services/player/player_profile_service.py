@@ -95,6 +95,12 @@ class PlayerProfileService:
     def _allows_player_field(self, path: str) -> bool:
         return self._get_player_schema().allows_field(path)
 
+    def allows_player_profile_field_update(self, field_name: str) -> bool:
+        update_path = PLAYER_DOCUMENT_FIELD_PATHS.get(field_name)
+        if not update_path:
+            return field_name in PLAYER_PROFILE_ITEM_FIELD_MAP
+        return self._get_player_schema().allows_update_path(update_path)
+
     def _filter_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
         return self._get_player_schema().normalize_update_fields(update_fields)
 

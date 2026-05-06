@@ -145,6 +145,10 @@
                   <button class="status-action-button status-action-button-log" type="button" id="database-accounts-prev" disabled data-i18n="dashboard.accountsPrev">上一页</button>
                   <span class="accounts-pagination-label" id="database-accounts-pagination">第 0 / 0 页</span>
                   <button class="status-action-button status-action-button-log" type="button" id="database-accounts-next" disabled data-i18n="dashboard.accountsNext">下一页</button>
+                  <label class="accounts-pagination-jump" for="database-accounts-jump-input">
+                    <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-accounts-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                  </label>
+                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
                 </div>
               </section>
 
@@ -178,7 +182,7 @@
                       <div class="database-player-card-meta-row">
                         <span class="database-player-card-tag">
                           <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">性别</span>
-                          <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
+                          <strong id="player-card-gender">--</strong>
                         </span>
                         <span class="database-player-card-tag database-player-card-tag-likes">
                           <span class="database-player-card-tag-label" aria-label="点赞" data-i18n-aria-label="dashboard.playerLikes">👍</span>
@@ -288,6 +292,10 @@
                       <button class="status-action-button status-action-button-log" type="button" id="database-item-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
                       <span id="database-item-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
                       <button class="status-action-button status-action-button-log" type="button" id="database-item-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-item-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-item-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      </label>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-item-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
                     </div>
                   </div>
                 </div>
@@ -365,6 +373,10 @@
                       <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
                       <span id="database-weapon-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
                       <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-weapon-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-weapon-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      </label>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
                     </div>
                   </div>
                 </div>

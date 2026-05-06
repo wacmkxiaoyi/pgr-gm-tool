@@ -85,6 +85,7 @@ PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
 PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_FIELDS = {"likes", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_MAX = 2147483647
+PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}
 
 
 @router.get("/health")
@@ -288,7 +289,10 @@ async def update_selected_database_player_profile(
     profile_service = request.app.state.player_profile_service
 
     field_name = str(payload.field or "").strip().lower()
-    if field_name not in {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}:
+    if field_name not in PLAYER_PROFILE_MUTABLE_FIELDS:
+        raise_http_error(422, "player.field_not_editable", {"field": field_name})
+
+    if not profile_service.allows_player_profile_field_update(field_name):
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     player_level_max = get_player_level_max()
@@ -306,7 +310,7 @@ async def update_selected_database_player_profile(
         except (TypeError, ValueError):
             raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
-        if normalized_gender not in {0, 1}:
+        if normalized_gender not in {1, 2}:
             raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         update_payload = UpdatePlayerProfilePayload(gender=normalized_gender)

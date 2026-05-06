@@ -14,6 +14,8 @@ const {
   databaseItemManagementPrevButton,
   databaseItemManagementNextButton,
   databaseItemManagementPaginationLabel,
+  databaseItemManagementJumpInput,
+  databaseItemManagementJumpButton,
   databaseItemSortFieldSelect,
   databaseItemSortOrderSelect,
   databaseItemSearchInput,
@@ -76,6 +78,31 @@ app.updateItemManagementPagination = () => {
   if (databaseItemManagementNextButton instanceof HTMLButtonElement) {
     databaseItemManagementNextButton.disabled = state.itemManagementLoading || state.itemManagementTotalPages === 0 || state.itemManagementCurrentPage >= state.itemManagementTotalPages || !app.canAccessItemManagement();
   }
+
+  const jumpDisabled = state.itemManagementLoading || state.itemManagementTotalPages === 0 || !app.canAccessItemManagement();
+
+  if (databaseItemManagementJumpInput instanceof HTMLInputElement) {
+    databaseItemManagementJumpInput.disabled = jumpDisabled;
+  }
+
+  if (databaseItemManagementJumpButton instanceof HTMLButtonElement) {
+    databaseItemManagementJumpButton.disabled = jumpDisabled;
+  }
+};
+
+app.submitItemManagementPageJump = () => {
+  if (!(databaseItemManagementJumpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const targetPage = app.normalizePaginationTargetPage(databaseItemManagementJumpInput.value, state.itemManagementTotalPages);
+  databaseItemManagementJumpInput.value = '';
+
+  if (targetPage === null || targetPage === state.itemManagementCurrentPage) {
+    return;
+  }
+
+  void app.loadSelectedAccountItems(targetPage);
 };
 
 app.renderItemRows = (items) => {
@@ -549,5 +576,20 @@ export const initDatabaseItemManagementFeature = () => {
         void app.loadSelectedAccountItems(state.itemManagementCurrentPage + 1);
       }
     });
+  }
+
+  if (databaseItemManagementJumpInput instanceof HTMLInputElement) {
+    databaseItemManagementJumpInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      app.submitItemManagementPageJump();
+    });
+  }
+
+  if (databaseItemManagementJumpButton instanceof HTMLButtonElement) {
+    databaseItemManagementJumpButton.addEventListener('click', app.submitItemManagementPageJump);
   }
 };

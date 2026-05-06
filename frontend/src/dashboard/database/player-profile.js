@@ -12,11 +12,6 @@ const PLAYER_FIELD_LABELS = {
   black_card: 'runtime.playerFieldBlackCard',
   rainbow_card: 'runtime.playerFieldRainbowCard',
 };
-const PLAYER_GENDER_OPTIONS = [
-  { value: '2', labelKey: 'dashboard.playerGenderMale' },
-  { value: '1', labelKey: 'dashboard.playerGenderFemale' },
-];
-
 const getPlayerFieldLabel = (field) => app.translate(PLAYER_FIELD_LABELS[field] ?? field);
 
 const { dom, state } = app;
@@ -134,15 +129,6 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
 
       return PLAYER_NAME_PATTERN.test(value) ? '' : app.translate('runtime.playerNameInvalid');
     },
-  },
-  gender: {
-    displayValue: (profile) => app.getPlayerGenderLabel(profile?.gender ?? null),
-    getRawValue: (profile) => profile?.gender ?? null,
-    element: () => playerCardGender,
-    editorType: 'select',
-    normalize: (value) => String(value).trim(),
-    validate: (value) => (value === '2' || value === '1' ? '' : app.translate('runtime.playerGenderInvalid')),
-    options: PLAYER_GENDER_OPTIONS,
   },
   likes: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.likes),
@@ -408,6 +394,12 @@ app.beginPlayerProfileEdit = (field) => {
       existingInput.select();
       return;
     }
+
+    const existingSelect = element.querySelector('select');
+    if (existingSelect instanceof HTMLSelectElement) {
+      existingSelect.focus();
+      return;
+    }
   }
 
   if (state.playerProfileEditState?.field && state.playerProfileEditState.field !== field) {
@@ -544,7 +536,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
 
 app.handlePlayerProfileFieldActivate = (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLElement) || target.tagName === 'INPUT') {
+  if (!(target instanceof HTMLElement) || target.tagName === 'INPUT' || target.tagName === 'SELECT') {
     return;
   }
 
