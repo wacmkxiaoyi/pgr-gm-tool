@@ -151,10 +151,6 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingDeleteWeapon) {
       const { recordId, weaponName, templateId } = state.pendingDeleteWeapon;
-      if (!app.confirmPlayerMutationRisk()) {
-        return;
-      }
-
       await app.apiFetch(`/api/database-weapons/selected/${recordId}`, {
         method: 'DELETE',
       });
@@ -186,10 +182,6 @@ app.confirmDeleteOrClearItems = async () => {
     }
 
     if (state.pendingClearWeaponsKeyword !== null) {
-      if (!app.confirmPlayerMutationRisk()) {
-        return;
-      }
-
       const keyword = state.pendingClearWeaponsKeyword;
       const payload = await app.apiFetch('/api/database-weapons/selected', {
         method: 'DELETE',
@@ -205,13 +197,14 @@ app.confirmDeleteOrClearItems = async () => {
           : app.translate('runtime.weaponClearAllSuccess', { count: payload?.deleted_count ?? 0 }),
         app.translate('runtime.weaponClearSuccessTitle'),
       );
-      state.weaponManagementCurrentPage = 1;
-      await app.loadSelectedAccountWeapons(1);
+      await app.reloadWeaponManagementCurrentPage();
+      return;
+    }
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
       return;
     }
 
-    app.closeItemDeleteModal();
-  } catch (error) {
     const fallbackKey = state.pendingDeleteItem
       ? 'runtime.itemDeleteFailed'
       : state.pendingDeleteWeapon

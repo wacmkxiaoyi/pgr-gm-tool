@@ -289,6 +289,12 @@ app.submitItemQuantityEdit = async (itemId, currentQuantity, nextValue) => {
     state.itemManagementEditState = null;
     await app.reloadItemManagementCurrentPage();
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      currentState.pending = false;
+      app.stopItemQuantityEdit(itemId);
+      return;
+    }
+
     currentState.pending = false;
     await app.reloadItemManagementCurrentPage();
     app.openControlModal(app.apiErrorMessage(error, 'runtime.itemQuantityUpdateFailed'));

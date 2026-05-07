@@ -217,7 +217,11 @@ app.submitWeaponAddModal = async () => {
     );
     await app.reloadWeaponManagementCurrentPage();
   } catch (error) {
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.weaponAddFailed'));
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsAddFailed'));
   } finally {
     state.weaponAddSubmitting = false;
     if (weaponAddSubmitButton instanceof HTMLButtonElement) {

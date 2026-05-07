@@ -91,7 +91,7 @@ const validateInt32Field = (value, invalidKey) => {
 
   const parsedValue = Number.parseInt(value, 10);
   if (parsedValue > PLAYER_INT32_MAX) {
-    return app.translate('runtime.playerInt32MaxExceeded', { max: PLAYER_INT32_MAX });
+    return app.translate('runtime.playerValueAboveInt32Max', { max: PLAYER_INT32_MAX });
   }
 
   return '';
@@ -154,7 +154,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       const parsedValue = Number.parseInt(value, 10);
       const maxLevel = getPlayerLevelInputMax();
       if (parsedValue > maxLevel) {
-        return app.translate('runtime.playerLevelMaxExceeded', { maxLevel });
+        return app.translate('runtime.playerLevelAboveMax', { max: maxLevel });
       }
 
       return '';
@@ -176,7 +176,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       const currentLevel = state.playerProfileData?.level;
       const maxExp = getPlayerExpInputMax(currentLevel);
       if (maxExp !== null && parsedValue > maxExp) {
-        return app.translate('runtime.playerExpMaxExceeded', { maxExp });
+        return app.translate('runtime.playerExpAboveMax', { max: maxExp });
       }
 
       return '';
@@ -501,11 +501,6 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
     return;
   }
 
-  if (!app.confirmPlayerMutationRisk()) {
-    app.stopPlayerProfileEdit(field);
-    return;
-  }
-
   currentState.pending = true;
   const element = config.element();
   const editor = element instanceof HTMLElement ? element.querySelector('input, select') : null;
@@ -528,6 +523,12 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
     app.clearPlayerProfileSummaryMessage();
     app.renderPlayerProfile(payload);
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      currentState.pending = false;
+      app.stopPlayerProfileEdit(field);
+      return;
+    }
+
     currentState.pending = false;
     app.renderPlayerProfile(state.playerProfileData);
     app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));

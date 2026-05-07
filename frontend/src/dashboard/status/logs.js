@@ -161,7 +161,7 @@ app.startLogStream = () => {
 
   eventSource.addEventListener('log-error', (event) => {
     const payload = app.parseLogEventPayload(event);
-    app.appendLogContent(app.translate('runtime.serverLogStreamError', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogFileReadFailedApi') }));
+    app.appendLogContent(app.translate('runtime.serverLogStreamError', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogFileReadFailed') }));
     app.setLogConnectionState(app.translate('runtime.serverLogErrorState'), 'is-error');
   });
 

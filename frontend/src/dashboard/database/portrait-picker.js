@@ -122,11 +122,6 @@ app.submitPlayerPortraitPicker = async () => {
     return;
   }
 
-  if (!app.confirmPlayerMutationRisk()) {
-    app.closePlayerPortraitPicker();
-    return;
-  }
-
   if (!(playerPortraitPickerConfirmButton instanceof HTMLButtonElement)) {
     return;
   }
@@ -146,6 +141,12 @@ app.submitPlayerPortraitPicker = async () => {
     app.clearPlayerProfileSummaryMessage();
     app.renderPlayerProfile(payload);
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      playerPortraitPickerConfirmButton.disabled = false;
+      app.closePlayerPortraitPicker();
+      return;
+    }
+
     playerPortraitPickerConfirmButton.disabled = false;
     app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }

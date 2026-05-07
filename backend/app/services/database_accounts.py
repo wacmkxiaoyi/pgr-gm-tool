@@ -62,6 +62,18 @@ class DatabaseAccountsService:
 
         return result.matched_count > 0
 
+    async def delete_account(self, uid: int) -> bool:
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][ACCOUNT_COLLECTION_NAME]
+            result = await collection.delete_one({"uid": uid})
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        return result.deleted_count > 0
+
     async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE) -> AccountListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ACCOUNT_PAGE_SIZE if page_size <= 0 else min(int(page_size), ACCOUNT_PAGE_SIZE)

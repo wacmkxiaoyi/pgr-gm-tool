@@ -48,6 +48,9 @@ class AppInfoResponse(BaseModel):
     weapon_breakthrough_max_map: dict[int, dict[str, int]]
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
+    attrib_pool_name_map: dict[int, str]
+    character_skill_pool_name_map: dict[int, str]
+    weapon_skill_name_map: dict[int, str]
 
 
 class InventoryItemResponse(BaseModel):
@@ -87,6 +90,7 @@ class WeaponItemResponse(BaseModel):
     Breakthrough: int | None = None
     ResonanceInfo: list[WeaponResonanceResponse] = Field(default_factory=list)
     WeaponOverrunData: WeaponOverrunResponse | None = None
+    CurrentLevelExpLimit: int | None = None
 
 
 class WeaponListResponse(BaseModel):
@@ -118,6 +122,25 @@ class AddWeaponResponse(BaseModel):
 class DeleteWeaponResponse(BaseModel):
     record_id: int = Field(alias="_id", serialization_alias="_id")
     deleted: bool
+
+
+class UpdateWeaponRequest(BaseModel):
+    field: str
+    value: int
+
+
+class UpdateWeaponResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    TemplateId: int
+    CharacterId: int | None = None
+    Level: int | None = None
+    Exp: int | None = None
+    Breakthrough: int | None = None
+    ResonanceInfo: list[WeaponResonanceResponse] = Field(default_factory=list)
+    WeaponOverrunData: WeaponOverrunResponse | None = None
+    CurrentLevelExpLimit: int | None = None
 
 
 class ClearInventoryItemsRequest(BaseModel):
@@ -175,6 +198,11 @@ class ResetAccountPasswordRequest(BaseModel):
 class ResetAccountPasswordResponse(BaseModel):
     uid: int
     updated: bool
+
+
+class DeleteAccountResponse(BaseModel):
+    uid: int
+    deleted: bool
 
 
 class PlayerProfileResponse(BaseModel):

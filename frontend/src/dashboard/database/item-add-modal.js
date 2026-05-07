@@ -201,6 +201,10 @@ app.submitItemAddModal = async () => {
     );
     await app.reloadItemManagementCurrentPage();
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
     app.openControlModal(app.apiErrorMessage(error, 'runtime.itemAddFailed'));
   } finally {
     state.itemAddSubmitting = false;

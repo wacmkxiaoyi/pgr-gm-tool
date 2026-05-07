@@ -7,6 +7,10 @@
   padding: 20px;
 }
 
+#server-control-modal {
+  z-index: 40;
+}
+
 .login-modal[hidden] {
   display: none;
 }
@@ -131,4 +135,44 @@
 .login-modal-button-danger {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.98), rgba(190, 24, 93, 0.96));
   box-shadow: 0 14px 28px rgba(220, 38, 38, 0.24);
+}
+
+.risk-confirm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: #6b7280;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.risk-confirm-checkbox input[type="checkbox"] {
+  accent-color: #8c5aa7;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.risk-reset-button {
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid rgba(140, 90, 167, 0.3);
+  border-radius: 8px;
+  background: rgba(140, 90, 167, 0.08);
+  color: #8c5aa7;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.risk-reset-button:hover {
+  background: rgba(140, 90, 167, 0.16);
+  border-color: rgba(140, 90, 167, 0.5);
+}
+
+.risk-reset-button[hidden] {
+  display: none;
 }

@@ -242,6 +242,9 @@ app.loadAppInfo = async () => {
     state.weaponBreakthroughMaxMap = payload?.weapon_breakthrough_max_map && typeof payload.weapon_breakthrough_max_map === 'object' ? payload.weapon_breakthrough_max_map : {};
     state.characterLogNameMap = payload?.character_log_name_map && typeof payload.character_log_name_map === 'object' ? payload.character_log_name_map : {};
     state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
+    state.attribPoolNameMap = payload?.attrib_pool_name_map && typeof payload.attrib_pool_name_map === 'object' ? payload.attrib_pool_name_map : {};
+    state.characterSkillPoolNameMap = payload?.character_skill_pool_name_map && typeof payload.character_skill_pool_name_map === 'object' ? payload.character_skill_pool_name_map : {};
+    state.weaponSkillNameMap = payload?.weapon_skill_name_map && typeof payload.weapon_skill_name_map === 'object' ? payload.weapon_skill_name_map : {};
     if (!state.serverControlsVisible) {
       state.serverControlState = null;
     }

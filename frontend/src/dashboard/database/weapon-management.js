@@ -17,6 +17,21 @@ const {
   databaseWeaponSortFieldSelect,
   databaseWeaponSortOrderSelect,
   databaseWeaponSearchInput,
+  weaponDetailModal,
+  weaponDetailCloseTargets,
+  weaponDetailCard,
+  weaponDetailIcon,
+  weaponDetailName,
+  weaponDetailType,
+  weaponDetailStar,
+  weaponDetailSkill,
+  weaponDetailBreakthrough,
+  weaponDetailLevel,
+  weaponDetailExp,
+  weaponDetailResonanceSection,
+  weaponDetailResonanceBody,
+  weaponDetailOverrunSection,
+  weaponDetailOverrunContent,
 } = dom;
 
 app.setWeaponManagementState = (message, tone = '') => {
@@ -111,11 +126,12 @@ app.getCharacterIconByCharacterId = (characterId) => {
   return typeof url === 'string' ? url : '';
 };
 
-app.renderWeaponMediaCell = (iconUrl, label, showFallback = true) => {
+app.renderWeaponMediaCell = (iconUrl, label, showFallback = true, extraClass = '') => {
   const safeLabel = typeof label === 'string' && label.trim() ? label.trim() : '--';
+  const imgClass = `weapon-management-icon${extraClass ? ` ${extraClass}` : ''}`;
   return `
     <div class="weapon-management-media-cell">
-      ${iconUrl ? `<img class="weapon-management-icon" src=".${iconUrl}" alt="${safeLabel}">` : (showFallback ? '<span class="weapon-management-icon weapon-management-icon-fallback" aria-hidden="true"></span>' : '')}
+      ${iconUrl ? `<img class="${imgClass}" src=".${iconUrl}" alt="${safeLabel}">` : (showFallback ? '<span class="weapon-management-icon weapon-management-icon-fallback" aria-hidden="true"></span>' : '')}
       <span>${safeLabel}</span>
     </div>
   `;
@@ -224,17 +240,19 @@ app.renderWeaponRows = (items) => {
     const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
     const isEquipped = Number(characterId) !== 0;
     const rowNumber = ((state.weaponManagementCurrentPage - 1) * 10) + index + 1;
+    const star = app.getWeaponStarByTemplateId(templateId);
+    const iconExtraClass = (Number.isFinite(star) && star >= 4) ? `weapon-icon-tier-${star}` : '';
     return `
       <tr>
         <td>${rowNumber}</td>
-        <td>${app.renderWeaponMediaCell(iconUrl, weaponName)}</td>
-        <td>${app.renderWeaponMediaCell(characterIconUrl, characterName, false)}</td>
+        <td>${app.renderWeaponMediaCell(iconUrl, weaponName, true, iconExtraClass)}</td>
         <td>${app.getWeaponTypeByTemplateId(templateId)}</td>
         <td>${app.renderWeaponStar(templateId)}</td>
+        <td>${app.renderWeaponMediaCell(characterIconUrl, characterName, false)}</td>
         <td>${app.renderWeaponEnhancementLevel(item)}</td>
         <td>
           <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-log" type="button" data-weapon-management-action="detail">${app.translate('dashboard.weaponManagementDetail')}</button>
+            <button class="status-action-button status-action-button-log" type="button" data-weapon-management-action="detail" data-weapon-record-id="${recordId ?? ''}">${app.translate('dashboard.weaponManagementDetail')}</button>
             <button class="status-action-button status-action-button-stop" type="button" data-weapon-management-action="delete" data-weapon-record-id="${recordId ?? ''}" data-weapon-template-id="${templateId ?? ''}" data-weapon-name="${weaponName}" data-weapon-character-id="${characterId ?? ''}" data-weapon-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.weaponManagementDelete')}</button>
           </div>
         </td>
@@ -274,6 +292,7 @@ app.resetWeaponManagementView = () => {
   state.weaponManagementTotalPages = 0;
   state.weaponManagementHasLoaded = false;
   state.weaponManagementLoading = false;
+  state.weaponManagementItems = [];
   if (databaseWeaponManagementBody instanceof HTMLElement) {
     databaseWeaponManagementBody.innerHTML = '';
   }
@@ -326,6 +345,7 @@ app.loadSelectedAccountWeapons = async (page = 1) => {
 
     const payload = await app.apiFetch(`/api/database-weapons/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
+    state.weaponManagementItems = items;
     state.weaponManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.weaponManagementCurrentPage;
     state.weaponManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.weaponManagementHasLoaded = true;
@@ -442,7 +462,11 @@ app.handleWeaponManagementActionClick = (event) => {
   }
 
   if (button.dataset.weaponManagementAction === 'detail') {
-    app.openControlModal(app.translate('runtime.weaponManagementDetailPending'));
+    const recordId = Number.parseInt(button.dataset.weaponRecordId ?? '', 10);
+    if (!Number.isFinite(recordId)) {
+      return;
+    }
+    app.openWeaponDetailModal(recordId, button);
     return;
   }
 
@@ -454,7 +478,7 @@ app.handleWeaponManagementActionClick = (event) => {
     }
 
     if (Number.isFinite(characterId) && characterId !== 0) {
-      app.openControlModal(app.translate('runtime.weaponDeleteEquippedForbidden'));
+      app.openControlModal(app.translate('runtime.equipsDeleteEquippedForbidden'));
       return;
     }
 
@@ -464,6 +488,389 @@ app.handleWeaponManagementActionClick = (event) => {
       weaponName: button.dataset.weaponName ?? app.translate('common.notAvailable'),
       characterName: button.dataset.weaponCharacterName ?? app.translate('common.notAvailable'),
     }, button);
+  }
+};
+
+app.populateWeaponDetailCard = (item) => {
+  const templateId = item?.TemplateId ?? null;
+  const breakthrough = Number.isFinite(Number(item?.Breakthrough)) ? Math.max(0, Number(item.Breakthrough)) : 0;
+  const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
+  const currentLevelExp = Number.isFinite(Number(item?.Exp)) ? Number(item.Exp) : null;
+  const currentLevelExpLimit = Number.isFinite(Number(item?.CurrentLevelExpLimit)) ? Number(item.CurrentLevelExpLimit) : null;
+  const star = app.getWeaponStarByTemplateId(templateId);
+  const iconUrl = app.getWeaponIconByTemplateId(templateId);
+  const weaponName = app.getWeaponNameByTemplateId(templateId);
+  const resonanceInfo = Array.isArray(item?.ResonanceInfo) ? item.ResonanceInfo : [];
+  const hasOverrun = item?.WeaponOverrunData != null;
+  const hasValidStar = Number.isFinite(star) && star >= 2 && star <= 6;
+  const starTier = hasValidStar ? star : 2;
+  const btTier = Math.min(Math.max(breakthrough, 0), 4);
+
+  state.currentWeaponDetailItem = item;
+
+  if (weaponDetailCard instanceof HTMLElement) {
+    weaponDetailCard.dataset.starTier = starTier;
+    weaponDetailCard.dataset.btTier = btTier;
+  }
+
+  if (weaponDetailIcon instanceof HTMLImageElement) {
+    weaponDetailIcon.src = iconUrl ? `.${iconUrl}` : '';
+    weaponDetailIcon.alt = weaponName;
+  }
+
+  if (weaponDetailName instanceof HTMLElement) {
+    weaponDetailName.textContent = weaponName;
+  }
+
+  if (weaponDetailType instanceof HTMLElement) {
+    const typeName = app.getWeaponTypeByTemplateId(templateId);
+    weaponDetailType.textContent = `[${typeName}]`;
+  }
+
+  if (weaponDetailStar instanceof HTMLElement) {
+    if (hasValidStar) {
+      weaponDetailStar.textContent = '★'.repeat(star);
+      weaponDetailStar.className = `weapon-detail-star weapon-detail-star-tier-${star}`;
+    } else {
+      weaponDetailStar.textContent = '--';
+      weaponDetailStar.className = 'weapon-detail-star';
+      weaponDetailStar.style.color = 'var(--muted)';
+    }
+  }
+
+  if (weaponDetailSkill instanceof HTMLElement) {
+    const skillName = templateId != null ? state.weaponSkillNameMap?.[templateId] : null;
+    const hasSkill = typeof skillName === 'string' && skillName.trim();
+    weaponDetailSkill.textContent = hasSkill
+      ? skillName.trim()
+      : `(${app.translate('dashboard.weaponDetailNoSkill')})`;
+    weaponDetailSkill.classList.toggle('is-empty', !hasSkill);
+  }
+
+  if (weaponDetailBreakthrough instanceof HTMLElement) {
+    weaponDetailBreakthrough.textContent = breakthrough;
+    weaponDetailBreakthrough.className = `weapon-detail-stat-value weapon-detail-bt-tier-${btTier}`;
+    weaponDetailBreakthrough.classList.add('is-editable');
+    weaponDetailBreakthrough.setAttribute('tabindex', '0');
+    weaponDetailBreakthrough.setAttribute('role', 'button');
+    const maxBtData = state.weaponBreakthroughMaxMap?.[templateId];
+    weaponDetailBreakthrough.dataset.weaponBtMax = typeof maxBtData?.max_breakthrough === 'number' ? String(maxBtData.max_breakthrough) : '0';
+    weaponDetailBreakthrough.dataset.weaponBtCurrent = String(breakthrough);
+  }
+
+  if (weaponDetailLevel instanceof HTMLElement) {
+    weaponDetailLevel.textContent = level !== null ? String(level) : '--';
+    weaponDetailLevel.className = 'weapon-detail-stat-value is-editable';
+    weaponDetailLevel.setAttribute('tabindex', level !== null ? '0' : '-1');
+    weaponDetailLevel.setAttribute('role', level !== null ? 'button' : '');
+    const stageMap = state.weaponBreakthroughLevelLimitMap?.[templateId];
+    const levelLimit = stageMap?.[breakthrough];
+    weaponDetailLevel.dataset.weaponLevelMin = '1';
+    weaponDetailLevel.dataset.weaponLevelMax = Number.isFinite(Number(levelLimit)) ? String(levelLimit) : '0';
+    weaponDetailLevel.dataset.weaponLevelCurrent = level !== null ? String(level) : '';
+  }
+
+  if (weaponDetailExp instanceof HTMLElement) {
+    if (currentLevelExp !== null && currentLevelExpLimit !== null) {
+      weaponDetailExp.textContent = `${currentLevelExp} / ${currentLevelExpLimit}`;
+      const btStageMap = state.weaponBreakthroughLevelLimitMap?.[templateId];
+      const currentLevelLimit = btStageMap?.[breakthrough];
+      const isMaxLevel = Number.isFinite(Number(currentLevelLimit)) && level === Number(currentLevelLimit);
+      weaponDetailExp.dataset.weaponExpMax = String(currentLevelExpLimit - (isMaxLevel ? 0 : 1));
+    } else {
+      weaponDetailExp.textContent = '--';
+      weaponDetailExp.dataset.weaponExpMax = '0';
+    }
+    weaponDetailExp.className = 'weapon-detail-stat-value is-editable';
+    const hasValidExp = currentLevelExp !== null;
+    weaponDetailExp.setAttribute('tabindex', hasValidExp ? '0' : '-1');
+    weaponDetailExp.setAttribute('role', hasValidExp ? 'button' : '');
+    weaponDetailExp.dataset.weaponExpCurrent = currentLevelExp !== null ? String(currentLevelExp) : '';
+  }
+
+  if (weaponDetailResonanceSection instanceof HTMLElement) {
+    weaponDetailResonanceSection.hidden = !(hasValidStar && star >= 5);
+  }
+
+  if (weaponDetailResonanceBody instanceof HTMLElement) {
+    const rows = [1, 2, 3].map((slot) => {
+      const entry = resonanceInfo.find((r) => r?.Slot === slot) ?? null;
+      const slotText = slot;
+
+      let effectText = '--';
+      let characterText = '--';
+      if (entry) {
+        const type = Number(entry.Type);
+        const templateId = Number(entry.TemplateId);
+        if (type === 1 && state.attribPoolNameMap?.[templateId]) {
+          effectText = state.attribPoolNameMap[templateId];
+        } else if (type === 2 && state.characterSkillPoolNameMap?.[templateId]) {
+          effectText = state.characterSkillPoolNameMap[templateId];
+        } else if (type === 3 && state.weaponSkillNameMap?.[templateId]) {
+          effectText = state.weaponSkillNameMap[templateId];
+        } else {
+          effectText = '未知';
+        }
+
+        const characterId = Number(entry.CharacterId);
+        const characterName = app.getCharacterNameByCharacterId(characterId);
+        const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
+        characterText = app.renderWeaponMediaCell(characterIconUrl, characterName);
+      }
+
+      return `
+        <tr>
+          <td>${slotText}</td>
+          <td>${effectText}</td>
+          <td>${characterText}</td>
+        </tr>
+      `;
+    }).join('');
+    weaponDetailResonanceBody.innerHTML = rows;
+  }
+
+  if (weaponDetailOverrunSection instanceof HTMLElement) {
+    weaponDetailOverrunSection.hidden = !(hasValidStar && star >= 6 && hasOverrun);
+  }
+
+  if (weaponDetailOverrunContent instanceof HTMLElement) {
+    weaponDetailOverrunContent.textContent = '--';
+  }
+};
+
+app.closeWeaponDetailModal = () => {
+  if (!(weaponDetailModal instanceof HTMLElement) || weaponDetailModal.hidden) {
+    return;
+  }
+
+  if (state.weaponDetailEditState) {
+    app.stopWeaponDetailFieldEdit(state.weaponDetailEditState.field);
+  }
+
+  weaponDetailModal.hidden = true;
+  app.setBodyModalOpen(false);
+
+  if (state.lastWeaponDetailFocusedControl instanceof HTMLElement) {
+    state.lastWeaponDetailFocusedControl.focus();
+    state.lastWeaponDetailFocusedControl = null;
+  }
+};
+
+app.stopWeaponDetailFieldEdit = (field) => {
+  if (!state.weaponDetailEditState || state.weaponDetailEditState.field !== field) {
+    return;
+  }
+
+  const element = document.querySelector(`[data-weapon-edit-field="${field}"]`);
+  if (element instanceof HTMLElement) {
+    element.classList.remove('is-editing');
+  }
+
+  state.weaponDetailEditState = null;
+  if (state.currentWeaponDetailItem) {
+    app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+  }
+};
+
+app.beginWeaponDetailFieldEdit = (field) => {
+  const element = document.querySelector(`[data-weapon-edit-field="${field}"]`);
+  if (!(element instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!element.classList.contains('is-editable')) {
+    return;
+  }
+
+  if (state.weaponDetailEditState?.field === field) {
+    const existingInput = element.querySelector('input');
+    if (existingInput instanceof HTMLInputElement) {
+      existingInput.focus();
+      existingInput.select();
+      return;
+    }
+  }
+
+  if (state.weaponDetailEditState?.field && state.weaponDetailEditState.field !== field) {
+    app.stopWeaponDetailFieldEdit(state.weaponDetailEditState.field);
+  }
+
+  const item = state.currentWeaponDetailItem;
+  if (!item) {
+    return;
+  }
+
+  let rawValue = '';
+  if (field === 'Breakthrough') {
+    rawValue = String(element.dataset.weaponBtCurrent ?? '');
+  } else if (field === 'Level') {
+    rawValue = String(element.dataset.weaponLevelCurrent ?? '');
+  } else if (field === 'Exp') {
+    rawValue = String(element.dataset.weaponExpCurrent ?? '');
+  }
+
+  state.weaponDetailEditState = { field, pending: false };
+  element.classList.add('is-editing');
+  element.innerHTML = '';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'weapon-detail-inline-input';
+  input.value = rawValue;
+  input.inputMode = 'numeric';
+  element.appendChild(input);
+  input.focus();
+  input.select();
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      void app.submitWeaponDetailFieldEdit(field, input.value);
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      app.stopWeaponDetailFieldEdit(field);
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    window.setTimeout(() => {
+      if (state.weaponDetailEditState?.field === field && !state.weaponDetailEditState.pending) {
+        app.stopWeaponDetailFieldEdit(field);
+      }
+    }, 0);
+  });
+};
+
+app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
+  const currentState = state.weaponDetailEditState;
+  if (!currentState || currentState.field !== field) {
+    return;
+  }
+
+  const item = state.currentWeaponDetailItem;
+  if (!item) {
+    return;
+  }
+
+  const element = document.querySelector(`[data-weapon-edit-field="${field}"]`);
+  if (!(element instanceof HTMLElement)) {
+    return;
+  }
+
+  const rawValue = String(nextValue).trim();
+  if (!/^\d+$/.test(rawValue)) {
+    app.openControlModal(app.translate(field === 'Breakthrough' ? 'runtime.weaponBreakthroughInvalid' : field === 'Level' ? 'runtime.equipsLevelBelowMin' : 'runtime.equipsExpBelowMin'));
+    return;
+  }
+
+  const parsedValue = Number.parseInt(rawValue, 10);
+
+  const recordId = item._id ?? item.record_id;
+
+  if (field === 'Breakthrough') {
+    const btMax = Number.parseInt(element.dataset.weaponBtMax ?? '0', 10);
+    if (parsedValue < 0 || parsedValue > btMax) {
+      app.openControlModal(app.translate('runtime.weaponBreakthroughMaxExceeded', { max: btMax }));
+      return;
+    }
+  } else if (field === 'Level') {
+    const levelMin = Number.parseInt(element.dataset.weaponLevelMin ?? '1', 10);
+    const levelMax = Number.parseInt(element.dataset.weaponLevelMax ?? '0', 10);
+    if (parsedValue < levelMin || parsedValue > levelMax) {
+      app.openControlModal(app.translate('runtime.equipsLevelAboveLimit', { max: levelMax }));
+      return;
+    }
+  } else if (field === 'Exp') {
+    const expMax = Number.parseInt(element.dataset.weaponExpMax ?? '0', 10);
+    if (parsedValue < 0 || parsedValue > expMax) {
+      app.openControlModal(app.translate('runtime.equipsExpAboveLimit', { max: expMax }));
+      return;
+    }
+  }
+
+  currentState.pending = true;
+  const editor = element.querySelector('input');
+  if (editor instanceof HTMLInputElement) {
+    editor.disabled = true;
+  }
+
+  try {
+    const payload = await app.apiFetch(`/api/database-weapons/selected/${recordId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        field: field.toLowerCase(),
+        value: parsedValue,
+      }),
+    });
+
+    state.weaponDetailEditState = null;
+    app.populateWeaponDetailCard(payload);
+
+    const idx = state.weaponManagementItems?.findIndex(
+      (i) => (i?._id ?? i?.record_id) === recordId
+    );
+    if (idx >= 0 && state.weaponManagementItems) {
+      state.weaponManagementItems[idx] = payload;
+      app.renderWeaponRows(state.weaponManagementItems);
+    }
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      currentState.pending = false;
+      app.stopWeaponDetailFieldEdit(field);
+      return;
+    }
+
+    state.weaponDetailEditState = null;
+    app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
+  }
+};
+
+app.handleWeaponDetailFieldActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || target.tagName === 'INPUT') {
+    return;
+  }
+
+  const editableElement = target.closest('[data-weapon-edit-field]');
+  if (!(editableElement instanceof HTMLElement)) {
+    return;
+  }
+
+  const field = editableElement.dataset.weaponEditField;
+  if (!field || !editableElement.classList.contains('is-editable')) {
+    return;
+  }
+
+  app.beginWeaponDetailFieldEdit(field);
+};
+
+app.openWeaponDetailModal = (recordId, triggerButton) => {
+  if (!(weaponDetailModal instanceof HTMLElement)) {
+    return;
+  }
+
+  const item = state.weaponManagementItems?.find(
+    (i) => (i?._id ?? i?.record_id) === recordId
+  );
+  if (!item) {
+    return;
+  }
+
+  state.lastWeaponDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  app.populateWeaponDetailCard(item);
+  weaponDetailModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  const closeButton = weaponDetailModal.querySelector('[data-weapon-detail-close]');
+  if (closeButton instanceof HTMLElement) {
+    closeButton.focus();
   }
 };
 
@@ -538,5 +945,26 @@ export const initDatabaseWeaponManagementFeature = () => {
 
   if (databaseWeaponManagementJumpButton instanceof HTMLButtonElement) {
     databaseWeaponManagementJumpButton.addEventListener('click', app.submitWeaponManagementPageJump);
+  }
+
+  weaponDetailCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeWeaponDetailModal);
+  });
+
+  if (weaponDetailModal instanceof HTMLElement) {
+    weaponDetailModal.addEventListener('click', app.handleWeaponDetailFieldActivate);
+    weaponDetailModal.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || target.tagName === 'INPUT') {
+        return;
+      }
+
+      event.preventDefault();
+      app.handleWeaponDetailFieldActivate(event);
+    });
   }
 };

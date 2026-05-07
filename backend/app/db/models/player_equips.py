@@ -27,6 +27,7 @@ class WeaponItemRecord(BaseModel):
     Breakthrough: int | None = None
     ResonanceInfo: list[WeaponResonanceRecord] = Field(default_factory=list)
     WeaponOverrunData: WeaponOverrunRecord | None = None
+    CurrentLevelExpLimit: int | None = None
 
 
 class WeaponListResponse(BaseModel):
@@ -35,6 +36,11 @@ class WeaponListResponse(BaseModel):
     page_size: int = 10
     total: int = 0
     total_pages: int = 0
+
+
+class UpdateWeaponRequest(BaseModel):
+    field: str
+    value: int
 
 
 class ClearWeaponsResponse(BaseModel):

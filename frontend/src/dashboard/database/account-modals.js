@@ -122,6 +122,10 @@ app.submitAccountPasswordReset = async () => {
     app.closeAccountPasswordModal();
     app.openSuccessModal(app.translate('runtime.accountPasswordResetSuccess', { uid: targetUid }), app.translate('runtime.accountPasswordResetSuccessTitle'));
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
     app.setAccountPasswordFeedback(app.apiErrorMessage(error, 'runtime.accountPasswordResetFailed'), 'is-error');
   } finally {
     accountPasswordConfirmButton.disabled = false;
@@ -185,20 +189,29 @@ app.confirmDeleteAccount = async () => {
     return;
   }
 
-  const targetUid = state.pendingDeleteAccount.uid;
+  const account = state.pendingDeleteAccount;
+  const targetUid = account.uid;
   accountDeleteConfirmButton.disabled = true;
 
   try {
-    if (app.normalizeAccountUid(state.pendingDeleteAccount.uid) === state.selectedAccountUid) {
+    if (app.normalizeAccountUid(account.uid) === state.selectedAccountUid) {
       await app.clearSelectedAccount();
     }
 
-    app.removeAccountRow(state.pendingDeleteAccount.uid);
+    await app.apiFetch(`/api/database-accounts/${targetUid}`, {
+      method: 'DELETE',
+    });
+
+    app.removeAccountRow(account.uid);
     app.closeAccountDeleteModal();
     app.openSuccessModal(app.translate('runtime.accountDeleteSuccess', { uid: targetUid }), app.translate('runtime.accountDeleteSuccessTitle'));
   } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
     app.closeAccountDeleteModal();
-    app.openControlModal(error instanceof Error ? error.message : app.translate('runtime.accountDeleteFailed'));
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.accountDeleteFailed'));
   } finally {
     accountDeleteConfirmButton.disabled = false;
   }

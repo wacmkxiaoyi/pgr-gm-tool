@@ -10,13 +10,23 @@ from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, WeaponItemRecord, WeaponListResponse, WeaponOverrunRecord, WeaponResonanceRecord
+from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, UpdateWeaponRequest, WeaponItemRecord, WeaponListResponse, WeaponOverrunRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
-from backend.app.services.player.player_equips import (
-    get_weapon_breakthrough_level_limit_map,
-    get_weapon_name_map,
-    get_weapon_site_map,
-    get_weapon_star_map,
+from backend.app.services.player.equips import (
+    get_equip_breakthrough_level_limit_map,
+    get_equip_breakthrough_max_map,
+    get_equip_name_map,
+    get_equip_site_map,
+    get_equip_star_map,
+)
+from backend.app.services.player.equips.levelup_template import (
+    get_breakthrough_levelup_template_map,
+    get_level_all_exp,
+    get_level_from_total_exp,
+    get_level_per_exp,
+    get_levelup_template_max_level,
+)
+from backend.app.services.player.equips.weapon import (
     get_weapon_type_name_map,
 )
 from backend.app.services.player.player_profile import get_character_log_name_map
@@ -87,7 +97,7 @@ def _is_weapon_template_id(template_id: int | None) -> bool:
     if template_id is None:
         return False
 
-    site_value = get_weapon_site_map().get(template_id)
+    site_value = get_equip_site_map().get(template_id)
     return site_value in {"", "0"}
 
 
@@ -306,11 +316,11 @@ class PlayerEquipsService:
     async def add_weapons(self, uid: int, template_ids: list[int]) -> AddWeaponResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
         if not normalized_template_ids:
-            raise ValueError("weapon.template_invalid")
+            raise ValueError("equips.template_invalid")
 
         for normalized_template_id in normalized_template_ids:
-            if not _is_weapon_template_id(normalized_template_id) or normalized_template_id not in get_weapon_name_map():
-                raise ValueError("weapon.template_invalid")
+            if not _is_weapon_template_id(normalized_template_id) or normalized_template_id not in get_equip_name_map():
+                raise ValueError("equips.template_invalid")
 
         client = create_mongo_client(self._settings)
 
@@ -318,7 +328,7 @@ class PlayerEquipsService:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(_matching_uid_query(uid), {"equips": 1})
             if not isinstance(document, dict):
-                raise ValueError("weapon.equips_missing")
+                raise ValueError("equips.equips_missing")
 
             normalized_document = self._sanitize_characters_document(document)
             raw_equips = self._sanitize_equips(normalized_document.get("equips"))
@@ -340,7 +350,7 @@ class PlayerEquipsService:
                 client.close()
 
         if result.modified_count <= 0:
-            raise ValueError("weapon.add_failed")
+            raise ValueError("equips.add_failed")
 
         return AddWeaponResponse(added=True, added_count=len(weapon_documents))
 
@@ -377,7 +387,7 @@ class PlayerEquipsService:
 
                 character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
                 if character_id != 0:
-                    raise ValueError("weapon.equipped_delete_forbidden")
+                    raise ValueError("equips.equipped_delete_forbidden")
 
                 break
 
@@ -400,6 +410,179 @@ class PlayerEquipsService:
                 client.close()
 
         return result.modified_count > 0
+
+    async def update_weapon(self, uid: int, record_id: int, payload: UpdateWeaponRequest) -> WeaponItemRecord:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+
+            if not isinstance(document, dict):
+                raise ValueError("equips.not_found")
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+            target_index: int | None = None
+            target_equip: dict[str, Any] | None = None
+
+            for index, raw_equip in enumerate(raw_equips):
+                if not isinstance(raw_equip, dict):
+                    continue
+
+                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                if current_record_id == normalized_record_id:
+                    target_index = index
+                    target_equip = dict(raw_equip)
+                    break
+
+            if target_index is None or target_equip is None:
+                raise ValueError("equips.not_found")
+
+            template_id = _parse_optional_int(target_equip.get("TemplateId"))
+            if template_id is None or not _is_weapon_template_id(template_id):
+                raise ValueError("equips.template_invalid")
+
+            current_level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
+            current_exp_total = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
+            current_breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
+
+            breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
+            breakthrough_max_map = get_equip_breakthrough_max_map()
+            breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
+
+            stage_template_map = breakthrough_levelup_template_map.get(template_id, {})
+            max_bt_data = breakthrough_max_map.get(template_id, {})
+            max_breakthrough = max_bt_data.get("max_breakthrough", 0)
+            stage_limit_map = breakthrough_level_limit_map.get(template_id, {})
+
+            current_template_id = stage_template_map.get(current_breakthrough)
+
+            field_name = str(payload.field).strip().lower()
+            field_value = int(payload.value)
+
+            if field_name == "breakthrough":
+                if field_value < 0 or field_value > max_breakthrough:
+                    raise ValueError("equips.breakthrough_out_of_range")
+                current_breakthrough = field_value
+                new_template_id = stage_template_map.get(current_breakthrough)
+                if new_template_id is not None:
+                    current_template_id = new_template_id
+                    new_level, _new_current_exp = get_level_from_total_exp(current_exp_total, current_template_id)
+                    stage_level_limit = stage_limit_map.get(current_breakthrough)
+                    if isinstance(stage_level_limit, int) and new_level > stage_level_limit:
+                        new_level = stage_level_limit
+                        _new_current_exp = get_level_per_exp(current_template_id, new_level) or 0
+                    max_lvl = get_levelup_template_max_level(current_template_id)
+                    if max_lvl is not None and new_level > max_lvl:
+                        new_level = max_lvl
+                    current_level = new_level
+                    all_exp = get_level_all_exp(current_template_id, current_level) or 0
+                    per_exp = get_level_per_exp(current_template_id, current_level) or 0
+                    if max_lvl is not None and current_level == max_lvl and _new_current_exp > per_exp:
+                        _new_current_exp = per_exp
+                    current_exp_total = all_exp + _new_current_exp
+
+            elif field_name == "level":
+                if field_value < 1:
+                    raise ValueError("equips.level_below_min")
+
+                if current_template_id is None:
+                    raise ValueError("equips.template_invalid")
+
+                stage_level_limit = stage_limit_map.get(current_breakthrough)
+                if isinstance(stage_level_limit, int) and field_value > stage_level_limit:
+                    raise ValueError("equips.level_above_limit")
+
+                max_lvl = get_levelup_template_max_level(current_template_id) or 1
+                if field_value > max_lvl:
+                    raise ValueError("equips.level_above_limit")
+
+                all_exp = get_level_all_exp(current_template_id, field_value)
+                if all_exp is None:
+                    raise ValueError("equips.template_invalid")
+
+                if field_value < current_level:
+                    per_exp = get_level_per_exp(current_template_id, field_value) or 0
+                    current_exp_total = all_exp + max(0, per_exp - 1)
+                else:
+                    current_exp_total = all_exp
+
+                current_level = field_value
+
+            elif field_name == "exp":
+                if field_value < 0:
+                    raise ValueError("equips.exp_below_min")
+
+                if current_template_id is None:
+                    raise ValueError("equips.template_invalid")
+
+                all_exp = get_level_all_exp(current_template_id, current_level)
+                per_exp = get_level_per_exp(current_template_id, current_level)
+                if all_exp is None or per_exp is None:
+                    raise ValueError("equips.template_invalid")
+
+                max_lvl = get_levelup_template_max_level(current_template_id)
+                if max_lvl is not None and current_level == max_lvl:
+                    allowed_max = per_exp
+                else:
+                    allowed_max = per_exp - 1
+
+                if field_value > allowed_max:
+                    raise ValueError("equips.exp_above_limit")
+
+                current_exp_total = all_exp + field_value
+
+            else:
+                raise ValueError("equips.invalid_field")
+
+            target_equip["Level"] = current_level
+            target_equip["Exp"] = current_exp_total
+            target_equip["Breakthrough"] = current_breakthrough
+
+            raw_equips[target_index] = target_equip
+            normalized_update = self._build_equips_update(raw_equips)
+
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        # Build response with CurrentLevelExp
+        response_level = current_level
+        response_exp = current_exp_total
+        response_current_level_exp_limit: int | None = None
+
+        if current_template_id is not None:
+            all_exp = get_level_all_exp(current_template_id, response_level)
+            per_exp = get_level_per_exp(current_template_id, response_level)
+            if all_exp is not None and per_exp is not None:
+                response_exp = current_exp_total - all_exp
+                response_current_level_exp_limit = per_exp
+
+        allows_overrun_data = self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
+
+        return WeaponItemRecord(
+            record_id=normalized_record_id,
+            TemplateId=template_id,
+            CharacterId=_parse_optional_int(target_equip.get("CharacterId")),
+            Level=response_level,
+            Exp=response_exp,
+            Breakthrough=current_breakthrough,
+            ResonanceInfo=_normalize_weapon_resonance_list(target_equip.get("ResonanceInfo")),
+            WeaponOverrunData=_normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData")) if allows_overrun_data else None,
+            CurrentLevelExpLimit=response_current_level_exp_limit,
+        )
 
     async def list_character_weapons(
         self,
@@ -427,11 +610,12 @@ class PlayerEquipsService:
 
         normalized_document = self._sanitize_characters_document(document)
         raw_equips = self._sanitize_equips(normalized_document.get("equips"))
-        weapon_name_map = get_weapon_name_map()
+        weapon_name_map = get_equip_name_map()
         character_name_map = get_character_log_name_map()
         weapon_type_name_map = get_weapon_type_name_map()
-        weapon_star_map = get_weapon_star_map()
-        breakthrough_level_limit_map = get_weapon_breakthrough_level_limit_map()
+        weapon_star_map = get_equip_star_map()
+        breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
+        breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
         normalized_items: list[WeaponItemRecord] = []
 
         allows_overrun_data = self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
@@ -458,15 +642,33 @@ class PlayerEquipsService:
             if record_id is None or template_id is None:
                 continue
 
+            level = _parse_optional_int(raw_equip.get("Level"))
+            raw_exp = _parse_optional_int(raw_equip.get("Exp"))
+            breakthrough = _parse_optional_int(raw_equip.get("Breakthrough"))
+            current_breakthrough = max(0, int(breakthrough or 0))
+
+            current_level_exp = raw_exp
+            current_level_exp_limit: int | None = None
+            template_stage_map = breakthrough_levelup_template_map.get(template_id)
+            if isinstance(template_stage_map, dict) and level is not None and raw_exp is not None:
+                template_id_for_stage = template_stage_map.get(current_breakthrough)
+                if template_id_for_stage is not None:
+                    all_exp = get_level_all_exp(template_id_for_stage, level)
+                    per_exp = get_level_per_exp(template_id_for_stage, level)
+                    if all_exp is not None and per_exp is not None:
+                        current_level_exp = raw_exp - all_exp
+                        current_level_exp_limit = per_exp
+
             normalized_items.append(WeaponItemRecord(
                 record_id=record_id,
                 TemplateId=template_id,
                 CharacterId=character_id,
-                Level=_parse_optional_int(raw_equip.get("Level")),
-                Exp=_parse_optional_int(raw_equip.get("Exp")),
-                Breakthrough=_parse_optional_int(raw_equip.get("Breakthrough")),
+                Level=level,
+                Exp=current_level_exp,
+                Breakthrough=breakthrough,
                 ResonanceInfo=_normalize_weapon_resonance_list(raw_equip.get("ResonanceInfo")),
                 WeaponOverrunData=_normalize_weapon_overrun_data(raw_equip.get("WeaponOverrunData")) if allows_overrun_data else None,
+                CurrentLevelExpLimit=current_level_exp_limit,
             ))
 
         normalized_items.sort(
@@ -518,7 +720,7 @@ class PlayerEquipsService:
 
             normalized_document = self._sanitize_characters_document(document)
             raw_equips = self._sanitize_equips(normalized_document.get("equips"))
-            weapon_name_map = get_weapon_name_map()
+            weapon_name_map = get_equip_name_map()
             character_name_map = get_character_log_name_map()
             weapon_type_name_map = get_weapon_type_name_map()
             deletable_record_ids: list[int] = []

@@ -48,6 +48,21 @@ export const dom = {
   databaseWeaponSortOrderSelect: document.querySelector('#database-weapon-sort-order'),
   databaseWeaponSearchInput: document.querySelector('#database-weapon-search-input'),
   databaseWeaponAddButton: document.querySelector('#database-weapon-add'),
+  weaponDetailModal: document.querySelector('#weapon-detail-modal'),
+  weaponDetailCard: document.querySelector('.weapon-detail-card'),
+  weaponDetailCloseTargets: document.querySelectorAll('[data-weapon-detail-close]'),
+  weaponDetailIcon: document.querySelector('#weapon-detail-icon'),
+  weaponDetailName: document.querySelector('#weapon-detail-name'),
+  weaponDetailType: document.querySelector('#weapon-detail-type'),
+  weaponDetailStar: document.querySelector('#weapon-detail-star'),
+  weaponDetailSkill: document.querySelector('#weapon-detail-skill'),
+  weaponDetailBreakthrough: document.querySelector('#weapon-detail-breakthrough'),
+  weaponDetailLevel: document.querySelector('#weapon-detail-level'),
+  weaponDetailExp: document.querySelector('#weapon-detail-exp'),
+  weaponDetailResonanceSection: document.querySelector('#weapon-detail-resonance-section'),
+  weaponDetailResonanceBody: document.querySelector('#weapon-detail-resonance-body'),
+  weaponDetailOverrunSection: document.querySelector('#weapon-detail-overrun-section'),
+  weaponDetailOverrunContent: document.querySelector('#weapon-detail-overrun-content'),
   databaseItemManagementState: document.querySelector('#database-item-management-state'),
   databaseItemManagementShell: document.querySelector('#database-item-management-shell'),
   databaseItemManagementTableShell: document.querySelector('#database-item-management-table-shell'),
@@ -156,6 +171,12 @@ export const dom = {
   logoutConfirmModal: document.querySelector('#logout-confirm-modal'),
   logoutConfirmCloseTargets: document.querySelectorAll('[data-logout-confirm-close]'),
   logoutConfirmSubmitButton: document.querySelector('#logout-confirm-submit'),
+  playerMutationRiskModal: document.querySelector('#player-mutation-risk-modal'),
+  playerMutationRiskMessage: document.querySelector('#player-mutation-risk-message'),
+  playerMutationRiskDontShow: document.querySelector('#player-mutation-risk-dont-show'),
+  playerMutationRiskConfirmButton: document.querySelector('#player-mutation-risk-confirm'),
+  playerMutationRiskCloseTargets: document.querySelectorAll('[data-player-mutation-risk-close]'),
+  playerMutationRiskResetButton: document.querySelector('#player-mutation-risk-reset'),
 };
 
 export const state = {
@@ -204,6 +225,9 @@ export const state = {
   weaponBreakthroughMaxMap: {},
   characterLogNameMap: {},
   characterHeadIconUrlMap: {},
+  attribPoolNameMap: {},
+  characterSkillPoolNameMap: {},
+  weaponSkillNameMap: {},
   playerBackgroundAspectRatioMap: {},
   playerCardBackgroundAspectRatio: null,
   playerCardResizeRafId: null,
@@ -211,7 +235,9 @@ export const state = {
   weaponManagementTotalPages: 0,
   weaponManagementHasLoaded: false,
   weaponManagementLoading: false,
+  weaponManagementItems: [],
   weaponManagementKeyword: '',
+  lastWeaponDetailFocusedControl: null,
   weaponManagementSortBy: 'character',
   weaponManagementSortOrder: 'asc',
   itemManagementCurrentPage: 1,
@@ -246,6 +272,7 @@ export const state = {
   lastPasswordFocusedControl: null,
   lastLogoutFocusedControl: null,
   locale: getLocale(),
+  mutationRiskResolve: null,
   timerId: null,
   countdownTimerId: null,
   historyGridResizeObserver: null,
@@ -254,6 +281,9 @@ export const state = {
 export const constants = {
   CONFIG_EDITOR_EMPTY_HINT: 'dashboard.configEditorEmptyHint',
   HISTORY_SLOT_COUNT: 10,
+  SKIP_MUTATION_RISK_KEY: 'wacmk-pgr-skip-mutation-risk',
+  databaseMutationMethods: new Set(['POST', 'PUT', 'PATCH', 'DELETE']),
+  mutationRiskBypassPaths: new Set(['/api/database-accounts/selection']),
   jsonTokenRegex: /("(?:\\u[a-fA-F\d]{4}|\\[^u]|[^\\"])*")([\t ]*:)?|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g,
   stateMeta: {
     healthy: { labelKey: 'dashboard.stateHealthy', className: 'status-ok' },
@@ -265,6 +295,12 @@ export const constants = {
 export const app = { dom, state, constants };
 
 Object.assign(app, {
+  MutationRiskCancelledError: class MutationRiskCancelledError extends Error {
+    constructor() {
+      super('Mutation risk confirmation cancelled');
+      this.name = 'MutationRiskCancelledError';
+    }
+  },
   getControlState: (controls) => (controls && typeof controls === 'object' ? controls : null),
   historyStateClass: (serviceState) => constants.stateMeta[serviceState]?.className ?? 'status-unknown',
   getStatusLabel: (serviceState) => t(constants.stateMeta[serviceState]?.labelKey ?? constants.stateMeta.unknown.labelKey, {}, state.locale),
@@ -421,12 +457,61 @@ Object.assign(app, {
   },
   canAccessWeaponManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
   canAccessItemManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
-  confirmPlayerMutationRisk: () => {
+  getApiRequestMethod: (init = {}) => String(init?.method ?? 'GET').toUpperCase(),
+  getApiRequestPath: (input) => {
+    if (typeof input === 'string') {
+      return input;
+    }
+
+    if (input instanceof URL) {
+      return `${input.pathname}${input.search}`;
+    }
+
+    if (input instanceof Request) {
+      try {
+        const url = new URL(input.url, window.location.origin);
+        return `${url.pathname}${url.search}`;
+      } catch {
+        return input.url;
+      }
+    }
+
+    return String(input ?? '');
+  },
+  isDatabaseMutationRequest: (input, init = {}) => {
+    const method = app.getApiRequestMethod(init);
+    if (!constants.databaseMutationMethods.has(method)) {
+      return false;
+    }
+
+    const path = app.getApiRequestPath(input);
+    if (!path.startsWith('/api/database-')) {
+      return false;
+    }
+
+    const pathname = path.split('?')[0];
+    return !constants.mutationRiskBypassPaths.has(pathname);
+  },
+  isMutationRiskCancelled: (error) => error instanceof app.MutationRiskCancelledError,
+  confirmPlayerMutationRisk: async () => {
     if (!app.isGameServerHealthy()) {
       return true;
     }
 
-    return window.confirm(app.translate('runtime.playerEditConfirmRisk'));
+    if (localStorage.getItem(constants.SKIP_MUTATION_RISK_KEY) === '1') {
+      return true;
+    }
+
+    return new Promise((resolve) => {
+      state.mutationRiskResolve = resolve;
+      app.openPlayerMutationRiskModal();
+    });
+  },
+  resetPlayerMutationRiskSkip: () => {
+    localStorage.removeItem(constants.SKIP_MUTATION_RISK_KEY);
+    if (dom.playerMutationRiskResetButton instanceof HTMLElement) {
+      dom.playerMutationRiskResetButton.hidden = true;
+    }
   },
   getGameSection: (payload = state.latestStatusSnapshot) => {
     const sections = Array.isArray(payload?.sections) ? payload.sections : [];
@@ -449,7 +534,16 @@ Object.assign(app, {
     document.body.classList.toggle('login-modal-open', open);
   },
   translate: (key, params = {}) => t(key, params, state.locale),
-  apiFetch,
+  apiFetch: async (input, init = {}) => {
+    if (app.isDatabaseMutationRequest(input, init)) {
+      const confirmed = await app.confirmPlayerMutationRisk();
+      if (!confirmed) {
+        throw new app.MutationRiskCancelledError();
+      }
+    }
+
+    return apiFetch(input, init);
+  },
   apiErrorMessage: (error, fallbackKey = 'runtime.apiUnknown') => getLocalizedApiErrorMessage(error, state.locale, fallbackKey),
   resolveUiTextToken: (token) => resolveUiTextToken(token, state.locale),
   createApiError: (payload, status = null) => new ApiError({ code: payload?.code, details: payload?.details, message: payload?.message, status }),

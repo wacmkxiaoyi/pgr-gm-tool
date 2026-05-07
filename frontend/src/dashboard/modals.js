@@ -11,6 +11,11 @@ const {
   logoutConfirmCloseTargets,
   logoutConfirmSubmitButton,
   logoutButton,
+  playerMutationRiskModal,
+  playerMutationRiskDontShow,
+  playerMutationRiskConfirmButton,
+  playerMutationRiskCloseTargets,
+  playerMutationRiskResetButton,
 } = dom;
 
 app.closeControlModal = () => {
@@ -132,6 +137,37 @@ app.submitLogout = async () => {
   }
 };
 
+app.openPlayerMutationRiskModal = () => {
+  if (!(playerMutationRiskModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (playerMutationRiskDontShow instanceof HTMLInputElement) {
+    playerMutationRiskDontShow.checked = false;
+  }
+
+  playerMutationRiskModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (playerMutationRiskConfirmButton instanceof HTMLButtonElement) {
+    playerMutationRiskConfirmButton.focus();
+  }
+};
+
+app.closePlayerMutationRiskModal = () => {
+  if (!(playerMutationRiskModal instanceof HTMLElement) || playerMutationRiskModal.hidden) {
+    return;
+  }
+
+  playerMutationRiskModal.hidden = true;
+  app.setBodyModalOpen(false);
+
+  if (state.mutationRiskResolve) {
+    state.mutationRiskResolve(false);
+    state.mutationRiskResolve = null;
+  }
+};
+
 app.initSharedModals = () => {
   controlModalCloseTargets.forEach((target) => {
     target.addEventListener('click', app.closeControlModal);
@@ -144,6 +180,40 @@ app.initSharedModals = () => {
   if (logoutConfirmSubmitButton instanceof HTMLButtonElement) {
     logoutConfirmSubmitButton.addEventListener('click', () => {
       void app.submitLogout();
+    });
+  }
+
+  playerMutationRiskCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closePlayerMutationRiskModal);
+  });
+
+  if (playerMutationRiskConfirmButton instanceof HTMLButtonElement) {
+    playerMutationRiskConfirmButton.addEventListener('click', () => {
+      if (playerMutationRiskDontShow instanceof HTMLInputElement && playerMutationRiskDontShow.checked) {
+        localStorage.setItem(app.constants.SKIP_MUTATION_RISK_KEY, '1');
+      }
+
+      if (playerMutationRiskModal instanceof HTMLElement) {
+        playerMutationRiskModal.hidden = true;
+      }
+      app.setBodyModalOpen(false);
+
+      if (playerMutationRiskResetButton instanceof HTMLElement) {
+        playerMutationRiskResetButton.hidden = localStorage.getItem(app.constants.SKIP_MUTATION_RISK_KEY) !== '1';
+      }
+
+      if (state.mutationRiskResolve) {
+        state.mutationRiskResolve(true);
+        state.mutationRiskResolve = null;
+      }
+    });
+  }
+
+  if (playerMutationRiskResetButton instanceof HTMLElement) {
+    playerMutationRiskResetButton.hidden = localStorage.getItem(app.constants.SKIP_MUTATION_RISK_KEY) !== '1';
+    playerMutationRiskResetButton.addEventListener('click', () => {
+      app.resetPlayerMutationRiskSkip();
+      app.openSuccessModal(app.translate('runtime.playerEditConfirmRiskResetTip'));
     });
   }
 };

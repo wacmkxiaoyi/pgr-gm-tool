@@ -18,6 +18,7 @@ from backend.app.apis.schemas import (
     ClearWeaponsRequest,
     ClearWeaponsResponse,
     DatabaseHealthStatusResponse,
+    DeleteAccountResponse,
     DeleteWeaponResponse,
     DeleteInventoryItemResponse,
     HealthStatusResponse,
@@ -35,17 +36,26 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemRequest,
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
+    UpdateWeaponRequest,
+    UpdateWeaponResponse,
     WeaponListResponse,
 )
 from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
-from backend.app.services.player.player_equips import (
-    get_weapon_breakthrough_level_limit_map,
-    get_weapon_breakthrough_max_map,
-    get_weapon_icon_url_map,
-    get_weapon_name_map,
-    get_weapon_site_map,
-    get_weapon_star_map,
-    get_weapon_type_map,
+from backend.app.services.player.characters import (
+    get_attrib_pool_name_map,
+    get_character_skill_pool_name_map,
+)
+from backend.app.services.player.equips import (
+    get_equip_breakthrough_level_limit_map,
+    get_equip_breakthrough_max_map,
+    get_equip_icon_url_map,
+    get_equip_name_map,
+    get_equip_site_map,
+    get_equip_star_map,
+    get_equip_type_map,
+)
+from backend.app.services.player.equips.weapon import (
+    get_weapon_skill_name_map,
     get_weapon_type_name_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
@@ -86,6 +96,7 @@ PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainb
 PLAYER_PROFILE_INT32_FIELDS = {"likes", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_MAX = 2147483647
 PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}
+WEAPON_MUTABLE_FIELDS = {"breakthrough", "level", "exp"}
 
 
 @router.get("/health")
@@ -112,16 +123,19 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_url_map": get_player_background_url_map(),
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
-        "weapon_name_map": get_weapon_name_map(),
-        "weapon_type_map": get_weapon_type_map(),
+        "weapon_name_map": get_equip_name_map(),
+        "weapon_type_map": get_equip_type_map(),
         "weapon_type_name_map": get_weapon_type_name_map(),
-        "weapon_star_map": get_weapon_star_map(),
-        "weapon_site_map": get_weapon_site_map(),
-        "weapon_icon_url_map": get_weapon_icon_url_map(),
-        "weapon_breakthrough_level_limit_map": get_weapon_breakthrough_level_limit_map(),
-        "weapon_breakthrough_max_map": get_weapon_breakthrough_max_map(),
+        "weapon_star_map": get_equip_star_map(),
+        "weapon_site_map": get_equip_site_map(),
+        "weapon_icon_url_map": get_equip_icon_url_map(),
+        "weapon_breakthrough_level_limit_map": get_equip_breakthrough_level_limit_map(),
+        "weapon_breakthrough_max_map": get_equip_breakthrough_max_map(),
         "character_log_name_map": get_character_log_name_map(),
         "character_head_icon_url_map": get_character_head_icon_url_map(),
+        "attrib_pool_name_map": get_attrib_pool_name_map(),
+        "character_skill_pool_name_map": get_character_skill_pool_name_map(),
+        "weapon_skill_name_map": get_weapon_skill_name_map(),
     })
 
 
@@ -251,6 +265,29 @@ async def reset_database_account_password(
         raise_http_error(404, "account.not_found", {"uid": payload.uid})
 
     return ResetAccountPasswordResponse(uid=payload.uid, updated=True)
+
+
+@router.delete("/database-accounts/{uid}", response_model=DeleteAccountResponse)
+async def delete_database_account(
+    request: Request,
+    uid: int,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteAccountResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_account_delete")
+
+    accounts_service = request.app.state.database_accounts_service
+    deleted = await accounts_service.delete_account(uid)
+    if not deleted:
+        raise_http_error(404, "account.not_found", {"uid": uid})
+
+    if getattr(active_session, "selected_account_uid", None) == uid:
+        active_session.selected_account_uid = None
+
+    return DeleteAccountResponse(uid=uid, deleted=True)
 
 
 @router.get("/database-players/selected", response_model=PlayerProfileResponse)
@@ -557,12 +594,12 @@ async def add_selected_database_weapon(
     try:
         result = await equips_service.add_weapons(selected_uid, payload.template_ids)
     except ValueError as error:
-        if str(error) == "weapon.template_invalid":
-            raise_http_error(422, "weapon.add_template_invalid", {"template_ids": payload.template_ids})
-        if str(error) == "weapon.equips_missing":
-            raise_http_error(404, "weapon.equips_missing", {"uid": selected_uid})
-        if str(error) == "weapon.add_failed":
-            raise_http_error(500, "weapon.add_failed", {"template_ids": payload.template_ids})
+        if str(error) == "equips.template_invalid":
+            raise_http_error(422, "equips.add_template_invalid", {"template_ids": payload.template_ids})
+        if str(error) == "equips.equips_missing":
+            raise_http_error(404, "equips.equips_missing", {"uid": selected_uid})
+        if str(error) == "equips.add_failed":
+            raise_http_error(500, "equips.add_failed", {"template_ids": payload.template_ids})
         raise
 
     return result
@@ -607,14 +644,57 @@ async def delete_selected_database_weapon(
     try:
         deleted = await equips_service.delete_unequipped_weapon(selected_uid, record_id)
     except ValueError as error:
-        if str(error) == "weapon.equipped_delete_forbidden":
-            raise_http_error(409, "weapon.delete_equipped_forbidden", {"record_id": record_id})
+        if str(error) == "equips.equipped_delete_forbidden":
+            raise_http_error(409, "equips.delete_equipped_forbidden", {"record_id": record_id})
         raise
 
     if not deleted:
-        raise_http_error(404, "weapon.not_found", {"record_id": record_id})
+        raise_http_error(404, "equips.not_found", {"record_id": record_id})
 
     return DeleteWeaponResponse(_id=record_id, deleted=True)
+
+
+@router.put("/database-weapons/selected/{record_id}", response_model=UpdateWeaponResponse)
+async def update_selected_database_weapon(
+    record_id: int,
+    payload: UpdateWeaponRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        updated_weapon = await equips_service.update_weapon(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.breakthrough_out_of_range":
+            raise_http_error(422, "equips.breakthrough_invalid", {"record_id": record_id})
+        if error_message == "equips.invalid_field":
+            raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
+        if error_message == "equips.level_below_min":
+            raise_http_error(422, "equips.level_below_min", {"record_id": record_id})
+        if error_message == "equips.level_above_limit":
+            raise_http_error(422, "equips.level_above_limit", {"record_id": record_id})
+        if error_message == "equips.exp_below_min":
+            raise_http_error(422, "equips.exp_below_min", {"record_id": record_id})
+        if error_message == "equips.exp_above_limit":
+            raise_http_error(422, "equips.exp_above_limit", {"record_id": record_id})
+        if error_message == "equips.update_failed":
+            raise_http_error(500, "equips.update_failed", {"record_id": record_id})
+        raise
+
+    return updated_weapon
 
 
 @router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)

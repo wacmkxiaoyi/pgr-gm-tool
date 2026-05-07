@@ -34,6 +34,7 @@
               <span data-i18n="dashboard.sidebarHealthy">系统运行正常</span>
             </div>
             <button class="logout-button sidebar-logout" type="button" data-i18n="dashboard.logout">退出登录</button>
+            <button class="risk-reset-button" id="player-mutation-risk-reset" type="button" hidden data-i18n="runtime.playerEditConfirmRiskReset">恢复风险提示</button>
           </div>
         </aside>
 
@@ -349,9 +350,9 @@
                         <colgroup>
                           <col class="weapon-management-col-row">
                           <col class="weapon-management-col-name">
-                          <col class="weapon-management-col-character">
                           <col class="weapon-management-col-type">
                           <col class="weapon-management-col-star">
+                          <col class="weapon-management-col-character">
                           <col class="weapon-management-col-enhance">
                           <col class="weapon-management-col-actions">
                         </colgroup>
@@ -359,9 +360,9 @@
                           <tr>
                             <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
                             <th scope="col" data-i18n="dashboard.weaponManagementName">名称</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementCharacter">穿戴角色</th>
                             <th scope="col" data-i18n="dashboard.weaponManagementType">类型</th>
                             <th scope="col" data-i18n="dashboard.weaponManagementStar">星级</th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementCharacter">穿戴角色</th>
                             <th scope="col" data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</th>
                             <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
                           </tr>
@@ -642,6 +643,65 @@
       </section>
     </div>
 
+    <!-- Weapon detail card -->
+    <div class="login-modal" hidden id="weapon-detail-modal">
+      <div class="login-modal-backdrop" data-weapon-detail-close></div>
+      <section class="weapon-detail-card" role="dialog" aria-modal="true" aria-labelledby="weapon-detail-name">
+        <div class="weapon-detail-header">
+          <img class="weapon-detail-icon" id="weapon-detail-icon" src="" alt="">
+          <div class="weapon-detail-title">
+            <h3 class="weapon-detail-name" id="weapon-detail-name"></h3>
+            <span class="weapon-detail-star" id="weapon-detail-star"></span>
+            <div class="weapon-detail-row3">
+              <span class="weapon-detail-skill" id="weapon-detail-skill">--</span>
+              <span class="weapon-detail-type" id="weapon-detail-type">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="weapon-detail-section">
+          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailEnhancementLabel">强化</span></div>
+          <div class="weapon-detail-enhancement">
+            <div class="weapon-detail-stat">
+              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailBreakthrough">突破</span>
+              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-breakthrough" data-weapon-edit-field="Breakthrough" tabindex="0" role="button">--</span>
+            </div>
+            <div class="weapon-detail-stat">
+              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailLevel">等级</span>
+              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-level" data-weapon-edit-field="Level" tabindex="0" role="button">--</span>
+            </div>
+            <div class="weapon-detail-stat">
+              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailExp">经验</span>
+              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-exp" data-weapon-edit-field="Exp" tabindex="0" role="button">--</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="weapon-detail-section" id="weapon-detail-resonance-section" hidden>
+          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailResonancesLabel">共鸣</span></div>
+          <table class="weapon-detail-resonance-table">
+            <thead>
+              <tr>
+                <th data-i18n="dashboard.weaponDetailSlot">槽位</th>
+                <th data-i18n="dashboard.weaponDetailEffect">效果</th>
+                <th data-i18n="dashboard.weaponDetailBoundCharacter">绑定角色</th>
+              </tr>
+            </thead>
+            <tbody id="weapon-detail-resonance-body"></tbody>
+          </table>
+        </div>
+
+        <div class="weapon-detail-section" id="weapon-detail-overrun-section" hidden>
+          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailOverrunLabel">超限</span></div>
+          <div class="weapon-detail-overrun" id="weapon-detail-overrun-content"></div>
+        </div>
+
+        <div class="weapon-detail-actions">
+          <button type="button" class="login-modal-button" data-weapon-detail-close data-i18n="dashboard.weaponDetailClose">关闭</button>
+        </div>
+      </section>
+    </div>
+
     <!-- Session modal -->
     <div class="login-modal" hidden id="logout-confirm-modal">
       <div class="login-modal-backdrop" data-logout-confirm-close></div>
@@ -657,6 +717,29 @@
         <div class="login-modal-actions logout-confirm-actions">
           <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close data-i18n="common.cancel">取消</button>
           <button type="button" class="login-modal-button" id="logout-confirm-submit" data-i18n="dashboard.logoutConfirmSubmit">确认退出</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Player mutation risk confirmation -->
+    <div class="login-modal" hidden id="player-mutation-risk-modal">
+      <div class="login-modal-backdrop" data-player-mutation-risk-close></div>
+      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="player-mutation-risk-title" aria-describedby="player-mutation-risk-message">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">!</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="runtime.playerEditConfirmEyebrow">风险操作</p>
+            <h3 id="player-mutation-risk-title" data-i18n="runtime.playerEditConfirmTitle">数据修改风险提示</h3>
+          </div>
+        </div>
+        <p id="player-mutation-risk-message" class="login-modal-message" data-i18n="runtime.playerEditConfirmRisk">游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！</p>
+        <label class="risk-confirm-checkbox">
+          <input type="checkbox" id="player-mutation-risk-dont-show" />
+          <span data-i18n="common.dontShowAgain">不再提示</span>
+        </label>
+        <div class="login-modal-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-player-mutation-risk-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button login-modal-button-danger" id="player-mutation-risk-confirm" data-i18n="runtime.playerEditConfirmSubmit">仍然修改</button>
         </div>
       </section>
     </div>
