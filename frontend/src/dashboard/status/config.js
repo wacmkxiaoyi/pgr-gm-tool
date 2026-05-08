@@ -18,7 +18,9 @@ const {
 app.escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;');
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;');
 
 app.renderConfigEditorHighlight = (text) => {
   if (!(configEditorHighlight instanceof HTMLElement)) {

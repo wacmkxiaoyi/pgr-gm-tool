@@ -358,19 +358,29 @@ app.syncPlayerEditableStates = () => {
   });
 };
 
+app.restorePlayerProfileFieldDisplay = (field, profile = state.playerProfileData) => {
+  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
+  const element = config?.element();
+  if (!config || !(element instanceof HTMLElement)) {
+    return;
+  }
+
+  element.classList.remove('is-editing');
+
+  if (config.editorType === 'picker') {
+    return;
+  }
+
+  element.textContent = config.displayValue(profile);
+};
+
 app.stopPlayerProfileEdit = (field) => {
   if (!state.playerProfileEditState || state.playerProfileEditState.field !== field) {
     return;
   }
 
-  const config = PLAYER_PROFILE_EDITABLE_FIELDS[field];
-  const element = config?.element();
-  if (element instanceof HTMLElement) {
-    element.classList.remove('is-editing');
-  }
-
   state.playerProfileEditState = null;
-  app.renderPlayerProfile(state.playerProfileData);
+  app.restorePlayerProfileFieldDisplay(field);
 };
 
 app.beginPlayerProfileEdit = (field) => {
@@ -577,6 +587,7 @@ app.resetPlayerCardBackground = () => {
     return;
   }
 
+  state.playerCardBackgroundSource = '';
   playerCardBackground.style.removeProperty('background-image');
   playerCardBackground.hidden = true;
   state.playerCardBackgroundAspectRatio = null;
@@ -712,11 +723,17 @@ app.setPlayerCardBackground = (source) => {
     return;
   }
 
+  if (normalizedSource === state.playerCardBackgroundSource) {
+    return;
+  }
+
   if (!normalizedSource) {
+    state.playerCardBackgroundSource = '';
     app.resetPlayerCardBackground();
     return;
   }
 
+  state.playerCardBackgroundSource = normalizedSource;
   playerCardBackground.hidden = false;
   playerCardBackground.style.backgroundImage = `linear-gradient(145deg, rgba(12, 18, 38, 0.18), rgba(12, 18, 38, 0.58)), url("${normalizedSource}")`;
   app.resolvePlayerBackgroundAspectRatio(normalizedSource);
@@ -960,17 +977,22 @@ app.loadSelectedPlayerProfile = async () => {
     return;
   }
 
+  const hasRenderedProfile = Boolean(state.playerProfileData);
   state.playerProfileLoading = true;
   app.updatePlayerProfileAccess();
-  app.setPlayerProfileState(app.translate('runtime.playerProfileLoading'), 'is-loading');
+  if (!hasRenderedProfile) {
+    app.setPlayerProfileState(app.translate('runtime.playerProfileLoading'), 'is-loading');
+  }
 
   try {
     const payload = await app.apiFetch('/api/database-players/selected');
 
     app.renderPlayerProfile(payload);
   } catch (error) {
-    state.playerProfileData = null;
-    app.setPlayerProfileState(app.apiErrorMessage(error, 'runtime.playerProfileLoadFailed'), 'is-error');
+    if (!hasRenderedProfile) {
+      state.playerProfileData = null;
+      app.setPlayerProfileState(app.apiErrorMessage(error, 'runtime.playerProfileLoadFailed'), 'is-error');
+    }
   } finally {
     state.playerProfileLoading = false;
     app.updatePlayerProfileAccess();
@@ -1008,7 +1030,6 @@ export const initDatabasePlayerProfileFeature = () => {
   }
 
   if (playerCard instanceof HTMLElement) {
-    playerCard.addEventListener('transitionend', app.queuePlayerCardBackgroundAspectSync);
     playerCard.addEventListener('click', app.handlePlayerCardBackgroundActivate);
   }
 

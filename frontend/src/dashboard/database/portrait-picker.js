@@ -25,7 +25,7 @@ app.closePlayerPortraitPicker = () => {
   state.playerProfileEditState = null;
 
   if (state.lastFocusedControl instanceof HTMLElement) {
-    state.lastFocusedControl.focus();
+    state.lastFocusedControl.focus({ preventScroll: true });
   }
 };
 
@@ -129,6 +129,11 @@ app.submitPlayerPortraitPicker = async () => {
   playerPortraitPickerConfirmButton.disabled = true;
 
   try {
+    const shouldRestoreScroll = field === 'use_background_id';
+    if (shouldRestoreScroll) {
+      state.playerProfileScrollRestoreY = window.scrollY || window.pageYOffset || 0;
+    }
+
     const payload = await app.apiFetch('/api/database-players/selected', {
       method: 'PUT',
       headers: {
@@ -140,13 +145,24 @@ app.submitPlayerPortraitPicker = async () => {
     app.closePlayerPortraitPicker();
     app.clearPlayerProfileSummaryMessage();
     app.renderPlayerProfile(payload);
+    if (shouldRestoreScroll && state.playerProfileScrollRestoreY !== null) {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          const restoreTop = state.playerProfileScrollRestoreY;
+          state.playerProfileScrollRestoreY = null;
+          window.scrollTo(0, restoreTop);
+        });
+      });
+    }
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
+      state.playerProfileScrollRestoreY = null;
       playerPortraitPickerConfirmButton.disabled = false;
       app.closePlayerPortraitPicker();
       return;
     }
 
+    state.playerProfileScrollRestoreY = null;
     playerPortraitPickerConfirmButton.disabled = false;
     app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }

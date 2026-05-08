@@ -587,7 +587,7 @@
 .weapon-detail-card {
   position: relative;
   z-index: 1;
-  width: min(100%, 520px);
+  width: min(100%, 640px);
   padding: 28px;
   border-radius: 28px;
   background:
@@ -638,16 +638,10 @@
   word-break: break-word;
 }
 
-.weapon-detail-row3 {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
 .weapon-detail-type {
   color: var(--muted);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .weapon-detail-star {
@@ -657,16 +651,28 @@
   letter-spacing: 2px;
 }
 
-.weapon-detail-skill {
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 600;
+.weapon-detail-skill-panel {
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 14px 16px;
 }
 
-.weapon-detail-skill.is-empty {
+.weapon-detail-skill-name {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.weapon-detail-skill-description {
   color: var(--muted);
   font-size: 13px;
   font-weight: 500;
+  line-height: 1.65;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* ── Section divider with title ── */
@@ -741,10 +747,23 @@
 
 .weapon-detail-resonance-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.weapon-detail-resonance-table th:nth-child(1),
+.weapon-detail-resonance-table td:nth-child(1) {
+  width: 64px;
+}
+
+.weapon-detail-resonance-table th:nth-child(4),
+.weapon-detail-resonance-table td:nth-child(4) {
+  width: 168px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .weapon-detail-resonance-table th,
@@ -769,10 +788,92 @@
 .weapon-detail-resonance-table tbody td {
   color: var(--text);
   font-weight: 600;
+  vertical-align: middle;
+}
+
+.weapon-detail-effect-name {
+  display: inline-block;
+  align-items: center;
+  cursor: help;
+  text-decoration: underline dotted rgba(100, 116, 139, 0.7);
+  text-underline-offset: 3px;
+}
+
+.weapon-detail-resonance-table tbody tr.resonance-row-editing .weapon-detail-effect-name {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.weapon-detail-effect-name:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 .weapon-detail-resonance-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.weapon-detail-resonance-action-btn {
+  min-width: 48px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.weapon-detail-resonance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-height: 56px;
+}
+
+.weapon-detail-resonance-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.weapon-detail-resonance-action-btn-edit {
+  color: #4338ca;
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+  border-color: rgba(99, 102, 241, 0.24);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.1);
+}
+
+.weapon-detail-resonance-action-btn-delete {
+  color: #b91c1c;
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.24);
+  box-shadow: 0 8px 20px rgba(248, 113, 113, 0.08);
+}
+
+.weapon-detail-resonance-action-btn-save {
+  color: #0f766e;
+  background: rgba(45, 212, 191, 0.14);
+  border-color: rgba(45, 212, 191, 0.28);
+  box-shadow: 0 8px 20px rgba(45, 212, 191, 0.1);
+}
+
+.weapon-detail-resonance-action-btn-cancel {
+  color: rgba(100, 116, 139, 0.85);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.22);
+  box-shadow: none;
+}
+
+.weapon-detail-resonance-table tbody tr.resonance-row-editing td:nth-child(2),
+.weapon-detail-resonance-table tbody tr.resonance-row-editing td:nth-child(3) {
+  cursor: pointer;
 }
 
 /* ── Region 4: Overrun ── */
@@ -793,6 +894,26 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 24px;
+}
+
+.weapon-detail-tooltip {
+  position: fixed;
+  z-index: 1200;
+  min-width: 180px;
+  max-width: min(320px, calc(100vw - 24px));
+  width: max-content;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  color: rgba(248, 250, 252, 0.96);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.32);
+  pointer-events: none;
 }
 
 /* ── Star tier effects ── */

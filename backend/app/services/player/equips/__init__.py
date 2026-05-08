@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from backend.app.utils.tsv_reader import TSVReader
 
@@ -9,7 +10,14 @@ from backend.app.utils.tsv_reader import TSVReader
 EQUIP_TSV_PATH = Path("resources/Equip.tsv")
 EQUIP_RES_TSV_PATH = Path("resources/EquipRes.tsv")
 EQUIP_BREAK_THROUGH_TSV_PATH = Path("resources/EquipBreakThrough.tsv")
+EQUIP_RESONANCE_TSV_PATH = Path("resources/EquipResonance.tsv")
 ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
+
+from backend.app.services.player.characters import (
+    get_attrib_pool_entries_map,
+    get_character_skill_pool_entries_map,
+)
+from backend.app.services.player.equips.weapon import get_weapon_skill_pool_entries_map
 
 
 def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
@@ -17,6 +25,64 @@ def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
     if not filename:
         return None
     return f"{prefix}{filename}"
+
+
+def _parse_int(value: Any) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+@lru_cache(maxsize=1)
+def get_equip_resonance_skills_map() -> dict[int, list[Any]]:
+    reader = TSVReader(EQUIP_RESONANCE_TSV_PATH, typed=True)
+    attrib_pool_entries_map = get_attrib_pool_entries_map()
+    character_skill_pool_entries_map = get_character_skill_pool_entries_map()
+    weapon_skill_pool_entries_map = get_weapon_skill_pool_entries_map()
+    normalized_map: dict[int, list[Any]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        resonance_id = _parse_int(row.get("Id"))
+        if resonance_id is None:
+            continue
+
+        attrib_entries: list[dict[str, Any]] = []
+        for index in range(1, 4):
+            pool_id = _parse_int(row.get(f"AttribPoolId[{index}]"))
+            if pool_id is None:
+                continue
+            attrib_entries.extend(dict(entry) for entry in attrib_pool_entries_map.get(pool_id, []))
+
+        character_skill_entries: list[dict[str, Any]] = []
+        for index in range(1, 4):
+            pool_id = _parse_int(row.get(f"CharacterSkillPoolId[{index}]"))
+            if pool_id is None:
+                continue
+            character_skill_entries.extend(dict(entry) for entry in character_skill_pool_entries_map.get(pool_id, []))
+
+        weapon_character_skill_map: dict[int, list[int]] = {}
+        for index in range(1, 4):
+            pool_id = _parse_int(row.get(f"WeaponSkillPoolId[{index}]"))
+            if pool_id is None:
+                continue
+
+            for character_id, skill_ids in weapon_skill_pool_entries_map.get(pool_id, {}).items():
+                merged_skill_ids = weapon_character_skill_map.setdefault(character_id, [])
+                for skill_id in skill_ids:
+                    if skill_id not in merged_skill_ids:
+                        merged_skill_ids.append(skill_id)
+
+        normalized_map[resonance_id] = [
+            attrib_entries,
+            character_skill_entries,
+            weapon_character_skill_map,
+        ]
+
+    return normalized_map
 
 
 @lru_cache(maxsize=1)
@@ -55,16 +121,6 @@ def get_equip_name_map() -> dict[int, str]:
         equip_id: str(name).strip()
         for equip_id, name in equip_name_map.items()
         if isinstance(name, str) and str(name).strip()
-    }
-
-
-@lru_cache(maxsize=1)
-def get_equip_type_map() -> dict[int, int]:
-    equip_type_map = _get_equip_map("Type")
-    return {
-        equip_id: int(equip_type)
-        for equip_id, equip_type in equip_type_map.items()
-        if isinstance(equip_type, int)
     }
 
 

@@ -37,25 +37,18 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
     UpdateWeaponRequest,
+    WeaponExtraInfoResponse,
     UpdateWeaponResponse,
     WeaponListResponse,
 )
 from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
-from backend.app.services.player.characters import (
-    get_attrib_pool_name_map,
-    get_character_skill_pool_name_map,
-)
 from backend.app.services.player.equips import (
-    get_equip_breakthrough_level_limit_map,
-    get_equip_breakthrough_max_map,
     get_equip_icon_url_map,
     get_equip_name_map,
     get_equip_site_map,
     get_equip_star_map,
-    get_equip_type_map,
 )
 from backend.app.services.player.equips.weapon import (
-    get_weapon_skill_name_map,
     get_weapon_type_name_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
@@ -123,19 +116,13 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_url_map": get_player_background_url_map(),
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
-        "weapon_name_map": get_equip_name_map(),
-        "weapon_type_map": get_equip_type_map(),
+        "equip_name_map": get_equip_name_map(),
         "weapon_type_name_map": get_weapon_type_name_map(),
-        "weapon_star_map": get_equip_star_map(),
-        "weapon_site_map": get_equip_site_map(),
-        "weapon_icon_url_map": get_equip_icon_url_map(),
-        "weapon_breakthrough_level_limit_map": get_equip_breakthrough_level_limit_map(),
-        "weapon_breakthrough_max_map": get_equip_breakthrough_max_map(),
+        "equip_star_map": get_equip_star_map(),
+        "equip_site_map": get_equip_site_map(),
+        "equip_icon_url_map": get_equip_icon_url_map(),
         "character_log_name_map": get_character_log_name_map(),
         "character_head_icon_url_map": get_character_head_icon_url_map(),
-        "attrib_pool_name_map": get_attrib_pool_name_map(),
-        "character_skill_pool_name_map": get_character_skill_pool_name_map(),
-        "weapon_skill_name_map": get_weapon_skill_name_map(),
     })
 
 
@@ -695,6 +682,34 @@ async def update_selected_database_weapon(
         raise
 
     return updated_weapon
+
+
+@router.get("/database-weapons/selected/{record_id}/extra-info", response_model=WeaponExtraInfoResponse, response_model_exclude_none=True)
+async def get_selected_database_weapon_extra_info(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> WeaponExtraInfoResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        extra_info = await equips_service.get_weapon_extra_info(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        raise
+
+    return WeaponExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
 @router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)

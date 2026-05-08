@@ -433,15 +433,32 @@
             },
             "ResonanceInfo": {
               "type": "array",
-              "default": []
+              "default": [],
+              "schema": {
+                "Slot": "number",
+                "Type": "number",
+                "CharacterId": "number",
+                "TemplateId": "number"
+              }
             },
             "UnconfirmedResonanceInfo": {
               "type": "array",
-              "default": []
+              "default": [],
+              "schema": {
+                "Slot": "number",
+                "Type": "number",
+                "CharacterId": "number",
+                "TemplateId": "number"
+              }
             },
             "AwakeSlotList": {
               "type": "array",
-              "default": []
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number"
+                }
+              }
             },
             "IsLock": {
               "type": "boolean",
@@ -621,7 +638,20 @@
             "schema": {
               "WeaponOverrunData": {
                 "type": "object",
-                "default": {}
+                "default": {},
+                "schema": {
+                  "Level": "number",
+                  "ActiveSuits": {
+                    "type": "array",
+                    "default": [],
+                    "schema": {
+                      "_id": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "ChoseSuit": "number"
+                }
               }
             }
           },

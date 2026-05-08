@@ -651,11 +651,16 @@
           <img class="weapon-detail-icon" id="weapon-detail-icon" src="" alt="">
           <div class="weapon-detail-title">
             <h3 class="weapon-detail-name" id="weapon-detail-name"></h3>
+            <span class="weapon-detail-type" id="weapon-detail-type">--</span>
             <span class="weapon-detail-star" id="weapon-detail-star"></span>
-            <div class="weapon-detail-row3">
-              <span class="weapon-detail-skill" id="weapon-detail-skill">--</span>
-              <span class="weapon-detail-type" id="weapon-detail-type">--</span>
-            </div>
+          </div>
+        </div>
+
+        <div class="weapon-detail-section" id="weapon-detail-skill-section" hidden>
+          <div class="weapon-detail-section-title"><span>Skill</span></div>
+          <div class="weapon-detail-skill-panel">
+            <div class="weapon-detail-skill-name" id="weapon-detail-skill-name">--</div>
+            <div class="weapon-detail-skill-description" id="weapon-detail-skill-description">--</div>
           </div>
         </div>
 
@@ -685,6 +690,7 @@
                 <th data-i18n="dashboard.weaponDetailSlot">槽位</th>
                 <th data-i18n="dashboard.weaponDetailEffect">效果</th>
                 <th data-i18n="dashboard.weaponDetailBoundCharacter">绑定角色</th>
+                <th data-i18n="dashboard.weaponDetailResonanceAction">操作</th>
               </tr>
             </thead>
             <tbody id="weapon-detail-resonance-body"></tbody>
@@ -699,6 +705,7 @@
         <div class="weapon-detail-actions">
           <button type="button" class="login-modal-button" data-weapon-detail-close data-i18n="dashboard.weaponDetailClose">关闭</button>
         </div>
+        <div class="weapon-detail-tooltip" id="weapon-detail-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
 

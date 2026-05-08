@@ -38,19 +38,13 @@ class AppInfoResponse(BaseModel):
     player_background_url_map: dict[int, str]
     player_background_name_map: dict[int, str]
     item_name_map: dict[int, str]
-    weapon_name_map: dict[int, str]
-    weapon_type_map: dict[int, int]
+    equip_name_map: dict[int, str]
     weapon_type_name_map: dict[int, str]
-    weapon_star_map: dict[int, int]
-    weapon_site_map: dict[int, str]
-    weapon_icon_url_map: dict[int, str]
-    weapon_breakthrough_level_limit_map: dict[int, dict[int, int]]
-    weapon_breakthrough_max_map: dict[int, dict[str, int]]
+    equip_star_map: dict[int, int]
+    equip_site_map: dict[int, str]
+    equip_icon_url_map: dict[int, str]
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
-    attrib_pool_name_map: dict[int, str]
-    character_skill_pool_name_map: dict[int, str]
-    weapon_skill_name_map: dict[int, str]
 
 
 class InventoryItemResponse(BaseModel):
@@ -88,9 +82,7 @@ class WeaponItemResponse(BaseModel):
     Level: int | None = None
     Exp: int | None = None
     Breakthrough: int | None = None
-    ResonanceInfo: list[WeaponResonanceResponse] = Field(default_factory=list)
-    WeaponOverrunData: WeaponOverrunResponse | None = None
-    CurrentLevelExpLimit: int | None = None
+    EnhancementLevel: int | None = None
 
 
 class WeaponListResponse(BaseModel):
@@ -138,9 +130,25 @@ class UpdateWeaponResponse(BaseModel):
     Level: int | None = None
     Exp: int | None = None
     Breakthrough: int | None = None
-    ResonanceInfo: list[WeaponResonanceResponse] = Field(default_factory=list)
+    EnhancementLevel: int | None = None
+
+
+class WeaponResonanceExtraInfoResponse(BaseModel):
+    slot: int
+    type: int | None = None
+    effect_name: str | None = None
+    effect_description: str | None = None
+    character_id: int | None = None
+
+
+class WeaponExtraInfoResponse(BaseModel):
+    max_breakthrough: int
+    breakthrough_level_limit_map: dict[int, int]
+    current_level_exp_limit: int | None = None
+    weapon_skill_name: str | None = None
+    weapon_skill_description: str | None = None
+    resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
     WeaponOverrunData: WeaponOverrunResponse | None = None
-    CurrentLevelExpLimit: int | None = None
 
 
 class ClearInventoryItemsRequest(BaseModel):

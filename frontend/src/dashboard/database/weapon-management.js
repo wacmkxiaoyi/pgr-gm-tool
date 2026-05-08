@@ -24,7 +24,9 @@ const {
   weaponDetailName,
   weaponDetailType,
   weaponDetailStar,
-  weaponDetailSkill,
+  weaponDetailSkillSection,
+  weaponDetailSkillName,
+  weaponDetailSkillDescription,
   weaponDetailBreakthrough,
   weaponDetailLevel,
   weaponDetailExp,
@@ -32,7 +34,133 @@ const {
   weaponDetailResonanceBody,
   weaponDetailOverrunSection,
   weaponDetailOverrunContent,
+  weaponDetailTooltip,
 } = dom;
+
+const WEAPON_DETAIL_TOOLTIP_DELAY_MS = 500;
+
+app.escapeHtml = app.escapeHtml || ((value) => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;'));
+
+app.stripMarkupText = (value) => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+
+  return value
+    .replace(/<color=.*?>/gi, '')
+    .replace(/<\/color>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+};
+
+app.hideWeaponDetailTooltip = () => {
+  if (state.weaponDetailTooltipTimer) {
+    window.clearTimeout(state.weaponDetailTooltipTimer);
+    state.weaponDetailTooltipTimer = null;
+  }
+
+  if (weaponDetailTooltip instanceof HTMLElement) {
+    if (weaponDetailTooltip.parentElement !== document.body) {
+      document.body.appendChild(weaponDetailTooltip);
+    }
+    weaponDetailTooltip.hidden = true;
+    weaponDetailTooltip.textContent = '';
+  }
+
+  state.weaponDetailTooltipTarget = null;
+};
+
+app.positionWeaponDetailTooltip = (target) => {
+  if (!(target instanceof HTMLElement) || !(weaponDetailTooltip instanceof HTMLElement)) {
+    return;
+  }
+
+  const targetRect = target.getBoundingClientRect();
+  const tooltipRect = weaponDetailTooltip.getBoundingClientRect();
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = document.documentElement.clientHeight;
+  const margin = 12;
+  const gap = 10;
+  const preferredTop = targetRect.bottom + gap;
+  const fallbackTop = targetRect.top - tooltipRect.height - gap;
+
+  let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+  let top = preferredTop;
+
+  if (left < margin) {
+    left = margin;
+  } else if (left + tooltipRect.width > viewportWidth - margin) {
+    left = viewportWidth - tooltipRect.width - margin;
+  }
+
+  if (top + tooltipRect.height > viewportHeight - margin && fallbackTop >= margin) {
+    top = fallbackTop;
+  }
+
+  if (top < margin) {
+    top = margin;
+  }
+
+  weaponDetailTooltip.style.left = `${Math.round(left)}px`;
+  weaponDetailTooltip.style.top = `${Math.round(top)}px`;
+};
+
+app.syncWeaponDetailTooltipPosition = () => {
+  if (!(state.weaponDetailTooltipTarget instanceof HTMLElement) || !(weaponDetailTooltip instanceof HTMLElement) || weaponDetailTooltip.hidden) {
+    return;
+  }
+
+  app.positionWeaponDetailTooltip(state.weaponDetailTooltipTarget);
+};
+
+app.showWeaponDetailTooltip = (target) => {
+  if (!(target instanceof HTMLElement) || !(weaponDetailTooltip instanceof HTMLElement)) {
+    return;
+  }
+
+  const row = target.closest('tr[data-resonance-slot]');
+  if (row instanceof HTMLElement && row.classList.contains('resonance-row-editing')) {
+    app.hideWeaponDetailTooltip();
+    return;
+  }
+
+  const description = typeof target.dataset.effectDescription === 'string'
+    ? target.dataset.effectDescription.trim()
+    : '';
+  if (!description) {
+    app.hideWeaponDetailTooltip();
+    return;
+  }
+
+  if (weaponDetailTooltip.parentElement !== document.body) {
+    document.body.appendChild(weaponDetailTooltip);
+  }
+
+  weaponDetailTooltip.textContent = description;
+  weaponDetailTooltip.hidden = false;
+  weaponDetailTooltip.style.left = '0px';
+  weaponDetailTooltip.style.top = '0px';
+  state.weaponDetailTooltipTarget = target;
+  window.requestAnimationFrame(app.syncWeaponDetailTooltipPosition);
+};
+
+app.scheduleWeaponDetailTooltip = (target) => {
+  app.hideWeaponDetailTooltip();
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  state.weaponDetailTooltipTimer = window.setTimeout(() => {
+    state.weaponDetailTooltipTimer = null;
+    app.showWeaponDetailTooltip(target);
+  }, WEAPON_DETAIL_TOOLTIP_DELAY_MS);
+};
 
 app.setWeaponManagementState = (message, tone = '') => {
   if (databaseWeaponManagementState instanceof HTMLElement) {
@@ -72,7 +200,7 @@ app.getWeaponNameByTemplateId = (templateId) => {
     return '--';
   }
 
-  const name = state.weaponNameMap?.[templateId];
+  const name = state.equipNameMap?.[templateId];
   return typeof name === 'string' && name.trim() ? name : '--';
 };
 
@@ -86,8 +214,7 @@ app.getWeaponTypeByTemplateId = (templateId) => {
     return typeName.trim();
   }
 
-  const type = state.weaponTypeMap?.[templateId];
-  return Number.isFinite(Number(type)) ? String(type) : '--';
+  return '--';
 };
 
 app.getWeaponStarByTemplateId = (templateId) => {
@@ -95,7 +222,7 @@ app.getWeaponStarByTemplateId = (templateId) => {
     return null;
   }
 
-  const star = state.weaponStarMap?.[templateId];
+  const star = state.equipStarMap?.[templateId];
   return Number.isFinite(Number(star)) ? Math.max(0, Number(star)) : null;
 };
 
@@ -104,7 +231,7 @@ app.getWeaponIconByTemplateId = (templateId) => {
     return '';
   }
 
-  const url = state.weaponIconUrlMap?.[templateId];
+  const url = state.equipIconUrlMap?.[templateId];
   return typeof url === 'string' ? url : '';
 };
 
@@ -128,11 +255,12 @@ app.getCharacterIconByCharacterId = (characterId) => {
 
 app.renderWeaponMediaCell = (iconUrl, label, showFallback = true, extraClass = '') => {
   const safeLabel = typeof label === 'string' && label.trim() ? label.trim() : '--';
+  const escapedLabel = app.escapeHtml(safeLabel);
   const imgClass = `weapon-management-icon${extraClass ? ` ${extraClass}` : ''}`;
   return `
     <div class="weapon-management-media-cell">
-      ${iconUrl ? `<img class="${imgClass}" src=".${iconUrl}" alt="${safeLabel}">` : (showFallback ? '<span class="weapon-management-icon weapon-management-icon-fallback" aria-hidden="true"></span>' : '')}
-      <span>${safeLabel}</span>
+      ${iconUrl ? `<img class="${imgClass}" src=".${iconUrl}" alt="${escapedLabel}">` : (showFallback ? '<span class="weapon-management-icon weapon-management-icon-fallback" aria-hidden="true"></span>' : '')}
+      <span>${escapedLabel}</span>
     </div>
   `;
 };
@@ -147,29 +275,12 @@ app.renderWeaponStar = (templateId) => {
 };
 
 app.getWeaponEnhancementLevel = (item) => {
-  const templateId = item?.TemplateId ?? null;
-  const breakthrough = Number.isFinite(Number(item?.Breakthrough)) ? Math.max(0, Number(item.Breakthrough)) : 0;
-  const level = Number.isFinite(Number(item?.Level)) ? Math.max(0, Number(item.Level)) : 0;
-
-  if (templateId === null || templateId === undefined) {
-    return null;
+  const cachedEnhancementLevel = Number(item?.EnhancementLevel);
+  if (Number.isFinite(cachedEnhancementLevel)) {
+    return Math.max(0, cachedEnhancementLevel);
   }
 
-  const stageMap = state.weaponBreakthroughLevelLimitMap?.[templateId];
-  if (!stageMap || typeof stageMap !== 'object') {
-    return null;
-  }
-
-  let total = level;
-  for (let stage = 0; stage < breakthrough; stage += 1) {
-    const levelLimit = stageMap?.[stage];
-    if (!Number.isFinite(Number(levelLimit))) {
-      return null;
-    }
-    total += Number(levelLimit);
-  }
-
-  return total;
+  return null;
 };
 
 app.renderWeaponEnhancementLevel = (item) => {
@@ -181,6 +292,11 @@ app.renderWeaponEnhancementLevel = (item) => {
   const breakthrough = Number.isFinite(Number(item?.Breakthrough)) ? Math.max(0, Number(item.Breakthrough)) : 0;
   const colorTier = Math.min(Math.max(breakthrough, 0), 4);
   return `<span class="weapon-management-enhancement weapon-enhancement-tier-${colorTier}">${enhancementLevel}</span>`;
+};
+
+app.getWeaponDetailExtraInfo = async (recordId) => {
+  const payload = await app.apiFetch(`/api/database-weapons/selected/${recordId}/extra-info`);
+  return payload && typeof payload === 'object' ? payload : {};
 };
 
 app.updateWeaponManagementPagination = () => {
@@ -492,25 +608,34 @@ app.handleWeaponManagementActionClick = (event) => {
 };
 
 app.populateWeaponDetailCard = (item) => {
+  const extraInfo = state.currentWeaponDetailExtraInfo && typeof state.currentWeaponDetailExtraInfo === 'object'
+    ? state.currentWeaponDetailExtraInfo
+    : {};
   const templateId = item?.TemplateId ?? null;
   const breakthrough = Number.isFinite(Number(item?.Breakthrough)) ? Math.max(0, Number(item.Breakthrough)) : 0;
   const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
   const currentLevelExp = Number.isFinite(Number(item?.Exp)) ? Number(item.Exp) : null;
-  const currentLevelExpLimit = Number.isFinite(Number(item?.CurrentLevelExpLimit)) ? Number(item.CurrentLevelExpLimit) : null;
+  const currentLevelExpLimit = Number.isFinite(Number(extraInfo?.current_level_exp_limit)) ? Number(extraInfo.current_level_exp_limit) : null;
   const star = app.getWeaponStarByTemplateId(templateId);
   const iconUrl = app.getWeaponIconByTemplateId(templateId);
   const weaponName = app.getWeaponNameByTemplateId(templateId);
-  const resonanceInfo = Array.isArray(item?.ResonanceInfo) ? item.ResonanceInfo : [];
-  const hasOverrun = item?.WeaponOverrunData != null;
+  const resonanceInfo = Array.isArray(extraInfo?.resonance_info) ? extraInfo.resonance_info : [];
   const hasValidStar = Number.isFinite(star) && star >= 2 && star <= 6;
-  const starTier = hasValidStar ? star : 2;
   const btTier = Math.min(Math.max(breakthrough, 0), 4);
+  const skillName = typeof extraInfo?.weapon_skill_name === 'string' ? extraInfo.weapon_skill_name.trim() : '';
+  const skillDescription = app.stripMarkupText(extraInfo?.weapon_skill_description);
+  const hasSkill = Boolean(skillName);
 
   state.currentWeaponDetailItem = item;
 
   if (weaponDetailCard instanceof HTMLElement) {
-    weaponDetailCard.dataset.starTier = starTier;
-    weaponDetailCard.dataset.btTier = btTier;
+    if (hasValidStar) {
+      weaponDetailCard.dataset.starTier = star;
+      weaponDetailCard.dataset.btTier = btTier;
+    } else {
+      delete weaponDetailCard.dataset.starTier;
+      delete weaponDetailCard.dataset.btTier;
+    }
   }
 
   if (weaponDetailIcon instanceof HTMLImageElement) {
@@ -538,13 +663,18 @@ app.populateWeaponDetailCard = (item) => {
     }
   }
 
-  if (weaponDetailSkill instanceof HTMLElement) {
-    const skillName = templateId != null ? state.weaponSkillNameMap?.[templateId] : null;
-    const hasSkill = typeof skillName === 'string' && skillName.trim();
-    weaponDetailSkill.textContent = hasSkill
-      ? skillName.trim()
-      : `(${app.translate('dashboard.weaponDetailNoSkill')})`;
-    weaponDetailSkill.classList.toggle('is-empty', !hasSkill);
+  if (weaponDetailSkillSection instanceof HTMLElement) {
+    weaponDetailSkillSection.hidden = !hasSkill;
+  }
+
+  if (weaponDetailSkillName instanceof HTMLElement) {
+    weaponDetailSkillName.textContent = hasSkill ? skillName : '--';
+  }
+
+  if (weaponDetailSkillDescription instanceof HTMLElement) {
+    weaponDetailSkillDescription.textContent = hasSkill
+      ? (skillDescription || app.translate('dashboard.weaponDetailNoSkill'))
+      : '--';
   }
 
   if (weaponDetailBreakthrough instanceof HTMLElement) {
@@ -553,8 +683,7 @@ app.populateWeaponDetailCard = (item) => {
     weaponDetailBreakthrough.classList.add('is-editable');
     weaponDetailBreakthrough.setAttribute('tabindex', '0');
     weaponDetailBreakthrough.setAttribute('role', 'button');
-    const maxBtData = state.weaponBreakthroughMaxMap?.[templateId];
-    weaponDetailBreakthrough.dataset.weaponBtMax = typeof maxBtData?.max_breakthrough === 'number' ? String(maxBtData.max_breakthrough) : '0';
+    weaponDetailBreakthrough.dataset.weaponBtMax = Number.isFinite(Number(extraInfo?.max_breakthrough)) ? String(extraInfo.max_breakthrough) : '0';
     weaponDetailBreakthrough.dataset.weaponBtCurrent = String(breakthrough);
   }
 
@@ -563,7 +692,7 @@ app.populateWeaponDetailCard = (item) => {
     weaponDetailLevel.className = 'weapon-detail-stat-value is-editable';
     weaponDetailLevel.setAttribute('tabindex', level !== null ? '0' : '-1');
     weaponDetailLevel.setAttribute('role', level !== null ? 'button' : '');
-    const stageMap = state.weaponBreakthroughLevelLimitMap?.[templateId];
+    const stageMap = extraInfo?.breakthrough_level_limit_map;
     const levelLimit = stageMap?.[breakthrough];
     weaponDetailLevel.dataset.weaponLevelMin = '1';
     weaponDetailLevel.dataset.weaponLevelMax = Number.isFinite(Number(levelLimit)) ? String(levelLimit) : '0';
@@ -573,7 +702,7 @@ app.populateWeaponDetailCard = (item) => {
   if (weaponDetailExp instanceof HTMLElement) {
     if (currentLevelExp !== null && currentLevelExpLimit !== null) {
       weaponDetailExp.textContent = `${currentLevelExp} / ${currentLevelExpLimit}`;
-      const btStageMap = state.weaponBreakthroughLevelLimitMap?.[templateId];
+      const btStageMap = extraInfo?.breakthrough_level_limit_map;
       const currentLevelLimit = btStageMap?.[breakthrough];
       const isMaxLevel = Number.isFinite(Number(currentLevelLimit)) && level === Number(currentLevelLimit);
       weaponDetailExp.dataset.weaponExpMax = String(currentLevelExpLimit - (isMaxLevel ? 0 : 1));
@@ -589,40 +718,48 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailResonanceSection instanceof HTMLElement) {
-    weaponDetailResonanceSection.hidden = !(hasValidStar && star >= 5);
+    weaponDetailResonanceSection.hidden = !(extraInfo && 'resonance_info' in extraInfo);
   }
 
   if (weaponDetailResonanceBody instanceof HTMLElement) {
     const rows = [1, 2, 3].map((slot) => {
-      const entry = resonanceInfo.find((r) => r?.Slot === slot) ?? null;
+      const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
       const slotText = slot;
 
       let effectText = '--';
       let characterText = '--';
+      const isEditing = state._weaponResonanceEditSlots?.[slot];
       if (entry) {
-        const type = Number(entry.Type);
-        const templateId = Number(entry.TemplateId);
-        if (type === 1 && state.attribPoolNameMap?.[templateId]) {
-          effectText = state.attribPoolNameMap[templateId];
-        } else if (type === 2 && state.characterSkillPoolNameMap?.[templateId]) {
-          effectText = state.characterSkillPoolNameMap[templateId];
-        } else if (type === 3 && state.weaponSkillNameMap?.[templateId]) {
-          effectText = state.weaponSkillNameMap[templateId];
-        } else {
-          effectText = '未知';
-        }
+        const effectName = typeof entry.effect_name === 'string' && entry.effect_name.trim() ? entry.effect_name.trim() : '未知';
+        const effectDescription = app.stripMarkupText(entry.effect_description);
+        const escapedEffectName = app.escapeHtml(effectName);
+        const escapedEffectDescription = app.escapeHtml(effectDescription);
+        effectText = !isEditing && effectDescription
+          ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedEffectDescription}" tabindex="0">${escapedEffectName}</span>`
+          : escapedEffectName;
 
-        const characterId = Number(entry.CharacterId);
+        const characterId = Number(entry.character_id);
         const characterName = app.getCharacterNameByCharacterId(characterId);
         const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
         characterText = app.renderWeaponMediaCell(characterIconUrl, characterName);
       }
 
       return `
-        <tr>
+        <tr class="${isEditing ? 'resonance-row-editing' : ''}" data-resonance-slot="${slot}">
           <td>${slotText}</td>
           <td>${effectText}</td>
           <td>${characterText}</td>
+          <td>
+            <div class="weapon-detail-resonance-actions">
+              ${isEditing ? `
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button>
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance">${app.translate('dashboard.weaponDetailResonanceSave')}</button>
+              ` : `
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button>
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance">${app.translate('dashboard.weaponDetailResonanceDelete')}</button>
+              `}
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -630,7 +767,7 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailOverrunSection instanceof HTMLElement) {
-    weaponDetailOverrunSection.hidden = !(hasValidStar && star >= 6 && hasOverrun);
+    weaponDetailOverrunSection.hidden = !(extraInfo && 'WeaponOverrunData' in extraInfo);
   }
 
   if (weaponDetailOverrunContent instanceof HTMLElement) {
@@ -649,6 +786,10 @@ app.closeWeaponDetailModal = () => {
 
   weaponDetailModal.hidden = true;
   app.setBodyModalOpen(false);
+  state.currentWeaponDetailItem = null;
+  state.currentWeaponDetailExtraInfo = null;
+  state.weaponDetailLoading = false;
+  app.hideWeaponDetailTooltip();
 
   if (state.lastWeaponDetailFocusedControl instanceof HTMLElement) {
     state.lastWeaponDetailFocusedControl.focus();
@@ -669,6 +810,19 @@ app.stopWeaponDetailFieldEdit = (field) => {
   state.weaponDetailEditState = null;
   if (state.currentWeaponDetailItem) {
     app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+  }
+};
+
+app.loadWeaponDetailExtraInfo = async (recordId) => {
+  state.weaponDetailLoading = true;
+  try {
+    const extraInfo = await app.getWeaponDetailExtraInfo(recordId);
+    state.currentWeaponDetailExtraInfo = extraInfo;
+    if (state.currentWeaponDetailItem) {
+      app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+    }
+  } finally {
+    state.weaponDetailLoading = false;
   }
 };
 
@@ -810,15 +964,17 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
     });
 
     state.weaponDetailEditState = null;
-    app.populateWeaponDetailCard(payload);
 
     const idx = state.weaponManagementItems?.findIndex(
       (i) => (i?._id ?? i?.record_id) === recordId
     );
     if (idx >= 0 && state.weaponManagementItems) {
       state.weaponManagementItems[idx] = payload;
+      state.currentWeaponDetailItem = payload;
       app.renderWeaponRows(state.weaponManagementItems);
     }
+
+    await app.loadWeaponDetailExtraInfo(recordId);
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       currentState.pending = false;
@@ -829,6 +985,124 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
     state.weaponDetailEditState = null;
     app.populateWeaponDetailCard(state.currentWeaponDetailItem);
     app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
+  }
+};
+
+app._renderResonanceRowActionCell = (slot) => {
+  if (!(weaponDetailResonanceBody instanceof HTMLElement)) {
+    return;
+  }
+
+  const row = weaponDetailResonanceBody.querySelector(`tr[data-resonance-slot="${slot}"]`);
+  if (!(row instanceof HTMLElement)) {
+    return;
+  }
+
+  const actionCell = row.querySelector('td:last-child');
+  if (!(actionCell instanceof HTMLElement)) {
+    return;
+  }
+
+  const isEditing = state._weaponResonanceEditSlots?.[slot];
+  row.classList.toggle('resonance-row-editing', isEditing);
+
+  actionCell.innerHTML = isEditing
+    ? `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance">${app.translate('dashboard.weaponDetailResonanceSave')}</button></div>`
+    : `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance">${app.translate('dashboard.weaponDetailResonanceDelete')}</button></div>`;
+};
+
+app.handleResonanceActionClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const actionButton = target.closest('[data-resonance-action]');
+  if (!(actionButton instanceof HTMLElement)) {
+    return;
+  }
+
+  const action = actionButton.dataset.resonanceAction;
+  const row = actionButton.closest('tr[data-resonance-slot]');
+  if (!(row instanceof HTMLElement)) {
+    return;
+  }
+
+  const slot = Number(row.dataset.resonanceSlot);
+  if (!Number.isFinite(slot)) {
+    return;
+  }
+
+  if (!state._weaponResonanceEditSlots) {
+    state._weaponResonanceEditSlots = {};
+  }
+
+  if (action === 'start-editing') {
+    state._weaponResonanceEditSlots[slot] = true;
+    app._renderResonanceRowActionCell(slot);
+    return;
+  }
+
+  if (action === 'cancel-editing') {
+    delete state._weaponResonanceEditSlots[slot];
+    app._renderResonanceRowActionCell(slot);
+    return;
+  }
+
+  if (action === 'save-resonance') {
+    delete state._weaponResonanceEditSlots[slot];
+    app._renderResonanceRowActionCell(slot);
+    return;
+  }
+
+  if (action === 'delete-resonance') {
+    app.openControlModal(
+      app.translate('dashboard.weaponDetailResonanceDeleteConfirm', { slot }),
+      { title: app.translate('dashboard.weaponDeleteTitle') },
+    );
+    return;
+  }
+};
+
+app.handleWeaponDetailTooltipEvent = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const effectName = target.closest('.weapon-detail-effect-name');
+  const row = effectName instanceof HTMLElement ? effectName.closest('tr[data-resonance-slot]') : null;
+  if (row instanceof HTMLElement && row.classList.contains('resonance-row-editing')) {
+    app.hideWeaponDetailTooltip();
+    return;
+  }
+
+  if (event.type === 'mouseover' || event.type === 'focusin') {
+    if (effectName instanceof HTMLElement) {
+      app.scheduleWeaponDetailTooltip(effectName);
+    }
+    return;
+  }
+
+  if (event.type === 'mousemove') {
+    if (effectName instanceof HTMLElement && state.weaponDetailTooltipTarget === effectName && weaponDetailTooltip instanceof HTMLElement && !weaponDetailTooltip.hidden) {
+      app.syncWeaponDetailTooltipPosition();
+    }
+    return;
+  }
+
+  if (event.type === 'mouseout' || event.type === 'focusout') {
+    if (!(effectName instanceof HTMLElement)) {
+      app.hideWeaponDetailTooltip();
+      return;
+    }
+
+    const relatedTarget = event.relatedTarget;
+    if (relatedTarget instanceof Node && effectName.contains(relatedTarget)) {
+      return;
+    }
+
+    app.hideWeaponDetailTooltip();
   }
 };
 
@@ -864,9 +1138,19 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
   }
 
   state.lastWeaponDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state.currentWeaponDetailItem = item;
+  state.currentWeaponDetailExtraInfo = null;
   app.populateWeaponDetailCard(item);
   weaponDetailModal.hidden = false;
   app.setBodyModalOpen(true);
+  void app.loadWeaponDetailExtraInfo(recordId).catch((error) => {
+    if (state.currentWeaponDetailItem) {
+      app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+    }
+    if (weaponDetailModal instanceof HTMLElement && !weaponDetailModal.hidden) {
+      app.openControlModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
+    }
+  });
 
   const closeButton = weaponDetailModal.querySelector('[data-weapon-detail-close]');
   if (closeButton instanceof HTMLElement) {
@@ -953,6 +1237,12 @@ export const initDatabaseWeaponManagementFeature = () => {
 
   if (weaponDetailModal instanceof HTMLElement) {
     weaponDetailModal.addEventListener('click', app.handleWeaponDetailFieldActivate);
+    weaponDetailModal.addEventListener('click', app.handleResonanceActionClick);
+    weaponDetailModal.addEventListener('mouseover', app.handleWeaponDetailTooltipEvent);
+    weaponDetailModal.addEventListener('mouseout', app.handleWeaponDetailTooltipEvent);
+    weaponDetailModal.addEventListener('mousemove', app.handleWeaponDetailTooltipEvent);
+    weaponDetailModal.addEventListener('focusin', app.handleWeaponDetailTooltipEvent);
+    weaponDetailModal.addEventListener('focusout', app.handleWeaponDetailTooltipEvent);
     weaponDetailModal.addEventListener('keydown', (event) => {
       if (event.key !== 'Enter') {
         return;
@@ -966,5 +1256,9 @@ export const initDatabaseWeaponManagementFeature = () => {
       event.preventDefault();
       app.handleWeaponDetailFieldActivate(event);
     });
+    weaponDetailModal.addEventListener('scroll', app.hideWeaponDetailTooltip, true);
   }
+
+  window.addEventListener('scroll', app.hideWeaponDetailTooltip, true);
+  window.addEventListener('resize', app.hideWeaponDetailTooltip);
 };

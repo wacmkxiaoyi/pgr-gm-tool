@@ -33,7 +33,7 @@ app.getWeaponAddSearchPriority = (keyword, item) => {
 };
 
 app.getAddableWeaponCatalog = () => {
-  return Object.entries(state.weaponNameMap ?? {})
+  return Object.entries(state.equipNameMap ?? {})
     .map(([templateId, weaponName]) => {
       const normalizedTemplateId = Number.parseInt(templateId, 10);
       return {
@@ -44,7 +44,7 @@ app.getAddableWeaponCatalog = () => {
         weaponIconUrl: app.getWeaponIconByTemplateId(normalizedTemplateId),
       };
     })
-    .filter((item) => Number.isFinite(item.templateId) && item.weaponName && ['', '0'].includes(String(state.weaponSiteMap?.[item.templateId] ?? '').trim()));
+    .filter((item) => Number.isFinite(item.templateId) && item.weaponName && ['', '0'].includes(String(state.equipSiteMap?.[item.templateId] ?? '').trim()));
 };
 
 app.syncWeaponAddSortControls = () => {

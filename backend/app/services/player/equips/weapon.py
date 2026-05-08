@@ -5,12 +5,14 @@ from pathlib import Path
 
 from backend.app.utils.tsv_reader import TSVReader
 
-from backend.app.services.player.equips import get_equip_type_map
+from backend.app.services.player.equips import EQUIP_TSV_PATH
 
 
 ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("resources/ArchiveWeaponGroup.tsv")
 WEAPON_SKILL_TSV_PATH = Path("resources/WeaponSkill.tsv")
+WEAPON_SKILL_POOL_TSV_PATH = Path("resources/WeaponSkillPool.tsv")
 EQUIP_SUIT_TSV_PATH = Path("resources/EquipSuit.tsv")
+WEAPON_OVERRUN_TSV_PATH = Path("resources/WeaponOverrun.tsv")
 
 
 @lru_cache(maxsize=1)
@@ -36,25 +38,85 @@ def get_weapon_group_name_map() -> dict[int, str]:
 
 @lru_cache(maxsize=1)
 def get_weapon_type_name_map() -> dict[int, str]:
-    equip_type_map = get_equip_type_map()
+    equip_reader = TSVReader(EQUIP_TSV_PATH, typed=True)
+    raw_equip_type_map = equip_reader.get_maps("Id", "Type")[0]
     weapon_group_name_map = get_weapon_group_name_map()
 
-    return {
-        equip_id: weapon_group_name_map[equip_type]
-        for equip_id, equip_type in equip_type_map.items()
-        if equip_type in weapon_group_name_map
-    }
+    normalized_map: dict[int, str] = {}
+    for equip_id_raw, equip_type_raw in raw_equip_type_map.items():
+        try:
+            equip_id = int(equip_id_raw)
+            equip_type = int(equip_type_raw)
+        except (TypeError, ValueError):
+            continue
+
+        weapon_type_name = weapon_group_name_map.get(equip_type)
+        if not weapon_type_name:
+            continue
+
+        normalized_map[equip_id] = weapon_type_name
+
+    return normalized_map
 
 
 @lru_cache(maxsize=1)
-def get_weapon_skill_name_map() -> dict[int, str]:
+def get_weapon_skill_name_desciption_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(WEAPON_SKILL_TSV_PATH, typed=True)
-    raw_map = reader.get_maps("Id", "Name")[0]
-    return {
-        int(rid): str(val).strip()
-        for rid, val in raw_map.items()
-        if str(val).strip()
-    }
+    normalized_map: dict[int, dict[str, str]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        try:
+            skill_id = int(row.get("Id"))
+        except (TypeError, ValueError):
+            continue
+
+        normalized_map[skill_id] = {
+            "Name": str(row.get("Name") or "").strip(),
+            "Description": str(row.get("Description") or "").strip(),
+        }
+
+    return normalized_map
+
+
+def _parse_int(value: object) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
+    reader = TSVReader(WEAPON_SKILL_POOL_TSV_PATH, typed=True)
+    normalized_map: dict[int, dict[int, list[int]]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        pool_id = _parse_int(row.get("PoolId"))
+        character_id = _parse_int(row.get("CharacterId"))
+        if pool_id is None or character_id is None:
+            continue
+
+        skill_ids: list[int] = []
+        for column_name, raw_value in row.items():
+            if not str(column_name).startswith("SkillId["):
+                continue
+
+            skill_id = _parse_int(raw_value)
+            if skill_id is None:
+                continue
+            skill_ids.append(skill_id)
+
+        if not skill_ids:
+            continue
+
+        normalized_map.setdefault(pool_id, {})[character_id] = skill_ids
+
+    return normalized_map
 
 
 @lru_cache(maxsize=1)
@@ -145,3 +207,24 @@ def get_weapon_overrun_suit_equip_ids_map() -> dict[int, dict[int, int]]:
                     normalized_map[suit_id] = parsed_map
 
     return normalized_map
+
+
+@lru_cache(maxsize=1)
+def get_weapon_overrun_max_level_map() -> dict[int, int]:
+    reader = TSVReader(WEAPON_OVERRUN_TSV_PATH, typed=True)
+    weapon_max_level_map: dict[int, int] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        weapon_id = _parse_int(row.get("WeaponId"))
+        level = _parse_int(row.get("Level"))
+        if weapon_id is None or level is None:
+            continue
+
+        current_max = weapon_max_level_map.get(weapon_id)
+        if current_max is None or level > current_max:
+            weapon_max_level_map[weapon_id] = level
+
+    return weapon_max_level_map
