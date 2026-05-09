@@ -4,8 +4,6 @@ const { dom, state } = app;
 const {
   itemAddModal,
   itemAddSearchInput,
-  itemAddSortFieldSelect,
-  itemAddSortOrderSelect,
   itemAddTableBody,
   itemAddEmptyState,
   itemAddCloseTargets,
@@ -23,22 +21,35 @@ app.getAddableItemCatalog = () => {
     .filter((item) => Number.isFinite(item.itemId) && item.itemId > 18 && item.itemName);
 };
 
-app.syncItemAddSortControls = () => {
-  if (itemAddSortFieldSelect instanceof HTMLSelectElement) {
-    itemAddSortFieldSelect.value = state.itemAddSortBy;
-  }
+app._itemAddSortFields = ['item_id', 'name'];
 
-  if (itemAddSortOrderSelect instanceof HTMLSelectElement) {
-    itemAddSortOrderSelect.value = state.itemAddSortOrder;
-  }
+app._syncItemAddSortArrows = () => {
+  const table = itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
+  if (!(table instanceof HTMLElement)) return;
+  const buttons = table.querySelectorAll('.column-sort-btn');
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    const arrow = btn.querySelector('.column-sort-arrow');
+    if (!(arrow instanceof HTMLElement)) return;
+    if (btn.dataset.sortField === state.itemAddSortBy) {
+      arrow.hidden = false;
+      arrow.classList.toggle('desc', state.itemAddSortOrder === 'desc');
+    } else {
+      arrow.hidden = true;
+      arrow.classList.remove('desc');
+    }
+  });
 };
 
-app.applyItemAddSort = () => {
-  const nextSortBy = itemAddSortFieldSelect instanceof HTMLSelectElement ? itemAddSortFieldSelect.value : state.itemAddSortBy;
-  const nextSortOrder = itemAddSortOrderSelect instanceof HTMLSelectElement ? itemAddSortOrderSelect.value : state.itemAddSortOrder;
-  state.itemAddSortBy = nextSortBy === 'name' ? 'name' : 'item_id';
-  state.itemAddSortOrder = nextSortOrder === 'desc' ? 'desc' : 'asc';
-  app.syncItemAddSortControls();
+app._handleItemAddSortClick = (sortField) => {
+  if (!app._itemAddSortFields.includes(sortField)) return;
+  if (state.itemAddSortBy === sortField) {
+    state.itemAddSortOrder = state.itemAddSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.itemAddSortBy = sortField;
+    state.itemAddSortOrder = 'asc';
+  }
+  app._syncItemAddSortArrows();
 };
 
 app.compareItemAddCatalogEntries = (left, right) => {
@@ -108,8 +119,6 @@ app.resetItemAddModalState = () => {
   if (itemAddSearchInput instanceof HTMLInputElement) {
     itemAddSearchInput.value = '';
   }
-
-  app.syncItemAddSortControls();
 };
 
 app.closeItemAddModal = () => {
@@ -132,6 +141,7 @@ app.openItemAddModal = (trigger) => {
 
   state.lastAddItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetItemAddModalState();
+  app._syncItemAddSortArrows();
   app.renderItemAddModalRows();
   itemAddModal.hidden = false;
   app.setBodyModalOpen(true);
@@ -215,8 +225,6 @@ app.submitItemAddModal = async () => {
 };
 
 export const initDatabaseItemAddModalFeature = () => {
-  app.syncItemAddSortControls();
-
   itemAddCloseTargets.forEach((target) => {
     target.addEventListener('click', app.closeItemAddModal);
   });
@@ -228,17 +236,16 @@ export const initDatabaseItemAddModalFeature = () => {
     });
   }
 
-  if (itemAddSortFieldSelect instanceof HTMLSelectElement) {
-    itemAddSortFieldSelect.addEventListener('change', () => {
-      app.applyItemAddSort();
-      app.renderItemAddModalRows();
-    });
-  }
-
-  if (itemAddSortOrderSelect instanceof HTMLSelectElement) {
-    itemAddSortOrderSelect.addEventListener('change', () => {
-      app.applyItemAddSort();
-      app.renderItemAddModalRows();
+  const itemAddTable = itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
+  if (itemAddTable instanceof HTMLElement) {
+    itemAddTable.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const sortBtn = target.closest('.column-sort-btn');
+      if (sortBtn instanceof HTMLButtonElement && sortBtn.dataset.sortField) {
+        app._handleItemAddSortClick(sortBtn.dataset.sortField);
+        app.renderItemAddModalRows();
+      }
     });
   }
 

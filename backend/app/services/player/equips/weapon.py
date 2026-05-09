@@ -60,7 +60,7 @@ def get_weapon_type_name_map() -> dict[int, str]:
 
 
 @lru_cache(maxsize=1)
-def get_weapon_skill_name_desciption_map() -> dict[int, dict[str, str]]:
+def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(WEAPON_SKILL_TSV_PATH, typed=True)
     normalized_map: dict[int, dict[str, str]] = {}
 
@@ -88,6 +88,7 @@ def _parse_int(value: object) -> int | None:
         return None
 
 
+@lru_cache(maxsize=1)
 def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
     reader = TSVReader(WEAPON_SKILL_POOL_TSV_PATH, typed=True)
     normalized_map: dict[int, dict[int, list[int]]] = {}

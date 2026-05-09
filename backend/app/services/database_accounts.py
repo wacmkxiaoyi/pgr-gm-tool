@@ -74,16 +74,31 @@ class DatabaseAccountsService:
 
         return result.deleted_count > 0
 
-    async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE) -> AccountListResponse:
+    async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE, sort_by: str = "uid", sort_order: str = "asc", keyword: str = "") -> AccountListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ACCOUNT_PAGE_SIZE if page_size <= 0 else min(int(page_size), ACCOUNT_PAGE_SIZE)
         skip = (current_page - 1) * normalized_page_size
+
+        mongo_filter = {}
+        if keyword:
+            try:
+                uid_keyword = int(keyword)
+                mongo_filter["$or"] = [
+                    {"uid": uid_keyword},
+                    {"username": {"$regex": keyword, "$options": "i"}},
+                ]
+            except ValueError:
+                mongo_filter["username"] = {"$regex": keyword, "$options": "i"}
+
+        sort_field = "uid" if sort_by not in ("uid", "username") else sort_by
+        sort_direction = -1 if sort_order == "desc" else 1
+
         client = create_mongo_client(self._settings)
 
         try:
             collection = client[self._settings.mongo_db][ACCOUNT_COLLECTION_NAME]
-            total = await collection.count_documents({})
-            cursor = collection.find({}, {"uid": 1, "username": 1}).sort("uid", 1).skip(skip).limit(normalized_page_size)
+            total = await collection.count_documents(mongo_filter)
+            cursor = collection.find(mongo_filter, {"uid": 1, "username": 1}).sort(sort_field, sort_direction).skip(skip).limit(normalized_page_size)
             documents = await cursor.to_list(length=normalized_page_size)
         finally:
             with contextlib.suppress(Exception):

@@ -162,6 +162,10 @@ ERROR_MESSAGES = {
         'zh-CN': '新增武器失败。',
         'en-US': 'Failed to add weapons.',
     },
+    'equips.resonance_not_found': {
+        'zh-CN': '未找到对应共鸣槽位数据。',
+        'en-US': 'The requested resonance slot data was not found.',
+    },
     'item.keyword_required_for_clear': {
         'zh-CN': '请先输入搜索条件后再清空物品。',
         'en-US': 'Enter a search keyword before clearing items.',

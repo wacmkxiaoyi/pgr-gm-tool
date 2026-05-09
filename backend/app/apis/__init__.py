@@ -19,6 +19,7 @@ from backend.app.apis.schemas import (
     ClearWeaponsResponse,
     DatabaseHealthStatusResponse,
     DeleteAccountResponse,
+    DeleteWeaponResonanceResponse,
     DeleteWeaponResponse,
     DeleteInventoryItemResponse,
     HealthStatusResponse,
@@ -37,6 +38,8 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
     UpdateWeaponRequest,
+    UpdateWeaponResonanceRequest,
+    UpdateWeaponResonanceResponse,
     WeaponExtraInfoResponse,
     UpdateWeaponResponse,
     WeaponListResponse,
@@ -45,11 +48,18 @@ from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayloa
 from backend.app.services.player.equips import (
     get_equip_icon_url_map,
     get_equip_name_map,
+    get_equip_resonance_map,
     get_equip_site_map,
     get_equip_star_map,
 )
 from backend.app.services.player.equips.weapon import (
+    get_weapon_skill_entries_map,
+    get_weapon_skill_pool_entries_map,
     get_weapon_type_name_map,
+)
+from backend.app.services.player.characters import (
+    get_attrib_pool_entries_map,
+    get_character_skill_pool_entries_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
 from backend.app.services.player.player_profile import (
@@ -123,6 +133,11 @@ async def app_info(request: Request) -> AppInfoResponse:
         "equip_icon_url_map": get_equip_icon_url_map(),
         "character_log_name_map": get_character_log_name_map(),
         "character_head_icon_url_map": get_character_head_icon_url_map(),
+        "weapon_skill_entries_map": get_weapon_skill_entries_map(),
+        "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
+        "attrib_pool_entries_map": get_attrib_pool_entries_map(),
+        "character_skill_pool_entries_map": get_character_skill_pool_entries_map(),
+        "equip_resonance_map": get_equip_resonance_map(),
     })
 
 
@@ -153,6 +168,9 @@ async def database_accounts(
     request: Request,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=10, ge=1, le=10),
+    sort_by: str = Query(default="uid"),
+    sort_order: str = Query(default="asc"),
+    keyword: str = Query(default=""),
 ) -> AccountListResponse:
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -160,7 +178,7 @@ async def database_accounts(
         raise_http_error(409, "database.unhealthy_accounts_access")
 
     accounts_service = request.app.state.database_accounts_service
-    return await accounts_service.list_accounts(page=page, page_size=page_size)
+    return await accounts_service.list_accounts(page=page, page_size=page_size, sort_by=sort_by, sort_order=sort_order, keyword=keyword.strip())
 
 
 def _get_active_session(login_session_token: str | None) -> object:
@@ -684,6 +702,69 @@ async def update_selected_database_weapon(
     return updated_weapon
 
 
+@router.put("/database-weapons/selected/{record_id}/resonance", response_model=UpdateWeaponResonanceResponse)
+async def update_selected_database_weapon_resonance(
+    record_id: int,
+    payload: UpdateWeaponResonanceRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateWeaponResonanceResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.set_weapon_resonance(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.resonance_invalid":
+            raise_http_error(422, "equips.resonance_invalid", {"record_id": record_id})
+        raise
+
+    return result
+
+
+@router.delete("/database-weapons/selected/{record_id}/resonance/{slot}", response_model=DeleteWeaponResonanceResponse)
+async def delete_selected_database_weapon_resonance(
+    record_id: int,
+    slot: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteWeaponResonanceResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        deleted = await equips_service.delete_weapon_resonance(selected_uid, record_id, slot)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        raise
+
+    if not deleted:
+        raise_http_error(404, "equips.resonance_not_found", {"record_id": record_id, "slot": slot})
+
+    return DeleteWeaponResonanceResponse(Slot=slot, deleted=True)
+
+
 @router.get("/database-weapons/selected/{record_id}/extra-info", response_model=WeaponExtraInfoResponse, response_model_exclude_none=True)
 async def get_selected_database_weapon_extra_info(
     record_id: int,
@@ -707,6 +788,8 @@ async def get_selected_database_weapon_extra_info(
             raise_http_error(404, "equips.not_found", {"record_id": record_id})
         if error_message == "equips.template_invalid":
             raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.resonance_invalid":
+            raise_http_error(422, "equips.resonance_invalid", {"record_id": record_id})
         raise
 
     return WeaponExtraInfoResponse.model_validate(extra_info.model_dump())

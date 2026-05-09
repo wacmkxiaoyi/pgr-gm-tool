@@ -90,7 +90,7 @@
           </section>
 
           <!-- Database management -->
-          <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="用户数据管理" hidden>
+          <section class="dashboard-page" id="database-management" data-dashboard-panel="database-management" aria-label="用户数据管理" data-i18n-aria-label="dashboard.sidebarDatabaseManagement" hidden>
             <header class="dashboard-topbar">
               <button class="sidebar-toggle" type="button" aria-label="切换侧边栏" data-i18n-aria-label="dashboard.toggleSidebar" aria-controls="dashboard-sidebar" aria-expanded="false">☰</button>
             </header>
@@ -123,6 +123,9 @@
                     <span class="section-tag">Accounts</span>
                     <h2 id="database-accounts-title" data-i18n="dashboard.accountsTitle">账号管理</h2>
                   </div>
+                  <div class="database-item-search-shell">
+                    <input class="database-item-search-input" type="search" id="database-accounts-search-input" data-i18n-placeholder="dashboard.accountsSearchPlaceholder" placeholder="输入识别码或用户名后回车搜索">
+                  </div>
                   <small class="database-accounts-summary" id="database-accounts-summary" data-i18n="dashboard.accountsUnavailable">仅在数据库服务正常时可查看</small>
                 </div>
 
@@ -132,8 +135,8 @@
                     <table class="accounts-table" aria-describedby="database-accounts-summary">
                       <thead>
                         <tr>
-                          <th scope="col" data-i18n="dashboard.accountsUid">UID</th>
-                          <th scope="col" data-i18n="dashboard.accountsUsername">用户名</th>
+                          <th scope="col"><button class="column-sort-btn" data-sort-field="uid" type="button"><span data-i18n="dashboard.accountsUid">UID</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" data-sort-field="username" type="button"><span data-i18n="dashboard.accountsUsername">用户名</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                           <th scope="col" data-i18n="dashboard.accountsAction">操作</th>
                         </tr>
                       </thead>
@@ -149,9 +152,9 @@
                   <label class="accounts-pagination-jump" for="database-accounts-jump-input">
                     <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-accounts-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
                   </label>
-                  <button class="status-action-button status-action-button-log" type="button" id="database-accounts-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
-                </div>
-              </section>
+                   <button class="status-action-button status-action-button-log" type="button" id="database-accounts-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+        </div>
+      </section>
 
               <section class="database-panel database-player-panel database-tab-panel" id="database-player-profile-section" data-database-tab-panel="database-player-profile-section" aria-labelledby="database-player-profile-title" hidden>
                 <div class="database-panel-header database-panel-header-compact database-player-panel-header">
@@ -193,21 +196,21 @@
                     </div>
                     <div class="database-player-card-copy">
                       <div class="database-player-card-name-row">
-                        <div class="database-player-card-resources" aria-label="玩家资源">
+                        <div class="database-player-card-resources" aria-label="玩家资源" data-i18n-aria-label="dashboard.playerResourcesAria">
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem02sp.png" alt="彩虹卡">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem02sp.png" alt="彩虹卡" data-i18n-alt="dashboard.playerRainbowCardAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-rainbow" id="player-card-rainbow-card" data-player-edit-field="rainbow_card">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem.png" alt="黑卡">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumegem.png" alt="黑卡" data-i18n-alt="dashboard.playerBlackCardAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-black" id="player-card-black-card" data-player-edit-field="black_card">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumeactionpoint.png" alt="血清">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumeactionpoint.png" alt="血清" data-i18n-alt="dashboard.playerSerumAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-serum" id="player-card-serum" data-player-edit-field="serum">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumemoney.png" alt="螺母">
+                            <img class="database-player-card-resource-icon" src="./assets/icon/iconconsumemoney.png" alt="螺母" data-i18n-alt="dashboard.playerMoneyAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-money" id="player-card-money" data-player-edit-field="money">0</strong>
                           </span>
                         </div>
@@ -244,27 +247,9 @@
                   <div class="database-item-actions" id="database-item-actions">
                     <button class="status-action-button status-action-button-stop" type="button" id="database-item-clear" data-item-management-action="clear" data-i18n="dashboard.itemManagementClear">清空物品</button>
                     <div class="database-item-toolbar">
-                      <label class="database-item-control" for="database-item-search-input">
-                        <span data-i18n="dashboard.itemManagementNameFilter">名称过滤</span>
-                        <div class="database-item-search-shell" id="database-item-search-shell">
-                          <input class="database-item-search-input" type="search" id="database-item-search-input" data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder" placeholder="输入道具名后回车搜索">
-                        </div>
-                      </label>
-                      <label class="database-item-control" for="database-item-sort-field">
-                        <span data-i18n="dashboard.itemManagementSortBy">排序字段</span>
-                        <select class="database-item-sort-select" id="database-item-sort-field" data-i18n-aria-label="dashboard.itemManagementSortBy" aria-label="排序字段">
-                          <option value="item_id" data-i18n="dashboard.itemManagementSortById">物品 ID</option>
-                          <option value="name" data-i18n="dashboard.itemManagementSortByName">名称</option>
-                          <option value="quantity" data-i18n="dashboard.itemManagementSortByQuantity">数量</option>
-                        </select>
-                      </label>
-                      <label class="database-item-control" for="database-item-sort-order">
-                        <span data-i18n="dashboard.itemManagementSortOrder">排序方向</span>
-                        <select class="database-item-sort-select" id="database-item-sort-order" data-i18n-aria-label="dashboard.itemManagementSortOrder" aria-label="排序方向">
-                          <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
-                          <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
-                        </select>
-                      </label>
+                      <div class="database-item-search-shell" id="database-item-search-shell">
+                        <input class="database-item-search-input" type="search" id="database-item-search-input" data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder" placeholder="输入道具名后回车搜索">
+                      </div>
                     </div>
                     <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-item-add" data-item-management-action="add-item" data-i18n="dashboard.itemManagementAddItem">新增物品</button>
                   </div>
@@ -280,9 +265,9 @@
                         </colgroup>
                         <thead>
                           <tr>
-                            <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
-                            <th scope="col" data-i18n="dashboard.itemManagementItemName">名称</th>
-                            <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="item_id" type="button"><span data-i18n="dashboard.itemManagementItemId">物品 ID</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.itemManagementItemName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="quantity" type="button"><span data-i18n="dashboard.itemManagementQuantity">数量</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                             <th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
                           </tr>
                         </thead>
@@ -317,29 +302,9 @@
                   <div class="database-item-actions" id="database-weapon-actions">
                     <button class="status-action-button status-action-button-stop" type="button" id="database-weapon-clear" data-weapon-management-action="clear" data-i18n="dashboard.weaponManagementClear">清空未穿戴武器</button>
                     <div class="database-item-toolbar">
-                      <label class="database-item-control" for="database-weapon-search-input">
-                        <span data-i18n="dashboard.weaponManagementNameFilter">名称过滤</span>
-                        <div class="database-item-search-shell" id="database-weapon-search-shell">
-                          <input class="database-item-search-input" type="search" id="database-weapon-search-input" data-i18n-placeholder="dashboard.weaponManagementSearchPlaceholder" placeholder="输入装备名后回车搜索">
-                        </div>
-                      </label>
-                      <label class="database-item-control" for="database-weapon-sort-field">
-                        <span data-i18n="dashboard.weaponManagementSortBy">排序字段</span>
-                        <select class="database-item-sort-select" id="database-weapon-sort-field" data-i18n-aria-label="dashboard.weaponManagementSortBy" aria-label="排序字段">
-                          <option value="name" data-i18n="dashboard.weaponManagementSortByName">名称</option>
-                          <option value="character" data-i18n="dashboard.weaponManagementSortByCharacter">穿戴角色</option>
-                          <option value="type" data-i18n="dashboard.weaponManagementSortByType">类型</option>
-                          <option value="star" data-i18n="dashboard.weaponManagementSortByStar">星级</option>
-                          <option value="enhancement" data-i18n="dashboard.weaponManagementSortByEnhancement">综合强化等级</option>
-                        </select>
-                      </label>
-                      <label class="database-item-control" for="database-weapon-sort-order">
-                        <span data-i18n="dashboard.weaponManagementSortOrder">排序方向</span>
-                        <select class="database-item-sort-select" id="database-weapon-sort-order" data-i18n-aria-label="dashboard.weaponManagementSortOrder" aria-label="排序方向">
-                          <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
-                          <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
-                        </select>
-                      </label>
+                      <div class="database-item-search-shell" id="database-weapon-search-shell">
+                        <input class="database-item-search-input" type="search" id="database-weapon-search-input" data-i18n-placeholder="dashboard.weaponManagementSearchPlaceholder" placeholder="输入装备名后回车搜索">
+                      </div>
                     </div>
                     <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-weapon-add" data-weapon-management-action="add-weapon" data-i18n="dashboard.weaponManagementAdd">新增武器</button>
                   </div>
@@ -359,11 +324,11 @@
                         <thead>
                           <tr>
                             <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementName">名称</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementType">类型</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementStar">星级</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementCharacter">穿戴角色</th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.weaponManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.weaponManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                             <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
                           </tr>
                         </thead>
@@ -540,24 +505,7 @@
         </div>
         <p id="item-add-description" class="login-modal-message" data-i18n="runtime.itemAddDescription">通过搜索和排序选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
         <div class="database-item-controls item-add-search-shell">
-          <label class="database-item-control" for="item-add-search-input">
-            <span data-i18n="dashboard.itemManagementNameFilter">名称过滤</span>
-            <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
-          </label>
-          <label class="database-item-control" for="item-add-sort-field">
-            <span data-i18n="dashboard.itemManagementSortBy">排序字段</span>
-            <select class="database-item-sort-select" id="item-add-sort-field" data-i18n-aria-label="dashboard.itemManagementSortBy" aria-label="排序字段">
-              <option value="item_id" data-i18n="dashboard.itemManagementSortById">物品 ID</option>
-              <option value="name" data-i18n="dashboard.itemManagementSortByName">名称</option>
-            </select>
-          </label>
-          <label class="database-item-control" for="item-add-sort-order">
-            <span data-i18n="dashboard.itemManagementSortOrder">排序方向</span>
-            <select class="database-item-sort-select" id="item-add-sort-order" data-i18n-aria-label="dashboard.itemManagementSortOrder" aria-label="排序方向">
-              <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
-              <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
-            </select>
-          </label>
+          <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
         </div>
         <div class="item-add-table-shell">
           <table class="accounts-table item-add-table">
@@ -568,8 +516,8 @@
             </colgroup>
             <thead>
               <tr>
-                <th scope="col" data-i18n="dashboard.itemManagementItemId">物品 ID</th>
-                <th scope="col" data-i18n="dashboard.itemManagementItemName">名称</th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="item_id" type="button"><span data-i18n="dashboard.itemManagementItemId">物品 ID</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.itemManagementItemName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                 <th scope="col" data-i18n="dashboard.itemManagementQuantity">数量</th>
               </tr>
             </thead>
@@ -596,25 +544,7 @@
         </div>
         <p id="weapon-add-description" class="login-modal-message" data-i18n="runtime.weaponAddDescription">通过搜索和排序选择武器，勾选多项后可批量提交。</p>
         <div class="database-item-controls item-add-search-shell">
-          <label class="database-item-control" for="weapon-add-search-input">
-            <span data-i18n="dashboard.weaponManagementNameFilter">名称过滤</span>
-            <input class="database-item-search-input item-add-search-input" type="search" id="weapon-add-search-input" data-i18n-placeholder="runtime.weaponAddSearchPlaceholder" placeholder="输入武器名进行搜索">
-          </label>
-          <label class="database-item-control" for="weapon-add-sort-field">
-            <span data-i18n="dashboard.weaponManagementSortBy">排序字段</span>
-            <select class="database-item-sort-select" id="weapon-add-sort-field" data-i18n-aria-label="dashboard.weaponManagementSortBy" aria-label="排序字段">
-              <option value="star" data-i18n="dashboard.weaponManagementSortByStar">星级</option>
-              <option value="name" data-i18n="dashboard.weaponManagementSortByName">名称</option>
-              <option value="type" data-i18n="dashboard.weaponManagementSortByType">类型</option>
-            </select>
-          </label>
-          <label class="database-item-control" for="weapon-add-sort-order">
-            <span data-i18n="dashboard.weaponManagementSortOrder">排序方向</span>
-            <select class="database-item-sort-select" id="weapon-add-sort-order" data-i18n-aria-label="dashboard.weaponManagementSortOrder" aria-label="排序方向">
-              <option value="desc" data-i18n="dashboard.sortDescending">降序</option>
-              <option value="asc" data-i18n="dashboard.sortAscending">升序</option>
-            </select>
-          </label>
+          <input class="database-item-search-input item-add-search-input" type="search" id="weapon-add-search-input" data-i18n-placeholder="runtime.weaponAddSearchPlaceholder" placeholder="输入武器名进行搜索">
         </div>
         <div class="item-add-table-shell">
           <table class="accounts-table item-add-table weapon-add-table">
@@ -626,9 +556,9 @@
             </colgroup>
             <thead>
               <tr>
-                <th scope="col" data-i18n="dashboard.weaponManagementName">名称</th>
-                <th scope="col" data-i18n="dashboard.weaponManagementType">类型</th>
-                <th scope="col" data-i18n="dashboard.weaponManagementStar">星级</th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.weaponManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                 <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
               </tr>
             </thead>
@@ -640,6 +570,48 @@
           <button type="button" class="login-modal-button login-modal-button-secondary" data-weapon-add-close data-i18n="common.cancel">取消</button>
           <button type="button" class="login-modal-button" id="weapon-add-submit" data-i18n="runtime.weaponAddSubmit">确认新增</button>
         </div>
+      </section>
+    </div>
+
+    <!-- Resonance effect selection modal -->
+    <div class="login-modal" hidden id="resonance-effect-modal">
+      <div class="login-modal-backdrop" data-resonance-effect-close></div>
+      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="resonance-effect-title">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="dashboard.resonanceEffectEyebrow">选择</p>
+            <h3 id="resonance-effect-title" data-i18n="dashboard.resonanceEffectTitle">共鸣效果</h3>
+          </div>
+        </div>
+        <p class="login-modal-message" data-i18n="dashboard.resonanceEffectDescription">搜索关键词可同时筛选名称和简介，点击名称旁的箭头可切换排序方向。</p>
+        <div class="database-item-controls item-add-search-shell">
+          <label class="database-item-control" for="resonance-effect-search-input">
+            <input class="database-item-search-input item-add-search-input" type="search" id="resonance-effect-search-input" data-i18n-placeholder="dashboard.resonanceEffectSearchPlaceholder" placeholder="输入关键词搜索...">
+          </label>
+        </div>
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table">
+            <colgroup>
+              <col>
+              <col class="weapon-management-col-star">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col"><button class="resonance-effect-sort-btn" id="resonance-effect-sort-name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="resonance-effect-sort-arrow" id="resonance-effect-sort-arrow">&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="dashboard.resonanceEffectDescriptionColumn">简介</th>
+                <th scope="col" data-i18n="dashboard.resonanceEffectSelectColumn">选择</th>
+              </tr>
+            </thead>
+            <tbody id="resonance-effect-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="resonance-effect-empty-state" data-i18n="dashboard.resonanceEffectEmpty">当前没有匹配的共鸣效果。</div>
+        </div>
+        <div class="login-modal-actions item-add-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-resonance-effect-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="resonance-effect-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+        <div class="weapon-detail-tooltip" id="resonance-effect-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
 
@@ -706,6 +678,27 @@
           <button type="button" class="login-modal-button" data-weapon-detail-close data-i18n="dashboard.weaponDetailClose">关闭</button>
         </div>
         <div class="weapon-detail-tooltip" id="weapon-detail-tooltip" role="tooltip" hidden></div>
+      </section>
+    </div>
+
+    <!-- Weapon resonance character picker -->
+    <div class="login-modal character-picker-modal" hidden id="weapon-resonance-character-picker-modal">
+      <div class="login-modal-backdrop" data-weapon-resonance-character-picker-close></div>
+      <section class="login-modal-card character-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-resonance-character-picker-title">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="dashboard.weaponDetailCharPickerEyebrow">绑定角色</p>
+            <h3 id="weapon-resonance-character-picker-title" data-i18n="dashboard.weaponDetailCharPickerTitle">选择绑定角色</h3>
+          </div>
+        </div>
+        <p class="login-modal-message" data-i18n="dashboard.weaponDetailCharPickerDesc">请为此共鸣槽位选择绑定的角色。</p>
+        <div class="character-picker-summary" id="weapon-resonance-character-picker-summary" hidden></div>
+        <div class="character-picker-grid" id="weapon-resonance-character-picker-grid"></div>
+        <div class="login-modal-actions character-picker-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary character-picker-cancel" data-weapon-resonance-character-picker-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="weapon-resonance-character-picker-confirm" disabled data-i18n="dashboard.weaponDetailCharPickerConfirm">确认</button>
+        </div>
       </section>
     </div>
 

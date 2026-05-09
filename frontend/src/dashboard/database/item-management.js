@@ -16,8 +16,6 @@ const {
   databaseItemManagementPaginationLabel,
   databaseItemManagementJumpInput,
   databaseItemManagementJumpButton,
-  databaseItemSortFieldSelect,
-  databaseItemSortOrderSelect,
   databaseItemSearchInput,
 } = dom;
 
@@ -126,22 +124,35 @@ app.renderItemRows = (items) => {
   `).join('') : '';
 };
 
-app.syncItemManagementSortControls = () => {
-  if (databaseItemSortFieldSelect instanceof HTMLSelectElement) {
-    databaseItemSortFieldSelect.value = state.itemManagementSortBy;
-  }
+app._itemManagementSortFields = ['item_id', 'name', 'quantity'];
 
-  if (databaseItemSortOrderSelect instanceof HTMLSelectElement) {
-    databaseItemSortOrderSelect.value = state.itemManagementSortOrder;
-  }
+app._syncItemManagementSortArrows = () => {
+  const table = document.querySelector('#database-item-management-section .item-management-table');
+  if (!(table instanceof HTMLElement)) return;
+  const buttons = table.querySelectorAll('.column-sort-btn');
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    const arrow = btn.querySelector('.column-sort-arrow');
+    if (!(arrow instanceof HTMLElement)) return;
+    if (btn.dataset.sortField === state.itemManagementSortBy) {
+      arrow.hidden = false;
+      arrow.classList.toggle('desc', state.itemManagementSortOrder === 'desc');
+    } else {
+      arrow.hidden = true;
+      arrow.classList.remove('desc');
+    }
+  });
 };
 
-app.applyItemManagementSort = () => {
-  const nextSortBy = databaseItemSortFieldSelect instanceof HTMLSelectElement ? databaseItemSortFieldSelect.value : state.itemManagementSortBy;
-  const nextSortOrder = databaseItemSortOrderSelect instanceof HTMLSelectElement ? databaseItemSortOrderSelect.value : state.itemManagementSortOrder;
-  state.itemManagementSortBy = nextSortBy === 'name' || nextSortBy === 'quantity' ? nextSortBy : 'item_id';
-  state.itemManagementSortOrder = nextSortOrder === 'desc' ? 'desc' : 'asc';
-  app.syncItemManagementSortControls();
+app._handleItemManagementSortClick = (sortField) => {
+  if (!app._itemManagementSortFields.includes(sortField)) return;
+  if (state.itemManagementSortBy === sortField) {
+    state.itemManagementSortOrder = state.itemManagementSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.itemManagementSortBy = sortField;
+    state.itemManagementSortOrder = 'asc';
+  }
+  app._syncItemManagementSortArrows();
 };
 
 app.reloadItemManagementCurrentPage = async () => {
@@ -341,7 +352,7 @@ app.syncItemManagementKeywordInput = () => {
 };
 
 app.rerenderItemManagementLocale = () => {
-  app.syncItemManagementSortControls();
+  app._syncItemManagementSortArrows();
   app.syncItemManagementKeywordInput();
 
   if (app.canAccessItemManagement() && state.itemManagementHasLoaded) {
@@ -409,7 +420,7 @@ app.updateItemManagementAccess = (payload = state.databaseHealthSnapshot) => {
   const accessible = app.canAccessItemManagement(payload);
 
   app.syncItemManagementKeywordInput();
-  app.syncItemManagementSortControls();
+  app._syncItemManagementSortArrows();
 
   if (databaseItemManagementSubnavButton instanceof HTMLButtonElement) {
     databaseItemManagementSubnavButton.disabled = !accessible;
@@ -508,7 +519,7 @@ app.handleItemManagementActionClick = (event) => {
 };
 
 export const initDatabaseItemManagementFeature = () => {
-  app.syncItemManagementSortControls();
+  app._syncItemManagementSortArrows();
 
   if (databaseItemManagementShell instanceof HTMLElement) {
     databaseItemManagementShell.addEventListener('click', app.handleItemManagementActionClick);
@@ -548,19 +559,16 @@ export const initDatabaseItemManagementFeature = () => {
     });
   }
 
-  if (databaseItemSortFieldSelect instanceof HTMLSelectElement) {
-    databaseItemSortFieldSelect.addEventListener('change', () => {
-      app.applyItemManagementSort();
-      state.itemManagementCurrentPage = 1;
-      if (app.canAccessItemManagement()) {
-        void app.loadSelectedAccountItems(1);
-      }
-    });
-  }
-
-  if (databaseItemSortOrderSelect instanceof HTMLSelectElement) {
-    databaseItemSortOrderSelect.addEventListener('change', () => {
-      app.applyItemManagementSort();
+  const itemManagementTable = document.querySelector('#database-item-management-section .item-management-table');
+  if (itemManagementTable instanceof HTMLElement) {
+    itemManagementTable.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const sortBtn = target.closest('.column-sort-btn');
+      if (!(sortBtn instanceof HTMLButtonElement)) return;
+      const sortField = sortBtn.dataset.sortField;
+      if (!sortField) return;
+      app._handleItemManagementSortClick(sortField);
       state.itemManagementCurrentPage = 1;
       if (app.canAccessItemManagement()) {
         void app.loadSelectedAccountItems(1);

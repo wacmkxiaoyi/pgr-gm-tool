@@ -11,6 +11,14 @@
   z-index: 40;
 }
 
+#item-delete-modal {
+  z-index: 50;
+}
+
+#player-mutation-risk-modal {
+  z-index: 60;
+}
+
 .login-modal[hidden] {
   display: none;
 }

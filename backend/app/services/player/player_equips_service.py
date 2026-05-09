@@ -13,12 +13,16 @@ from backend.app.db import create_mongo_client
 from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.equips import (
+    get_equip_resonance_map,
     get_equip_breakthrough_level_limit_map,
     get_equip_breakthrough_max_map,
     get_equip_name_map,
-    get_equip_resonance_skills_map,
     get_equip_site_map,
     get_equip_star_map,
+)
+from backend.app.services.player.characters import (
+    get_attrib_pool_entries_map,
+    get_character_skill_pool_entries_map,
 )
 from backend.app.services.player.equips.levelup_template import (
     get_breakthrough_levelup_template_map,
@@ -28,8 +32,8 @@ from backend.app.services.player.equips.levelup_template import (
     get_levelup_template_max_level,
 )
 from backend.app.services.player.equips.weapon import (
+    get_weapon_skill_pool_entries_map,
     get_weapon_overrun_max_level_map,
-    get_weapon_skill_name_desciption_map,
     get_weapon_type_name_map,
 )
 from backend.app.services.player.player_profile import get_character_log_name_map
@@ -211,6 +215,41 @@ def _normalize_weapon_resonance_list(value: Any) -> list[WeaponResonanceRecord]:
     return normalized_list
 
 
+def _is_valid_weapon_resonance_entry(
+    weapon_template_id: int,
+    entry_type: int,
+    template_id: int,
+    character_id: int,
+) -> bool:
+    resonance_map = get_equip_resonance_map()
+    resonance_pools = resonance_map.get(weapon_template_id)
+    if not isinstance(resonance_pools, list) or len(resonance_pools) < 3:
+        return False
+
+    if entry_type == 1:
+        attrib_pool_entries_map = get_attrib_pool_entries_map()
+        return any(
+            any(int(entry.get("TemplateId", -1)) == template_id for entry in attrib_pool_entries_map.get(pool_id, []))
+            for pool_id in resonance_pools[0]
+        )
+
+    if entry_type == 2:
+        character_skill_pool_entries_map = get_character_skill_pool_entries_map()
+        return any(
+            any(int(entry.get("TemplateId", -1)) == template_id for entry in character_skill_pool_entries_map.get(pool_id, []))
+            for pool_id in resonance_pools[1]
+        )
+
+    if entry_type == 3:
+        weapon_skill_pool_entries_map = get_weapon_skill_pool_entries_map()
+        return any(
+            template_id in weapon_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
+            for pool_id in resonance_pools[2]
+        )
+
+    return False
+
+
 def _normalize_weapon_overrun_data(value: Any) -> WeaponOverrunRecord | None:
     if not isinstance(value, dict):
         return None
@@ -245,59 +284,6 @@ def _build_weapon_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     )
     normalized_item.EnhancementLevel = _weapon_enhancement_level(normalized_item, breakthrough_level_limit_map)
     return normalized_item
-
-
-def _resolve_weapon_skill_info(template_id: int | None) -> dict[str, str] | None:
-    if template_id is None:
-        return None
-    return get_weapon_skill_name_desciption_map().get(template_id)
-
-
-def _resolve_resonance_effect_info(entry: WeaponResonanceRecord) -> dict[str, str] | None:
-    entry_type = _parse_optional_int(entry.Type)
-    template_id = _parse_optional_int(entry.TemplateId)
-    if entry_type is None or template_id is None:
-        return None
-
-    resonance_skill_collections = get_equip_resonance_skills_map().values()
-
-    if entry_type == 1:
-        for all_type_skills in resonance_skill_collections:
-            for skill in all_type_skills[0] if isinstance(all_type_skills[0], list) else []:
-                if not isinstance(skill, dict):
-                    continue
-                if _parse_optional_int(skill.get("TemplateId")) != template_id:
-                    continue
-                return {
-                    "Name": str(skill.get("Name") or "").strip(),
-                    "Description": str(skill.get("Description") or "").strip(),
-                }
-        return None
-    if entry_type == 2:
-        for all_type_skills in resonance_skill_collections:
-            for skill in all_type_skills[1] if isinstance(all_type_skills[1], list) else []:
-                if not isinstance(skill, dict):
-                    continue
-                if _parse_optional_int(skill.get("TemplateId")) != template_id:
-                    continue
-                return {
-                    "Name": str(skill.get("Name") or "").strip(),
-                    "Description": str(skill.get("Description") or "").strip(),
-                }
-        return None
-    if entry_type == 3:
-        character_id = _parse_optional_int(entry.CharacterId)
-        if character_id is None:
-            return None
-
-        for all_type_skills in resonance_skill_collections:
-            weapon_skill_map = all_type_skills[2] if len(all_type_skills) > 2 and isinstance(all_type_skills[2], dict) else {}
-            skill_ids = weapon_skill_map.get(character_id) if isinstance(weapon_skill_map, dict) else None
-            if not isinstance(skill_ids, list) or template_id not in skill_ids:
-                continue
-            return _resolve_weapon_skill_info(template_id)
-        return None
-    return None
 
 
 def _matching_uid_query(uid: int) -> dict[str, Any]:
@@ -702,20 +688,19 @@ class PlayerEquipsService:
                     current_level_exp_limit = per_exp
 
         resonance_info = None
-        if template_id in get_equip_resonance_skills_map():
+        resonance_raw = target_equip.get("ResonanceInfo")
+        if isinstance(resonance_raw, list):
+            resonance_entries = _normalize_weapon_resonance_list(resonance_raw)
             resonance_info = []
-            for entry in _normalize_weapon_resonance_list(target_equip.get("ResonanceInfo")):
+            for entry in resonance_entries:
                 slot = _parse_optional_int(entry.Slot)
                 if slot is None:
                     continue
 
-                effect_info = _resolve_resonance_effect_info(entry) or {}
-
                 resonance_info.append(WeaponResonanceExtraInfoRecord(
                     slot=slot,
                     type=_parse_optional_int(entry.Type),
-                    effect_name=effect_info.get("Name"),
-                    effect_description=effect_info.get("Description"),
+                    template_id=_parse_optional_int(entry.TemplateId),
                     character_id=_parse_optional_int(entry.CharacterId),
                 ))
 
@@ -727,8 +712,6 @@ class PlayerEquipsService:
             if weapon_overrun_data is None:
                 weapon_overrun_data = WeaponOverrunRecord()
 
-        weapon_skill_info = _resolve_weapon_skill_info(template_id)
-
         return WeaponExtraInfoRecord(
             max_breakthrough=max_breakthrough,
             breakthrough_level_limit_map={
@@ -737,11 +720,175 @@ class PlayerEquipsService:
                 if isinstance(stage, int) and isinstance(level_limit, int)
             },
             current_level_exp_limit=current_level_exp_limit,
-            weapon_skill_name=(weapon_skill_info or {}).get("Name"),
-            weapon_skill_description=(weapon_skill_info or {}).get("Description"),
             resonance_info=resonance_info,
             WeaponOverrunData=weapon_overrun_data,
         )
+
+    async def set_weapon_resonance(self, uid: int, record_id: int, payload) -> WeaponResonanceRecord:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not isinstance(document, dict):
+            raise ValueError("equips.not_found")
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+                break
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_weapon_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        resonance_raw = target_equip.get("ResonanceInfo")
+        existing_resonance = (
+            _normalize_weapon_resonance_list(resonance_raw)
+            if isinstance(resonance_raw, list)
+            else []
+        )
+
+        slot = int(payload.Slot)
+        entry_type = int(payload.Type)
+        template_id_value = int(payload.TemplateId)
+        character_id = int(payload.CharacterId)
+
+        if not _is_valid_weapon_resonance_entry(template_id, entry_type, template_id_value, character_id):
+            raise ValueError("equips.resonance_invalid")
+
+        new_entry = WeaponResonanceRecord(
+            Slot=slot,
+            Type=entry_type,
+            CharacterId=character_id,
+            TemplateId=template_id_value,
+        )
+
+        updated = False
+        for i, entry in enumerate(existing_resonance):
+            if _parse_optional_int(entry.Slot) == slot:
+                existing_resonance[i] = new_entry
+                updated = True
+                break
+
+        if not updated:
+            existing_resonance.append(new_entry)
+
+        target_equip["ResonanceInfo"] = [
+            entry.model_dump() for entry in existing_resonance
+        ]
+        raw_equips[target_index] = target_equip
+        normalized_update = self._build_equips_update(raw_equips)
+
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        return new_entry
+
+    async def delete_weapon_resonance(self, uid: int, record_id: int, slot: int) -> bool:
+        normalized_record_id = int(record_id)
+        normalized_slot = int(slot)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not isinstance(document, dict):
+            raise ValueError("equips.not_found")
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+                break
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_weapon_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        resonance_raw = target_equip.get("ResonanceInfo")
+        existing_resonance = (
+            _normalize_weapon_resonance_list(resonance_raw)
+            if isinstance(resonance_raw, list)
+            else []
+        )
+
+        filtered_resonance = [
+            entry for entry in existing_resonance if _parse_optional_int(entry.Slot) != normalized_slot
+        ]
+        if len(filtered_resonance) == len(existing_resonance):
+            return False
+
+        target_equip["ResonanceInfo"] = [
+            entry.model_dump() for entry in filtered_resonance
+        ]
+        raw_equips[target_index] = target_equip
+        normalized_update = self._build_equips_update(raw_equips)
+
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        return True
 
     async def list_character_weapons(
         self,

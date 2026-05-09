@@ -12,6 +12,7 @@ const {
   databaseAccountsPaginationLabel,
   databaseAccountsJumpInput,
   databaseAccountsJumpButton,
+  databaseAccountsSearchInput,
   databaseSelectedAccountLabel,
 } = dom;
 
@@ -167,6 +168,43 @@ app.renderAccountRows = (items) => {
   app.updateAccountSelectionUi();
 };
 
+app._accountsSortFields = ['uid', 'username'];
+
+app._syncAccountsSortArrows = () => {
+  const table = document.querySelector('#database-accounts-section .accounts-table');
+  if (!(table instanceof HTMLElement)) return;
+  const buttons = table.querySelectorAll('.column-sort-btn');
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    const arrow = btn.querySelector('.column-sort-arrow');
+    if (!(arrow instanceof HTMLElement)) return;
+    if (btn.dataset.sortField === state.accountsSortBy) {
+      arrow.hidden = false;
+      arrow.classList.toggle('desc', state.accountsSortOrder === 'desc');
+    } else {
+      arrow.hidden = true;
+      arrow.classList.remove('desc');
+    }
+  });
+};
+
+app._handleAccountsSortClick = (sortField) => {
+  if (!app._accountsSortFields.includes(sortField)) return;
+  if (state.accountsSortBy === sortField) {
+    state.accountsSortOrder = state.accountsSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.accountsSortBy = sortField;
+    state.accountsSortOrder = 'asc';
+  }
+  app._syncAccountsSortArrows();
+};
+
+app.syncAccountsKeywordInput = () => {
+  if (databaseAccountsSearchInput instanceof HTMLInputElement) {
+    databaseAccountsSearchInput.value = state.accountsKeyword;
+  }
+};
+
 app.loadSelectedAccount = async () => {
   try {
     const payload = await app.apiFetch('/api/database-accounts/selection');
@@ -215,6 +253,9 @@ app.selectDatabaseAccount = async (uid) => {
 
 app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
   const healthy = app.isDatabaseHealthy(payload);
+
+  app.syncAccountsKeywordInput();
+  app._syncAccountsSortArrows();
 
   if (databaseAccountsSubnavButton instanceof HTMLButtonElement) {
     databaseAccountsSubnavButton.disabled = !healthy;
@@ -294,7 +335,16 @@ app.loadDatabaseAccounts = async (page = 1) => {
   app.setAccountsState(app.translate('dashboard.accountsStateLoading'), 'is-loading');
 
   try {
-    const payload = await app.apiFetch(`/api/database-accounts?page=${state.accountsCurrentPage}&page_size=10`);
+    const params = new URLSearchParams({
+      page: String(state.accountsCurrentPage),
+      page_size: '10',
+      sort_by: state.accountsSortBy,
+      sort_order: state.accountsSortOrder,
+    });
+    if (state.accountsKeyword) {
+      params.set('keyword', state.accountsKeyword);
+    }
+    const payload = await app.apiFetch(`/api/database-accounts?${params.toString()}`);
 
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.accountsCurrentPage = typeof payload?.page === 'number' ? payload.page : state.accountsCurrentPage;
@@ -330,6 +380,38 @@ app.loadDatabaseAccounts = async (page = 1) => {
 export const initDatabaseAccountsFeature = () => {
   if (databaseAccountsBody instanceof HTMLElement) {
     databaseAccountsBody.addEventListener('click', app.handleAccountActionClick);
+  }
+
+  if (databaseAccountsSearchInput instanceof HTMLInputElement) {
+    databaseAccountsSearchInput.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      state.accountsKeyword = databaseAccountsSearchInput.value.trim();
+      state.accountsCurrentPage = 1;
+      if (app.isDatabaseHealthy()) {
+        void app.loadDatabaseAccounts(1);
+      }
+    });
+  }
+
+  const accountsTable = document.querySelector('#database-accounts-section .accounts-table');
+  if (accountsTable instanceof HTMLElement) {
+    accountsTable.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const sortBtn = target.closest('.column-sort-btn');
+      if (!(sortBtn instanceof HTMLButtonElement)) return;
+      const sortField = sortBtn.dataset.sortField;
+      if (!sortField) return;
+      app._handleAccountsSortClick(sortField);
+      state.accountsCurrentPage = 1;
+      if (app.isDatabaseHealthy()) {
+        void app.loadDatabaseAccounts(1);
+      }
+    });
   }
 
   if (databaseAccountsPrevButton instanceof HTMLButtonElement) {

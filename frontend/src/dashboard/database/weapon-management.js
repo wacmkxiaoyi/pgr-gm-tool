@@ -14,8 +14,6 @@ const {
   databaseWeaponManagementPaginationLabel,
   databaseWeaponManagementJumpInput,
   databaseWeaponManagementJumpButton,
-  databaseWeaponSortFieldSelect,
-  databaseWeaponSortOrderSelect,
   databaseWeaponSearchInput,
   weaponDetailModal,
   weaponDetailCloseTargets,
@@ -35,6 +33,12 @@ const {
   weaponDetailOverrunSection,
   weaponDetailOverrunContent,
   weaponDetailTooltip,
+  resonanceEffectTooltip,
+  weaponResonanceCharacterPickerModal,
+  weaponResonanceCharacterPickerSummary,
+  weaponResonanceCharacterPickerGrid,
+  weaponResonanceCharacterPickerConfirmButton,
+  weaponResonanceCharacterPickerCloseTargets,
 } = dom;
 
 const WEAPON_DETAIL_TOOLTIP_DELAY_MS = 500;
@@ -57,6 +61,751 @@ app.stripMarkupText = (value) => {
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .trim();
+};
+
+app.buildResonanceResolveIndices = () => {
+  const attribByTemplate = {};
+  const attribPoolEntriesMap = state.attribPoolEntriesMap || {};
+  for (const entries of Object.values(attribPoolEntriesMap)) {
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      const tid = Number(entry?.TemplateId);
+      if (!Number.isFinite(tid)) continue;
+      attribByTemplate[tid] = {
+        Name: String(entry?.Name || '').trim(),
+        Description: String(entry?.Description || '').trim(),
+      };
+    }
+  }
+
+  const characterSkillByTemplate = {};
+  const characterSkillPoolEntriesMap = state.characterSkillPoolEntriesMap || {};
+  for (const entries of Object.values(characterSkillPoolEntriesMap)) {
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      const tid = Number(entry?.TemplateId);
+      if (!Number.isFinite(tid)) continue;
+      characterSkillByTemplate[tid] = {
+        Name: String(entry?.Name || '').trim(),
+        Description: String(entry?.Description || '').trim(),
+      };
+    }
+  }
+
+  const weaponSkillByCharTemplate = {};
+  const weaponSkillPoolEntriesMap = state.weaponSkillPoolEntriesMap || {};
+  const weaponSkillEntriesMap = state.weaponSkillEntriesMap || {};
+  for (const pool of Object.values(weaponSkillPoolEntriesMap)) {
+    if (typeof pool !== 'object' || pool === null) continue;
+    for (const [charIdRaw, skillIds] of Object.entries(pool)) {
+      const charId = Number(charIdRaw);
+      if (!Number.isFinite(charId) || !Array.isArray(skillIds)) continue;
+      for (const skillId of skillIds) {
+        const sid = Number(skillId);
+        if (!Number.isFinite(sid)) continue;
+        const key = `${charId}_${sid}`;
+        if (weaponSkillByCharTemplate[key]) continue;
+        const entry = weaponSkillEntriesMap[sid];
+        weaponSkillByCharTemplate[key] = entry && typeof entry === 'object'
+          ? {
+              Name: String(entry.Name || '').trim(),
+              Description: String(entry.Description || '').trim(),
+            }
+          : { Name: '', Description: '' };
+      }
+    }
+  }
+
+  state._attribByTemplate = attribByTemplate;
+  state._characterSkillByTemplate = characterSkillByTemplate;
+  state._weaponSkillByCharTemplate = weaponSkillByCharTemplate;
+};
+
+app.resolveWeaponSkillName = (templateId) => {
+  const entry = (state.weaponSkillEntriesMap || {})[templateId];
+  if (entry && typeof entry === 'object') {
+    return String(entry.Name || '').trim();
+  }
+  return '';
+};
+
+app.resolveWeaponSkillDescription = (templateId) => {
+  const entry = (state.weaponSkillEntriesMap || {})[templateId];
+  if (entry && typeof entry === 'object') {
+    return String(entry.Description || '').trim();
+  }
+  return '';
+};
+
+app.resolveResonanceEffectInfo = (resonanceEntry) => {
+  const type = Number(resonanceEntry?.type);
+  const templateId = Number(resonanceEntry?.template_id);
+  const characterId = Number(resonanceEntry?.character_id);
+  if (!Number.isFinite(type) || !Number.isFinite(templateId)) return null;
+
+  if (type === 1) {
+    return state._attribByTemplate?.[templateId] || null;
+  }
+
+  if (type === 2) {
+    return state._characterSkillByTemplate?.[templateId] || null;
+  }
+
+  if (type === 3) {
+    if (!Number.isFinite(characterId)) return null;
+    const key = `${characterId}_${templateId}`;
+    return state._weaponSkillByCharTemplate?.[key] || null;
+  }
+
+  return null;
+};
+
+app.getPendingResonanceEffectState = (slot) => {
+  const pendingEffectMap = state._weaponResonancePendingEffect;
+  if (!pendingEffectMap || !Object.prototype.hasOwnProperty.call(pendingEffectMap, slot)) {
+    return { hasPending: false, effect: null };
+  }
+
+  const pendingEffect = pendingEffectMap[slot];
+  return {
+    hasPending: true,
+    effect: pendingEffect && typeof pendingEffect === 'object' ? pendingEffect : null,
+  };
+};
+
+app.getEffectiveResonanceEffectSelection = (slot) => {
+  const pendingState = app.getPendingResonanceEffectState(slot);
+  if (pendingState.hasPending) {
+    return pendingState;
+  }
+
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  if (!entry) {
+    return { hasPending: false, effect: null };
+  }
+
+  const effectInfo = app.resolveResonanceEffectInfo(entry);
+  return {
+    hasPending: false,
+    effect: {
+      type: Number(entry.type),
+      template_id: Number(entry.template_id),
+      name: effectInfo?.Name || '',
+      description: app.stripMarkupText(effectInfo?.Description),
+    },
+  };
+};
+
+app.hasResonanceSlotData = (slot) => {
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  if (!entry) {
+    return false;
+  }
+
+  const hasEffect = Number.isFinite(Number(entry.type))
+    && Number.isFinite(Number(entry.template_id));
+  const characterId = Number(entry.character_id);
+  const hasCharacter = Number.isFinite(characterId) && characterId > 0;
+
+  return hasEffect || hasCharacter;
+};
+
+app.getCurrentWeaponDetailRecordId = () => {
+  const recordId = Number(state.currentWeaponDetailItem?._id ?? state.currentWeaponDetailItem?.record_id);
+  return Number.isFinite(recordId) ? recordId : null;
+};
+
+app.canSaveResonanceSlot = (slot) => {
+  if (!state._weaponResonanceEditSlots?.[slot]) {
+    return true;
+  }
+
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+  const characterId = pendingCharacterId != null
+    ? Number(pendingCharacterId)
+    : Number(entry?.character_id);
+  if (!Number.isFinite(characterId)) {
+    return false;
+  }
+
+  const effectState = app.getEffectiveResonanceEffectSelection(slot);
+  return Number.isFinite(Number(effectState.effect?.type))
+    && Number.isFinite(Number(effectState.effect?.template_id));
+};
+
+app.hasWeaponResonanceConfig = (weaponTemplateId) => {
+  if (!Number.isFinite(Number(weaponTemplateId))) {
+    return false;
+  }
+
+  const resonanceMap = state.equipResonanceMap;
+  return resonanceMap && typeof resonanceMap === 'object'
+    ? Object.prototype.hasOwnProperty.call(resonanceMap, weaponTemplateId)
+    : false;
+};
+
+app.buildResonanceEffectCatalog = (weaponTemplateId, characterId) => {
+  const resonanceData = state.equipResonanceMap?.[weaponTemplateId];
+  if (!Array.isArray(resonanceData) || resonanceData.length < 3) {
+    return [];
+  }
+
+  const seen = new Set();
+  const addIfNew = (item) => {
+    const key = `${item.type}_${item.template_id}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    catalog.push(item);
+  };
+
+  const catalog = [];
+  const normalizedCharacterId = Number(characterId);
+
+  const attribPoolIds = resonanceData[0] || [];
+  for (const poolId of attribPoolIds) {
+    const entries = state.attribPoolEntriesMap?.[poolId];
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      if (!entry || typeof entry !== 'object') continue;
+      const templateId = Number(entry.TemplateId);
+      if (!Number.isFinite(templateId)) continue;
+      addIfNew({
+        type: 1,
+        template_id: templateId,
+        name: String(entry.Name ?? ''),
+        description: String(entry.Description ?? ''),
+      });
+    }
+  }
+
+  const charSkillPoolIds = resonanceData[1] || [];
+  for (const poolId of charSkillPoolIds) {
+    const entries = state.characterSkillPoolEntriesMap?.[poolId];
+    if (!Array.isArray(entries)) continue;
+    for (const entry of entries) {
+      if (!entry || typeof entry !== 'object') continue;
+      const templateId = Number(entry.TemplateId);
+      if (!Number.isFinite(templateId)) continue;
+      addIfNew({
+        type: 2,
+        template_id: templateId,
+        name: String(entry.Name ?? ''),
+        description: String(entry.Description ?? ''),
+      });
+    }
+  }
+
+  const weaponSkillPoolIds = resonanceData[2] || [];
+  if (Number.isFinite(normalizedCharacterId)) {
+    for (const poolId of weaponSkillPoolIds) {
+      const poolEntries = state.weaponSkillPoolEntriesMap?.[poolId];
+      if (!poolEntries || typeof poolEntries !== 'object') continue;
+      const skillIds = poolEntries[normalizedCharacterId];
+      if (!Array.isArray(skillIds)) continue;
+      for (const skillId of skillIds) {
+        const skillNum = Number(skillId);
+        if (!Number.isFinite(skillNum)) continue;
+        const skillEntry = state.weaponSkillEntriesMap?.[skillNum];
+        if (!skillEntry || typeof skillEntry !== 'object') continue;
+        addIfNew({
+          type: 3,
+          template_id: skillNum,
+          name: String(skillEntry.Name ?? ''),
+          description: String(skillEntry.Description ?? ''),
+        });
+      }
+    }
+  }
+
+  return catalog;
+};
+
+app._getResonanceEffectModalDom = () => {
+  const { dom: d } = app;
+  return {
+    modal: d.resonanceEffectModal,
+    searchInput: d.resonanceEffectSearchInput,
+    sortNameBtn: d.resonanceEffectSortNameBtn,
+    sortArrow: d.resonanceEffectSortArrow,
+    tableBody: d.resonanceEffectTableBody,
+    emptyState: d.resonanceEffectEmptyState,
+    closeTargets: d.resonanceEffectCloseTargets,
+    confirmButton: d.resonanceEffectConfirmButton,
+  };
+};
+
+app.renderResonanceEffectModalRows = () => {
+  const els = app._getResonanceEffectModalDom();
+  if (!(els.tableBody instanceof HTMLElement) || !(els.emptyState instanceof HTMLElement)) {
+    return;
+  }
+
+  const currentItem = state.currentWeaponDetailItem;
+  const slot = state._resonanceEffectModalActiveSlot;
+  if (currentItem == null || !Number.isFinite(slot)) {
+    els.tableBody.innerHTML = '';
+    els.emptyState.hidden = false;
+    return;
+  }
+
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+  const characterId = pendingCharacterId != null
+    ? Number(pendingCharacterId)
+    : Number(entry?.character_id);
+  if (!Number.isFinite(characterId)) {
+    els.tableBody.innerHTML = '';
+    els.emptyState.hidden = false;
+    return;
+  }
+
+  const catalog = app.buildResonanceEffectCatalog(Number(currentItem.TemplateId), characterId);
+  if (catalog.length === 0) {
+    els.tableBody.innerHTML = '';
+    els.emptyState.hidden = false;
+    return;
+  }
+
+  const keyword = (state._resonanceEffectModalSearchKeyword || '').trim().toLowerCase();
+  const sortOrder = state._resonanceEffectModalSortOrder === 'desc' ? -1 : 1;
+  const selectedEntry = state._resonanceEffectModalSelectedEntry;
+
+  let filtered = catalog;
+  if (keyword) {
+    filtered = catalog.map((item) => {
+      const nameLower = item.name.toLowerCase();
+      const descLower = item.description.toLowerCase();
+      let priority = null;
+      if (nameLower.includes(keyword)) {
+        priority = 0;
+      } else if (descLower.includes(keyword)) {
+        priority = 1;
+      }
+      return { item, priority };
+    }).filter(({ priority }) => priority !== null);
+  } else {
+    filtered = catalog.map((item) => ({ item, priority: 0 }));
+  }
+
+  filtered.sort((a, b) => {
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+    const nameCmp = a.item.name.localeCompare(b.item.name, undefined, { sensitivity: 'base' });
+    return nameCmp * sortOrder;
+  });
+
+  els.tableBody.innerHTML = filtered.map(({ item }) => {
+    const isSelected = selectedEntry != null
+      && Number(selectedEntry.type) === Number(item.type)
+      && Number(selectedEntry.template_id) === Number(item.template_id);
+    const escapedName = app.escapeHtml(item.name);
+    const escapedDesc = app.escapeHtml(app.stripMarkupText(item.description));
+    const fullDesc = app.stripMarkupText(item.description);
+    const escapedFullDesc = String(fullDesc).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    return `
+      <tr class="resonance-effect-table-row${isSelected ? ' is-selected' : ''}"
+          data-resonance-effect-type="${item.type}"
+          data-resonance-effect-template-id="${item.template_id}">
+        <td class="resonance-effect-name">${escapedName}</td>
+        <td class="resonance-effect-description" data-full-description="${escapedFullDesc}">${escapedDesc}</td>
+        <td>
+          <input class="resonance-effect-radio" type="radio"
+                 name="resonance-effect-radio"
+                 data-resonance-effect-type="${item.type}"
+                 data-resonance-effect-template-id="${item.template_id}"
+                 ${isSelected ? 'checked' : ''}>
+        </td>
+      </tr>
+    `;
+  }).join('');
+  els.emptyState.hidden = filtered.length > 0;
+};
+
+app._syncResonanceEffectSortArrow = () => {
+  const els = app._getResonanceEffectModalDom();
+  if (els.sortArrow instanceof HTMLElement) {
+    els.sortArrow.classList.toggle('desc', state._resonanceEffectModalSortOrder === 'desc');
+  }
+};
+
+app.openResonanceEffectModal = (slot) => {
+  if (!Number.isFinite(slot)) return;
+
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  const pendingCharId = state._weaponResonancePendingCharacter?.[slot];
+  const characterId = pendingCharId != null
+    ? Number(pendingCharId)
+    : Number(entry?.character_id);
+  if (!Number.isFinite(characterId)) {
+    app.openControlModal(app.translate('dashboard.weaponDetailResonanceBindCharFirst'), { title: app.translate('dashboard.weaponDetailCannotSelect'), tone: 'error' });
+    return;
+  }
+
+  const currentItem = state.currentWeaponDetailItem;
+  if (currentItem == null || !Number.isFinite(Number(currentItem.TemplateId))) {
+    app.openControlModal(app.translate('dashboard.weaponDetailCannotGetWeaponInfo'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+    return;
+  }
+
+  state._resonanceEffectModalActiveSlot = slot;
+  state._resonanceEffectModalSearchKeyword = '';
+  state._resonanceEffectModalSortOrder = 'asc';
+  const pendingState = app.getPendingResonanceEffectState(slot);
+  if (pendingState.effect) {
+    state._resonanceEffectModalSelectedEntry = pendingState.effect;
+  } else if (!pendingState.hasPending && entry && Number.isFinite(Number(entry.type)) && Number.isFinite(Number(entry.template_id))) {
+    const effectInfo = app.resolveResonanceEffectInfo(entry);
+    state._resonanceEffectModalSelectedEntry = {
+      type: Number(entry.type),
+      template_id: Number(entry.template_id),
+      name: effectInfo?.Name || '',
+      description: app.stripMarkupText(effectInfo?.Description),
+    };
+  } else {
+    state._resonanceEffectModalSelectedEntry = null;
+  }
+
+  const els = app._getResonanceEffectModalDom();
+  if (els.searchInput instanceof HTMLInputElement) {
+    els.searchInput.value = '';
+  }
+  app._syncResonanceEffectSortArrow();
+  app.renderResonanceEffectModalRows();
+
+  if (els.modal instanceof HTMLElement) {
+    els.modal.hidden = false;
+    app.setBodyModalOpen(true);
+    if (els.searchInput instanceof HTMLInputElement) {
+      els.searchInput.focus();
+    }
+  }
+};
+
+app.closeResonanceEffectModal = (confirm) => {
+  if (confirm) {
+    const selected = state._resonanceEffectModalSelectedEntry;
+    const slot = state._resonanceEffectModalActiveSlot;
+    if (selected != null && Number.isFinite(slot)) {
+      if (!state._weaponResonancePendingEffect) {
+        state._weaponResonancePendingEffect = {};
+      }
+      state._weaponResonancePendingEffect[slot] = {
+        type: Number(selected.type),
+        template_id: Number(selected.template_id),
+        name: selected.name,
+        description: selected.description,
+      };
+      app._renderResonanceEffectCell(slot);
+      app._renderResonanceRowActionCell(slot);
+    }
+  }
+
+  const els = app._getResonanceEffectModalDom();
+  app._hideResonanceDescTooltip();
+  if (els.modal instanceof HTMLElement) {
+    els.modal.hidden = true;
+  }
+  if (!(weaponDetailModal instanceof HTMLElement) || weaponDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+  state._resonanceEffectModalActiveSlot = null;
+  state._resonanceEffectModalSearchKeyword = '';
+  state._resonanceEffectModalSelectedEntry = null;
+};
+
+app._renderResonanceEffectCell = (slot) => {
+  if (!(weaponDetailResonanceBody instanceof HTMLElement)) return;
+  const row = weaponDetailResonanceBody.querySelector(`tr[data-resonance-slot="${slot}"]`);
+  if (!(row instanceof HTMLElement)) return;
+  const effectCell = row.querySelector('td:nth-child(2)');
+  if (!(effectCell instanceof HTMLElement)) return;
+
+  const isEditing = state._weaponResonanceEditSlots?.[slot];
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  const effectState = app.getEffectiveResonanceEffectSelection(slot);
+  const unselectedLabel = app.translate('common.unselected');
+
+  let displayName = '--';
+  if (isEditing) {
+    displayName = effectState.effect?.name || unselectedLabel;
+  } else if (entry) {
+    const effectInfo = app.resolveResonanceEffectInfo(entry);
+    displayName = (effectInfo?.Name) ? effectInfo.Name : app.translate('dashboard.unknown');
+  }
+
+  const escapedName = app.escapeHtml(displayName);
+  if (isEditing) {
+    const effectDescription = effectState.effect?.description || '';
+    const escapedDesc = app.escapeHtml(effectDescription);
+    effectCell.innerHTML = effectDescription
+      ? `<span class="weapon-detail-effect-name" data-resonance-edit-effect data-effect-description="${escapedDesc}" tabindex="0">${escapedName}</span>`
+      : `<span class="weapon-detail-effect-name" data-resonance-edit-effect tabindex="0">${escapedName}</span>`;
+  } else {
+    const effectDescription = entry ? app.stripMarkupText(app.resolveResonanceEffectInfo(entry)?.Description) : '';
+    const escapedDesc = app.escapeHtml(effectDescription);
+    effectCell.innerHTML = entry
+      ? (effectDescription
+        ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedDesc}" tabindex="0">${escapedName}</span>`
+        : `<span class="weapon-detail-effect-name" tabindex="0">${escapedName}</span>`)
+      : escapedName;
+  }
+};
+
+app._renderResonanceBoundCharacterCell = (slot) => {
+  if (!(weaponDetailResonanceBody instanceof HTMLElement)) return;
+  const row = weaponDetailResonanceBody.querySelector(`tr[data-resonance-slot="${slot}"]`);
+  if (!(row instanceof HTMLElement)) return;
+  const charCell = row.querySelector('td:nth-child(3)');
+  if (!(charCell instanceof HTMLElement)) return;
+
+  const isEditing = state._weaponResonanceEditSlots?.[slot];
+  const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+
+  const effectiveCharacterId = pendingCharacterId != null
+    ? Number(pendingCharacterId)
+    : Number(entry?.character_id);
+  const noAvatar = !Number.isFinite(effectiveCharacterId) || effectiveCharacterId === 0;
+
+  const characterName = isEditing && noAvatar
+    ? app.translate('common.unselected')
+    : app.getCharacterNameByCharacterId(effectiveCharacterId);
+  const characterIconUrl = app.getCharacterIconByCharacterId(effectiveCharacterId);
+
+  if (isEditing) {
+    const mediaCell = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+    charCell.innerHTML = `<span class="weapon-detail-bound-char is-editable" data-resonance-bind-char tabindex="0" role="button">${mediaCell}</span>`;
+  } else {
+    charCell.innerHTML = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+  }
+};
+
+app.renderCharacterPickerSummary = () => {
+  if (!(weaponResonanceCharacterPickerSummary instanceof HTMLElement)) return;
+
+  const equippedCharacterId = Number(state.currentWeaponDetailItem?.CharacterId);
+  const hasEquippedCharacter = Number.isFinite(equippedCharacterId) && equippedCharacterId !== 0;
+
+  const selectedCharacterId = Number(state._weaponResonanceCharacterPickerSelectedId);
+  const hasSelectedCharacter = Number.isFinite(selectedCharacterId) && selectedCharacterId !== 0;
+  const selectedCharacterName = hasSelectedCharacter
+    ? app.getCharacterNameByCharacterId(selectedCharacterId)
+    : app.translate('common.unselected');
+  const selectedCharacterIconUrl = hasSelectedCharacter
+    ? app.getCharacterIconByCharacterId(selectedCharacterId)
+    : '';
+
+  const renderSummaryValue = (label, iconUrl, isQuickSelect = false) => {
+    const safeLabel = typeof label === 'string' && label.trim() ? label.trim() : '--';
+    const escapedLabel = app.escapeHtml(safeLabel);
+    const media = `<span class="character-picker-summary-value-media"><span class="character-picker-summary-value-label">${escapedLabel}</span>${iconUrl ? `<img class="character-picker-summary-value-icon" src=".${iconUrl}" alt="${escapedLabel}">` : ''}</span>`;
+
+    if (!isQuickSelect) {
+      return `<span class="character-picker-summary-value">${media}</span>`;
+    }
+
+    return `<button type="button" class="character-picker-summary-value character-picker-summary-quick-select" data-character-picker-equipment-select="true">${media}</button>`;
+  };
+
+  const rows = [];
+  if (hasEquippedCharacter) {
+    rows.push(`
+      <div class="character-picker-summary-row">
+        <span class="character-picker-summary-key">${app.escapeHtml(app.translate('dashboard.weaponDetailBoundCharacter'))}</span>
+        ${renderSummaryValue(app.translate('dashboard.weaponDetailCharPickerEquippedCharacter'), app.getCharacterIconByCharacterId(equippedCharacterId), true)}
+      </div>
+    `);
+  }
+
+  rows.push(`
+    <div class="character-picker-summary-row">
+      <span class="character-picker-summary-key">${app.escapeHtml(app.translate('dashboard.weaponDetailCharPickerTitle'))}</span>
+      ${renderSummaryValue(selectedCharacterName, selectedCharacterIconUrl)}
+    </div>
+  `);
+
+  weaponResonanceCharacterPickerSummary.innerHTML = rows.join('');
+  weaponResonanceCharacterPickerSummary.hidden = false;
+};
+
+app.openCharacterPickerModal = (slot) => {
+  if (!Number.isFinite(slot)) return;
+  if (!(weaponResonanceCharacterPickerModal instanceof HTMLElement)) return;
+
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+  const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+  const currentCharacterId = pendingCharacterId != null
+    ? Number(pendingCharacterId)
+    : Number(entry?.character_id);
+
+  state._weaponResonanceCharacterPickerSlot = slot;
+  state._weaponResonanceCharacterPickerSelectedId = Number.isFinite(currentCharacterId) ? currentCharacterId : null;
+
+  app.renderCharacterPickerGrid();
+  weaponResonanceCharacterPickerModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  const firstSelected = weaponResonanceCharacterPickerGrid instanceof HTMLElement
+    ? weaponResonanceCharacterPickerGrid.querySelector('.is-selected')
+    : null;
+  if (firstSelected instanceof HTMLElement) {
+    firstSelected.focus();
+  } else if (weaponResonanceCharacterPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponResonanceCharacterPickerConfirmButton.focus();
+  }
+};
+
+app.closeCharacterPickerModal = (confirm) => {
+  if (confirm) {
+    const selectedId = state._weaponResonanceCharacterPickerSelectedId;
+    const slot = state._weaponResonanceCharacterPickerSlot;
+    if (Number.isFinite(selectedId) && Number.isFinite(slot)) {
+      if (!state._weaponResonancePendingCharacter) {
+        state._weaponResonancePendingCharacter = {};
+      }
+      state._weaponResonancePendingCharacter[slot] = selectedId;
+
+      const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+        ? state.currentWeaponDetailExtraInfo.resonance_info
+        : [];
+      const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+      const weaponTemplateId = Number(state.currentWeaponDetailItem?.TemplateId);
+      if (Number.isFinite(weaponTemplateId)) {
+        const catalog = app.buildResonanceEffectCatalog(weaponTemplateId, selectedId);
+        const effectState = app.getEffectiveResonanceEffectSelection(slot);
+        const currentEffect = effectState.effect
+          ? { type: Number(effectState.effect.type), template_id: Number(effectState.effect.template_id) }
+          : null;
+        if (currentEffect) {
+          const compatible = catalog.some(
+            (item) => Number(item.type) === currentEffect.type && Number(item.template_id) === currentEffect.template_id,
+          );
+          if (!compatible) {
+            if (!state._weaponResonancePendingEffect) {
+              state._weaponResonancePendingEffect = {};
+            }
+            state._weaponResonancePendingEffect[slot] = null;
+          }
+        }
+      }
+      app._renderResonanceEffectCell(slot);
+      app._renderResonanceBoundCharacterCell(slot);
+      app._renderResonanceRowActionCell(slot);
+    }
+  }
+
+  if (weaponResonanceCharacterPickerModal instanceof HTMLElement) {
+    weaponResonanceCharacterPickerModal.hidden = true;
+  }
+  if (!(weaponDetailModal instanceof HTMLElement) || weaponDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+  state._weaponResonanceCharacterPickerSlot = null;
+  state._weaponResonanceCharacterPickerSelectedId = null;
+};
+
+app.renderCharacterPickerGrid = () => {
+  if (!(weaponResonanceCharacterPickerGrid instanceof HTMLElement)) return;
+
+  const characterNameMap = state.characterLogNameMap || {};
+  const characterIconMap = state.characterHeadIconUrlMap || {};
+  const selectedId = state._weaponResonanceCharacterPickerSelectedId;
+
+  const characterIds = Object.keys(characterNameMap)
+    .map(Number)
+    .filter((id) => Number.isFinite(id) && typeof characterIconMap[id] === 'string' && characterIconMap[id].trim() !== '')
+    .sort((a, b) => a - b);
+
+  weaponResonanceCharacterPickerGrid.innerHTML = characterIds.map((id) => {
+    const isSelected = id === selectedId;
+    const name = characterNameMap[id] || String(id);
+    const iconUrl = `.${characterIconMap[id]}`;
+    const escapedName = app.escapeHtml(name);
+    return `
+      <button type="button" class="character-picker-item${isSelected ? ' is-selected' : ''}" data-character-picker-id="${id}">
+        <span class="character-picker-item-preview">
+          <img src="${iconUrl}" alt="${escapedName}">
+        </span>
+        <strong>${escapedName}</strong>
+      </button>
+    `;
+  }).join('');
+
+  app.renderCharacterPickerSummary();
+
+  if (weaponResonanceCharacterPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponResonanceCharacterPickerConfirmButton.disabled = !Number.isFinite(selectedId);
+  }
+};
+
+app.handleCharacterPickerClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const button = target.closest('[data-character-picker-id]');
+  if (!(button instanceof HTMLElement)) return;
+
+  const selectedId = Number(button.dataset.characterPickerId);
+  if (!Number.isFinite(selectedId)) return;
+
+  state._weaponResonanceCharacterPickerSelectedId = selectedId;
+  app.renderCharacterPickerGrid();
+};
+
+app.handleCharacterPickerSummaryClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const quickSelectButton = target.closest('[data-character-picker-equipment-select]');
+  if (!(quickSelectButton instanceof HTMLElement)) return;
+
+  const equippedCharacterId = Number(state.currentWeaponDetailItem?.CharacterId);
+  if (!Number.isFinite(equippedCharacterId) || equippedCharacterId === 0) return;
+
+  state._weaponResonanceCharacterPickerSelectedId = equippedCharacterId;
+  app.renderCharacterPickerGrid();
+};
+
+app.handleResonanceBoundCharacterClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const charBtn = target.closest('[data-resonance-bind-char]');
+  if (!(charBtn instanceof HTMLElement)) return;
+
+  const row = charBtn.closest('tr[data-resonance-slot]');
+  if (!(row instanceof HTMLElement)) return;
+
+  const slot = Number(row.dataset.resonanceSlot);
+  if (!Number.isFinite(slot)) return;
+
+  app.openCharacterPickerModal(slot);
 };
 
 app.hideWeaponDetailTooltip = () => {
@@ -160,6 +909,112 @@ app.scheduleWeaponDetailTooltip = (target) => {
     state.weaponDetailTooltipTimer = null;
     app.showWeaponDetailTooltip(target);
   }, WEAPON_DETAIL_TOOLTIP_DELAY_MS);
+};
+
+app._hideResonanceDescTooltip = () => {
+  if (state._resonanceDescTooltipTimer) {
+    window.clearTimeout(state._resonanceDescTooltipTimer);
+    state._resonanceDescTooltipTimer = null;
+  }
+  if (resonanceEffectTooltip instanceof HTMLElement) {
+    resonanceEffectTooltip.hidden = true;
+    resonanceEffectTooltip.textContent = '';
+  }
+  state._resonanceDescTooltipTarget = null;
+  state._resonanceDescTooltipMousePosition = null;
+};
+
+app._positionResonanceDescTooltip = () => {
+  if (!(resonanceEffectTooltip instanceof HTMLElement) || resonanceEffectTooltip.hidden) return;
+
+  const target = state._resonanceDescTooltipTarget;
+  const mousePosition = state._resonanceDescTooltipMousePosition;
+  if (!(target instanceof HTMLElement) && mousePosition == null) return;
+
+  const tipRect = resonanceEffectTooltip.getBoundingClientRect();
+  const vw = document.documentElement.clientWidth;
+  const vh = document.documentElement.clientHeight;
+  const margin = 12;
+  const gap = 8;
+  let left = margin;
+  let top = margin;
+
+  if (mousePosition && Number.isFinite(mousePosition.x) && Number.isFinite(mousePosition.y)) {
+    left = mousePosition.x - (tipRect.width / 2);
+    top = mousePosition.y + gap;
+    if (left < margin) left = margin;
+    else if (left + tipRect.width > vw - margin) left = vw - tipRect.width - margin;
+    if (top + tipRect.height > vh - margin) {
+      const above = mousePosition.y - tipRect.height - gap;
+      top = above >= margin ? above : margin;
+    }
+  } else if (target instanceof HTMLElement) {
+    const targetRect = target.getBoundingClientRect();
+    left = targetRect.left + (targetRect.width / 2) - (tipRect.width / 2);
+    top = targetRect.bottom + gap;
+    if (left < margin) left = margin;
+    else if (left + tipRect.width > vw - margin) left = vw - tipRect.width - margin;
+    if (top + tipRect.height > vh - margin) {
+      const above = targetRect.top - tipRect.height - gap;
+      top = above >= margin ? above : margin;
+    }
+  }
+
+  if (top < margin) top = margin;
+  resonanceEffectTooltip.style.left = `${Math.round(left)}px`;
+  resonanceEffectTooltip.style.top = `${Math.round(top)}px`;
+};
+
+app._showResonanceDescTooltip = (target, mousePosition = null) => {
+  if (!(target instanceof HTMLElement) || !(resonanceEffectTooltip instanceof HTMLElement)) return;
+  const fullDesc = target.getAttribute('data-full-description') || '';
+  if (!fullDesc.trim()) {
+    app._hideResonanceDescTooltip();
+    return;
+  }
+  resonanceEffectTooltip.textContent = fullDesc;
+  resonanceEffectTooltip.hidden = false;
+  resonanceEffectTooltip.style.left = '0px';
+  resonanceEffectTooltip.style.top = '0px';
+  state._resonanceDescTooltipTarget = target;
+  state._resonanceDescTooltipMousePosition = mousePosition;
+  window.requestAnimationFrame(() => {
+    app._positionResonanceDescTooltip();
+  });
+};
+
+app._scheduleResonanceDescTooltip = (target, mousePosition = null) => {
+  app._hideResonanceDescTooltip();
+  if (!(target instanceof HTMLElement)) return;
+  state._resonanceDescTooltipTimer = window.setTimeout(() => {
+    state._resonanceDescTooltipTimer = null;
+    app._showResonanceDescTooltip(target, mousePosition);
+  }, WEAPON_DETAIL_TOOLTIP_DELAY_MS);
+};
+
+app.handleResonanceDescTooltipEvent = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const descCell = target.closest('.resonance-effect-description');
+  if (!(descCell instanceof HTMLElement)) {
+    app._hideResonanceDescTooltip();
+    return;
+  }
+  if (event.type === 'mouseover' || event.type === 'focusin') {
+    const mousePosition = event instanceof MouseEvent
+      ? { x: event.clientX, y: event.clientY }
+      : null;
+    app._scheduleResonanceDescTooltip(descCell, mousePosition);
+  } else if (event.type === 'mousemove') {
+    state._resonanceDescTooltipMousePosition = { x: event.clientX, y: event.clientY };
+    if (state._resonanceDescTooltipTarget === descCell && resonanceEffectTooltip instanceof HTMLElement && !resonanceEffectTooltip.hidden) {
+      app._positionResonanceDescTooltip();
+    }
+  } else if (event.type === 'mouseout' || event.type === 'focusout') {
+    const relatedTarget = event.relatedTarget;
+    if (relatedTarget instanceof Node && descCell.contains(relatedTarget)) return;
+    app._hideResonanceDescTooltip();
+  }
 };
 
 app.setWeaponManagementState = (message, tone = '') => {
@@ -385,22 +1240,35 @@ app.reloadWeaponManagementCurrentPage = async () => {
   }
 };
 
-app.syncWeaponManagementSortControls = () => {
-  if (databaseWeaponSortFieldSelect instanceof HTMLSelectElement) {
-    databaseWeaponSortFieldSelect.value = state.weaponManagementSortBy;
-  }
+app._weaponManagementSortFields = ['name', 'character', 'type', 'star', 'enhancement'];
 
-  if (databaseWeaponSortOrderSelect instanceof HTMLSelectElement) {
-    databaseWeaponSortOrderSelect.value = state.weaponManagementSortOrder;
-  }
+app._syncWeaponManagementSortArrows = () => {
+  const table = document.querySelector('#database-weapon-management-section .weapon-management-table');
+  if (!(table instanceof HTMLElement)) return;
+  const buttons = table.querySelectorAll('.column-sort-btn');
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    const arrow = btn.querySelector('.column-sort-arrow');
+    if (!(arrow instanceof HTMLElement)) return;
+    if (btn.dataset.sortField === state.weaponManagementSortBy) {
+      arrow.hidden = false;
+      arrow.classList.toggle('desc', state.weaponManagementSortOrder === 'desc');
+    } else {
+      arrow.hidden = true;
+      arrow.classList.remove('desc');
+    }
+  });
 };
 
-app.applyWeaponManagementSort = () => {
-  const nextSortBy = databaseWeaponSortFieldSelect instanceof HTMLSelectElement ? databaseWeaponSortFieldSelect.value : state.weaponManagementSortBy;
-  const nextSortOrder = databaseWeaponSortOrderSelect instanceof HTMLSelectElement ? databaseWeaponSortOrderSelect.value : state.weaponManagementSortOrder;
-  state.weaponManagementSortBy = ['name', 'type', 'star', 'enhancement'].includes(nextSortBy) ? nextSortBy : 'character';
-  state.weaponManagementSortOrder = nextSortOrder === 'desc' ? 'desc' : 'asc';
-  app.syncWeaponManagementSortControls();
+app._handleWeaponManagementSortClick = (sortField) => {
+  if (!app._weaponManagementSortFields.includes(sortField)) return;
+  if (state.weaponManagementSortBy === sortField) {
+    state.weaponManagementSortOrder = state.weaponManagementSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.weaponManagementSortBy = sortField;
+    state.weaponManagementSortOrder = 'asc';
+  }
+  app._syncWeaponManagementSortArrows();
 };
 
 app.resetWeaponManagementView = () => {
@@ -429,7 +1297,7 @@ app.syncWeaponManagementKeywordInput = () => {
 };
 
 app.rerenderWeaponManagementLocale = () => {
-  app.syncWeaponManagementSortControls();
+  app._syncWeaponManagementSortArrows();
   app.syncWeaponManagementKeywordInput();
 
   if (app.canAccessWeaponManagement() && state.weaponManagementHasLoaded) {
@@ -498,7 +1366,7 @@ app.updateWeaponManagementAccess = (payload = state.databaseHealthSnapshot) => {
   const accessible = app.canAccessWeaponManagement(payload);
 
   app.syncWeaponManagementKeywordInput();
-  app.syncWeaponManagementSortControls();
+  app._syncWeaponManagementSortArrows();
 
   if (databaseWeaponManagementSubnavButton instanceof HTMLButtonElement) {
     databaseWeaponManagementSubnavButton.disabled = !accessible;
@@ -622,9 +1490,10 @@ app.populateWeaponDetailCard = (item) => {
   const resonanceInfo = Array.isArray(extraInfo?.resonance_info) ? extraInfo.resonance_info : [];
   const hasValidStar = Number.isFinite(star) && star >= 2 && star <= 6;
   const btTier = Math.min(Math.max(breakthrough, 0), 4);
-  const skillName = typeof extraInfo?.weapon_skill_name === 'string' ? extraInfo.weapon_skill_name.trim() : '';
-  const skillDescription = app.stripMarkupText(extraInfo?.weapon_skill_description);
+  const skillName = app.resolveWeaponSkillName(templateId);
+  const skillDescription = app.stripMarkupText(app.resolveWeaponSkillDescription(templateId));
   const hasSkill = Boolean(skillName);
+  const hasResonanceConfig = app.hasWeaponResonanceConfig(templateId);
 
   state.currentWeaponDetailItem = item;
 
@@ -718,30 +1587,63 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailResonanceSection instanceof HTMLElement) {
-    weaponDetailResonanceSection.hidden = !(extraInfo && 'resonance_info' in extraInfo);
+    weaponDetailResonanceSection.hidden = !(extraInfo && 'resonance_info' in extraInfo && hasResonanceConfig);
   }
 
   if (weaponDetailResonanceBody instanceof HTMLElement) {
+    if (!(extraInfo && 'resonance_info' in extraInfo && hasResonanceConfig)) {
+      weaponDetailResonanceBody.innerHTML = '';
+      return;
+    }
+
     const rows = [1, 2, 3].map((slot) => {
       const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
       const slotText = slot;
+      const unselectedLabel = app.translate('common.unselected');
 
       let effectText = '--';
       let characterText = '--';
       const isEditing = state._weaponResonanceEditSlots?.[slot];
-      if (entry) {
-        const effectName = typeof entry.effect_name === 'string' && entry.effect_name.trim() ? entry.effect_name.trim() : '未知';
-        const effectDescription = app.stripMarkupText(entry.effect_description);
+      const effectState = app.getEffectiveResonanceEffectSelection(slot);
+      const canDelete = app.hasResonanceSlotData(slot);
+
+      let effectName = null;
+      let effectDescription = '';
+      if (isEditing) {
+        effectName = effectState.effect?.name || unselectedLabel;
+        effectDescription = effectState.effect?.description || '';
+      } else if (entry) {
+        const effectInfo = app.resolveResonanceEffectInfo(entry);
+        effectName = (effectInfo?.Name) ? effectInfo.Name : app.translate('dashboard.unknown');
+        effectDescription = app.stripMarkupText(effectInfo?.Description);
+      }
+
+      if (effectName) {
         const escapedEffectName = app.escapeHtml(effectName);
         const escapedEffectDescription = app.escapeHtml(effectDescription);
-        effectText = !isEditing && effectDescription
-          ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedEffectDescription}" tabindex="0">${escapedEffectName}</span>`
-          : escapedEffectName;
 
-        const characterId = Number(entry.character_id);
-        const characterName = app.getCharacterNameByCharacterId(characterId);
-        const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
-        characterText = app.renderWeaponMediaCell(characterIconUrl, characterName);
+        effectText = effectDescription
+          ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedEffectDescription}"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`
+          : `<span class="weapon-detail-effect-name"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`;
+      }
+
+      {
+        const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+        const effectiveCharacterId = pendingCharacterId != null
+          ? Number(pendingCharacterId)
+          : Number(entry?.character_id);
+        const noAvatar = !Number.isFinite(effectiveCharacterId) || effectiveCharacterId === 0;
+        const characterName = isEditing && noAvatar
+          ? unselectedLabel
+          : app.getCharacterNameByCharacterId(effectiveCharacterId);
+        const characterIconUrl = app.getCharacterIconByCharacterId(effectiveCharacterId);
+
+        if (isEditing) {
+          const mediaCell = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+          characterText = `<span class="weapon-detail-bound-char is-editable" data-resonance-bind-char tabindex="0" role="button">${mediaCell}</span>`;
+        } else {
+          characterText = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+        }
       }
 
       return `
@@ -753,10 +1655,10 @@ app.populateWeaponDetailCard = (item) => {
             <div class="weapon-detail-resonance-actions">
               ${isEditing ? `
               <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button>
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance">${app.translate('dashboard.weaponDetailResonanceSave')}</button>
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance" ${app.canSaveResonanceSlot(slot) ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceSave')}</button>
               ` : `
               <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button>
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance">${app.translate('dashboard.weaponDetailResonanceDelete')}</button>
+              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance" ${canDelete ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceDelete')}</button>
               `}
             </div>
           </td>
@@ -789,6 +1691,9 @@ app.closeWeaponDetailModal = () => {
   state.currentWeaponDetailItem = null;
   state.currentWeaponDetailExtraInfo = null;
   state.weaponDetailLoading = false;
+  state._weaponResonanceEditSlots = {};
+  state._weaponResonancePendingEffect = {};
+  state._weaponResonancePendingCharacter = {};
   app.hideWeaponDetailTooltip();
 
   if (state.lastWeaponDetailFocusedControl instanceof HTMLElement) {
@@ -1005,10 +1910,15 @@ app._renderResonanceRowActionCell = (slot) => {
 
   const isEditing = state._weaponResonanceEditSlots?.[slot];
   row.classList.toggle('resonance-row-editing', isEditing);
+  const canSave = app.canSaveResonanceSlot(slot);
+  const canDelete = app.hasResonanceSlotData(slot);
 
   actionCell.innerHTML = isEditing
-    ? `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance">${app.translate('dashboard.weaponDetailResonanceSave')}</button></div>`
-    : `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance">${app.translate('dashboard.weaponDetailResonanceDelete')}</button></div>`;
+    ? `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance" ${canSave ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceSave')}</button></div>`
+    : `<div class="weapon-detail-resonance-actions"><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button><button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance" ${canDelete ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceDelete')}</button></div>`;
+
+  app._renderResonanceEffectCell(slot);
+  app._renderResonanceBoundCharacterCell(slot);
 };
 
 app.handleResonanceActionClick = (event) => {
@@ -1039,29 +1949,144 @@ app.handleResonanceActionClick = (event) => {
 
   if (action === 'start-editing') {
     state._weaponResonanceEditSlots[slot] = true;
+    if (state._weaponResonancePendingEffect) {
+      delete state._weaponResonancePendingEffect[slot];
+    }
+    if (state._weaponResonancePendingCharacter) {
+      delete state._weaponResonancePendingCharacter[slot];
+    }
     app._renderResonanceRowActionCell(slot);
     return;
   }
 
   if (action === 'cancel-editing') {
     delete state._weaponResonanceEditSlots[slot];
+    if (state._weaponResonancePendingEffect) {
+      delete state._weaponResonancePendingEffect[slot];
+    }
+    if (state._weaponResonancePendingCharacter) {
+      delete state._weaponResonancePendingCharacter[slot];
+    }
     app._renderResonanceRowActionCell(slot);
     return;
   }
 
   if (action === 'save-resonance') {
-    delete state._weaponResonanceEditSlots[slot];
-    app._renderResonanceRowActionCell(slot);
+    const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+      ? state.currentWeaponDetailExtraInfo.resonance_info
+      : [];
+    const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+    const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+    const characterId = pendingCharacterId != null
+      ? Number(pendingCharacterId)
+      : Number(entry?.character_id);
+    if (!Number.isFinite(characterId)) {
+      app.openControlModal(app.translate('dashboard.weaponDetailResonanceBindCharBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
+      return;
+    }
+
+    const effectState = app.getEffectiveResonanceEffectSelection(slot);
+    let effectType;
+    let effectTemplateId;
+    if (effectState.effect) {
+      effectType = Number(effectState.effect.type);
+      effectTemplateId = Number(effectState.effect.template_id);
+    } else if (!effectState.hasPending && entry) {
+      effectType = Number(entry.type);
+      effectTemplateId = Number(entry.template_id);
+    }
+    if (!Number.isFinite(effectType) || !Number.isFinite(effectTemplateId)) {
+      app.openControlModal(app.translate('dashboard.weaponDetailResonanceSelectEffectBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
+      return;
+    }
+
+    const dataChanged = pendingCharacterId != null
+      || effectState.hasPending
+      || !Number.isFinite(entry?.character_id)
+      || !Number.isFinite(entry?.type)
+      || !Number.isFinite(entry?.template_id);
+    if (!dataChanged) {
+      delete state._weaponResonanceEditSlots[slot];
+      app._renderResonanceRowActionCell(slot);
+      return;
+    }
+
+    const recordId = app.getCurrentWeaponDetailRecordId();
+    if (recordId === null) {
+      app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+      return;
+    }
+
+    void (async () => {
+      try {
+        await app.apiFetch(`/api/database-weapons/selected/${recordId}/resonance`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            Slot: slot,
+            Type: effectType,
+            TemplateId: effectTemplateId,
+            CharacterId: characterId,
+          }),
+        });
+        delete state._weaponResonanceEditSlots[slot];
+        if (state._weaponResonancePendingEffect) {
+          delete state._weaponResonancePendingEffect[slot];
+        }
+        if (state._weaponResonancePendingCharacter) {
+          delete state._weaponResonancePendingCharacter[slot];
+        }
+        await app.loadWeaponDetailExtraInfo(recordId);
+      } catch (error) {
+        if (app.isMutationRiskCancelled(error)) {
+          return;
+        }
+        app.openControlModal(app.apiErrorMessage(error, 'dashboard.weaponDetailResonanceSaveFailed'));
+      }
+    })();
     return;
   }
 
   if (action === 'delete-resonance') {
-    app.openControlModal(
-      app.translate('dashboard.weaponDetailResonanceDeleteConfirm', { slot }),
-      { title: app.translate('dashboard.weaponDeleteTitle') },
-    );
+    if (!app.hasResonanceSlotData(slot)) {
+      return;
+    }
+
+    const recordId = app.getCurrentWeaponDetailRecordId();
+    if (recordId === null) {
+      app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+      return;
+    }
+
+    state.pendingDeleteWeaponResonance = {
+      recordId,
+      slot,
+      weaponName: app.getWeaponNameByTemplateId(state.currentWeaponDetailItem?.TemplateId),
+    };
+    app.openWeaponResonanceDeleteModal({
+      slot,
+      weaponName: app.getWeaponNameByTemplateId(state.currentWeaponDetailItem?.TemplateId),
+    }, actionButton);
     return;
   }
+};
+
+app.handleResonanceEffectCellClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const effectBtn = target.closest('[data-resonance-edit-effect]');
+  if (!(effectBtn instanceof HTMLElement)) return;
+
+  const row = effectBtn.closest('tr[data-resonance-slot]');
+  if (!(row instanceof HTMLElement)) return;
+
+  const slot = Number(row.dataset.resonanceSlot);
+  if (!Number.isFinite(slot)) return;
+
+  app.openResonanceEffectModal(slot);
 };
 
 app.handleWeaponDetailTooltipEvent = (event) => {
@@ -1159,7 +2184,7 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
 };
 
 export const initDatabaseWeaponManagementFeature = () => {
-  app.syncWeaponManagementSortControls();
+  app._syncWeaponManagementSortArrows();
 
   if (databaseWeaponManagementShell instanceof HTMLElement) {
     databaseWeaponManagementShell.addEventListener('click', app.handleWeaponManagementActionClick);
@@ -1180,19 +2205,16 @@ export const initDatabaseWeaponManagementFeature = () => {
     });
   }
 
-  if (databaseWeaponSortFieldSelect instanceof HTMLSelectElement) {
-    databaseWeaponSortFieldSelect.addEventListener('change', () => {
-      app.applyWeaponManagementSort();
-      state.weaponManagementCurrentPage = 1;
-      if (app.canAccessWeaponManagement()) {
-        void app.loadSelectedAccountWeapons(1);
-      }
-    });
-  }
-
-  if (databaseWeaponSortOrderSelect instanceof HTMLSelectElement) {
-    databaseWeaponSortOrderSelect.addEventListener('change', () => {
-      app.applyWeaponManagementSort();
+  const weaponManagementTable = document.querySelector('#database-weapon-management-section .weapon-management-table');
+  if (weaponManagementTable instanceof HTMLElement) {
+    weaponManagementTable.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const sortBtn = target.closest('.column-sort-btn');
+      if (!(sortBtn instanceof HTMLButtonElement)) return;
+      const sortField = sortBtn.dataset.sortField;
+      if (!sortField) return;
+      app._handleWeaponManagementSortClick(sortField);
       state.weaponManagementCurrentPage = 1;
       if (app.canAccessWeaponManagement()) {
         void app.loadSelectedAccountWeapons(1);
@@ -1238,6 +2260,8 @@ export const initDatabaseWeaponManagementFeature = () => {
   if (weaponDetailModal instanceof HTMLElement) {
     weaponDetailModal.addEventListener('click', app.handleWeaponDetailFieldActivate);
     weaponDetailModal.addEventListener('click', app.handleResonanceActionClick);
+    weaponDetailModal.addEventListener('click', app.handleResonanceEffectCellClick);
+    weaponDetailModal.addEventListener('click', app.handleResonanceBoundCharacterClick);
     weaponDetailModal.addEventListener('mouseover', app.handleWeaponDetailTooltipEvent);
     weaponDetailModal.addEventListener('mouseout', app.handleWeaponDetailTooltipEvent);
     weaponDetailModal.addEventListener('mousemove', app.handleWeaponDetailTooltipEvent);
@@ -1259,6 +2283,93 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponDetailModal.addEventListener('scroll', app.hideWeaponDetailTooltip, true);
   }
 
+  const resonanceEls = app._getResonanceEffectModalDom();
+  if (resonanceEls.searchInput instanceof HTMLInputElement) {
+    resonanceEls.searchInput.addEventListener('input', () => {
+      if (resonanceEls.modal instanceof HTMLElement && resonanceEls.modal.hidden) return;
+      state._resonanceEffectModalSearchKeyword = resonanceEls.searchInput?.value?.trim() ?? '';
+      app.renderResonanceEffectModalRows();
+    });
+  }
+
+  if (resonanceEls.sortNameBtn instanceof HTMLElement) {
+    resonanceEls.sortNameBtn.addEventListener('click', () => {
+      if (resonanceEls.modal instanceof HTMLElement && resonanceEls.modal.hidden) return;
+      state._resonanceEffectModalSortOrder = state._resonanceEffectModalSortOrder === 'asc' ? 'desc' : 'asc';
+      app._syncResonanceEffectSortArrow();
+      app.renderResonanceEffectModalRows();
+    });
+  }
+
+  if (resonanceEls.tableBody instanceof HTMLElement) {
+    resonanceEls.tableBody.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const row = target.closest('tr[data-resonance-effect-type]');
+      if (!(row instanceof HTMLElement)) return;
+      const effectType = Number(row.dataset.resonanceEffectType);
+      const templateId = Number(row.dataset.resonanceEffectTemplateId);
+      if (!Number.isFinite(effectType) || !Number.isFinite(templateId)) return;
+      const nameCell = row.querySelector('.resonance-effect-name');
+      const effectName = nameCell instanceof HTMLElement ? nameCell.textContent?.trim() ?? '' : '';
+      const descCell = row.querySelector('.resonance-effect-description');
+      const effectDescription = descCell instanceof HTMLElement ? descCell.textContent?.trim() ?? '' : '';
+      state._resonanceEffectModalSelectedEntry = { type: effectType, template_id: templateId, name: effectName, description: effectDescription };
+      app.renderResonanceEffectModalRows();
+    });
+  }
+
+  if (resonanceEls.confirmButton instanceof HTMLElement) {
+    resonanceEls.confirmButton.addEventListener('click', () => app.closeResonanceEffectModal(true));
+  }
+
+  resonanceEls.closeTargets.forEach((target) => {
+    target.addEventListener('click', () => app.closeResonanceEffectModal(false));
+  });
+
+  if (resonanceEls.modal instanceof HTMLElement) {
+    resonanceEls.modal.addEventListener('mouseover', app.handleResonanceDescTooltipEvent);
+    resonanceEls.modal.addEventListener('mouseout', app.handleResonanceDescTooltipEvent);
+    resonanceEls.modal.addEventListener('mousemove', app.handleResonanceDescTooltipEvent);
+    resonanceEls.modal.addEventListener('focusin', app.handleResonanceDescTooltipEvent);
+    resonanceEls.modal.addEventListener('focusout', app.handleResonanceDescTooltipEvent);
+  }
+
   window.addEventListener('scroll', app.hideWeaponDetailTooltip, true);
   window.addEventListener('resize', app.hideWeaponDetailTooltip);
+
+  weaponResonanceCharacterPickerCloseTargets.forEach((target) => {
+    target.addEventListener('click', () => app.closeCharacterPickerModal(false));
+  });
+
+  if (weaponResonanceCharacterPickerSummary instanceof HTMLElement) {
+    weaponResonanceCharacterPickerSummary.addEventListener('click', app.handleCharacterPickerSummaryClick);
+  }
+
+  if (weaponResonanceCharacterPickerGrid instanceof HTMLElement) {
+    weaponResonanceCharacterPickerGrid.addEventListener('click', app.handleCharacterPickerClick);
+  }
+
+  if (weaponResonanceCharacterPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponResonanceCharacterPickerConfirmButton.addEventListener('click', () => {
+      app.closeCharacterPickerModal(true);
+    });
+  }
+
+  if (weaponResonanceCharacterPickerModal instanceof HTMLElement) {
+    weaponResonanceCharacterPickerModal.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target === weaponResonanceCharacterPickerModal || target.classList.contains('login-modal-backdrop')) {
+        app.closeCharacterPickerModal(false);
+      }
+    });
+
+    weaponResonanceCharacterPickerModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-character-picker-id]')) {
+        event.preventDefault();
+        app.closeCharacterPickerModal(true);
+      }
+    });
+  }
 };

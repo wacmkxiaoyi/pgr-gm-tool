@@ -45,6 +45,11 @@ class AppInfoResponse(BaseModel):
     equip_icon_url_map: dict[int, str]
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
+    weapon_skill_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
+    weapon_skill_pool_entries_map: dict[int, dict[int, list[int]]] = Field(default_factory=dict)
+    attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
+    character_skill_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
+    equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
 
 
 class InventoryItemResponse(BaseModel):
@@ -136,8 +141,7 @@ class UpdateWeaponResponse(BaseModel):
 class WeaponResonanceExtraInfoResponse(BaseModel):
     slot: int
     type: int | None = None
-    effect_name: str | None = None
-    effect_description: str | None = None
+    template_id: int | None = None
     character_id: int | None = None
 
 
@@ -145,10 +149,27 @@ class WeaponExtraInfoResponse(BaseModel):
     max_breakthrough: int
     breakthrough_level_limit_map: dict[int, int]
     current_level_exp_limit: int | None = None
-    weapon_skill_name: str | None = None
-    weapon_skill_description: str | None = None
     resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
     WeaponOverrunData: WeaponOverrunResponse | None = None
+
+
+class UpdateWeaponResonanceRequest(BaseModel):
+    Slot: int
+    Type: int
+    TemplateId: int
+    CharacterId: int
+
+
+class UpdateWeaponResonanceResponse(BaseModel):
+    Slot: int
+    Type: int | None = None
+    TemplateId: int | None = None
+    CharacterId: int | None = None
+
+
+class DeleteWeaponResonanceResponse(BaseModel):
+    Slot: int
+    deleted: bool
 
 
 class ClearInventoryItemsRequest(BaseModel):

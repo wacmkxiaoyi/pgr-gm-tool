@@ -31,8 +31,7 @@ class WeaponItemRecord(BaseModel):
 class WeaponResonanceExtraInfoRecord(BaseModel):
     slot: int
     type: int | None = None
-    effect_name: str | None = None
-    effect_description: str | None = None
+    template_id: int | None = None
     character_id: int | None = None
 
 
@@ -40,8 +39,6 @@ class WeaponExtraInfoRecord(BaseModel):
     max_breakthrough: int
     breakthrough_level_limit_map: dict[int, int] = Field(default_factory=dict)
     current_level_exp_limit: int | None = None
-    weapon_skill_name: str | None = None
-    weapon_skill_description: str | None = None
     resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
     WeaponOverrunData: WeaponOverrunRecord | None = None
 

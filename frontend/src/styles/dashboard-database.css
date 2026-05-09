@@ -801,7 +801,8 @@
 
 .weapon-detail-resonance-table tbody tr.resonance-row-editing .weapon-detail-effect-name {
   cursor: pointer;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .weapon-detail-effect-name:focus-visible {
@@ -874,6 +875,130 @@
 .weapon-detail-resonance-table tbody tr.resonance-row-editing td:nth-child(2),
 .weapon-detail-resonance-table tbody tr.resonance-row-editing td:nth-child(3) {
   cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.weapon-detail-resonance-effect-btn {
+  display: inline-block;
+  width: 100%;
+  min-height: 100%;
+  padding: 4px 6px;
+  border: 1px dashed rgba(99, 102, 241, 0.4);
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.06);
+  color: #4338ca;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.weapon-detail-resonance-effect-btn:hover {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+/* ── Resonance effect modal ── */
+
+#resonance-effect-modal {
+  z-index: 35;
+}
+
+.resonance-effect-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.resonance-effect-sort-btn:hover {
+  color: #4338ca;
+}
+
+.resonance-effect-sort-arrow {
+  font-size: 11px;
+  transition: transform 0.2s;
+}
+
+.resonance-effect-sort-arrow.desc {
+  transform: rotate(180deg);
+}
+
+/* ── Generic column sort buttons ── */
+
+.column-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.column-sort-btn:hover {
+  color: #4338ca;
+}
+
+.column-sort-arrow {
+  font-size: 11px;
+  transition: transform 0.2s;
+}
+
+.column-sort-arrow.desc {
+  transform: rotate(180deg);
+}
+
+.resonance-effect-table-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.resonance-effect-table-row:hover {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.resonance-effect-table-row.is-selected {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.resonance-effect-table-row.is-selected:hover {
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.resonance-effect-table-row td {
+  vertical-align: middle;
+}
+
+.resonance-effect-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.resonance-effect-description {
+  color: #64748b;
+  font-size: 13px;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resonance-effect-radio {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #6366f1;
 }
 
 /* ── Region 4: Overrun ── */
@@ -1204,5 +1329,171 @@
   .database-player-profile-meta {
     width: 100%;
     justify-items: start;
+  }
+}
+
+/* ── Character picker for weapon resonance ── */
+
+.character-picker-card {
+  width: min(100%, 920px);
+}
+
+.character-picker-summary {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.character-picker-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.character-picker-summary-row + .character-picker-summary-row {
+  margin-top: 10px;
+}
+
+.character-picker-summary-key {
+  color: var(--muted);
+  font-size: 13px;
+  flex: 0 0 auto;
+}
+
+.character-picker-summary-value {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 100%;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.character-picker-summary-value-media {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+
+.character-picker-summary-value-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.character-picker-summary-value-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  object-fit: contain;
+  background: linear-gradient(145deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  flex: 0 0 auto;
+}
+
+.character-picker-summary-quick-select {
+  cursor: pointer;
+}
+
+.character-picker-summary-quick-select:hover .character-picker-summary-value-label {
+  color: var(--accent);
+}
+
+.character-picker-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  max-height: min(52vh, 560px);
+  overflow: auto;
+  padding: 4px 2px 2px;
+}
+
+.character-picker-item {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 12px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(67, 78, 117, 0.08);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.character-picker-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 79, 160, 0.28);
+  box-shadow: 0 16px 32px rgba(67, 78, 117, 0.12);
+}
+
+.character-picker-item.is-selected {
+  border-color: rgba(255, 79, 160, 0.42);
+  box-shadow: 0 0 0 3px rgba(255, 79, 160, 0.12), 0 16px 32px rgba(67, 78, 117, 0.12);
+}
+
+.character-picker-item-preview {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  overflow: hidden;
+}
+
+.character-picker-item-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.character-picker-item strong {
+  font-size: 14px;
+}
+
+.character-picker-actions {
+  margin-top: 18px;
+}
+
+.character-picker-cancel {
+  margin-right: auto;
+}
+
+/* ── Bound character cell in resonance table (editable in edit mode) ── */
+
+.weapon-detail-bound-char.is-editable {
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(99, 102, 241, 0.5);
+}
+
+.weapon-detail-bound-char.is-editable:hover {
+  text-decoration-color: rgba(255, 79, 160, 0.6);
+}
+
+@media (max-width: 640px) {
+  .character-picker-summary-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .character-picker-summary-value {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
   }
 }

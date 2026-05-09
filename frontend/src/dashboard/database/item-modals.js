@@ -12,6 +12,7 @@ const {
 app.closeItemDeleteModal = () => {
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   if (!(itemDeleteModal instanceof HTMLElement) || itemDeleteModal.hidden) {
@@ -33,6 +34,7 @@ app.openItemDeleteModal = (item, trigger) => {
 
   state.pendingDeleteItem = item;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -53,6 +55,32 @@ app.openItemDeleteModal = (item, trigger) => {
   }
 };
 
+app.openWeaponResonanceDeleteModal = (payload, trigger) => {
+  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+    return;
+  }
+
+  state.pendingDeleteItem = null;
+  state.pendingDeleteWeapon = null;
+  state.pendingClearItemsKeyword = null;
+  state.pendingClearWeaponsKeyword = null;
+  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  itemDeleteTitle.textContent = app.translate('runtime.weaponResonanceDeleteTitle');
+  itemDeleteMessage.textContent = app.translate('runtime.weaponResonanceDeleteConfirm', {
+    weaponName: payload?.weaponName ?? app.translate('common.notAvailable'),
+    slot: payload?.slot ?? app.translate('common.notAvailable'),
+  });
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.textContent = app.translate('runtime.weaponResonanceDeleteSubmit');
+  }
+  itemDeleteModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.focus();
+  }
+};
+
 app.openWeaponDeleteModal = (weapon, trigger) => {
   if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
     return;
@@ -60,6 +88,7 @@ app.openWeaponDeleteModal = (weapon, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = weapon;
+  state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -87,6 +116,7 @@ app.openClearItemsModal = (keyword, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = keyword;
   state.pendingClearWeaponsKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -112,6 +142,7 @@ app.openClearWeaponsModal = (keyword, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = keyword;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -157,6 +188,23 @@ app.confirmDeleteOrClearItems = async () => {
       app.closeItemDeleteModal();
       app.openSuccessModal(app.translate('runtime.weaponDeleteSuccess', { weaponName, templateId }), app.translate('runtime.weaponDeleteSuccessTitle'));
       await app.reloadWeaponManagementCurrentPage();
+      return;
+    }
+
+    if (state.pendingDeleteWeaponResonance) {
+      const { recordId, slot, weaponName } = state.pendingDeleteWeaponResonance;
+      await app.apiFetch(`/api/database-weapons/selected/${recordId}/resonance/${slot}`, {
+        method: 'DELETE',
+      });
+      app.closeItemDeleteModal();
+      app.openSuccessModal(
+        app.translate('runtime.weaponResonanceDeleteSuccess', { weaponName, slot }),
+        app.translate('runtime.weaponResonanceDeleteSuccessTitle'),
+      );
+      delete state._weaponResonanceEditSlots?.[slot];
+      delete state._weaponResonancePendingEffect?.[slot];
+      delete state._weaponResonancePendingCharacter?.[slot];
+      await app.loadWeaponDetailExtraInfo(recordId);
       return;
     }
 
@@ -209,6 +257,8 @@ app.confirmDeleteOrClearItems = async () => {
       ? 'runtime.itemDeleteFailed'
       : state.pendingDeleteWeapon
         ? 'runtime.weaponDeleteFailed'
+        : state.pendingDeleteWeaponResonance
+          ? 'runtime.weaponResonanceDeleteFailed'
         : state.pendingClearWeaponsKeyword !== null
         ? 'runtime.weaponClearFailed'
         : 'runtime.itemClearFailed';

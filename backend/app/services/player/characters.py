@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +32,7 @@ def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[st
     }
 
 
+@lru_cache(maxsize=1)
 def get_attrib_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
     reader = TSVReader(ATTRIB_POOL_TSV_PATH, typed=True)
     normalized_map: dict[int, list[dict[str, Any]]] = {}
@@ -52,6 +54,7 @@ def get_attrib_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
     return normalized_map
 
 
+@lru_cache(maxsize=1)
 def get_character_skill_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
     reader = TSVReader(CHARACTER_SKILL_POOL_TSV_PATH, typed=True)
     normalized_map: dict[int, list[dict[str, Any]]] = {}

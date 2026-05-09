@@ -4,8 +4,6 @@ const { dom, state } = app;
 const {
   weaponAddModal,
   weaponAddSearchInput,
-  weaponAddSortFieldSelect,
-  weaponAddSortOrderSelect,
   weaponAddTableBody,
   weaponAddEmptyState,
   weaponAddCloseTargets,
@@ -47,22 +45,35 @@ app.getAddableWeaponCatalog = () => {
     .filter((item) => Number.isFinite(item.templateId) && item.weaponName && ['', '0'].includes(String(state.equipSiteMap?.[item.templateId] ?? '').trim()));
 };
 
-app.syncWeaponAddSortControls = () => {
-  if (weaponAddSortFieldSelect instanceof HTMLSelectElement) {
-    weaponAddSortFieldSelect.value = state.weaponAddSortBy;
-  }
+app._weaponAddSortFields = ['star', 'name', 'type'];
 
-  if (weaponAddSortOrderSelect instanceof HTMLSelectElement) {
-    weaponAddSortOrderSelect.value = state.weaponAddSortOrder;
-  }
+app._syncWeaponAddSortArrows = () => {
+  const table = weaponAddModal instanceof HTMLElement ? weaponAddModal.querySelector('.weapon-add-table') : null;
+  if (!(table instanceof HTMLElement)) return;
+  const buttons = table.querySelectorAll('.column-sort-btn');
+  buttons.forEach((btn) => {
+    if (!(btn instanceof HTMLElement)) return;
+    const arrow = btn.querySelector('.column-sort-arrow');
+    if (!(arrow instanceof HTMLElement)) return;
+    if (btn.dataset.sortField === state.weaponAddSortBy) {
+      arrow.hidden = false;
+      arrow.classList.toggle('desc', state.weaponAddSortOrder === 'desc');
+    } else {
+      arrow.hidden = true;
+      arrow.classList.remove('desc');
+    }
+  });
 };
 
-app.applyWeaponAddSort = () => {
-  const nextSortBy = weaponAddSortFieldSelect instanceof HTMLSelectElement ? weaponAddSortFieldSelect.value : state.weaponAddSortBy;
-  const nextSortOrder = weaponAddSortOrderSelect instanceof HTMLSelectElement ? weaponAddSortOrderSelect.value : state.weaponAddSortOrder;
-  state.weaponAddSortBy = ['name', 'type'].includes(nextSortBy) ? nextSortBy : 'star';
-  state.weaponAddSortOrder = nextSortOrder === 'asc' ? 'asc' : 'desc';
-  app.syncWeaponAddSortControls();
+app._handleWeaponAddSortClick = (sortField) => {
+  if (!app._weaponAddSortFields.includes(sortField)) return;
+  if (state.weaponAddSortBy === sortField) {
+    state.weaponAddSortOrder = state.weaponAddSortOrder === 'asc' ? 'desc' : 'asc';
+  } else {
+    state.weaponAddSortBy = sortField;
+    state.weaponAddSortOrder = 'asc';
+  }
+  app._syncWeaponAddSortArrows();
 };
 
 app.compareWeaponAddCatalogEntries = (left, right) => {
@@ -150,8 +161,6 @@ app.resetWeaponAddModalState = () => {
   if (weaponAddSearchInput instanceof HTMLInputElement) {
     weaponAddSearchInput.value = '';
   }
-
-  app.syncWeaponAddSortControls();
 };
 
 app.closeWeaponAddModal = () => {
@@ -174,6 +183,7 @@ app.openWeaponAddModal = (trigger) => {
 
   state.lastAddWeaponFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetWeaponAddModalState();
+  app._syncWeaponAddSortArrows();
   app.renderWeaponAddModalRows();
   weaponAddModal.hidden = false;
   app.setBodyModalOpen(true);
@@ -231,8 +241,6 @@ app.submitWeaponAddModal = async () => {
 };
 
 export const initDatabaseWeaponAddModalFeature = () => {
-  app.syncWeaponAddSortControls();
-
   weaponAddCloseTargets.forEach((target) => {
     target.addEventListener('click', app.closeWeaponAddModal);
   });
@@ -244,17 +252,16 @@ export const initDatabaseWeaponAddModalFeature = () => {
     });
   }
 
-  if (weaponAddSortFieldSelect instanceof HTMLSelectElement) {
-    weaponAddSortFieldSelect.addEventListener('change', () => {
-      app.applyWeaponAddSort();
-      app.renderWeaponAddModalRows();
-    });
-  }
-
-  if (weaponAddSortOrderSelect instanceof HTMLSelectElement) {
-    weaponAddSortOrderSelect.addEventListener('change', () => {
-      app.applyWeaponAddSort();
-      app.renderWeaponAddModalRows();
+  const weaponAddTable = weaponAddModal instanceof HTMLElement ? weaponAddModal.querySelector('.weapon-add-table') : null;
+  if (weaponAddTable instanceof HTMLElement) {
+    weaponAddTable.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const sortBtn = target.closest('.column-sort-btn');
+      if (sortBtn instanceof HTMLButtonElement && sortBtn.dataset.sortField) {
+        app._handleWeaponAddSortClick(sortBtn.dataset.sortField);
+        app.renderWeaponAddModalRows();
+      }
     });
   }
 
