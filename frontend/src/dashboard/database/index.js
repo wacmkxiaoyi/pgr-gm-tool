@@ -1,5 +1,6 @@
 import './accounts.js';
 import './account-modals.js';
+import './character-management.js';
 import './item-management.js';
 import './memory-management.js';
 import './weapon-management.js';
@@ -12,6 +13,7 @@ import './portrait-picker.js';
 
 import { initDatabaseAccountsFeature } from './accounts.js';
 import { initDatabaseAccountModalFeature } from './account-modals.js';
+import { initDatabaseCharacterManagementFeature } from './character-management.js';
 import { initDatabaseItemManagementFeature } from './item-management.js';
 import { initDatabaseMemoryManagementFeature } from './memory-management.js';
 import { initDatabaseWeaponManagementFeature } from './weapon-management.js';
@@ -25,6 +27,7 @@ import { initDatabasePortraitPickerFeature } from './portrait-picker.js';
 export const initDatabaseFeature = () => {
   initDatabaseAccountsFeature();
   initDatabaseAccountModalFeature();
+  initDatabaseCharacterManagementFeature();
   initDatabaseItemManagementFeature();
   initDatabaseMemoryManagementFeature();
   initDatabaseWeaponManagementFeature();

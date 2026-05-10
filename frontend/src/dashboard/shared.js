@@ -15,6 +15,7 @@ export const dom = {
   databaseGrid: document.querySelector('#database-status-grid'),
   databaseAccountsSubnavButton: document.querySelector('#database-accounts-subnav'),
   databasePlayerProfileSubnavButton: document.querySelector('#database-player-profile-subnav'),
+  databaseCharacterManagementSubnavButton: document.querySelector('#database-character-management-subnav'),
   databaseWeaponManagementSubnavButton: document.querySelector('#database-weapon-management-subnav'),
   databaseMemoryManagementSubnavButton: document.querySelector('#database-memory-management-subnav'),
   databaseItemManagementSubnavButton: document.querySelector('#database-item-management-subnav'),
@@ -34,6 +35,18 @@ export const dom = {
   databasePlayerProfileState: document.querySelector('#database-player-profile-state'),
   databasePlayerProfileShell: document.querySelector('#database-player-profile-shell'),
   databasePlayerProfileSummary: document.querySelector('#database-player-profile-summary'),
+  databaseCharacterManagementState: document.querySelector('#database-character-management-state'),
+  databaseCharacterManagementShell: document.querySelector('#database-character-management-shell'),
+  databaseCharacterManagementTableShell: document.querySelector('#database-character-management-table-shell'),
+  databaseCharacterManagementBody: document.querySelector('#database-character-management-body'),
+  databaseCharacterManagementSummary: document.querySelector('#database-character-management-summary'),
+  databaseCharacterManagementPrevButton: document.querySelector('#database-character-management-prev'),
+  databaseCharacterManagementNextButton: document.querySelector('#database-character-management-next'),
+  databaseCharacterManagementPaginationLabel: document.querySelector('#database-character-management-pagination'),
+  databaseCharacterManagementJumpInput: document.querySelector('#database-character-management-jump-input'),
+  databaseCharacterManagementJumpButton: document.querySelector('#database-character-management-jump-button'),
+  databaseCharacterManagementActions: document.querySelector('#database-character-actions'),
+  databaseCharacterSearchInput: document.querySelector('#database-character-search-input'),
   databaseWeaponManagementState: document.querySelector('#database-weapon-management-state'),
   databaseWeaponManagementShell: document.querySelector('#database-weapon-management-shell'),
   databaseWeaponManagementTableShell: document.querySelector('#database-weapon-management-table-shell'),
@@ -264,6 +277,7 @@ export const state = {
   equipIconUrlMap: {},
   characterLogNameMap: {},
   characterHeadIconUrlMap: {},
+  characterGradeNameMap: {},
   weaponSkillEntriesMap: {},
   weaponOverrunSuitEntriesMap: {},
   weaponSkillPoolEntriesMap: {},
@@ -275,6 +289,15 @@ export const state = {
   playerCardBackgroundAspectRatio: null,
   playerCardResizeRafId: null,
   playerProfileScrollRestoreY: null,
+  characterManagementCurrentPage: 1,
+  characterManagementTotalPages: 0,
+  characterManagementHasLoaded: false,
+  characterManagementLoading: false,
+  characterManagementActionPendingRecordId: null,
+  characterManagementItems: [],
+  characterManagementKeyword: '',
+  characterManagementSortBy: 'sequence',
+  characterManagementSortOrder: 'asc',
   weaponManagementCurrentPage: 1,
   weaponManagementTotalPages: 0,
   weaponManagementHasLoaded: false,
@@ -398,6 +421,9 @@ Object.assign(app, {
   },
   isDatabasePlayerProfileSectionActive: () => {
     return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-player-profile-section');
+  },
+  isDatabaseCharacterManagementSectionActive: () => {
+    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-character-management-section');
   },
   isDatabaseWeaponManagementSectionActive: () => {
     return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-weapon-management-section');
@@ -534,6 +560,7 @@ Object.assign(app, {
     return value !== null && value !== undefined;
   },
   canAccessWeaponManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessCharacterManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
   canAccessMemoryManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
   canAccessItemManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
   getApiRequestMethod: (init = {}) => String(init?.method ?? 'GET').toUpperCase(),

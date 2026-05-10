@@ -22,9 +22,11 @@ const rerenderLocaleSensitiveViews = () => {
   app.renderSelectedAccountBadge();
   app.updateDatabaseAccountsAccess();
   app.updatePlayerProfileAccess();
+  app.updateCharacterManagementAccess();
   app.updateItemManagementAccess();
   app.updateWeaponManagementAccess();
   app.updateMemoryManagementAccess();
+  app.rerenderCharacterManagementLocale?.();
   app.rerenderItemManagementLocale?.();
   app.rerenderWeaponManagementLocale?.();
   app.rerenderMemoryManagementLocale?.();

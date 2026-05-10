@@ -51,6 +51,33 @@ class AppInfoResponse(BaseModel):
     attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
     character_skill_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
     equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
+    character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
+
+
+class CharacterManagementItemResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    Sequence: int
+    Level: int | None = None
+    Quality: int | None = None
+    Grade: int | None = None
+    GradeName: str | None = None
+    AwakenLevel: int = 0
+
+
+class CharacterManagementListResponse(BaseModel):
+    items: list[CharacterManagementItemResponse] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
+class SetCharacterSupportResponse(BaseModel):
+    record_id: int
+    updated: bool = True
 
 
 class InventoryItemResponse(BaseModel):

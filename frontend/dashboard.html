@@ -100,6 +100,7 @@
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">数据库状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
+                <button class="subnav-link" type="button" data-database-tab="database-character-management-section" id="database-character-management-subnav" aria-controls="database-character-management-section" aria-selected="false" disabled data-i18n="dashboard.characterManagementTab">角色管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-weapon-management-section" id="database-weapon-management-subnav" aria-controls="database-weapon-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
@@ -230,6 +231,67 @@
                       </div>
                     </div>
                   </article>
+                </div>
+              </section>
+
+              <section class="database-panel database-item-panel database-tab-panel" id="database-character-management-section" data-database-tab-panel="database-character-management-section" aria-labelledby="database-character-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div>
+                    <span class="section-tag">Characters</span>
+                    <h2 id="database-character-management-title" data-i18n="dashboard.characterManagementTitle">角色管理</h2>
+                  </div>
+                  <small class="database-character-management-summary" id="database-character-management-summary" data-i18n="dashboard.characterManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                </div>
+
+                <div class="database-player-empty" id="database-character-management-state" data-i18n="dashboard.characterManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-item-management-shell" id="database-character-management-shell" hidden>
+                  <div class="database-item-actions" id="database-character-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-character-fill" data-character-management-action="fill" disabled data-i18n="dashboard.characterManagementFillMax">一键全满</button>
+                    <div class="database-item-toolbar">
+                      <div class="database-item-search-shell" id="database-character-search-shell">
+                        <input class="database-item-search-input" type="search" id="database-character-search-input" data-i18n-placeholder="dashboard.characterManagementSearchPlaceholder" placeholder="输入名称或职别后回车搜索">
+                      </div>
+                    </div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-character-add" data-character-management-action="add-character" disabled data-i18n="dashboard.characterManagementAdd">新增角色</button>
+                  </div>
+
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll" id="database-character-management-table-shell">
+                      <table class="accounts-table character-management-table" aria-describedby="database-character-management-summary">
+                        <colgroup>
+                          <col class="character-management-col-sequence">
+                          <col class="character-management-col-name">
+                          <col class="character-management-col-quality">
+                          <col class="character-management-col-level">
+                          <col class="character-management-col-grade">
+                          <col class="character-management-col-awaken">
+                          <col class="character-management-col-actions">
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="sequence" type="button"><span data-i18n="dashboard.characterManagementSequence">序号</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.characterManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="quality" type="button"><span data-i18n="dashboard.characterManagementQuality">质量</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="level" type="button"><span data-i18n="dashboard.characterManagementLevel">等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="grade" type="button"><span data-i18n="dashboard.characterManagementGrade">职别</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="awaken_level" type="button"><span data-i18n="dashboard.characterManagementAwakenLevel">觉醒等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.characterManagementAction">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="database-character-management-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-character-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-character-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-character-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-character-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-character-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      </label>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-character-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                    </div>
+                  </div>
                 </div>
               </section>
 

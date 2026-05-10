@@ -14,6 +14,7 @@ from backend.app.apis.schemas import (
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
+    CharacterManagementListResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
     ClearWeaponsRequest,
@@ -35,6 +36,7 @@ from backend.app.apis.schemas import (
     SelectAccountRequest,
     SaveServerConfigRequest,
     SelectedAccountResponse,
+    SetCharacterSupportResponse,
     SessionResponse,
     ServerConfigResponse,
     UpdateInventoryItemRequest,
@@ -48,7 +50,7 @@ from backend.app.apis.schemas import (
     UpdateWeaponResponse,
     WeaponListResponse,
 )
-from backend.app.db.models import AccountListResponse, UpdatePlayerProfilePayload
+from backend.app.db.models import AccountListResponse, SetCharacterSupportResponse as SetCharacterSupportDomainResponse, UpdatePlayerProfilePayload
 from backend.app.services.player.equips import (
     get_equip_icon_url_map,
     get_equip_name_map,
@@ -64,6 +66,7 @@ from backend.app.services.player.equips.weapon import (
 )
 from backend.app.services.player.characters import (
     get_attrib_pool_entries_map,
+    get_character_grade_name_map,
     get_character_skill_pool_entries_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
@@ -145,6 +148,7 @@ async def app_info(request: Request) -> AppInfoResponse:
         "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
         "attrib_pool_entries_map": get_attrib_pool_entries_map(),
         "character_skill_pool_entries_map": get_character_skill_pool_entries_map(),
+        "character_grade_name_map": get_character_grade_name_map(),
         "equip_resonance_map": get_equip_resonance_map(),
     })
 
@@ -587,6 +591,57 @@ async def get_selected_database_weapons(
         sort_order=sort_order,
     )
     return weapons
+
+
+@router.get("/database-characters/selected", response_model=CharacterManagementListResponse, response_model_exclude_none=True)
+async def get_selected_database_characters(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    sort_by: Literal["sequence", "name", "quality", "level", "grade", "awaken_level"] = Query(default="sequence"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
+    login_session_token: str | None = Cookie(default=None),
+) -> CharacterManagementListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+    characters = await characters_service.list_characters(
+        selected_uid,
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+    return CharacterManagementListResponse.model_validate(characters.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/support", response_model=SetCharacterSupportResponse)
+async def set_selected_database_character_support(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> SetCharacterSupportResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+    updated = await characters_service.set_character_support(selected_uid, record_id)
+    if not updated:
+        raise_http_error(404, "character.not_found", {"record_id": record_id})
+
+    result = SetCharacterSupportDomainResponse(record_id=record_id, updated=True)
+    return SetCharacterSupportResponse.model_validate(result.model_dump())
 
 
 @router.get("/database-memories/selected", response_model=MemoryListResponse, response_model_exclude_none=True)

@@ -9,6 +9,9 @@ from backend.app.utils.tsv_reader import TSVReader
 
 ATTRIB_POOL_TSV_PATH = Path("assets/AttribPool.tsv")
 CHARACTER_SKILL_POOL_TSV_PATH = Path("assets/CharacterSkillPool.tsv")
+CHARACTER_GRADE_TSV_PATH = Path("assets/CharacterGrade.tsv")
+CHARACTER_QUALITY_TSV_PATH = Path("assets/CharacterQuality.tsv")
+EXHIBITION_REWARD_TSV_PATH = Path("assets/ExhibitionReward.tsv")
 
 
 def _parse_int(value: Any) -> int | None:
@@ -74,3 +77,72 @@ def get_character_skill_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
         normalized_map.setdefault(pool_id, []).append(entry)
 
     return normalized_map
+
+@lru_cache(maxsize=1)
+def get_character_grade_name_map() -> dict[int, list[str]]:
+    reader = TSVReader(CHARACTER_GRADE_TSV_PATH, typed=True)
+    grade_pairs: dict[int, list[tuple[int, str]]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        character_id = _parse_int(row.get("CharacterId"))
+        grade = _parse_int(row.get("Grade"))
+        grade_name = str(row.get("GradeName", "")).strip()
+
+        if character_id is None or grade is None or not grade_name:
+            continue
+
+        grade_pairs.setdefault(character_id, []).append((grade, grade_name))
+
+    return {
+        character_id: [name for _, name in sorted(pairs, key=lambda pair: pair[0])]
+        for character_id, pairs in grade_pairs.items()
+    }
+
+
+@lru_cache(maxsize=1)
+def get_character_quality_bound_map() -> dict[int, list[int]]:
+    reader = TSVReader(CHARACTER_QUALITY_TSV_PATH, typed=True)
+    quality_values: dict[int, list[int]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        character_id = _parse_int(row.get("CharacterId"))
+        quality = _parse_int(row.get("Quality"))
+
+        if character_id is None or quality is None:
+            continue
+
+        quality_values.setdefault(character_id, []).append(quality)
+
+    return {
+        character_id: [min(values), max(values)]
+        for character_id, values in quality_values.items()
+    }
+
+
+@lru_cache(maxsize=1)
+def get_character_exhibitions_map() -> dict[int, list[int]]:
+    reader = TSVReader(EXHIBITION_REWARD_TSV_PATH, typed=True)
+    exhibition_ids: dict[int, list[int]] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        character_id = _parse_int(row.get("CharacterId"))
+        exhibition_id = _parse_int(row.get("Id"))
+
+        if character_id is None or exhibition_id is None:
+            continue
+
+        exhibition_ids.setdefault(character_id, []).append(exhibition_id)
+
+    return {
+        character_id: sorted(ids)
+        for character_id, ids in exhibition_ids.items()
+    }

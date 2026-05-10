@@ -32,3 +32,27 @@ class UpdatePlayerProfilePayload(BaseModel):
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
     use_background_id: int | None = None
+
+
+class CharacterManagementItemRecord(BaseModel):
+    record_id: int
+    CharacterId: int
+    Sequence: int
+    Level: int | None = None
+    Quality: int | None = None
+    Grade: int | None = None
+    GradeName: str | None = None
+    AwakenLevel: int = 0
+
+
+class CharacterManagementListResponse(BaseModel):
+    items: list[CharacterManagementItemRecord]
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
+class SetCharacterSupportResponse(BaseModel):
+    record_id: int
+    updated: bool = True

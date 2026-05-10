@@ -281,6 +281,39 @@
   table-layout: fixed;
 }
 
+.character-management-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.character-management-col-sequence {
+  width: 72px;
+}
+
+.character-management-col-name {
+  width: 240px;
+}
+
+.character-management-col-quality {
+  width: 100px;
+}
+
+.character-management-col-level {
+  width: 100px;
+}
+
+.character-management-col-grade {
+  width: 180px;
+}
+
+.character-management-col-awaken {
+  width: 120px;
+}
+
+.character-management-col-actions {
+  width: 180px;
+}
+
 .weapon-management-col-row {
   width: 72px;
 }
@@ -367,6 +400,50 @@
   animation: weaponIconShine 2.2s ease-in-out infinite;
 }
 
+.weapon-management-icon.character-icon-tier-3 {
+  box-shadow:
+    0 0 10px rgba(124, 58, 237, 0.22),
+    0 0 5px rgba(124, 58, 237, 0.12),
+    inset 0 0 7px rgba(124, 58, 237, 0.05);
+}
+
+.weapon-management-icon.character-icon-tier-4 {
+  box-shadow:
+    0 0 14px rgba(250, 204, 21, 0.3),
+    0 0 8px rgba(250, 204, 21, 0.16),
+    inset 0 0 10px rgba(250, 204, 21, 0.08);
+}
+
+.weapon-management-icon.character-icon-tier-5 {
+  box-shadow:
+    0 0 14px rgba(234, 88, 12, 0.28),
+    0 0 8px rgba(234, 88, 12, 0.16),
+    inset 0 0 10px rgba(234, 88, 12, 0.07);
+}
+
+.weapon-management-icon.character-icon-tier-6 {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 0 16px rgba(220, 38, 38, 0.32),
+    0 0 10px rgba(220, 38, 38, 0.18),
+    inset 0 0 12px rgba(220, 38, 38, 0.08);
+}
+
+.weapon-management-icon.character-icon-tier-6::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.42) 48%,
+    rgba(255, 255, 255, 0.20) 52%,
+    transparent 70%
+  );
+  animation: weaponIconShine 2.2s ease-in-out infinite;
+}
+
 .weapon-management-star,
 .weapon-management-enhancement {
   display: inline-flex;
@@ -421,6 +498,84 @@
 
 .weapon-enhancement-tier-4 {
   color: #ea580c;
+}
+
+.character-quality,
+.character-grade,
+.character-awaken {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.character-quality-tier-0,
+.character-grade-tier-0,
+.character-awaken-tier-0 {
+  color: #111827;
+}
+
+.character-quality-tier-1 {
+  color: #16a34a;
+}
+
+.character-quality-tier-2 {
+  color: #2563eb;
+}
+
+.character-quality-tier-3 {
+  color: #7c3aed;
+}
+
+.character-quality-tier-4 {
+  color: #ca8a04;
+}
+
+.character-quality-tier-5 {
+  color: #ea580c;
+}
+
+.character-quality-tier-6 {
+  color: #dc2626;
+}
+
+.character-grade-tier-1 {
+  color: #16a34a;
+}
+
+.character-grade-tier-2 {
+  color: #2563eb;
+}
+
+.character-grade-tier-3 {
+  color: #7c3aed;
+}
+
+.character-grade-tier-4 {
+  color: #ea580c;
+}
+
+.character-grade-tier-5 {
+  color: #dc2626;
+}
+
+.character-awaken-tier-1 {
+  color: #16a34a;
+}
+
+.character-awaken-tier-2 {
+  color: #2563eb;
+}
+
+.character-awaken-tier-3 {
+  color: #7c3aed;
+}
+
+.character-awaken-tier-4 {
+  color: #ea580c;
+}
+
+.character-awaken-tier-5 {
+  color: #dc2626;
 }
 
 .item-management-col-id {
