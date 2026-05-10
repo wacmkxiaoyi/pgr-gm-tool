@@ -370,7 +370,10 @@ def _is_valid_weapon_resonance_entry(
     if entry_type == 2:
         character_skill_pool_entries_map = get_character_skill_pool_entries_map()
         return any(
-            any(int(entry.get("TemplateId", -1)) == template_id for entry in character_skill_pool_entries_map.get(pool_id, []))
+            any(
+                int(entry.get("TemplateId", -1)) == template_id
+                for entry in character_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
+            )
             for pool_id in resonance_pools[1]
         )
 

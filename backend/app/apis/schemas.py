@@ -49,7 +49,7 @@ class AppInfoResponse(BaseModel):
     weapon_overrun_suit_entries_map: dict[int, dict[str, str]] | None = None
     weapon_skill_pool_entries_map: dict[int, dict[int, list[int]]] = Field(default_factory=dict)
     attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
-    character_skill_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
+    character_skill_pool_entries_map: dict[int, dict[int, list[dict[str, object]]]] = Field(default_factory=dict)
     equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
     character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
 

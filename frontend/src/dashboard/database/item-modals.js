@@ -273,14 +273,14 @@ app.confirmDeleteOrClearItems = async () => {
     }
 
     if (state.pendingDeleteWeaponResonance) {
-      const { recordId, slot, weaponName, detailMode } = state.pendingDeleteWeaponResonance;
+      const { recordId, slot, slotLabel, weaponName, detailMode } = state.pendingDeleteWeaponResonance;
       const basePath = detailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
       await app.apiFetch(`${basePath}/${recordId}/resonance/${slot}`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
       app.openSuccessModal(
-        app.translate('runtime.weaponResonanceDeleteSuccess', { weaponName, slot }),
+        app.translate('runtime.weaponResonanceDeleteSuccess', { weaponName, slot: slotLabel ?? slot }),
         app.translate('runtime.weaponResonanceDeleteSuccessTitle'),
       );
       delete state._weaponResonanceEditSlots?.[slot];

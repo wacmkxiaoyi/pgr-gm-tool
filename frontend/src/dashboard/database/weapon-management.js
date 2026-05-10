@@ -510,17 +510,23 @@ app.buildResonanceResolveIndices = () => {
     }
   }
 
-  const characterSkillByTemplate = {};
+  const characterSkillByCharTemplate = {};
   const characterSkillPoolEntriesMap = state.characterSkillPoolEntriesMap || {};
-  for (const entries of Object.values(characterSkillPoolEntriesMap)) {
-    if (!Array.isArray(entries)) continue;
-    for (const entry of entries) {
-      const tid = Number(entry?.TemplateId);
-      if (!Number.isFinite(tid)) continue;
-      characterSkillByTemplate[tid] = {
-        Name: String(entry?.Name || '').trim(),
-        Description: String(entry?.Description || '').trim(),
-      };
+  for (const entriesByCharacter of Object.values(characterSkillPoolEntriesMap)) {
+    const poolEntries = entriesByCharacter;
+    if (typeof poolEntries !== 'object' || poolEntries === null) continue;
+    for (const [charIdRaw, entries] of Object.entries(poolEntries)) {
+      const charId = Number(charIdRaw);
+      if (!Number.isFinite(charId) || !Array.isArray(entries)) continue;
+      for (const entry of entries) {
+        const tid = Number(entry?.TemplateId);
+        if (!Number.isFinite(tid)) continue;
+        const key = `${charId}_${tid}`;
+        characterSkillByCharTemplate[key] = {
+          Name: String(entry?.Name || '').trim(),
+          Description: String(entry?.Description || '').trim(),
+        };
+      }
     }
   }
 
@@ -549,7 +555,7 @@ app.buildResonanceResolveIndices = () => {
   }
 
   state._attribByTemplate = attribByTemplate;
-  state._characterSkillByTemplate = characterSkillByTemplate;
+  state._characterSkillByCharTemplate = characterSkillByCharTemplate;
   state._weaponSkillByCharTemplate = weaponSkillByCharTemplate;
 };
 
@@ -580,7 +586,9 @@ app.resolveResonanceEffectInfo = (resonanceEntry) => {
   }
 
   if (type === 2) {
-    return state._characterSkillByTemplate?.[templateId] || null;
+    if (!Number.isFinite(characterId)) return null;
+    const key = `${characterId}_${templateId}`;
+    return state._characterSkillByCharTemplate?.[key] || null;
   }
 
   if (type === 3) {
@@ -693,6 +701,26 @@ app.getEffectiveResonanceAwakeState = (slot) => {
   return app.getAwakeSlotList().includes(Number(slot));
 };
 
+app.getResonanceSlotLabel = (slot, isMemoryMode = state.currentEquipDetailMode === 'memory') => {
+  const normalizedSlot = Number(slot);
+
+  if (isMemoryMode) {
+    return normalizedSlot === 1
+      ? app.translate('dashboard.weaponDetailSlotTop')
+      : app.translate('dashboard.weaponDetailSlotBottom');
+  }
+
+  if (normalizedSlot === 1) {
+    return app.translate('dashboard.weaponDetailSlotTop');
+  }
+
+  if (normalizedSlot === 2) {
+    return app.translate('dashboard.weaponDetailSlotMiddle');
+  }
+
+  return app.translate('dashboard.weaponDetailSlotBottom');
+};
+
 app.renderResonanceAwakeCellContent = (slot) => {
   if (!app.hasAwakeSlotConfig()) {
     return '--';
@@ -773,7 +801,7 @@ app.buildResonanceEffectCatalog = (weaponTemplateId, characterId) => {
 
   const charSkillPoolIds = resonanceData[1] || [];
   for (const poolId of charSkillPoolIds) {
-    const entries = state.characterSkillPoolEntriesMap?.[poolId];
+    const entries = state.characterSkillPoolEntriesMap?.[poolId]?.[normalizedCharacterId];
     if (!Array.isArray(entries)) continue;
     for (const entry of entries) {
       if (!entry || typeof entry !== 'object') continue;
@@ -2088,7 +2116,7 @@ app.populateWeaponDetailCard = (item) => {
     } else {
       const rows = (isMemoryMode ? [1, 2] : [1, 2, 3]).map((slot) => {
         const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
-        const slotText = slot;
+        const slotText = app.getResonanceSlotLabel(slot, isMemoryMode);
         const unselectedLabel = app.translate('common.unselected');
 
         let effectText = '--';
@@ -2633,11 +2661,12 @@ app.handleResonanceActionClick = (event) => {
     state.pendingDeleteWeaponResonance = {
       recordId,
       slot,
+      slotLabel: app.getResonanceSlotLabel(slot),
       weaponName: app.getWeaponNameByTemplateId(state.currentWeaponDetailItem?.TemplateId),
       detailMode: state.currentEquipDetailMode,
     };
     app.openWeaponResonanceDeleteModal({
-      slot,
+      slot: app.getResonanceSlotLabel(slot),
       weaponName: app.getWeaponNameByTemplateId(state.currentWeaponDetailItem?.TemplateId),
     }, actionButton);
     return;
