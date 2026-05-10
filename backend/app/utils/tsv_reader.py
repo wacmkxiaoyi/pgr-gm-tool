@@ -351,6 +351,17 @@ class TSVReader:
             if isinstance(parsed, list):
                 return parsed
 
+        if stripped.startswith("{") and stripped.endswith("}"):
+            try:
+                parsed = json.loads(stripped)
+            except (ValueError, SyntaxError):
+                try:
+                    parsed = ast.literal_eval(stripped)
+                except (ValueError, SyntaxError):
+                    return value
+            if isinstance(parsed, dict):
+                return parsed
+
         return value
 
     def select(self, columns, query=""):

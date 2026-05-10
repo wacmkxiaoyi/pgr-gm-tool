@@ -6,9 +6,6 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
-from backend.app.constant import SERVER_VERSION
-
-
 def _to_bool(value: str | None, default: bool = False) -> bool:
     if value is None:
         return default
@@ -123,14 +120,14 @@ class Settings:
     SRC_DIR = FRONTEND_DIR / "src"
     ASSETS_DIR = FRONTEND_DIR / "assets"
 
-    def __init__(self) -> None:
+    def __init__(self, server_version: int | float | str) -> None:
         self.app_name = os.getenv("APP_NAME", "WACMK PGR Management")
         self.app_env = os.getenv("APP_ENV", "development")
         self.app_host = os.getenv("APP_HOST", "0.0.0.0")
         self.app_port = _to_int(os.getenv("APP_PORT"), 8000)
         self.is_dev = _to_bool(os.getenv("IS_DEV"), False)
 
-        self.server_version = SERVER_VERSION
+        self.server_version = str(server_version)
         self.server_path = os.getenv("SERVER_PATH", "/root/wacmk-pgr-server")
         self.server_binary_file = os.getenv("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
         self.server_runtime_log_path = os.getenv("SERVER_RUNTIME_LOG_PATH", "/tmp/rpg-server.log").strip() or "/tmp/rpg-server.log"

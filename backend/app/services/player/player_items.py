@@ -6,7 +6,7 @@ from pathlib import Path
 from backend.app.utils.tsv_reader import TSVReader
 
 
-ITEM_TSV_PATH = Path("resources/Item.tsv")
+ITEM_TSV_PATH = Path("assets/Item.tsv")
 
 
 @lru_cache(maxsize=1)

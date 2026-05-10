@@ -16,6 +16,12 @@ class WeaponOverrunRecord(BaseModel):
     ChoseSuit: int | None = None
 
 
+class WeaponOverrunExtraInfoRecord(BaseModel):
+    level: int | None = None
+    max_level: int
+    chose_suit: int | None = None
+
+
 class WeaponItemRecord(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
@@ -40,7 +46,7 @@ class WeaponExtraInfoRecord(BaseModel):
     breakthrough_level_limit_map: dict[int, int] = Field(default_factory=dict)
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
-    WeaponOverrunData: WeaponOverrunRecord | None = None
+    weapon_overrun_data: WeaponOverrunExtraInfoRecord | None = None
 
 
 class WeaponListResponse(BaseModel):

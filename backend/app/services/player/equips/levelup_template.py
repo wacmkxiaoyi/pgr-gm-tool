@@ -8,7 +8,7 @@ from backend.app.utils.tsv_reader import TSVReader
 from backend.app.services.player.equips import EQUIP_BREAK_THROUGH_TSV_PATH
 
 
-LEVELUP_TEMPLATE_DIR = Path("resources/leveluptemplate")
+LEVELUP_TEMPLATE_DIR = Path("assets/leveluptemplate")
 
 
 @lru_cache(maxsize=128)

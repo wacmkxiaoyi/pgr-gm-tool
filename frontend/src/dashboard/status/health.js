@@ -240,6 +240,7 @@ app.loadAppInfo = async () => {
     state.characterLogNameMap = payload?.character_log_name_map && typeof payload.character_log_name_map === 'object' ? payload.character_log_name_map : {};
     state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
     state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
+    state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
     state.weaponSkillPoolEntriesMap = payload?.weapon_skill_pool_entries_map && typeof payload.weapon_skill_pool_entries_map === 'object' ? payload.weapon_skill_pool_entries_map : {};
     state.attribPoolEntriesMap = payload?.attrib_pool_entries_map && typeof payload.attrib_pool_entries_map === 'object' ? payload.attrib_pool_entries_map : {};
     state.characterSkillPoolEntriesMap = payload?.character_skill_pool_entries_map && typeof payload.character_skill_pool_entries_map === 'object' ? payload.character_skill_pool_entries_map : {};
@@ -267,6 +268,7 @@ app.loadAppInfo = async () => {
     state.characterLogNameMap = {};
     state.characterHeadIconUrlMap = {};
     state.weaponSkillEntriesMap = {};
+    state.weaponOverrunSuitEntriesMap = {};
     state.weaponSkillPoolEntriesMap = {};
     state.attribPoolEntriesMap = {};
     state.characterSkillPoolEntriesMap = {};

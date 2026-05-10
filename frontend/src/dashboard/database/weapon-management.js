@@ -1593,87 +1593,106 @@ app.populateWeaponDetailCard = (item) => {
   if (weaponDetailResonanceBody instanceof HTMLElement) {
     if (!(extraInfo && 'resonance_info' in extraInfo && hasResonanceConfig)) {
       weaponDetailResonanceBody.innerHTML = '';
-      return;
-    }
+    } else {
+      const rows = [1, 2, 3].map((slot) => {
+        const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+        const slotText = slot;
+        const unselectedLabel = app.translate('common.unselected');
 
-    const rows = [1, 2, 3].map((slot) => {
-      const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
-      const slotText = slot;
-      const unselectedLabel = app.translate('common.unselected');
+        let effectText = '--';
+        let characterText = '--';
+        const isEditing = state._weaponResonanceEditSlots?.[slot];
+        const effectState = app.getEffectiveResonanceEffectSelection(slot);
+        const canDelete = app.hasResonanceSlotData(slot);
 
-      let effectText = '--';
-      let characterText = '--';
-      const isEditing = state._weaponResonanceEditSlots?.[slot];
-      const effectState = app.getEffectiveResonanceEffectSelection(slot);
-      const canDelete = app.hasResonanceSlotData(slot);
-
-      let effectName = null;
-      let effectDescription = '';
-      if (isEditing) {
-        effectName = effectState.effect?.name || unselectedLabel;
-        effectDescription = effectState.effect?.description || '';
-      } else if (entry) {
-        const effectInfo = app.resolveResonanceEffectInfo(entry);
-        effectName = (effectInfo?.Name) ? effectInfo.Name : app.translate('dashboard.unknown');
-        effectDescription = app.stripMarkupText(effectInfo?.Description);
-      }
-
-      if (effectName) {
-        const escapedEffectName = app.escapeHtml(effectName);
-        const escapedEffectDescription = app.escapeHtml(effectDescription);
-
-        effectText = effectDescription
-          ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedEffectDescription}"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`
-          : `<span class="weapon-detail-effect-name"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`;
-      }
-
-      {
-        const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
-        const effectiveCharacterId = pendingCharacterId != null
-          ? Number(pendingCharacterId)
-          : Number(entry?.character_id);
-        const noAvatar = !Number.isFinite(effectiveCharacterId) || effectiveCharacterId === 0;
-        const characterName = isEditing && noAvatar
-          ? unselectedLabel
-          : app.getCharacterNameByCharacterId(effectiveCharacterId);
-        const characterIconUrl = app.getCharacterIconByCharacterId(effectiveCharacterId);
-
+        let effectName = null;
+        let effectDescription = '';
         if (isEditing) {
-          const mediaCell = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
-          characterText = `<span class="weapon-detail-bound-char is-editable" data-resonance-bind-char tabindex="0" role="button">${mediaCell}</span>`;
-        } else {
-          characterText = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+          effectName = effectState.effect?.name || unselectedLabel;
+          effectDescription = effectState.effect?.description || '';
+        } else if (entry) {
+          const effectInfo = app.resolveResonanceEffectInfo(entry);
+          effectName = (effectInfo?.Name) ? effectInfo.Name : app.translate('dashboard.unknown');
+          effectDescription = app.stripMarkupText(effectInfo?.Description);
         }
-      }
 
-      return `
-        <tr class="${isEditing ? 'resonance-row-editing' : ''}" data-resonance-slot="${slot}">
-          <td>${slotText}</td>
-          <td>${effectText}</td>
-          <td>${characterText}</td>
-          <td>
-            <div class="weapon-detail-resonance-actions">
-              ${isEditing ? `
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button>
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance" ${app.canSaveResonanceSlot(slot) ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceSave')}</button>
-              ` : `
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button>
-              <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance" ${canDelete ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceDelete')}</button>
-              `}
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-    weaponDetailResonanceBody.innerHTML = rows;
+        if (effectName) {
+          const escapedEffectName = app.escapeHtml(effectName);
+          const escapedEffectDescription = app.escapeHtml(effectDescription);
+
+          effectText = effectDescription
+            ? `<span class="weapon-detail-effect-name" data-effect-description="${escapedEffectDescription}"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`
+            : `<span class="weapon-detail-effect-name"${isEditing ? ' data-resonance-edit-effect' : ''} tabindex="0">${escapedEffectName}</span>`;
+        }
+
+        {
+          const pendingCharacterId = state._weaponResonancePendingCharacter?.[slot];
+          const effectiveCharacterId = pendingCharacterId != null
+            ? Number(pendingCharacterId)
+            : Number(entry?.character_id);
+          const noAvatar = !Number.isFinite(effectiveCharacterId) || effectiveCharacterId === 0;
+          const characterName = isEditing && noAvatar
+            ? unselectedLabel
+            : app.getCharacterNameByCharacterId(effectiveCharacterId);
+          const characterIconUrl = app.getCharacterIconByCharacterId(effectiveCharacterId);
+
+          if (isEditing) {
+            const mediaCell = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+            characterText = `<span class="weapon-detail-bound-char is-editable" data-resonance-bind-char tabindex="0" role="button">${mediaCell}</span>`;
+          } else {
+            characterText = app.renderWeaponMediaCell(characterIconUrl, characterName, !noAvatar);
+          }
+        }
+
+        return `
+          <tr class="${isEditing ? 'resonance-row-editing' : ''}" data-resonance-slot="${slot}">
+            <td>${slotText}</td>
+            <td>${effectText}</td>
+            <td>${characterText}</td>
+            <td>
+              <div class="weapon-detail-resonance-actions">
+                ${isEditing ? `
+                <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.weaponDetailResonanceCancel')}</button>
+                <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance" ${app.canSaveResonanceSlot(slot) ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceSave')}</button>
+                ` : `
+                <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.weaponDetailResonanceEdit')}</button>
+                <button class="weapon-detail-resonance-action-btn weapon-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance" ${canDelete ? '' : 'disabled'}>${app.translate('dashboard.weaponDetailResonanceDelete')}</button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+      weaponDetailResonanceBody.innerHTML = rows;
+    }
   }
 
   if (weaponDetailOverrunSection instanceof HTMLElement) {
-    weaponDetailOverrunSection.hidden = !(extraInfo && 'WeaponOverrunData' in extraInfo);
+    weaponDetailOverrunSection.hidden = !(extraInfo && 'weapon_overrun_data' in extraInfo);
   }
 
   if (weaponDetailOverrunContent instanceof HTMLElement) {
-    weaponDetailOverrunContent.textContent = '--';
+    const weaponOverrunData = extraInfo?.weapon_overrun_data;
+    if (weaponOverrunData && typeof weaponOverrunData === 'object') {
+      const level = Number.isFinite(Number(weaponOverrunData.level)) ? Math.max(0, Number(weaponOverrunData.level)) : null;
+      const maxLevel = Number.isFinite(Number(weaponOverrunData.max_level)) ? Math.max(0, Number(weaponOverrunData.max_level)) : null;
+      const choseSuit = Number.isFinite(Number(weaponOverrunData.chose_suit)) ? Number(weaponOverrunData.chose_suit) : null;
+      const suitEntry = choseSuit !== null ? state.weaponOverrunSuitEntriesMap?.[choseSuit] : null;
+      const suitName = suitEntry?.Name ? String(suitEntry.Name).trim() : null;
+      const levelText = level !== null && maxLevel !== null
+        ? `${level} / ${maxLevel}`
+        : level !== null
+          ? String(level)
+          : maxLevel !== null
+            ? `-- / ${maxLevel}`
+            : '--';
+
+      weaponDetailOverrunContent.textContent = suitName
+        ? `${levelText} - ${suitName}`
+        : levelText;
+    } else {
+      weaponDetailOverrunContent.textContent = '--';
+    }
   }
 };
 

@@ -10,7 +10,7 @@ from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
+from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.equips import (
     get_equip_resonance_map,
@@ -323,6 +323,9 @@ class PlayerEquipsService:
         if self._collection_schema is None:
             raise RuntimeError(f"Missing schema for collection: {CHARACTERS_COLLECTION_NAME}")
         return self._collection_schema
+
+    def supports_weapon_overrun_data(self) -> bool:
+        return self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
 
     def _sanitize_characters_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_characters_schema().sanitize_document(document)
@@ -704,13 +707,21 @@ class PlayerEquipsService:
                     character_id=_parse_optional_int(entry.CharacterId),
                 ))
 
-        allows_overrun_data = self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
+        allows_overrun_data = self.supports_weapon_overrun_data()
 
         weapon_overrun_data = None
-        if allows_overrun_data and template_id in get_weapon_overrun_max_level_map():
-            weapon_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
-            if weapon_overrun_data is None:
-                weapon_overrun_data = WeaponOverrunRecord()
+        weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
+        max_overrun_level = weapon_overrun_max_level_map.get(template_id)
+        if allows_overrun_data and max_overrun_level is not None:
+            normalized_weapon_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
+            if normalized_weapon_overrun_data is None:
+                normalized_weapon_overrun_data = WeaponOverrunRecord()
+
+            weapon_overrun_data = WeaponOverrunExtraInfoRecord(
+                level=_parse_optional_int(normalized_weapon_overrun_data.Level),
+                max_level=max_overrun_level,
+                chose_suit=_parse_optional_int(normalized_weapon_overrun_data.ChoseSuit),
+            )
 
         return WeaponExtraInfoRecord(
             max_breakthrough=max_breakthrough,
@@ -721,7 +732,7 @@ class PlayerEquipsService:
             },
             current_level_exp_limit=current_level_exp_limit,
             resonance_info=resonance_info,
-            WeaponOverrunData=weapon_overrun_data,
+            weapon_overrun_data=weapon_overrun_data,
         )
 
     async def set_weapon_resonance(self, uid: int, record_id: int, payload) -> WeaponResonanceRecord:

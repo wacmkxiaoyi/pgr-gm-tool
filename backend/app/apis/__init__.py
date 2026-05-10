@@ -53,6 +53,7 @@ from backend.app.services.player.equips import (
     get_equip_star_map,
 )
 from backend.app.services.player.equips.weapon import (
+    get_weapon_overrun_suit_entries_map,
     get_weapon_skill_entries_map,
     get_weapon_skill_pool_entries_map,
     get_weapon_type_name_map,
@@ -107,10 +108,12 @@ async def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/app-info", response_model=AppInfoResponse)
+@router.get("/app-info", response_model=AppInfoResponse, response_model_exclude_none=True)
 async def app_info(request: Request) -> AppInfoResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
+    player_equips_service = request.app.state.player_equips_service
+    supports_weapon_overrun = player_equips_service.supports_weapon_overrun_data()
     return AppInfoResponse.model_validate({
         "name": settings.app_name,
         "environment": settings.app_env,
@@ -134,6 +137,7 @@ async def app_info(request: Request) -> AppInfoResponse:
         "character_log_name_map": get_character_log_name_map(),
         "character_head_icon_url_map": get_character_head_icon_url_map(),
         "weapon_skill_entries_map": get_weapon_skill_entries_map(),
+        "weapon_overrun_suit_entries_map": get_weapon_overrun_suit_entries_map() if supports_weapon_overrun else None,
         "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
         "attrib_pool_entries_map": get_attrib_pool_entries_map(),
         "character_skill_pool_entries_map": get_character_skill_pool_entries_map(),

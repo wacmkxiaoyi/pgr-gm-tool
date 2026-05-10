@@ -6,11 +6,11 @@ from pathlib import Path
 from backend.app.utils.tsv_reader import TSVReader
 
 
-HEAD_PORTRAIT_TSV_PATH = Path("resources/HeadPortrait.tsv")
-BACKGROUND_TSV_PATH = Path("resources/Background.tsv")
-CHARACTER_TSV_PATH = Path("resources/Character.tsv")
-FASHION_TSV_PATH = Path("resources/Fashion.tsv")
-PLAYER_LEVEL_TSV_PATH = Path("resources/Player.tsv")
+HEAD_PORTRAIT_TSV_PATH = Path("assets/HeadPortrait.tsv")
+BACKGROUND_TSV_PATH = Path("assets/Background.tsv")
+CHARACTER_TSV_PATH = Path("assets/Character.tsv")
+FASHION_TSV_PATH = Path("assets/Fashion.tsv")
+PLAYER_LEVEL_TSV_PATH = Path("assets/Player.tsv")
 PORTRAIT_TYPE = "1"
 PORTRAIT_FRAME_TYPE = "2"
 ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"

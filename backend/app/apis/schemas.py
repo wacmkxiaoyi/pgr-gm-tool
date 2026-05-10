@@ -46,6 +46,7 @@ class AppInfoResponse(BaseModel):
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
     weapon_skill_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
+    weapon_overrun_suit_entries_map: dict[int, dict[str, str]] | None = None
     weapon_skill_pool_entries_map: dict[int, dict[int, list[int]]] = Field(default_factory=dict)
     attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
     character_skill_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
@@ -72,10 +73,10 @@ class WeaponResonanceResponse(BaseModel):
     TemplateId: int | None = None
 
 
-class WeaponOverrunResponse(BaseModel):
-    Level: int | None = None
-    ActiveSuits: list[int] = Field(default_factory=list)
-    ChoseSuit: int | None = None
+class WeaponOverrunExtraInfoResponse(BaseModel):
+    level: int | None = None
+    max_level: int
+    chose_suit: int | None = None
 
 
 class WeaponItemResponse(BaseModel):
@@ -150,7 +151,7 @@ class WeaponExtraInfoResponse(BaseModel):
     breakthrough_level_limit_map: dict[int, int]
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
-    WeaponOverrunData: WeaponOverrunResponse | None = None
+    weapon_overrun_data: WeaponOverrunExtraInfoResponse | None = None
 
 
 class UpdateWeaponResonanceRequest(BaseModel):

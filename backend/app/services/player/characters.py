@@ -7,8 +7,8 @@ from typing import Any
 from backend.app.utils.tsv_reader import TSVReader
 
 
-ATTRIB_POOL_TSV_PATH = Path("resources/AttribPool.tsv")
-CHARACTER_SKILL_POOL_TSV_PATH = Path("resources/CharacterSkillPool.tsv")
+ATTRIB_POOL_TSV_PATH = Path("assets/AttribPool.tsv")
+CHARACTER_SKILL_POOL_TSV_PATH = Path("assets/CharacterSkillPool.tsv")
 
 
 def _parse_int(value: Any) -> int | None:

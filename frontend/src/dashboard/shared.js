@@ -236,6 +236,7 @@ export const state = {
   characterLogNameMap: {},
   characterHeadIconUrlMap: {},
   weaponSkillEntriesMap: {},
+  weaponOverrunSuitEntriesMap: {},
   weaponSkillPoolEntriesMap: {},
   attribPoolEntriesMap: {},
   characterSkillPoolEntriesMap: {},

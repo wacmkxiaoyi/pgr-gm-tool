@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_FILE_PATH = Path(__file__).resolve().parents[2] / "template" / "db_schema.json"
+SCHEMA_FILE_PATH = Path(__file__).resolve().parents[1] / "db" / "schema.json"
 ROOT_COLLECTION_WILDCARD_SUFFIX = "[*]"
 ARRAY_WILDCARD_SUFFIX = "[*]"
 
@@ -162,7 +162,7 @@ def _load_schema_file() -> dict[str, Any]:
         payload = json.load(schema_file)
 
     if not isinstance(payload, dict):
-        raise ValueError("db_schema.json root must be an object")
+        raise ValueError("schema.json root must be an object")
 
     return payload
 
@@ -172,7 +172,7 @@ def _load_compiled_schema(server_version: str) -> dict[str, Any]:
     raw_schema = _load_schema_file()
     default_section = raw_schema.get("default")
     if not isinstance(default_section, dict):
-        raise ValueError("db_schema.json default section must be an object")
+        raise ValueError("schema.json default section must be an object")
 
     base_schema = copy.deepcopy(default_section.get("schema") or {})
     active_version = _parse_version_key(server_version)

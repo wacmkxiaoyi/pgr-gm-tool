@@ -1,1 +1,0 @@
-SERVER_VERSION = "2.3"

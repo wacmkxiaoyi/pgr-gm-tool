@@ -6,10 +6,10 @@ from pathlib import Path
 from backend.app.utils.tsv_reader import TSVReader
 
 
-EQUIP_TSV_PATH = Path("resources/Equip.tsv")
-EQUIP_RES_TSV_PATH = Path("resources/EquipRes.tsv")
-EQUIP_BREAK_THROUGH_TSV_PATH = Path("resources/EquipBreakThrough.tsv")
-EQUIP_RESONANCE_TSV_PATH = Path("resources/EquipResonance.tsv")
+EQUIP_TSV_PATH = Path("assets/Equip.tsv")
+EQUIP_RES_TSV_PATH = Path("assets/EquipRes.tsv")
+EQUIP_BREAK_THROUGH_TSV_PATH = Path("assets/EquipBreakThrough.tsv")
+EQUIP_RESONANCE_TSV_PATH = Path("assets/EquipResonance.tsv")
 ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
 
 

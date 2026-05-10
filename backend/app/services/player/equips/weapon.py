@@ -8,11 +8,19 @@ from backend.app.utils.tsv_reader import TSVReader
 from backend.app.services.player.equips import EQUIP_TSV_PATH
 
 
-ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("resources/ArchiveWeaponGroup.tsv")
-WEAPON_SKILL_TSV_PATH = Path("resources/WeaponSkill.tsv")
-WEAPON_SKILL_POOL_TSV_PATH = Path("resources/WeaponSkillPool.tsv")
-EQUIP_SUIT_TSV_PATH = Path("resources/EquipSuit.tsv")
-WEAPON_OVERRUN_TSV_PATH = Path("resources/WeaponOverrun.tsv")
+ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("assets/ArchiveWeaponGroup.tsv")
+WEAPON_SKILL_TSV_PATH = Path("assets/WeaponSkill.tsv")
+WEAPON_SKILL_POOL_TSV_PATH = Path("assets/WeaponSkillPool.tsv")
+EQUIP_SUIT_TSV_PATH = Path("assets/EquipSuit.tsv")
+WEAPON_OVERRUN_TSV_PATH = Path("assets/WeaponOverrun.tsv")
+ROLE_WAFER_BAG_ASSET_PREFIX = "/assets/rolewaferbag/"
+
+
+def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
+    filename = Path(str(raw_path).strip()).name.strip().lower()
+    if not filename:
+        return None
+    return f"{prefix}{filename}"
 
 
 @lru_cache(maxsize=1)
@@ -121,9 +129,9 @@ def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
 
 
 @lru_cache(maxsize=1)
-def get_weapon_overrun_suit_name_map() -> dict[int, str]:
+def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
-    normalized_map: dict[int, str] = {}
+    normalized_map: dict[int, dict[str, str]] = {}
 
     for row in reader.data:
         if not isinstance(row, dict):
@@ -138,18 +146,13 @@ def get_weapon_overrun_suit_name_map() -> dict[int, str]:
         except (TypeError, ValueError):
             continue
 
-        equip_ids_raw = row.get("EquipIds")
-        if equip_ids_raw == "" or equip_ids_raw is None:
-            continue
-
-        name = str(row.get("Name", "")).strip()
-        if not name or name.upper() == "N/A":
-            continue
-
-        normalized_map[suit_id] = name
+        normalized_map[suit_id] = {
+            "Name": str(row.get("Name") or "").strip(),
+            "SkillDescription": str(row.get("SkillDescription") or "").strip(),
+            "WaferBagPath": _normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
+        }
 
     return normalized_map
-
 
 @lru_cache(maxsize=1)
 def get_weapon_overrun_suit_equip_ids_map() -> dict[int, dict[int, int]]:
