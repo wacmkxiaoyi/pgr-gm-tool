@@ -39,6 +39,12 @@ const {
   weaponResonanceCharacterPickerGrid,
   weaponResonanceCharacterPickerConfirmButton,
   weaponResonanceCharacterPickerCloseTargets,
+  weaponOverrunPickerModal,
+  weaponOverrunPickerSummary,
+  weaponOverrunPickerGrid,
+  weaponOverrunPickerClearButton,
+  weaponOverrunPickerConfirmButton,
+  weaponOverrunPickerCloseTargets,
 } = dom;
 
 const WEAPON_DETAIL_TOOLTIP_DELAY_MS = 500;
@@ -61,6 +67,419 @@ app.stripMarkupText = (value) => {
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<[^>]+>/g, '')
     .trim();
+};
+
+app.resolveWeaponOverrunBackgroundPath = (value) => {
+  const normalizedValue = typeof value === 'string' ? value.trim() : '';
+  if (!normalizedValue) {
+    return '';
+  }
+
+  if (/^(?:https?:)?\/\//i.test(normalizedValue) || normalizedValue.startsWith('data:')) {
+    return normalizedValue;
+  }
+
+  if (normalizedValue.startsWith('./') || normalizedValue.startsWith('../')) {
+    return normalizedValue;
+  }
+
+  if (normalizedValue.startsWith('/')) {
+    return `.${normalizedValue}`;
+  }
+
+  return normalizedValue;
+};
+
+app.parseWeaponOverrunSkillDescription = (value) => {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return Object.entries(value)
+      .map(([piecesRaw, text]) => {
+        const pieces = Number(piecesRaw);
+        const description = app.stripMarkupText(text);
+        if (!Number.isFinite(pieces) || !description) {
+          return null;
+        }
+
+        return { pieces, text: description };
+      })
+      .filter(Boolean)
+      .sort((left, right) => left.pieces - right.pieces);
+  }
+
+  if (typeof value !== 'string') {
+    return [];
+  }
+
+  const normalizedValue = value.trim();
+  if (!normalizedValue) {
+    return [];
+  }
+
+  try {
+    const parsedJson = JSON.parse(normalizedValue);
+    return app.parseWeaponOverrunSkillDescription(parsedJson);
+  } catch {
+    // Fall through to handle the TSV-style map syntax.
+  }
+
+  const rows = [];
+  const pairPattern = /([0-9]+)\s*:\s*('((?:\\'|[^'])*)'|"((?:\\"|[^"])*)")/g;
+  let match = pairPattern.exec(normalizedValue);
+
+  while (match) {
+    const pieces = Number(match[1]);
+    const rawText = typeof match[3] === 'string' && match[3] !== ''
+      ? match[3]
+      : (typeof match[4] === 'string' ? match[4] : '');
+    const description = app.stripMarkupText(rawText.replace(/\\'/g, "'").replace(/\\"/g, '"'));
+
+    if (Number.isFinite(pieces) && description) {
+      rows.push({ pieces, text: description });
+    }
+
+    match = pairPattern.exec(normalizedValue);
+  }
+
+  return rows.sort((left, right) => left.pieces - right.pieces);
+};
+
+app.getWeaponOverrunPieceLabel = (pieces) => {
+  const normalizedPieces = Number.isFinite(Number(pieces)) ? Number(pieces) : 0;
+  const key = normalizedPieces === 1
+    ? 'dashboard.weaponDetailOverrunPieceSingle'
+    : 'dashboard.weaponDetailOverrunPiecePlural';
+  return app.translate(key, { count: normalizedPieces });
+};
+
+app.getWeaponOverrunSelection = (extraInfo = state.currentWeaponDetailExtraInfo) => {
+  const weaponOverrunData = extraInfo?.weapon_overrun_data;
+  const level = Number.isFinite(Number(weaponOverrunData?.level)) ? Math.max(0, Number(weaponOverrunData.level)) : null;
+  const choseSuit = Number.isFinite(Number(weaponOverrunData?.chose_suit)) ? Number(weaponOverrunData.chose_suit) : null;
+  const suitEntry = choseSuit !== null ? state.weaponOverrunSuitEntriesMap?.[choseSuit] : null;
+
+  return {
+    weaponOverrunData,
+    level,
+    choseSuit,
+    suitEntry: suitEntry && typeof suitEntry === 'object' ? suitEntry : null,
+  };
+};
+
+app.estimateWeaponOverrunPickerLineBudget = (rowCount) => {
+  const normalizedRowCount = Number.isFinite(Number(rowCount)) ? Math.max(0, Number(rowCount)) : 0;
+  if (normalizedRowCount <= 0) {
+    return 0;
+  }
+
+  return Math.max(normalizedRowCount, 8);
+};
+
+app.estimateWeaponOverrunPickerRequiredLines = (text, charactersPerLine = 24) => {
+  const normalizedText = typeof text === 'string' ? text.trim() : '';
+  if (!normalizedText) {
+    return 1;
+  }
+
+  return Math.max(1, Math.ceil(normalizedText.length / Math.max(1, charactersPerLine)));
+};
+
+app.allocateWeaponOverrunPickerLines = (descriptionRows) => {
+  if (!Array.isArray(descriptionRows) || descriptionRows.length === 0) {
+    return [];
+  }
+
+  const totalBudget = app.estimateWeaponOverrunPickerLineBudget(descriptionRows.length);
+  const allocations = descriptionRows.map(() => 1);
+  let remainingBudget = Math.max(0, totalBudget - descriptionRows.length);
+  const greedyRows = descriptionRows
+    .map((row, index) => ({
+      index,
+      pieces: row.pieces,
+      requiredLines: app.estimateWeaponOverrunPickerRequiredLines(row.text),
+    }))
+    .sort((left, right) => right.pieces - left.pieces);
+
+  for (const row of greedyRows) {
+    if (remainingBudget <= 0) {
+      break;
+    }
+
+    const additionalNeeded = Math.max(0, row.requiredLines - 1);
+    if (additionalNeeded <= 0) {
+      continue;
+    }
+
+    const granted = Math.min(additionalNeeded, remainingBudget);
+    allocations[row.index] += granted;
+    remainingBudget -= granted;
+  }
+
+  return allocations;
+};
+
+app.truncateWeaponOverrunPickerText = (text, lineCount, charactersPerLine = 24) => {
+  const normalizedText = typeof text === 'string' ? text.trim() : '';
+  const safeLineCount = Number.isFinite(Number(lineCount)) ? Math.max(1, Number(lineCount)) : 1;
+  if (!normalizedText) {
+    return { text: '', truncated: false };
+  }
+
+  const maxCharacters = Math.max(8, safeLineCount * charactersPerLine);
+  if (normalizedText.length <= maxCharacters) {
+    return { text: normalizedText, truncated: false };
+  }
+
+  const ellipsisText = `${normalizedText.slice(0, Math.max(0, maxCharacters - 3)).trimEnd()}...`;
+  return { text: ellipsisText, truncated: true };
+};
+
+app.buildWeaponOverrunCardMarkup = ({
+  suitId = null,
+  suitEntry = null,
+  level = null,
+  mode = 'detail',
+  selected = false,
+} = {}) => {
+  const isPicker = mode === 'picker';
+  if (!(suitEntry && typeof suitEntry === 'object')) {
+    const classes = ['weapon-detail-overrun', 'weapon-detail-overrun-inactive'];
+    if (isPicker) {
+      classes.push('weapon-overrun-picker-card', 'weapon-overrun-picker-card-empty');
+    }
+    return `<div class="${classes.join(' ')}">${app.escapeHtml(app.translate('dashboard.weaponDetailOverrunInactive'))}</div>`;
+  }
+
+  const suitName = suitEntry?.Name ? String(suitEntry.Name).trim() : app.translate('common.notAvailable');
+  const titleText = isPicker ? suitName : `${suitName} (Lv. ${level ?? 0})`;
+  const descriptionRows = app.parseWeaponOverrunSkillDescription(suitEntry?.SkillDescription);
+  const backgroundPath = app.resolveWeaponOverrunBackgroundPath(suitEntry?.WaferBagPath);
+  const backgroundStyle = backgroundPath
+    ? ` style="background-image: linear-gradient(140deg, rgba(9, 14, 30, 0.24), rgba(9, 14, 30, 0.54)), url('${app.escapeHtml(backgroundPath)}');"`
+    : '';
+
+  const lineBudgets = isPicker ? app.allocateWeaponOverrunPickerLines(descriptionRows) : [];
+  const descMarkup = descriptionRows.length > 0
+    ? `<div class="weapon-detail-overrun-lines${isPicker ? ' weapon-overrun-picker-lines' : ''}">${descriptionRows.map(({ pieces, text }, index) => {
+        const escapedLabel = app.escapeHtml(app.getWeaponOverrunPieceLabel(pieces));
+        const result = isPicker
+          ? app.truncateWeaponOverrunPickerText(text, lineBudgets[index] ?? 1)
+          : { text, truncated: false };
+        const escapedText = app.escapeHtml(result.text);
+        const tooltipAttr = result.truncated
+          ? ` data-weapon-tooltip-text="${app.escapeHtml(text)}" tabindex="0"`
+          : '';
+        const rowStyle = isPicker ? ` style="--weapon-overrun-picker-lines:${Math.max(1, lineBudgets[index] ?? 1)};"` : '';
+        return `
+          <div class="weapon-detail-overrun-line${isPicker ? ' weapon-overrun-picker-line' : ''}"${rowStyle}${tooltipAttr}>
+            <strong class="weapon-detail-overrun-label">${escapedLabel}:</strong>
+            <span class="weapon-detail-overrun-text${result.truncated ? ' is-truncated' : ''}">${escapedText}</span>
+          </div>
+        `;
+      }).join('')}</div>`
+    : '';
+
+  const rootClasses = ['weapon-detail-overrun', 'weapon-detail-overrun-card'];
+  if (isPicker) {
+    rootClasses.push('weapon-overrun-picker-card');
+    if (selected) {
+      rootClasses.push('is-selected');
+    }
+  }
+
+  return `
+    <div class="${rootClasses.join(' ')}"${isPicker && Number.isFinite(Number(suitId)) ? ` data-weapon-overrun-picker-id="${Number(suitId)}" tabindex="0" role="button" aria-pressed="${selected ? 'true' : 'false'}"` : ''}>
+      <div class="weapon-detail-overrun-surface${isPicker ? ' weapon-overrun-picker-surface' : ''}"${backgroundStyle}>
+        <div class="weapon-detail-overrun-overlay${isPicker ? ' weapon-overrun-picker-overlay' : ''}">
+          <div class="weapon-detail-overrun-title${isPicker ? ' weapon-overrun-picker-title' : ''}">${app.escapeHtml(titleText)}</div>
+          ${descMarkup}
+        </div>
+      </div>
+    </div>
+  `;
+};
+
+app.renderWeaponOverrunPickerSummary = () => {
+  if (!(weaponOverrunPickerSummary instanceof HTMLElement)) {
+    return;
+  }
+
+  const selectedSuitId = Number(state._weaponOverrunPickerSelectedSuitId);
+  const hasSelection = Number.isFinite(selectedSuitId) && selectedSuitId !== 0;
+  const suitEntry = hasSelection ? state.weaponOverrunSuitEntriesMap?.[selectedSuitId] : null;
+  const label = suitEntry?.Name ? String(suitEntry.Name).trim() : app.translate('common.unselected');
+
+  weaponOverrunPickerSummary.innerHTML = `
+    <div class="overrun-picker-summary-row">
+      <span class="overrun-picker-summary-key">${app.escapeHtml(app.translate('dashboard.weaponDetailOverrunPickerCurrent'))}</span>
+      <span class="overrun-picker-summary-value">${app.escapeHtml(label || app.translate('common.unselected'))}</span>
+    </div>
+  `;
+};
+
+app.renderWeaponOverrunPickerGrid = () => {
+  if (!(weaponOverrunPickerGrid instanceof HTMLElement)) {
+    return;
+  }
+
+  const selectedSuitId = Number(state._weaponOverrunPickerSelectedSuitId);
+  const suitEntries = Object.entries(state.weaponOverrunSuitEntriesMap || {})
+    .map(([idRaw, entry]) => ({ id: Number(idRaw), entry }))
+    .filter(({ id, entry }) => Number.isFinite(id) && entry && typeof entry === 'object')
+    .sort((left, right) => left.id - right.id);
+
+  weaponOverrunPickerGrid.innerHTML = suitEntries.map(({ id, entry }) => app.buildWeaponOverrunCardMarkup({
+    suitId: id,
+    suitEntry: entry,
+    mode: 'picker',
+    selected: id === selectedSuitId,
+  })).join('');
+
+  app.renderWeaponOverrunPickerSummary();
+};
+
+app.openWeaponOverrunPickerModal = (triggerButton) => {
+  if (!(weaponOverrunPickerModal instanceof HTMLElement)) {
+    return;
+  }
+
+  const selection = app.getWeaponOverrunSelection();
+  state._weaponOverrunPickerOriginalSuitId = selection.choseSuit;
+  state._weaponOverrunPickerSelectedSuitId = selection.choseSuit;
+  state._weaponOverrunPickerTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+
+  app.renderWeaponOverrunPickerGrid();
+  weaponOverrunPickerModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  const selectedCard = weaponOverrunPickerGrid instanceof HTMLElement
+    ? weaponOverrunPickerGrid.querySelector('.weapon-overrun-picker-card.is-selected')
+    : null;
+  if (selectedCard instanceof HTMLElement) {
+    selectedCard.focus();
+  } else if (weaponOverrunPickerClearButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerClearButton.focus();
+  }
+};
+
+app.closeWeaponOverrunPickerModal = () => {
+  if (weaponOverrunPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerConfirmButton.disabled = false;
+  }
+  if (weaponOverrunPickerClearButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerClearButton.disabled = false;
+  }
+
+  if (weaponOverrunPickerModal instanceof HTMLElement) {
+    weaponOverrunPickerModal.hidden = true;
+  }
+  app.hideWeaponDetailTooltip();
+  if (!(weaponDetailModal instanceof HTMLElement) || weaponDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+
+  if (state._weaponOverrunPickerTrigger instanceof HTMLElement) {
+    state._weaponOverrunPickerTrigger.focus();
+  }
+
+  state._weaponOverrunPickerOriginalSuitId = null;
+  state._weaponOverrunPickerSelectedSuitId = null;
+  state._weaponOverrunPickerTrigger = null;
+};
+
+app.submitWeaponOverrunSelection = async () => {
+  const recordId = Number(state.currentWeaponDetailItem?._id ?? state.currentWeaponDetailItem?.record_id);
+  if (!Number.isFinite(recordId) || recordId <= 0) {
+    app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+    return;
+  }
+
+  const selectedSuitId = Number(state._weaponOverrunPickerSelectedSuitId);
+  const hasSelectedSuit = Number.isFinite(selectedSuitId) && selectedSuitId > 0;
+
+  if (weaponOverrunPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerConfirmButton.disabled = true;
+  }
+  if (weaponOverrunPickerClearButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerClearButton.disabled = true;
+  }
+
+  try {
+    const payload = await app.apiFetch(`/api/database-weapons/selected/${recordId}/overrun`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chose_suit: hasSelectedSuit ? selectedSuitId : 0,
+      }),
+    });
+
+    if (payload && typeof payload === 'object') {
+      state.currentWeaponDetailExtraInfo = payload;
+      if (state.currentWeaponDetailItem) {
+        app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+      }
+    } else {
+      await app.loadWeaponDetailExtraInfo(recordId);
+    }
+
+    app.closeWeaponOverrunPickerModal();
+  } catch (error) {
+    app.closeWeaponOverrunPickerModal();
+    app.openWeaponOverrunPickerModal(weaponDetailOverrunContent);
+    state._weaponOverrunPickerSelectedSuitId = hasSelectedSuit ? selectedSuitId : null;
+    app.renderWeaponOverrunPickerGrid();
+    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
+  }
+};
+
+app.handleWeaponOverrunPickerClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const card = target.closest('[data-weapon-overrun-picker-id]');
+  if (!(card instanceof HTMLElement)) {
+    return;
+  }
+
+  const suitId = Number(card.dataset.weaponOverrunPickerId);
+  if (!Number.isFinite(suitId)) {
+    return;
+  }
+
+  state._weaponOverrunPickerSelectedSuitId = suitId;
+  app.renderWeaponOverrunPickerGrid();
+};
+
+app.renderWeaponOverrunContent = (extraInfo) => {
+  if (!(weaponDetailOverrunContent instanceof HTMLElement)) {
+    return;
+  }
+
+  const { weaponOverrunData, level, suitEntry } = app.getWeaponOverrunSelection(extraInfo);
+  if (!(weaponOverrunData && typeof weaponOverrunData === 'object')) {
+    weaponDetailOverrunContent.className = 'weapon-detail-overrun';
+    weaponDetailOverrunContent.textContent = '--';
+    delete weaponDetailOverrunContent.dataset.overrunEditable;
+    return;
+  }
+
+  if (!(suitEntry && typeof suitEntry === 'object')) {
+    weaponDetailOverrunContent.className = 'weapon-detail-overrun weapon-detail-overrun-inactive weapon-detail-overrun-editable';
+    weaponDetailOverrunContent.textContent = app.translate('dashboard.weaponDetailOverrunInactive');
+    weaponDetailOverrunContent.dataset.overrunEditable = 'inactive';
+    weaponDetailOverrunContent.setAttribute('tabindex', '0');
+    weaponDetailOverrunContent.setAttribute('role', 'button');
+    return;
+  }
+
+  weaponDetailOverrunContent.className = 'weapon-detail-overrun weapon-detail-overrun-host weapon-detail-overrun-editable';
+  weaponDetailOverrunContent.dataset.overrunEditable = 'active';
+  weaponDetailOverrunContent.removeAttribute('tabindex');
+  weaponDetailOverrunContent.removeAttribute('role');
+  weaponDetailOverrunContent.innerHTML = app.buildWeaponOverrunCardMarkup({ suitEntry, level, mode: 'detail' });
 };
 
 app.buildResonanceResolveIndices = () => {
@@ -879,9 +1298,11 @@ app.showWeaponDetailTooltip = (target) => {
     return;
   }
 
-  const description = typeof target.dataset.effectDescription === 'string'
-    ? target.dataset.effectDescription.trim()
-    : '';
+  const description = typeof target.dataset.weaponTooltipText === 'string' && target.dataset.weaponTooltipText.trim()
+    ? target.dataset.weaponTooltipText.trim()
+    : (typeof target.dataset.effectDescription === 'string'
+      ? target.dataset.effectDescription.trim()
+      : '');
   if (!description) {
     app.hideWeaponDetailTooltip();
     return;
@@ -917,47 +1338,35 @@ app._hideResonanceDescTooltip = () => {
     state._resonanceDescTooltipTimer = null;
   }
   if (resonanceEffectTooltip instanceof HTMLElement) {
+    if (resonanceEffectTooltip.parentElement !== document.body) {
+      document.body.appendChild(resonanceEffectTooltip);
+    }
     resonanceEffectTooltip.hidden = true;
     resonanceEffectTooltip.textContent = '';
   }
   state._resonanceDescTooltipTarget = null;
-  state._resonanceDescTooltipMousePosition = null;
 };
 
 app._positionResonanceDescTooltip = () => {
   if (!(resonanceEffectTooltip instanceof HTMLElement) || resonanceEffectTooltip.hidden) return;
 
   const target = state._resonanceDescTooltipTarget;
-  const mousePosition = state._resonanceDescTooltipMousePosition;
-  if (!(target instanceof HTMLElement) && mousePosition == null) return;
+  if (!(target instanceof HTMLElement)) return;
 
+  const targetRect = target.getBoundingClientRect();
   const tipRect = resonanceEffectTooltip.getBoundingClientRect();
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
   const margin = 12;
   const gap = 8;
-  let left = margin;
-  let top = margin;
+  let left = targetRect.left + (targetRect.width / 2) - (tipRect.width / 2);
+  let top = targetRect.bottom + gap;
 
-  if (mousePosition && Number.isFinite(mousePosition.x) && Number.isFinite(mousePosition.y)) {
-    left = mousePosition.x - (tipRect.width / 2);
-    top = mousePosition.y + gap;
-    if (left < margin) left = margin;
-    else if (left + tipRect.width > vw - margin) left = vw - tipRect.width - margin;
-    if (top + tipRect.height > vh - margin) {
-      const above = mousePosition.y - tipRect.height - gap;
-      top = above >= margin ? above : margin;
-    }
-  } else if (target instanceof HTMLElement) {
-    const targetRect = target.getBoundingClientRect();
-    left = targetRect.left + (targetRect.width / 2) - (tipRect.width / 2);
-    top = targetRect.bottom + gap;
-    if (left < margin) left = margin;
-    else if (left + tipRect.width > vw - margin) left = vw - tipRect.width - margin;
-    if (top + tipRect.height > vh - margin) {
-      const above = targetRect.top - tipRect.height - gap;
-      top = above >= margin ? above : margin;
-    }
+  if (left < margin) left = margin;
+  else if (left + tipRect.width > vw - margin) left = vw - tipRect.width - margin;
+  if (top + tipRect.height > vh - margin) {
+    const above = targetRect.top - tipRect.height - gap;
+    top = above >= margin ? above : margin;
   }
 
   if (top < margin) top = margin;
@@ -965,30 +1374,32 @@ app._positionResonanceDescTooltip = () => {
   resonanceEffectTooltip.style.top = `${Math.round(top)}px`;
 };
 
-app._showResonanceDescTooltip = (target, mousePosition = null) => {
+app._showResonanceDescTooltip = (target) => {
   if (!(target instanceof HTMLElement) || !(resonanceEffectTooltip instanceof HTMLElement)) return;
   const fullDesc = target.getAttribute('data-full-description') || '';
   if (!fullDesc.trim()) {
     app._hideResonanceDescTooltip();
     return;
   }
+  if (resonanceEffectTooltip.parentElement !== document.body) {
+    document.body.appendChild(resonanceEffectTooltip);
+  }
   resonanceEffectTooltip.textContent = fullDesc;
   resonanceEffectTooltip.hidden = false;
   resonanceEffectTooltip.style.left = '0px';
   resonanceEffectTooltip.style.top = '0px';
   state._resonanceDescTooltipTarget = target;
-  state._resonanceDescTooltipMousePosition = mousePosition;
   window.requestAnimationFrame(() => {
     app._positionResonanceDescTooltip();
   });
 };
 
-app._scheduleResonanceDescTooltip = (target, mousePosition = null) => {
+app._scheduleResonanceDescTooltip = (target) => {
   app._hideResonanceDescTooltip();
   if (!(target instanceof HTMLElement)) return;
   state._resonanceDescTooltipTimer = window.setTimeout(() => {
     state._resonanceDescTooltipTimer = null;
-    app._showResonanceDescTooltip(target, mousePosition);
+    app._showResonanceDescTooltip(target);
   }, WEAPON_DETAIL_TOOLTIP_DELAY_MS);
 };
 
@@ -1001,12 +1412,8 @@ app.handleResonanceDescTooltipEvent = (event) => {
     return;
   }
   if (event.type === 'mouseover' || event.type === 'focusin') {
-    const mousePosition = event instanceof MouseEvent
-      ? { x: event.clientX, y: event.clientY }
-      : null;
-    app._scheduleResonanceDescTooltip(descCell, mousePosition);
+    app._scheduleResonanceDescTooltip(descCell);
   } else if (event.type === 'mousemove') {
-    state._resonanceDescTooltipMousePosition = { x: event.clientX, y: event.clientY };
     if (state._resonanceDescTooltipTarget === descCell && resonanceEffectTooltip instanceof HTMLElement && !resonanceEffectTooltip.hidden) {
       app._positionResonanceDescTooltip();
     }
@@ -1671,29 +2078,7 @@ app.populateWeaponDetailCard = (item) => {
     weaponDetailOverrunSection.hidden = !(extraInfo && 'weapon_overrun_data' in extraInfo);
   }
 
-  if (weaponDetailOverrunContent instanceof HTMLElement) {
-    const weaponOverrunData = extraInfo?.weapon_overrun_data;
-    if (weaponOverrunData && typeof weaponOverrunData === 'object') {
-      const level = Number.isFinite(Number(weaponOverrunData.level)) ? Math.max(0, Number(weaponOverrunData.level)) : null;
-      const maxLevel = Number.isFinite(Number(weaponOverrunData.max_level)) ? Math.max(0, Number(weaponOverrunData.max_level)) : null;
-      const choseSuit = Number.isFinite(Number(weaponOverrunData.chose_suit)) ? Number(weaponOverrunData.chose_suit) : null;
-      const suitEntry = choseSuit !== null ? state.weaponOverrunSuitEntriesMap?.[choseSuit] : null;
-      const suitName = suitEntry?.Name ? String(suitEntry.Name).trim() : null;
-      const levelText = level !== null && maxLevel !== null
-        ? `${level} / ${maxLevel}`
-        : level !== null
-          ? String(level)
-          : maxLevel !== null
-            ? `-- / ${maxLevel}`
-            : '--';
-
-      weaponDetailOverrunContent.textContent = suitName
-        ? `${levelText} - ${suitName}`
-        : levelText;
-    } else {
-      weaponDetailOverrunContent.textContent = '--';
-    }
-  }
+  app.renderWeaponOverrunContent(extraInfo);
 };
 
 app.closeWeaponDetailModal = () => {
@@ -1713,6 +2098,12 @@ app.closeWeaponDetailModal = () => {
   state._weaponResonanceEditSlots = {};
   state._weaponResonancePendingEffect = {};
   state._weaponResonancePendingCharacter = {};
+  state._weaponOverrunPickerOriginalSuitId = null;
+  state._weaponOverrunPickerSelectedSuitId = null;
+  state._weaponOverrunPickerTrigger = null;
+  if (weaponOverrunPickerModal instanceof HTMLElement) {
+    weaponOverrunPickerModal.hidden = true;
+  }
   app.hideWeaponDetailTooltip();
 
   if (state.lastWeaponDetailFocusedControl instanceof HTMLElement) {
@@ -2114,40 +2505,71 @@ app.handleWeaponDetailTooltipEvent = (event) => {
     return;
   }
 
-  const effectName = target.closest('.weapon-detail-effect-name');
-  const row = effectName instanceof HTMLElement ? effectName.closest('tr[data-resonance-slot]') : null;
+  const tooltipTarget = target.closest('.weapon-detail-effect-name, [data-weapon-tooltip-text]');
+  const row = tooltipTarget instanceof HTMLElement ? tooltipTarget.closest('tr[data-resonance-slot]') : null;
   if (row instanceof HTMLElement && row.classList.contains('resonance-row-editing')) {
     app.hideWeaponDetailTooltip();
     return;
   }
 
   if (event.type === 'mouseover' || event.type === 'focusin') {
-    if (effectName instanceof HTMLElement) {
-      app.scheduleWeaponDetailTooltip(effectName);
+    if (tooltipTarget instanceof HTMLElement) {
+      app.scheduleWeaponDetailTooltip(tooltipTarget);
     }
     return;
   }
 
   if (event.type === 'mousemove') {
-    if (effectName instanceof HTMLElement && state.weaponDetailTooltipTarget === effectName && weaponDetailTooltip instanceof HTMLElement && !weaponDetailTooltip.hidden) {
+    if (tooltipTarget instanceof HTMLElement && state.weaponDetailTooltipTarget === tooltipTarget && weaponDetailTooltip instanceof HTMLElement && !weaponDetailTooltip.hidden) {
       app.syncWeaponDetailTooltipPosition();
     }
     return;
   }
 
   if (event.type === 'mouseout' || event.type === 'focusout') {
-    if (!(effectName instanceof HTMLElement)) {
+    if (!(tooltipTarget instanceof HTMLElement)) {
       app.hideWeaponDetailTooltip();
       return;
     }
 
     const relatedTarget = event.relatedTarget;
-    if (relatedTarget instanceof Node && effectName.contains(relatedTarget)) {
+    if (relatedTarget instanceof Node && tooltipTarget.contains(relatedTarget)) {
       return;
     }
 
     app.hideWeaponDetailTooltip();
   }
+};
+
+app.handleWeaponOverrunActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || !(weaponDetailOverrunContent instanceof HTMLElement)) {
+    return;
+  }
+
+  const trigger = target.closest('#weapon-detail-overrun-content, .weapon-detail-overrun-surface');
+  if (!(trigger instanceof HTMLElement) || !weaponDetailOverrunContent.contains(trigger)) {
+    return;
+  }
+
+  const mode = weaponDetailOverrunContent.dataset.overrunEditable;
+  if (!mode) {
+    return;
+  }
+
+  if (mode === 'active') {
+    const blockedText = target.closest('.weapon-detail-overrun-title, .weapon-detail-overrun-line, .weapon-detail-overrun-label, .weapon-detail-overrun-text');
+    if (blockedText instanceof HTMLElement) {
+      return;
+    }
+
+    const surface = target.closest('.weapon-detail-overrun-surface');
+    if (!(surface instanceof HTMLElement)) {
+      return;
+    }
+  }
+
+  app.openWeaponOverrunPickerModal(weaponDetailOverrunContent);
 };
 
 app.handleWeaponDetailFieldActivate = (event) => {
@@ -2196,9 +2618,8 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
     }
   });
 
-  const closeButton = weaponDetailModal.querySelector('[data-weapon-detail-close]');
-  if (closeButton instanceof HTMLElement) {
-    closeButton.focus();
+  if (weaponDetailCard instanceof HTMLElement) {
+    weaponDetailCard.focus();
   }
 };
 
@@ -2281,6 +2702,7 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponDetailModal.addEventListener('click', app.handleResonanceActionClick);
     weaponDetailModal.addEventListener('click', app.handleResonanceEffectCellClick);
     weaponDetailModal.addEventListener('click', app.handleResonanceBoundCharacterClick);
+    weaponDetailModal.addEventListener('click', app.handleWeaponOverrunActivate);
     weaponDetailModal.addEventListener('mouseover', app.handleWeaponDetailTooltipEvent);
     weaponDetailModal.addEventListener('mouseout', app.handleWeaponDetailTooltipEvent);
     weaponDetailModal.addEventListener('mousemove', app.handleWeaponDetailTooltipEvent);
@@ -2298,6 +2720,10 @@ export const initDatabaseWeaponManagementFeature = () => {
 
       event.preventDefault();
       app.handleWeaponDetailFieldActivate(event);
+
+      if (event.target instanceof HTMLElement && event.target.closest('#weapon-detail-overrun-content')) {
+        app.handleWeaponOverrunActivate(event);
+      }
     });
     weaponDetailModal.addEventListener('scroll', app.hideWeaponDetailTooltip, true);
   }
@@ -2388,6 +2814,55 @@ export const initDatabaseWeaponManagementFeature = () => {
       if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-character-picker-id]')) {
         event.preventDefault();
         app.closeCharacterPickerModal(true);
+      }
+    });
+  }
+
+  weaponOverrunPickerCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeWeaponOverrunPickerModal);
+  });
+
+  if (weaponOverrunPickerGrid instanceof HTMLElement) {
+    weaponOverrunPickerGrid.addEventListener('click', app.handleWeaponOverrunPickerClick);
+  }
+
+  if (weaponOverrunPickerClearButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerClearButton.addEventListener('click', () => {
+      state._weaponOverrunPickerSelectedSuitId = null;
+      app.renderWeaponOverrunPickerGrid();
+    });
+  }
+
+  if (weaponOverrunPickerConfirmButton instanceof HTMLButtonElement) {
+    weaponOverrunPickerConfirmButton.addEventListener('click', () => {
+      void app.submitWeaponOverrunSelection();
+    });
+  }
+
+  if (weaponOverrunPickerModal instanceof HTMLElement) {
+    weaponOverrunPickerModal.addEventListener('mouseover', app.handleWeaponDetailTooltipEvent);
+    weaponOverrunPickerModal.addEventListener('mouseout', app.handleWeaponDetailTooltipEvent);
+    weaponOverrunPickerModal.addEventListener('mousemove', app.handleWeaponDetailTooltipEvent);
+    weaponOverrunPickerModal.addEventListener('focusin', app.handleWeaponDetailTooltipEvent);
+    weaponOverrunPickerModal.addEventListener('focusout', app.handleWeaponDetailTooltipEvent);
+    weaponOverrunPickerModal.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target === weaponOverrunPickerModal || target.classList.contains('login-modal-backdrop')) {
+        app.closeWeaponOverrunPickerModal();
+      }
+    });
+
+    weaponOverrunPickerModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        app.closeWeaponOverrunPickerModal();
+        return;
+      }
+
+      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-weapon-overrun-picker-id]')) {
+        event.preventDefault();
+        void app.submitWeaponOverrunSelection();
       }
     });
   }

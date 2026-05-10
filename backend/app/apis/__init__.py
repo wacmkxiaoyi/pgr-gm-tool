@@ -37,6 +37,7 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemRequest,
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
+    UpdateWeaponOverrunRequest,
     UpdateWeaponRequest,
     UpdateWeaponResonanceRequest,
     UpdateWeaponResonanceResponse,
@@ -735,6 +736,42 @@ async def update_selected_database_weapon_resonance(
         raise
 
     return result
+
+
+@router.put("/database-weapons/selected/{record_id}/overrun", response_model=WeaponExtraInfoResponse, response_model_exclude_none=True)
+async def update_selected_database_weapon_overrun(
+    record_id: int,
+    payload: UpdateWeaponOverrunRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> WeaponExtraInfoResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        await equips_service.set_weapon_overrun(selected_uid, record_id, payload)
+        extra_info = await equips_service.get_weapon_extra_info(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.overrun_not_supported":
+            raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
+        if error_message == "equips.overrun_invalid":
+            raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
+        if error_message == "equips.update_failed":
+            raise_http_error(500, "equips.update_failed", {"record_id": record_id})
+        raise
+
+    return WeaponExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
 @router.delete("/database-weapons/selected/{record_id}/resonance/{slot}", response_model=DeleteWeaponResonanceResponse)

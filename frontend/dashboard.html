@@ -618,7 +618,7 @@
     <!-- Weapon detail card -->
     <div class="login-modal" hidden id="weapon-detail-modal">
       <div class="login-modal-backdrop" data-weapon-detail-close></div>
-      <section class="weapon-detail-card" role="dialog" aria-modal="true" aria-labelledby="weapon-detail-name">
+      <section class="weapon-detail-card" role="dialog" aria-modal="true" aria-labelledby="weapon-detail-name" tabindex="-1">
         <div class="weapon-detail-header">
           <img class="weapon-detail-icon" id="weapon-detail-icon" src="" alt="">
           <div class="weapon-detail-title">
@@ -674,9 +674,6 @@
           <div class="weapon-detail-overrun" id="weapon-detail-overrun-content"></div>
         </div>
 
-        <div class="weapon-detail-actions">
-          <button type="button" class="login-modal-button" data-weapon-detail-close data-i18n="dashboard.weaponDetailClose">关闭</button>
-        </div>
         <div class="weapon-detail-tooltip" id="weapon-detail-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
@@ -698,6 +695,26 @@
         <div class="login-modal-actions character-picker-actions">
           <button type="button" class="login-modal-button login-modal-button-secondary character-picker-cancel" data-weapon-resonance-character-picker-close data-i18n="common.cancel">取消</button>
           <button type="button" class="login-modal-button" id="weapon-resonance-character-picker-confirm" disabled data-i18n="dashboard.weaponDetailCharPickerConfirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Weapon Harmony picker -->
+    <div class="login-modal overrun-picker-modal" hidden id="weapon-overrun-picker-modal">
+      <div class="login-modal-backdrop" data-weapon-overrun-picker-close></div>
+      <section class="login-modal-card overrun-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-overrun-picker-title">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="dashboard.weaponDetailOverrunPickerEyebrow">协律</p>
+            <h3 id="weapon-overrun-picker-title" data-i18n="dashboard.weaponDetailOverrunPickerTitle">选择协律</h3>
+          </div>
+        </div>
+        <div class="overrun-picker-summary" id="weapon-overrun-picker-summary"></div>
+        <div class="overrun-picker-grid" id="weapon-overrun-picker-grid"></div>
+        <div class="login-modal-actions overrun-picker-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary overrun-picker-clear" id="weapon-overrun-picker-clear" data-i18n="common.clear">清空</button>
+          <button type="button" class="login-modal-button" id="weapon-overrun-picker-confirm" data-i18n="dashboard.weaponDetailResonanceSave">保存</button>
         </div>
       </section>
     </div>

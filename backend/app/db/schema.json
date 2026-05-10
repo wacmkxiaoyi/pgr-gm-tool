@@ -435,20 +435,36 @@
               "type": "array",
               "default": [],
               "schema": {
-                "Slot": "number",
-                "Type": "number",
-                "CharacterId": "number",
-                "TemplateId": "number"
+                "Slot": {
+                  "type": "number"
+                },
+                "Type": {
+                  "type": "number"
+                },
+                "CharacterId": {
+                  "type": "number"
+                },
+                "TemplateId": {
+                  "type": "number"
+                }
               }
             },
             "UnconfirmedResonanceInfo": {
               "type": "array",
               "default": [],
               "schema": {
-                "Slot": "number",
-                "Type": "number",
-                "CharacterId": "number",
-                "TemplateId": "number"
+                "Slot": {
+                  "type": "number"
+                },
+                "Type": {
+                  "type": "number"
+                },
+                "CharacterId": {
+                  "type": "number"
+                },
+                "TemplateId": {
+                  "type": "number"
+                }
               }
             },
             "AwakeSlotList": {
@@ -640,7 +656,10 @@
                 "type": "object",
                 "default": {},
                 "schema": {
-                  "Level": "number",
+                  "Level": {
+                    "type": "number",
+                    "default": 1
+                  },
                   "ActiveSuits": {
                     "type": "array",
                     "default": [],
@@ -650,7 +669,9 @@
                       }
                     }
                   },
-                  "ChoseSuit": "number"
+                  "ChoseSuit": {
+                    "type": "number"
+                  }
                 }
               }
             }

@@ -75,7 +75,7 @@ class WeaponResonanceResponse(BaseModel):
 
 class WeaponOverrunExtraInfoResponse(BaseModel):
     level: int | None = None
-    max_level: int
+    max_level: int | None = None
     chose_suit: int | None = None
 
 
@@ -125,6 +125,10 @@ class DeleteWeaponResponse(BaseModel):
 class UpdateWeaponRequest(BaseModel):
     field: str
     value: int
+
+
+class UpdateWeaponOverrunRequest(BaseModel):
+    chose_suit: int | None = None
 
 
 class UpdateWeaponResponse(BaseModel):

@@ -18,7 +18,7 @@ class WeaponOverrunRecord(BaseModel):
 
 class WeaponOverrunExtraInfoRecord(BaseModel):
     level: int | None = None
-    max_level: int
+    max_level: int | None = None
     chose_suit: int | None = None
 
 
@@ -60,6 +60,10 @@ class WeaponListResponse(BaseModel):
 class UpdateWeaponRequest(BaseModel):
     field: str
     value: int
+
+
+class UpdateWeaponOverrunRequest(BaseModel):
+    chose_suit: int | None = None
 
 
 class ClearWeaponsResponse(BaseModel):

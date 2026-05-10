@@ -14,7 +14,7 @@ from backend.app.services import init_app
 from backend.app.services.auth import get_session
 from backend.app.services.api_errors import AppError, convert_http_exception, get_error_message, normalize_locale
 
-server_version = 4.0
+server_version = 2.3
 settings = Settings(server_version)
 app = FastAPI(title=settings.app_name)
 init_app(app, settings)

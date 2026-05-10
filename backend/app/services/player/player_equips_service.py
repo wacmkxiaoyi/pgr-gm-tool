@@ -32,6 +32,7 @@ from backend.app.services.player.equips.levelup_template import (
     get_levelup_template_max_level,
 )
 from backend.app.services.player.equips.weapon import (
+    get_weapon_overrun_suit_entries_map,
     get_weapon_skill_pool_entries_map,
     get_weapon_overrun_max_level_map,
     get_weapon_type_name_map,
@@ -326,6 +327,39 @@ class PlayerEquipsService:
 
     def supports_weapon_overrun_data(self) -> bool:
         return self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
+
+    def _build_default_weapon_overrun_data(self) -> dict[str, Any]:
+        default_value = self._get_characters_schema().build_default(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
+        return default_value if isinstance(default_value, dict) else {}
+
+    def _get_default_weapon_overrun_level(self) -> int:
+        default_value = self._get_characters_schema().build_default(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData.Level")
+        return max(0, int(_parse_optional_int(default_value) or 0))
+
+    def _serialize_weapon_overrun_data(self, value: Any) -> dict[str, Any]:
+        normalized_value = _normalize_weapon_overrun_data(value)
+        if normalized_value is None:
+            return {}
+
+        level = _parse_optional_int(normalized_value.Level)
+        chose_suit = _parse_optional_int(normalized_value.ChoseSuit)
+        active_suits = [
+            suit_id
+            for suit_id in normalized_value.ActiveSuits
+            if _parse_optional_int(suit_id) is not None
+        ]
+
+        if level is None and chose_suit is None and not active_suits:
+            return {}
+
+        serialized: dict[str, Any] = {}
+        if level is not None:
+            serialized["Level"] = level
+        if active_suits:
+            serialized["ActiveSuits"] = active_suits
+        if chose_suit is not None:
+            serialized["ChoseSuit"] = chose_suit
+        return serialized
 
     def _sanitize_characters_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_characters_schema().sanitize_document(document)
@@ -655,8 +689,10 @@ class PlayerEquipsService:
 
         normalized_document = self._sanitize_characters_document(document)
         raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+        original_raw_equips = document.get("equips") if isinstance(document.get("equips"), list) else []
 
         target_equip: dict[str, Any] | None = None
+        original_target_equip: dict[str, Any] | None = None
         for raw_equip in raw_equips:
             if not isinstance(raw_equip, dict):
                 continue
@@ -666,8 +702,20 @@ class PlayerEquipsService:
                 target_equip = raw_equip
                 break
 
+        for raw_equip in original_raw_equips:
+            if not isinstance(raw_equip, dict):
+                continue
+
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                original_target_equip = raw_equip
+                break
+
         if target_equip is None:
             raise ValueError("equips.not_found")
+
+        if original_target_equip is None:
+            original_target_equip = {}
 
         template_id = _parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
@@ -713,15 +761,18 @@ class PlayerEquipsService:
         weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
         max_overrun_level = weapon_overrun_max_level_map.get(template_id)
         if allows_overrun_data and max_overrun_level is not None:
-            normalized_weapon_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
-            if normalized_weapon_overrun_data is None:
-                normalized_weapon_overrun_data = WeaponOverrunRecord()
+            raw_weapon_overrun_data = original_target_equip.get("WeaponOverrunData")
+            normalized_weapon_overrun_data = _normalize_weapon_overrun_data(raw_weapon_overrun_data)
+            has_raw_weapon_overrun_data = isinstance(raw_weapon_overrun_data, dict) and len(raw_weapon_overrun_data) > 0
 
-            weapon_overrun_data = WeaponOverrunExtraInfoRecord(
-                level=_parse_optional_int(normalized_weapon_overrun_data.Level),
-                max_level=max_overrun_level,
-                chose_suit=_parse_optional_int(normalized_weapon_overrun_data.ChoseSuit),
-            )
+            if not has_raw_weapon_overrun_data or normalized_weapon_overrun_data is None:
+                weapon_overrun_data = WeaponOverrunExtraInfoRecord()
+            else:
+                weapon_overrun_data = WeaponOverrunExtraInfoRecord(
+                    level=_parse_optional_int(normalized_weapon_overrun_data.Level),
+                    max_level=max_overrun_level,
+                    chose_suit=_parse_optional_int(normalized_weapon_overrun_data.ChoseSuit),
+                )
 
         return WeaponExtraInfoRecord(
             max_breakthrough=max_breakthrough,
@@ -826,6 +877,85 @@ class PlayerEquipsService:
             raise ValueError("equips.update_failed")
 
         return new_entry
+
+    async def set_weapon_overrun(self, uid: int, record_id: int, payload) -> None:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not isinstance(document, dict):
+            raise ValueError("equips.not_found")
+
+        raw_equips = document.get("equips") if isinstance(document.get("equips"), list) else []
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+                break
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_weapon_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        if not self.supports_weapon_overrun_data():
+            raise ValueError("equips.overrun_not_supported")
+
+        weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
+        if weapon_overrun_max_level_map.get(template_id) is None:
+            raise ValueError("equips.overrun_not_supported")
+
+        chose_suit = _parse_optional_int(getattr(payload, "chose_suit", None))
+        weapon_overrun_data: dict[str, Any]
+        if chose_suit is None or chose_suit <= 0:
+            weapon_overrun_data = {}
+        else:
+            if chose_suit not in get_weapon_overrun_suit_entries_map():
+                raise ValueError("equips.overrun_invalid")
+
+            existing_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
+            existing_level = _parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
+            resolved_level = existing_level if existing_level is not None else self._get_default_weapon_overrun_level()
+
+            weapon_overrun_data = {
+                "Level": resolved_level,
+                "ActiveSuits": [chose_suit],
+                "ChoseSuit": chose_suit,
+            }
+
+        if self._serialize_weapon_overrun_data(target_equip.get("WeaponOverrunData")) == weapon_overrun_data:
+            return
+
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {f"equips.{target_index}.WeaponOverrunData": weapon_overrun_data}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
 
     async def delete_weapon_resonance(self, uid: int, record_id: int, slot: int) -> bool:
         normalized_record_id = int(record_id)
