@@ -54,6 +54,8 @@ export const dom = {
   weaponDetailName: document.querySelector('#weapon-detail-name'),
   weaponDetailType: document.querySelector('#weapon-detail-type'),
   weaponDetailStar: document.querySelector('#weapon-detail-star'),
+  weaponDetailDescriptionSection: document.querySelector('#weapon-detail-description-section'),
+  weaponDetailDescription: document.querySelector('#weapon-detail-description'),
   weaponDetailSkillSection: document.querySelector('#weapon-detail-skill-section'),
   weaponDetailSkillName: document.querySelector('#weapon-detail-skill-name'),
   weaponDetailSkillDescription: document.querySelector('#weapon-detail-skill-description'),

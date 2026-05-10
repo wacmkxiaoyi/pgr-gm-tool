@@ -659,6 +659,19 @@
   letter-spacing: 2px;
 }
 
+.weapon-detail-description-section {
+  margin: 0 0 20px;
+}
+
+.weapon-detail-description {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .weapon-detail-skill-panel {
   border-radius: 14px;
   border: 1px solid rgba(148, 163, 184, 0.16);

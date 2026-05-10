@@ -154,6 +154,7 @@ class WeaponResonanceExtraInfoResponse(BaseModel):
 class WeaponExtraInfoResponse(BaseModel):
     max_breakthrough: int
     breakthrough_level_limit_map: dict[int, int]
+    description: str | None = None
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoResponse | None = None

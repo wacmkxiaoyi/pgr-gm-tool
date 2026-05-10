@@ -22,6 +22,8 @@ const {
   weaponDetailName,
   weaponDetailType,
   weaponDetailStar,
+  weaponDetailDescriptionSection,
+  weaponDetailDescription,
   weaponDetailSkillSection,
   weaponDetailSkillName,
   weaponDetailSkillDescription,
@@ -1904,6 +1906,8 @@ app.populateWeaponDetailCard = (item) => {
   const resonanceInfo = Array.isArray(extraInfo?.resonance_info) ? extraInfo.resonance_info : [];
   const hasValidStar = Number.isFinite(star) && star >= 2 && star <= 6;
   const btTier = Math.min(Math.max(breakthrough, 0), 4);
+  const weaponDescription = app.stripMarkupText(extraInfo?.description || '');
+  const hasDescription = Boolean(weaponDescription);
   const skillName = app.resolveWeaponSkillName(templateId);
   const skillDescription = app.stripMarkupText(app.resolveWeaponSkillDescription(templateId));
   const hasSkill = Boolean(skillName);
@@ -1944,6 +1948,14 @@ app.populateWeaponDetailCard = (item) => {
       weaponDetailStar.className = 'weapon-detail-star';
       weaponDetailStar.style.color = 'var(--muted)';
     }
+  }
+
+  if (weaponDetailDescriptionSection instanceof HTMLElement) {
+    weaponDetailDescriptionSection.hidden = !hasDescription;
+  }
+
+  if (weaponDetailDescription instanceof HTMLElement) {
+    weaponDetailDescription.textContent = hasDescription ? weaponDescription : '';
   }
 
   if (weaponDetailSkillSection instanceof HTMLElement) {

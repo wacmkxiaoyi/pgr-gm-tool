@@ -16,6 +16,7 @@ from backend.app.services.player.equips import (
     get_equip_resonance_map,
     get_equip_breakthrough_level_limit_map,
     get_equip_breakthrough_max_map,
+    get_equip_descriptions_map,
     get_equip_name_map,
     get_equip_site_map,
     get_equip_star_map,
@@ -727,6 +728,7 @@ class PlayerEquipsService:
 
         breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
         max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
+        description = get_equip_descriptions_map().get(template_id)
 
         current_level_exp_limit: int | None = None
         template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
@@ -781,6 +783,7 @@ class PlayerEquipsService:
                 for stage, level_limit in breakthrough_level_limit_map.items()
                 if isinstance(stage, int) and isinstance(level_limit, int)
             },
+            description=description,
             current_level_exp_limit=current_level_exp_limit,
             resonance_info=resonance_info,
             weapon_overrun_data=weapon_overrun_data,

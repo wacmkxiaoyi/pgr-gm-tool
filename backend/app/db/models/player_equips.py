@@ -44,6 +44,7 @@ class WeaponResonanceExtraInfoRecord(BaseModel):
 class WeaponExtraInfoRecord(BaseModel):
     max_breakthrough: int
     breakthrough_level_limit_map: dict[int, int] = Field(default_factory=dict)
+    description: str | None = None
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoRecord | None = None

@@ -60,6 +60,15 @@ def get_equip_name_map() -> dict[int, str]:
 
 
 @lru_cache(maxsize=1)
+def get_equip_descriptions_map() -> dict[int, str]:
+    equip_description_map = _get_equip_map("Description")
+    return {
+        equip_id: str(description).strip()
+        for equip_id, description in equip_description_map.items()
+        if isinstance(description, str) and str(description).strip()
+    }
+
+@lru_cache(maxsize=1)
 def get_equip_star_map() -> dict[int, int]:
     equip_star_map = _get_equip_map("Star")
     return {
