@@ -1082,11 +1082,33 @@
 }
 
 .weapon-detail-overrun-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   font-size: 18px;
   font-weight: 800;
   line-height: 1.35;
   text-align: left;
   color: rgba(15, 23, 42, 0.94);
+}
+
+.weapon-detail-overrun-name {
+  min-width: 0;
+}
+
+.weapon-detail-overrun-level {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.weapon-detail-overrun-host .weapon-detail-overrun-level.is-editable {
+  cursor: pointer;
+}
+
+.weapon-detail-overrun-host .weapon-detail-overrun-level:not(.is-editable) {
+  cursor: default;
 }
 
 .weapon-detail-overrun-lines {

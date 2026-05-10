@@ -64,6 +64,7 @@ class UpdateWeaponRequest(BaseModel):
 
 class UpdateWeaponOverrunRequest(BaseModel):
     chose_suit: int | None = None
+    level: int | None = None
 
 
 class ClearWeaponsResponse(BaseModel):

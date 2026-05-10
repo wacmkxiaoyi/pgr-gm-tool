@@ -923,21 +923,36 @@ class PlayerEquipsService:
             raise ValueError("equips.overrun_not_supported")
 
         chose_suit = _parse_optional_int(getattr(payload, "chose_suit", None))
+        requested_level = _parse_optional_int(getattr(payload, "level", None))
+        max_overrun_level = weapon_overrun_max_level_map.get(template_id)
+        if max_overrun_level is None:
+            raise ValueError("equips.overrun_not_supported")
+
+        existing_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
+        existing_level = _parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
+        existing_chose_suit = _parse_optional_int(existing_overrun_data.ChoseSuit) if existing_overrun_data is not None else None
+
+        resolved_level = requested_level if requested_level is not None else existing_level
+        if resolved_level is None:
+            resolved_level = self._get_default_weapon_overrun_level()
+
+        if resolved_level <= 0:
+            raise ValueError("equips.overrun_level_below_min")
+        if resolved_level > max_overrun_level:
+            raise ValueError("equips.overrun_level_above_limit")
+
+        if chose_suit is not None and chose_suit > 0 and chose_suit not in get_weapon_overrun_suit_entries_map():
+            raise ValueError("equips.overrun_invalid")
+
+        resolved_chose_suit = chose_suit if chose_suit is not None else existing_chose_suit
         weapon_overrun_data: dict[str, Any]
-        if chose_suit is None or chose_suit <= 0:
+        if resolved_chose_suit is None or resolved_chose_suit <= 0:
             weapon_overrun_data = {}
         else:
-            if chose_suit not in get_weapon_overrun_suit_entries_map():
-                raise ValueError("equips.overrun_invalid")
-
-            existing_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
-            existing_level = _parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
-            resolved_level = existing_level if existing_level is not None else self._get_default_weapon_overrun_level()
-
             weapon_overrun_data = {
                 "Level": resolved_level,
-                "ActiveSuits": [chose_suit],
-                "ChoseSuit": chose_suit,
+                "ActiveSuits": [resolved_chose_suit],
+                "ChoseSuit": resolved_chose_suit,
             }
 
         if self._serialize_weapon_overrun_data(target_equip.get("WeaponOverrunData")) == weapon_overrun_data:

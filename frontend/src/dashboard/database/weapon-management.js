@@ -237,6 +237,7 @@ app.buildWeaponOverrunCardMarkup = ({
   suitId = null,
   suitEntry = null,
   level = null,
+  maxLevel = null,
   mode = 'detail',
   selected = false,
 } = {}) => {
@@ -250,7 +251,9 @@ app.buildWeaponOverrunCardMarkup = ({
   }
 
   const suitName = suitEntry?.Name ? String(suitEntry.Name).trim() : app.translate('common.notAvailable');
-  const titleText = isPicker ? suitName : `${suitName} (Lv. ${level ?? 0})`;
+  const hasEditableLevel = !isPicker && Number.isFinite(Number(level)) && Number.isFinite(Number(maxLevel)) && Number(maxLevel) > 0;
+  const titleText = isPicker ? suitName : suitName;
+  const overrunLevelText = `Lv. ${level ?? 0}`;
   const descriptionRows = app.parseWeaponOverrunSkillDescription(suitEntry?.SkillDescription);
   const backgroundPath = app.resolveWeaponOverrunBackgroundPath(suitEntry?.WaferBagPath);
   const backgroundStyle = backgroundPath
@@ -290,7 +293,10 @@ app.buildWeaponOverrunCardMarkup = ({
     <div class="${rootClasses.join(' ')}"${isPicker && Number.isFinite(Number(suitId)) ? ` data-weapon-overrun-picker-id="${Number(suitId)}" tabindex="0" role="button" aria-pressed="${selected ? 'true' : 'false'}"` : ''}>
       <div class="weapon-detail-overrun-surface${isPicker ? ' weapon-overrun-picker-surface' : ''}"${backgroundStyle}>
         <div class="weapon-detail-overrun-overlay${isPicker ? ' weapon-overrun-picker-overlay' : ''}">
-          <div class="weapon-detail-overrun-title${isPicker ? ' weapon-overrun-picker-title' : ''}">${app.escapeHtml(titleText)}</div>
+          <div class="weapon-detail-overrun-title${isPicker ? ' weapon-overrun-picker-title' : ''}">
+            <span class="weapon-detail-overrun-name">${app.escapeHtml(titleText)}</span>
+            ${hasEditableLevel ? `<span class="weapon-detail-stat-value weapon-detail-overrun-level is-editable" data-weapon-edit-field="OverrunLevel" data-weapon-overrun-level-current="${Number(level)}" data-weapon-overrun-level-max="${Number(maxLevel)}" tabindex="0" role="button">${app.escapeHtml(overrunLevelText)}</span>` : (!isPicker ? `<span class="weapon-detail-overrun-level">${app.escapeHtml(overrunLevelText)}</span>` : '')}
+          </div>
           ${descMarkup}
         </div>
       </div>
@@ -459,6 +465,7 @@ app.renderWeaponOverrunContent = (extraInfo) => {
   }
 
   const { weaponOverrunData, level, suitEntry } = app.getWeaponOverrunSelection(extraInfo);
+  const maxLevel = Number.isFinite(Number(weaponOverrunData?.max_level)) ? Number(weaponOverrunData.max_level) : null;
   if (!(weaponOverrunData && typeof weaponOverrunData === 'object')) {
     weaponDetailOverrunContent.className = 'weapon-detail-overrun';
     weaponDetailOverrunContent.textContent = '--';
@@ -479,7 +486,7 @@ app.renderWeaponOverrunContent = (extraInfo) => {
   weaponDetailOverrunContent.dataset.overrunEditable = 'active';
   weaponDetailOverrunContent.removeAttribute('tabindex');
   weaponDetailOverrunContent.removeAttribute('role');
-  weaponDetailOverrunContent.innerHTML = app.buildWeaponOverrunCardMarkup({ suitEntry, level, mode: 'detail' });
+  weaponDetailOverrunContent.innerHTML = app.buildWeaponOverrunCardMarkup({ suitEntry, level, maxLevel, mode: 'detail' });
 };
 
 app.buildResonanceResolveIndices = () => {
@@ -2176,6 +2183,8 @@ app.beginWeaponDetailFieldEdit = (field) => {
     rawValue = String(element.dataset.weaponLevelCurrent ?? '');
   } else if (field === 'Exp') {
     rawValue = String(element.dataset.weaponExpCurrent ?? '');
+  } else if (field === 'OverrunLevel') {
+    rawValue = String(element.dataset.weaponOverrunLevelCurrent ?? '');
   }
 
   state.weaponDetailEditState = { field, pending: false };
@@ -2231,7 +2240,14 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
 
   const rawValue = String(nextValue).trim();
   if (!/^\d+$/.test(rawValue)) {
-    app.openControlModal(app.translate(field === 'Breakthrough' ? 'runtime.weaponBreakthroughInvalid' : field === 'Level' ? 'runtime.equipsLevelBelowMin' : 'runtime.equipsExpBelowMin'));
+    const invalidKey = field === 'Breakthrough'
+      ? 'runtime.weaponBreakthroughInvalid'
+      : field === 'Level'
+        ? 'runtime.equipsLevelBelowMin'
+        : field === 'Exp'
+          ? 'runtime.equipsExpBelowMin'
+          : 'runtime.weaponOverrunLevelBelowMin';
+    app.openControlModal(app.translate(invalidKey));
     return;
   }
 
@@ -2258,6 +2274,16 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
       app.openControlModal(app.translate('runtime.equipsExpAboveLimit', { max: expMax }));
       return;
     }
+  } else if (field === 'OverrunLevel') {
+    const overrunLevelMax = Number.parseInt(element.dataset.weaponOverrunLevelMax ?? '0', 10);
+    if (parsedValue <= 0) {
+      app.openControlModal(app.translate('runtime.weaponOverrunLevelBelowMin'));
+      return;
+    }
+    if (parsedValue > overrunLevelMax) {
+      app.openControlModal(app.translate('runtime.weaponOverrunLevelAboveLimit', { max: overrunLevelMax }));
+      return;
+    }
   }
 
   currentState.pending = true;
@@ -2267,26 +2293,32 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
   }
 
   try {
-    const payload = await app.apiFetch(`/api/database-weapons/selected/${recordId}`, {
+    const payload = await app.apiFetch(field === 'OverrunLevel' ? `/api/database-weapons/selected/${recordId}/overrun` : `/api/database-weapons/selected/${recordId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        field: field.toLowerCase(),
-        value: parsedValue,
-      }),
+      body: JSON.stringify(field === 'OverrunLevel'
+        ? {
+            level: parsedValue,
+          }
+        : {
+            field: field.toLowerCase(),
+            value: parsedValue,
+          }),
     });
 
     state.weaponDetailEditState = null;
 
-    const idx = state.weaponManagementItems?.findIndex(
-      (i) => (i?._id ?? i?.record_id) === recordId
-    );
-    if (idx >= 0 && state.weaponManagementItems) {
-      state.weaponManagementItems[idx] = payload;
-      state.currentWeaponDetailItem = payload;
-      app.renderWeaponRows(state.weaponManagementItems);
+    if (field !== 'OverrunLevel') {
+      const idx = state.weaponManagementItems?.findIndex(
+        (i) => (i?._id ?? i?.record_id) === recordId
+      );
+      if (idx >= 0 && state.weaponManagementItems) {
+        state.weaponManagementItems[idx] = payload;
+        state.currentWeaponDetailItem = payload;
+        app.renderWeaponRows(state.weaponManagementItems);
+      }
     }
 
     await app.loadWeaponDetailExtraInfo(recordId);
@@ -2558,6 +2590,11 @@ app.handleWeaponOverrunActivate = (event) => {
   }
 
   if (mode === 'active') {
+    const levelTrigger = target.closest('[data-weapon-edit-field="OverrunLevel"]');
+    if (levelTrigger instanceof HTMLElement) {
+      return;
+    }
+
     const blockedText = target.closest('.weapon-detail-overrun-title, .weapon-detail-overrun-line, .weapon-detail-overrun-label, .weapon-detail-overrun-text');
     if (blockedText instanceof HTMLElement) {
       return;

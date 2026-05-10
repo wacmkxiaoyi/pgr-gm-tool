@@ -767,6 +767,10 @@ async def update_selected_database_weapon_overrun(
             raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
         if error_message == "equips.overrun_invalid":
             raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
+        if error_message == "equips.overrun_level_below_min":
+            raise_http_error(422, "equips.overrun_level_below_min", {"record_id": record_id})
+        if error_message == "equips.overrun_level_above_limit":
+            raise_http_error(422, "equips.overrun_level_above_limit", {"record_id": record_id})
         if error_message == "equips.update_failed":
             raise_http_error(500, "equips.update_failed", {"record_id": record_id})
         raise
