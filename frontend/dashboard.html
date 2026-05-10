@@ -101,6 +101,7 @@
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
                 <button class="subnav-link" type="button" data-database-tab="database-weapon-management-section" id="database-weapon-management-subnav" aria-controls="database-weapon-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
+                <button class="subnav-link" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
@@ -229,6 +230,67 @@
                       </div>
                     </div>
                   </article>
+                </div>
+              </section>
+
+              <section class="database-panel database-item-panel database-tab-panel" id="database-memory-management-section" data-database-tab-panel="database-memory-management-section" aria-labelledby="database-memory-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div>
+                    <span class="section-tag">Memories</span>
+                    <h2 id="database-memory-management-title" data-i18n="dashboard.memoryManagementTitle">意识管理</h2>
+                  </div>
+                  <small class="database-memory-management-summary" id="database-memory-management-summary" data-i18n="dashboard.memoryManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                </div>
+
+                <div class="database-player-empty" id="database-memory-management-state" data-i18n="dashboard.memoryManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-item-management-shell" id="database-memory-management-shell" hidden>
+                  <div class="database-item-actions" id="database-memory-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-memory-clear" data-memory-management-action="clear" data-i18n="dashboard.memoryManagementClear">清空未穿戴意识</button>
+                    <div class="database-item-toolbar">
+                      <div class="database-item-search-shell" id="database-memory-search-shell">
+                        <input class="database-item-search-input" type="search" id="database-memory-search-input" data-i18n-placeholder="dashboard.memoryManagementSearchPlaceholder" placeholder="输入名称或角色后回车搜索">
+                      </div>
+                    </div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-memory-add" data-memory-management-action="add-memory" data-i18n="dashboard.memoryManagementAdd">新增意识</button>
+                  </div>
+
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll" id="database-memory-management-table-shell">
+                      <table class="accounts-table weapon-management-table" aria-describedby="database-memory-management-summary">
+                        <colgroup>
+                          <col class="weapon-management-col-row">
+                          <col class="weapon-management-col-name">
+                          <col class="weapon-management-col-type">
+                          <col class="weapon-management-col-star">
+                          <col class="weapon-management-col-character">
+                          <col class="weapon-management-col-enhance">
+                          <col class="weapon-management-col-actions">
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="position" type="button"><span data-i18n="dashboard.memoryManagementPosition">位置</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.weaponManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="database-memory-management-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-memory-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-memory-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-memory-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-memory-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-memory-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      </label>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-memory-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -666,6 +728,7 @@
                 <th data-i18n="dashboard.weaponDetailSlot">槽位</th>
                 <th data-i18n="dashboard.weaponDetailEffect">效果</th>
                 <th data-i18n="dashboard.weaponDetailBoundCharacter">绑定角色</th>
+                <th id="weapon-detail-awake-header" data-i18n="dashboard.weaponDetailHypertune" hidden>超调</th>
                 <th data-i18n="dashboard.weaponDetailResonanceAction">操作</th>
               </tr>
             </thead>
@@ -679,6 +742,47 @@
         </div>
 
         <div class="weapon-detail-tooltip" id="weapon-detail-tooltip" role="tooltip" hidden></div>
+      </section>
+    </div>
+
+    <div class="login-modal" hidden id="memory-add-modal">
+      <div class="login-modal-backdrop" data-memory-add-close></div>
+      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="memory-add-title" aria-describedby="memory-add-description">
+        <div class="login-modal-header">
+          <span class="login-modal-icon" aria-hidden="true">+</span>
+          <div>
+            <p class="login-modal-eyebrow" data-i18n="runtime.memoryAddEyebrow">新增意识</p>
+            <h3 id="memory-add-title" data-i18n="runtime.memoryAddTitle">选择要新增的意识</h3>
+          </div>
+        </div>
+        <p id="memory-add-description" class="login-modal-message" data-i18n="runtime.memoryAddDescription">通过搜索和排序选择意识，勾选多项后可批量提交。</p>
+        <div class="database-item-controls item-add-search-shell">
+          <input class="database-item-search-input item-add-search-input" type="search" id="memory-add-search-input" data-i18n-placeholder="runtime.memoryAddSearchPlaceholder" placeholder="输入意识名进行搜索">
+        </div>
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table weapon-add-table">
+            <colgroup>
+              <col>
+              <col class="weapon-management-col-type">
+              <col class="weapon-management-col-star">
+              <col class="weapon-add-col-select">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="position" type="button"><span data-i18n="dashboard.memoryManagementPosition">位置</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="runtime.memoryAddSelect">选择</th>
+              </tr>
+            </thead>
+            <tbody id="memory-add-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="memory-add-empty-state" data-i18n="dashboard.memoryAddEmpty">当前没有匹配的意识。</div>
+        </div>
+        <div class="login-modal-actions item-add-actions">
+          <button type="button" class="login-modal-button login-modal-button-secondary" data-memory-add-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="login-modal-button" id="memory-add-submit" data-i18n="runtime.memoryAddSubmit">确认新增</button>
+        </div>
       </section>
     </div>
 

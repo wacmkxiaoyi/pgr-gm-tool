@@ -142,6 +142,12 @@ app.initNavigation = () => {
         return;
       }
 
+      if (tabId === 'database-memory-management-section' && app.canAccessMemoryManagement()) {
+        app.updateMemoryManagementAccess();
+        void app.loadSelectedAccountMemories(app.state.memoryManagementCurrentPage);
+        return;
+      }
+
       if (tabId === 'database-item-management-section' && app.canAccessItemManagement()) {
         app.updateItemManagementAccess();
         void app.loadSelectedAccountItems(app.state.itemManagementCurrentPage);

@@ -10,6 +10,7 @@ EQUIP_TSV_PATH = Path("assets/Equip.tsv")
 EQUIP_RES_TSV_PATH = Path("assets/EquipRes.tsv")
 EQUIP_BREAK_THROUGH_TSV_PATH = Path("assets/EquipBreakThrough.tsv")
 EQUIP_RESONANCE_TSV_PATH = Path("assets/EquipResonance.tsv")
+EQUIP_AWAKE_TSV_PATH = Path("assets/EquipAwake.tsv")
 ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
 
 
@@ -213,3 +214,21 @@ def get_equip_resonance_map() -> dict[int, list[list[int]]]:
         ]
 
     return normalized_map
+
+
+@lru_cache(maxsize=1)
+def get_equip_awake_template_id_set() -> set[int]:
+    reader = TSVReader(EQUIP_AWAKE_TSV_PATH, typed=True)
+    template_ids: set[int] = set()
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        raw_id = row.get("Id")
+        try:
+            template_ids.add(int(raw_id))
+        except (TypeError, ValueError):
+            continue
+
+    return template_ids

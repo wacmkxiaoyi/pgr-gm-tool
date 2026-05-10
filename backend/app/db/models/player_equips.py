@@ -47,7 +47,25 @@ class WeaponExtraInfoRecord(BaseModel):
     description: str | None = None
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
+    awake_slot_list: list[int] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoRecord | None = None
+
+
+class MemoryExtraInfoRecord(BaseModel):
+    max_breakthrough: int
+    breakthrough_level_limit_map: dict[int, int] = Field(default_factory=dict)
+    description: str | None = None
+    current_level_exp_limit: int | None = None
+    resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
+    awake_slot_list: list[int] | None = None
+
+
+class MemoryListResponse(BaseModel):
+    items: list[WeaponItemRecord] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
 
 
 class WeaponListResponse(BaseModel):
@@ -74,5 +92,10 @@ class ClearWeaponsResponse(BaseModel):
 
 
 class AddWeaponResponse(BaseModel):
+    added: bool
+    added_count: int
+
+
+class AddMemoryResponse(BaseModel):
     added: bool
     added_count: int

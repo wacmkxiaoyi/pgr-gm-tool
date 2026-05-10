@@ -3,16 +3,17 @@ from __future__ import annotations
 import contextlib
 import math
 import time
-from typing import Literal
+from typing import Callable, Literal
 from typing import Any
 
 from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddWeaponResponse, ClearWeaponsResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
+from backend.app.db.models import AddMemoryResponse, AddWeaponResponse, ClearWeaponsResponse, MemoryExtraInfoRecord, MemoryListResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.equips import (
+    get_equip_awake_template_id_set,
     get_equip_resonance_map,
     get_equip_breakthrough_level_limit_map,
     get_equip_breakthrough_max_map,
@@ -44,6 +45,7 @@ from backend.app.services.player.player_profile import get_character_log_name_ma
 CHARACTERS_COLLECTION_NAME = "characters"
 ITEM_PAGE_SIZE = 10
 WeaponSortField = Literal["name", "character", "type", "star", "enhancement"]
+MemorySortField = Literal["name", "character", "position", "star", "enhancement"]
 WeaponSortOrder = Literal["asc", "desc"]
 CHARACTER_LIST_SCHEMA_PATH = "characters"
 FASHIONS_SCHEMA_PATH = "fashions"
@@ -72,6 +74,34 @@ def _parse_optional_int(value: Any) -> int | None:
         return int(normalized)
     except (TypeError, ValueError):
         return None
+
+
+def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]) -> list[int]:
+    if not isinstance(raw_awake_slot_list, list):
+        return []
+
+    normalized_slots: list[int] = []
+    seen_slots: set[int] = set()
+    for raw_entry in raw_awake_slot_list:
+        slot: int | None = None
+        if isinstance(raw_entry, dict):
+            slot = _parse_optional_int(raw_entry.get("_id"))
+            if slot is None:
+                slot = _parse_optional_int(raw_entry.get("Slot"))
+        else:
+            slot = _parse_optional_int(raw_entry)
+
+        if slot is None or slot not in allowed_slots or slot in seen_slots:
+            continue
+
+        seen_slots.add(slot)
+        normalized_slots.append(slot)
+
+    return normalized_slots
+
+
+def _serialize_awake_slot_list(awake_slot_list: list[int]) -> list[dict[str, int]]:
+    return [{"_id": int(slot)} for slot in awake_slot_list if isinstance(slot, int)]
 
 
 def _normalize_weapon_search_keyword(keyword: str | None) -> str:
@@ -108,6 +138,14 @@ def _is_weapon_template_id(template_id: int | None) -> bool:
 
     site_value = get_equip_site_map().get(template_id)
     return site_value in {"", "0"}
+
+
+def _is_memory_template_id(template_id: int | None) -> bool:
+    if template_id is None:
+        return False
+
+    site_value = str(get_equip_site_map().get(template_id, "")).strip()
+    return bool(site_value) and site_value != "0"
 
 
 def _normalize_sort_text(value: Any) -> str:
@@ -201,6 +239,81 @@ def _weapon_sort_key(
     )
 
 
+def _get_memory_search_priority(
+    keyword: str,
+    memory_name: str,
+    character_name: str,
+) -> int | None:
+    if not keyword:
+        return 0
+
+    normalized_memory_name = str(memory_name or "").strip().lower()
+    if keyword in normalized_memory_name:
+        return 0
+
+    normalized_character_name = str(character_name or "").strip().lower()
+    if keyword in normalized_character_name:
+        return 1
+
+    return None
+
+
+def _memory_sort_key(
+    item: WeaponItemRecord,
+    sort_by: MemorySortField,
+    sort_order: WeaponSortOrder,
+    search_priority: int,
+    memory_name_map: dict[int, str],
+    character_name_map: dict[int, str],
+    equip_site_map: dict[int, str],
+    memory_star_map: dict[int, int],
+    breakthrough_level_limit_map: dict[int, dict[int, int]],
+) -> tuple[Any, ...]:
+    memory_name = memory_name_map.get(item.TemplateId, "")
+
+    if sort_by == "character":
+        character_id = int(item.CharacterId or 0)
+        is_unequipped = 1 if character_id == 0 else 0
+        return (
+            search_priority,
+            is_unequipped,
+            _ordered_text_key(character_name_map.get(character_id, ""), sort_order),
+            _ordered_text_key(memory_name, sort_order),
+            item.record_id,
+        )
+
+    if sort_by == "position":
+        position_value = _parse_optional_int(equip_site_map.get(item.TemplateId)) or 0
+        return (
+            search_priority,
+            _ordered_number_key(position_value, sort_order),
+            _ordered_text_key(memory_name, sort_order),
+            item.record_id,
+        )
+
+    if sort_by == "star":
+        return (
+            search_priority,
+            _ordered_number_key(int(memory_star_map.get(item.TemplateId, 0)), sort_order),
+            _ordered_text_key(memory_name, sort_order),
+            item.record_id,
+        )
+
+    if sort_by == "enhancement":
+        return (
+            search_priority,
+            _ordered_number_key(_weapon_enhancement_level(item, breakthrough_level_limit_map), sort_order),
+            _ordered_text_key(memory_name, sort_order),
+            item.record_id,
+        )
+
+    return (
+        search_priority,
+        _ordered_text_key(memory_name, sort_order),
+        item.record_id,
+    )
+
+
 def _normalize_weapon_resonance_list(value: Any) -> list[WeaponResonanceRecord]:
     normalized_list: list[WeaponResonanceRecord] = []
     for entry in value if isinstance(value, list) else []:
@@ -215,6 +328,25 @@ def _normalize_weapon_resonance_list(value: Any) -> list[WeaponResonanceRecord]:
         ))
 
     return normalized_list
+
+
+def _is_awake_supported_template_id(template_id: int | None) -> bool:
+    return template_id is not None and template_id in get_equip_awake_template_id_set()
+
+
+def _resolve_awake_slot_list(raw_awake_slot_list: Any, template_id: int | None, allowed_slots: set[int]) -> list[int] | None:
+    if not _is_awake_supported_template_id(template_id):
+        return None
+
+    return _normalize_awake_slot_list(raw_awake_slot_list, allowed_slots)
+
+
+def _apply_awake_slot_update(existing_awake_slot_list: list[int], slot: int, awake_enabled: bool) -> list[int]:
+    updated_awake_slots = [item for item in existing_awake_slot_list if item != slot]
+    if awake_enabled:
+        updated_awake_slots.append(slot)
+        updated_awake_slots.sort()
+    return updated_awake_slots
 
 
 def _is_valid_weapon_resonance_entry(
@@ -273,6 +405,25 @@ def _build_weapon_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     record_id = _parse_optional_int(raw_equip.get("_id"))
     template_id = _parse_optional_int(raw_equip.get("TemplateId"))
     if record_id is None or template_id is None or not _is_weapon_template_id(template_id):
+        return None
+
+    breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
+    normalized_item = WeaponItemRecord(
+        record_id=record_id,
+        TemplateId=template_id,
+        CharacterId=_parse_optional_int(raw_equip.get("CharacterId")) or 0,
+        Level=_parse_optional_int(raw_equip.get("Level")),
+        Exp=_parse_optional_int(raw_equip.get("Exp")),
+        Breakthrough=_parse_optional_int(raw_equip.get("Breakthrough")),
+    )
+    normalized_item.EnhancementLevel = _weapon_enhancement_level(normalized_item, breakthrough_level_limit_map)
+    return normalized_item
+
+
+def _build_memory_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | None:
+    record_id = _parse_optional_int(raw_equip.get("_id"))
+    template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+    if record_id is None or template_id is None or not _is_memory_template_id(template_id):
         return None
 
     breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
@@ -412,6 +563,9 @@ class PlayerEquipsService:
 
         return equip_document
 
+    def _build_memory_document(self, template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
+        return self._build_weapon_document(template_id, raw_equips)
+
     async def add_weapons(self, uid: int, template_ids: list[int]) -> AddWeaponResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
         if not normalized_template_ids:
@@ -452,6 +606,47 @@ class PlayerEquipsService:
             raise ValueError("equips.add_failed")
 
         return AddWeaponResponse(added=True, added_count=len(weapon_documents))
+
+    async def add_memories(self, uid: int, template_ids: list[int]) -> AddMemoryResponse:
+        normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
+        if not normalized_template_ids:
+            raise ValueError("equips.template_invalid")
+
+        for normalized_template_id in normalized_template_ids:
+            if not _is_memory_template_id(normalized_template_id) or normalized_template_id not in get_equip_name_map():
+                raise ValueError("equips.template_invalid")
+
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(_matching_uid_query(uid), {"equips": 1})
+            if not isinstance(document, dict):
+                raise ValueError("equips.equips_missing")
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+            memory_documents = []
+            for normalized_template_id in normalized_template_ids:
+                memory_document = self._build_memory_document(normalized_template_id, raw_equips)
+                memory_documents.append(memory_document)
+                raw_equips.append(memory_document)
+
+            normalized_update = self._build_equips_update(raw_equips)
+
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.add_failed")
+
+        return AddMemoryResponse(added=True, added_count=len(memory_documents))
 
     async def delete_unequipped_weapon(self, uid: int, record_id: int) -> bool:
         normalized_record_id = int(record_id)
@@ -500,6 +695,63 @@ class PlayerEquipsService:
             ]
             normalized_update = self._build_equips_update(remaining_equips)
 
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        return result.modified_count > 0
+
+    async def delete_unequipped_memory(self, uid: int, record_id: int) -> bool:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+
+            if not isinstance(document, dict):
+                return False
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+            target_exists = False
+
+            for raw_equip in raw_equips:
+                if not isinstance(raw_equip, dict):
+                    continue
+
+                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                if current_record_id != normalized_record_id:
+                    continue
+
+                target_exists = True
+                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                if not _is_memory_template_id(template_id):
+                    return False
+
+                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                if character_id != 0:
+                    raise ValueError("equips.equipped_delete_forbidden")
+
+                break
+
+            if not target_exists:
+                return False
+
+            remaining_equips = [
+                raw_equip
+                for raw_equip in raw_equips
+                if _parse_optional_int(raw_equip.get("_id")) != normalized_record_id
+            ]
+
+            normalized_update = self._build_equips_update(remaining_equips)
             result = await collection.update_one(
                 {"_id": document.get("_id")},
                 {"$set": {"equips": normalized_update["equips"]}},
@@ -674,6 +926,167 @@ class PlayerEquipsService:
         response_item.EnhancementLevel = _weapon_enhancement_level(response_item, get_equip_breakthrough_level_limit_map())
         return response_item
 
+    async def update_memory(self, uid: int, record_id: int, payload: UpdateWeaponRequest) -> WeaponItemRecord:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+
+            if not isinstance(document, dict):
+                raise ValueError("equips.not_found")
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+            target_index: int | None = None
+            target_equip: dict[str, Any] | None = None
+
+            for index, raw_equip in enumerate(raw_equips):
+                if not isinstance(raw_equip, dict):
+                    continue
+
+                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                if current_record_id == normalized_record_id:
+                    target_index = index
+                    target_equip = dict(raw_equip)
+                    break
+
+            if target_index is None or target_equip is None:
+                raise ValueError("equips.not_found")
+
+            template_id = _parse_optional_int(target_equip.get("TemplateId"))
+            if template_id is None or not _is_memory_template_id(template_id):
+                raise ValueError("equips.template_invalid")
+
+            current_level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
+            current_exp_total = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
+            current_breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
+
+            breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
+            breakthrough_max_map = get_equip_breakthrough_max_map()
+            breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
+
+            stage_template_map = breakthrough_levelup_template_map.get(template_id, {})
+            max_bt_data = breakthrough_max_map.get(template_id, {})
+            max_breakthrough = max_bt_data.get("max_breakthrough", 0)
+            stage_limit_map = breakthrough_level_limit_map.get(template_id, {})
+
+            current_template_id = stage_template_map.get(current_breakthrough)
+
+            field_name = str(payload.field).strip().lower()
+            field_value = int(payload.value)
+
+            if field_name == "breakthrough":
+                if field_value < 0 or field_value > max_breakthrough:
+                    raise ValueError("equips.breakthrough_out_of_range")
+                current_breakthrough = field_value
+                new_template_id = stage_template_map.get(current_breakthrough)
+                if new_template_id is not None:
+                    current_template_id = new_template_id
+                    new_level, new_current_exp = get_level_from_total_exp(current_exp_total, current_template_id)
+                    stage_level_limit = stage_limit_map.get(current_breakthrough)
+                    if isinstance(stage_level_limit, int) and new_level > stage_level_limit:
+                        new_level = stage_level_limit
+                        new_current_exp = get_level_per_exp(current_template_id, new_level) or 0
+                    max_lvl = get_levelup_template_max_level(current_template_id)
+                    if max_lvl is not None and new_level > max_lvl:
+                        new_level = max_lvl
+                    current_level = new_level
+                    all_exp = get_level_all_exp(current_template_id, current_level) or 0
+                    per_exp = get_level_per_exp(current_template_id, current_level) or 0
+                    if max_lvl is not None and current_level == max_lvl and new_current_exp > per_exp:
+                        new_current_exp = per_exp
+                    current_exp_total = all_exp + new_current_exp
+
+            elif field_name == "level":
+                if field_value < 1:
+                    raise ValueError("equips.level_below_min")
+
+                if current_template_id is None:
+                    raise ValueError("equips.template_invalid")
+
+                stage_level_limit = stage_limit_map.get(current_breakthrough)
+                if isinstance(stage_level_limit, int) and field_value > stage_level_limit:
+                    raise ValueError("equips.level_above_limit")
+
+                max_lvl = get_levelup_template_max_level(current_template_id) or 1
+                if field_value > max_lvl:
+                    raise ValueError("equips.level_above_limit")
+
+                all_exp = get_level_all_exp(current_template_id, field_value)
+                if all_exp is None:
+                    raise ValueError("equips.template_invalid")
+
+                if field_value < current_level:
+                    per_exp = get_level_per_exp(current_template_id, field_value) or 0
+                    current_exp_total = all_exp + max(0, per_exp - 1)
+                else:
+                    current_exp_total = all_exp
+
+                current_level = field_value
+
+            elif field_name == "exp":
+                if field_value < 0:
+                    raise ValueError("equips.exp_below_min")
+
+                if current_template_id is None:
+                    raise ValueError("equips.template_invalid")
+
+                all_exp = get_level_all_exp(current_template_id, current_level)
+                per_exp = get_level_per_exp(current_template_id, current_level)
+                if all_exp is None or per_exp is None:
+                    raise ValueError("equips.template_invalid")
+
+                max_lvl = get_levelup_template_max_level(current_template_id)
+                allowed_max = per_exp if max_lvl is not None and current_level == max_lvl else per_exp - 1
+
+                if field_value > allowed_max:
+                    raise ValueError("equips.exp_above_limit")
+
+                current_exp_total = all_exp + field_value
+
+            else:
+                raise ValueError("equips.invalid_field")
+
+            target_equip["Level"] = current_level
+            target_equip["Exp"] = current_exp_total
+            target_equip["Breakthrough"] = current_breakthrough
+
+            raw_equips[target_index] = target_equip
+            normalized_update = self._build_equips_update(raw_equips)
+
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        response_exp = current_exp_total
+        if current_template_id is not None:
+            all_exp = get_level_all_exp(current_template_id, current_level)
+            if all_exp is not None:
+                response_exp = max(0, current_exp_total - all_exp)
+
+        response_item = WeaponItemRecord(
+            record_id=normalized_record_id,
+            TemplateId=template_id,
+            CharacterId=_parse_optional_int(target_equip.get("CharacterId")),
+            Level=current_level,
+            Exp=response_exp,
+            Breakthrough=current_breakthrough,
+        )
+        response_item.EnhancementLevel = _weapon_enhancement_level(response_item, get_equip_breakthrough_level_limit_map())
+        return response_item
+
     async def get_weapon_extra_info(self, uid: int, record_id: int) -> WeaponExtraInfoRecord:
         normalized_record_id = int(record_id)
         client = create_mongo_client(self._settings)
@@ -757,6 +1170,8 @@ class PlayerEquipsService:
                     character_id=_parse_optional_int(entry.CharacterId),
                 ))
 
+        awake_slot_list = _resolve_awake_slot_list(target_equip.get("AwakeSlotList"), template_id, {1, 2, 3})
+
         allows_overrun_data = self.supports_weapon_overrun_data()
 
         weapon_overrun_data = None
@@ -786,7 +1201,92 @@ class PlayerEquipsService:
             description=description,
             current_level_exp_limit=current_level_exp_limit,
             resonance_info=resonance_info,
+            awake_slot_list=awake_slot_list,
             weapon_overrun_data=weapon_overrun_data,
+        )
+
+    async def get_memory_extra_info(self, uid: int, record_id: int) -> MemoryExtraInfoRecord:
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+        target_equip: dict[str, Any] | None = None
+        for raw_equip in raw_equips:
+            if not isinstance(raw_equip, dict):
+                continue
+
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_equip = raw_equip
+                break
+
+        if target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_memory_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
+        level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
+        raw_exp = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
+
+        breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
+        max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
+        description = get_equip_descriptions_map().get(template_id)
+
+        current_level_exp_limit: int | None = None
+        template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
+        if isinstance(template_stage_map, dict):
+            template_id_for_stage = template_stage_map.get(breakthrough)
+            if template_id_for_stage is not None:
+                all_exp = get_level_all_exp(template_id_for_stage, level)
+                per_exp = get_level_per_exp(template_id_for_stage, level)
+                if all_exp is not None and per_exp is not None and raw_exp >= all_exp:
+                    current_level_exp_limit = per_exp
+
+        resonance_info = None
+        resonance_raw = target_equip.get("ResonanceInfo")
+        if isinstance(resonance_raw, list):
+            resonance_entries = _normalize_weapon_resonance_list(resonance_raw)
+            resonance_info = []
+            for entry in resonance_entries:
+                slot = _parse_optional_int(entry.Slot)
+                if slot is None or slot not in {1, 2}:
+                    continue
+
+                resonance_info.append(WeaponResonanceExtraInfoRecord(
+                    slot=slot,
+                    type=_parse_optional_int(entry.Type),
+                    template_id=_parse_optional_int(entry.TemplateId),
+                    character_id=_parse_optional_int(entry.CharacterId),
+                ))
+
+        awake_slot_list = _resolve_awake_slot_list(target_equip.get("AwakeSlotList"), template_id, {1, 2})
+
+        return MemoryExtraInfoRecord(
+            max_breakthrough=max_breakthrough,
+            breakthrough_level_limit_map={
+                int(stage): int(level_limit)
+                for stage, level_limit in breakthrough_level_limit_map.items()
+                if isinstance(stage, int) and isinstance(level_limit, int)
+            },
+            description=description,
+            current_level_exp_limit=current_level_exp_limit,
+            resonance_info=resonance_info,
+            awake_slot_list=awake_slot_list,
         )
 
     async def set_weapon_resonance(self, uid: int, record_id: int, payload) -> WeaponResonanceRecord:
@@ -838,6 +1338,7 @@ class PlayerEquipsService:
         entry_type = int(payload.Type)
         template_id_value = int(payload.TemplateId)
         character_id = int(payload.CharacterId)
+        awake_enabled = bool(payload.Awake) if payload.Awake is not None else None
 
         if not _is_valid_weapon_resonance_entry(template_id, entry_type, template_id_value, character_id):
             raise ValueError("equips.resonance_invalid")
@@ -859,9 +1360,120 @@ class PlayerEquipsService:
         if not updated:
             existing_resonance.append(new_entry)
 
+        awake_slot_list = _normalize_awake_slot_list(target_equip.get("AwakeSlotList"), {1, 2, 3})
+        if _is_awake_supported_template_id(template_id):
+            if awake_enabled is not None:
+                awake_slot_list = _apply_awake_slot_update(awake_slot_list, slot, awake_enabled)
+        else:
+            awake_slot_list = []
+
         target_equip["ResonanceInfo"] = [
             entry.model_dump() for entry in existing_resonance
         ]
+        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        raw_equips[target_index] = target_equip
+        normalized_update = self._build_equips_update(raw_equips)
+
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        return new_entry
+
+    async def set_memory_resonance(self, uid: int, record_id: int, payload) -> WeaponResonanceRecord:
+        if int(payload.Slot) not in {1, 2}:
+            raise ValueError("equips.resonance_invalid")
+
+        normalized_record_id = int(record_id)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not isinstance(document, dict):
+            raise ValueError("equips.not_found")
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+                break
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_memory_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        resonance_raw = target_equip.get("ResonanceInfo")
+        existing_resonance = (
+            _normalize_weapon_resonance_list(resonance_raw)
+            if isinstance(resonance_raw, list)
+            else []
+        )
+
+        slot = int(payload.Slot)
+        entry_type = int(payload.Type)
+        template_id_value = int(payload.TemplateId)
+        character_id = int(payload.CharacterId)
+        awake_enabled = bool(payload.Awake) if payload.Awake is not None else None
+
+        if not _is_valid_weapon_resonance_entry(template_id, entry_type, template_id_value, character_id):
+            raise ValueError("equips.resonance_invalid")
+
+        new_entry = WeaponResonanceRecord(
+            Slot=slot,
+            Type=entry_type,
+            CharacterId=character_id,
+            TemplateId=template_id_value,
+        )
+
+        updated = False
+        filtered_resonance = [entry for entry in existing_resonance if _parse_optional_int(entry.Slot) in {1, 2}]
+        for i, entry in enumerate(filtered_resonance):
+            if _parse_optional_int(entry.Slot) == slot:
+                filtered_resonance[i] = new_entry
+                updated = True
+                break
+
+        if not updated:
+            filtered_resonance.append(new_entry)
+
+        awake_slot_list = _normalize_awake_slot_list(target_equip.get("AwakeSlotList"), {1, 2})
+        if _is_awake_supported_template_id(template_id):
+            if awake_enabled is not None:
+                awake_slot_list = _apply_awake_slot_update(awake_slot_list, slot, awake_enabled)
+        else:
+            awake_slot_list = []
+
+        target_equip["ResonanceInfo"] = [entry.model_dump() for entry in filtered_resonance]
+        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 
@@ -1027,9 +1639,92 @@ class PlayerEquipsService:
         if len(filtered_resonance) == len(existing_resonance):
             return False
 
+        awake_slot_list = _normalize_awake_slot_list(target_equip.get("AwakeSlotList"), {1, 2, 3})
+        awake_slot_list = [slot for slot in awake_slot_list if slot != normalized_slot]
+
         target_equip["ResonanceInfo"] = [
             entry.model_dump() for entry in filtered_resonance
         ]
+        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        raw_equips[target_index] = target_equip
+        normalized_update = self._build_equips_update(raw_equips)
+
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        return True
+
+    async def delete_memory_resonance(self, uid: int, record_id: int, slot: int) -> bool:
+        normalized_record_id = int(record_id)
+        normalized_slot = int(slot)
+        if normalized_slot not in {1, 2}:
+            return False
+
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not isinstance(document, dict):
+            raise ValueError("equips.not_found")
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == normalized_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+                break
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        if template_id is None or not _is_memory_template_id(template_id):
+            raise ValueError("equips.template_invalid")
+
+        resonance_raw = target_equip.get("ResonanceInfo")
+        existing_resonance = (
+            _normalize_weapon_resonance_list(resonance_raw)
+            if isinstance(resonance_raw, list)
+            else []
+        )
+
+        filtered_resonance = [
+            entry for entry in existing_resonance if _parse_optional_int(entry.Slot) != normalized_slot and _parse_optional_int(entry.Slot) in {1, 2}
+        ]
+        if len(filtered_resonance) == len([entry for entry in existing_resonance if _parse_optional_int(entry.Slot) in {1, 2}]):
+            return False
+
+        awake_slot_list = _normalize_awake_slot_list(target_equip.get("AwakeSlotList"), {1, 2})
+        awake_slot_list = [slot for slot in awake_slot_list if slot != normalized_slot]
+
+        target_equip["ResonanceInfo"] = [entry.model_dump() for entry in filtered_resonance]
+        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 
@@ -1187,6 +1882,175 @@ class PlayerEquipsService:
                     weapon_name_map.get(template_id, "") if template_id is not None else "",
                     character_name_map.get(character_id, ""),
                     weapon_type_name_map.get(template_id, "") if template_id is not None else "",
+                )
+                if search_priority is None:
+                    continue
+
+                record_id = _parse_optional_int(raw_equip.get("_id"))
+                if record_id is None:
+                    continue
+
+                deletable_record_ids.append(record_id)
+
+            if not deletable_record_ids:
+                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+            remaining_equips = [
+                raw_equip
+                for raw_equip in raw_equips
+                if _parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
+            ]
+            if len(remaining_equips) == len(raw_equips):
+                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+            normalized_update = self._build_equips_update(remaining_equips)
+
+            result = await collection.update_one(
+                {"_id": document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+        return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=len(deletable_record_ids))
+
+    async def list_character_memories(
+        self,
+        uid: int,
+        page: int = 1,
+        page_size: int = ITEM_PAGE_SIZE,
+        keyword: str | None = None,
+        sort_by: MemorySortField = "character",
+        sort_order: WeaponSortOrder = "asc",
+    ) -> MemoryListResponse:
+        current_page = max(1, int(page))
+        normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
+        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+        memory_name_map = get_equip_name_map()
+        character_name_map = get_character_log_name_map()
+        equip_site_map = get_equip_site_map()
+        memory_star_map = get_equip_star_map()
+        breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map()
+        normalized_items: list[WeaponItemRecord] = []
+
+        for raw_equip in raw_equips:
+            if not isinstance(raw_equip, dict):
+                continue
+
+            template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+            if not _is_memory_template_id(template_id):
+                continue
+
+            character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+            search_priority = _get_memory_search_priority(
+                normalized_keyword,
+                memory_name_map.get(template_id, "") if template_id is not None else "",
+                character_name_map.get(character_id, ""),
+            )
+            if search_priority is None:
+                continue
+
+            normalized_item = _build_memory_item_record(raw_equip)
+            if normalized_item is None or template_id is None:
+                continue
+
+            raw_exp = _parse_optional_int(raw_equip.get("Exp"))
+            current_breakthrough = max(0, int(normalized_item.Breakthrough or 0))
+            template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
+            if isinstance(template_stage_map, dict) and normalized_item.Level is not None and raw_exp is not None:
+                template_id_for_stage = template_stage_map.get(current_breakthrough)
+                if template_id_for_stage is not None:
+                    all_exp = get_level_all_exp(template_id_for_stage, normalized_item.Level)
+                    if all_exp is not None:
+                        normalized_item.Exp = max(0, raw_exp - all_exp)
+
+            normalized_items.append(normalized_item)
+
+        normalized_items.sort(
+            key=lambda item: _memory_sort_key(
+                item,
+                sort_by,
+                sort_order,
+                _get_memory_search_priority(
+                    normalized_keyword,
+                    memory_name_map.get(item.TemplateId, ""),
+                    character_name_map.get(int(item.CharacterId or 0), ""),
+                ) or 0,
+                memory_name_map,
+                character_name_map,
+                equip_site_map,
+                memory_star_map,
+                breakthrough_level_limit_map,
+            ),
+        )
+
+        total = len(normalized_items)
+        total_pages = math.ceil(total / normalized_page_size) if total > 0 else 0
+        start = (current_page - 1) * normalized_page_size
+        end = start + normalized_page_size
+
+        return MemoryListResponse(
+            items=normalized_items[start:end],
+            page=current_page,
+            page_size=normalized_page_size,
+            total=total,
+            total_pages=total_pages,
+        )
+
+    async def clear_unequipped_memories_by_keyword(self, uid: int, keyword: str) -> ClearWeaponsResponse:
+        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                _matching_uid_query(uid),
+                {"equips": 1},
+            )
+
+            if not isinstance(document, dict):
+                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+            memory_name_map = get_equip_name_map()
+            character_name_map = get_character_log_name_map()
+            deletable_record_ids: list[int] = []
+
+            for raw_equip in raw_equips:
+                if not isinstance(raw_equip, dict):
+                    continue
+
+                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                if not _is_memory_template_id(template_id):
+                    continue
+
+                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                if character_id != 0:
+                    continue
+
+                search_priority = _get_memory_search_priority(
+                    normalized_keyword,
+                    memory_name_map.get(template_id, "") if template_id is not None else "",
+                    character_name_map.get(character_id, ""),
                 )
                 if search_priority is None:
                     continue

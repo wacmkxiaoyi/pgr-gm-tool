@@ -99,6 +99,14 @@ class WeaponListResponse(BaseModel):
     total_pages: int = 0
 
 
+class MemoryListResponse(BaseModel):
+    items: list[WeaponItemResponse] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
 class ClearWeaponsRequest(BaseModel):
     keyword: str | None = None
 
@@ -113,6 +121,11 @@ class AddWeaponRequest(BaseModel):
 
 
 class AddWeaponResponse(BaseModel):
+    added: bool
+    added_count: int
+
+
+class AddMemoryResponse(BaseModel):
     added: bool
     added_count: int
 
@@ -157,7 +170,17 @@ class WeaponExtraInfoResponse(BaseModel):
     description: str | None = None
     current_level_exp_limit: int | None = None
     resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
+    awake_slot_list: list[int] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoResponse | None = None
+
+
+class MemoryExtraInfoResponse(BaseModel):
+    max_breakthrough: int
+    breakthrough_level_limit_map: dict[int, int]
+    description: str | None = None
+    current_level_exp_limit: int | None = None
+    resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
+    awake_slot_list: list[int] | None = None
 
 
 class UpdateWeaponResonanceRequest(BaseModel):
@@ -165,6 +188,7 @@ class UpdateWeaponResonanceRequest(BaseModel):
     Type: int
     TemplateId: int
     CharacterId: int
+    Awake: bool | None = None
 
 
 class UpdateWeaponResonanceResponse(BaseModel):

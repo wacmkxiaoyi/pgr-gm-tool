@@ -50,17 +50,23 @@ app.setSelectedAccountUid = (uid) => {
   if (previousUid !== state.selectedAccountUid) {
     app.clearWeaponManagementKeyword();
     app.resetWeaponManagementView();
+    app.clearMemoryManagementKeyword();
+    app.resetMemoryManagementView();
     app.clearItemManagementKeyword();
     app.resetItemManagementView();
   }
   app.updatePlayerProfileAccess();
   app.updateWeaponManagementAccess();
+  app.updateMemoryManagementAccess();
   app.updateItemManagementAccess();
   if (app.isDatabasePlayerProfileSectionActive() && app.canAccessPlayerProfile()) {
     void app.loadSelectedPlayerProfile();
   }
   if (app.isDatabaseWeaponManagementSectionActive() && app.canAccessWeaponManagement()) {
     void app.loadSelectedAccountWeapons(1);
+  }
+  if (app.isDatabaseMemoryManagementSectionActive() && app.canAccessMemoryManagement()) {
+    void app.loadSelectedAccountMemories(1);
   }
   if (app.isDatabaseItemManagementSectionActive() && app.canAccessItemManagement()) {
     void app.loadSelectedAccountItems(1);
@@ -281,6 +287,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
     }
     app.updatePlayerProfileAccess(payload);
     app.updateWeaponManagementAccess(payload);
+    app.updateMemoryManagementAccess(payload);
     app.updateItemManagementAccess(payload);
     return;
   }
@@ -288,6 +295,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
   app.updateAccountsPagination();
   app.updatePlayerProfileAccess(payload);
   app.updateWeaponManagementAccess(payload);
+  app.updateMemoryManagementAccess(payload);
   app.updateItemManagementAccess(payload);
 };
 

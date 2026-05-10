@@ -787,6 +787,18 @@
   padding-right: 10px;
 }
 
+.weapon-detail-resonance-table.has-awake-column th:nth-child(4),
+.weapon-detail-resonance-table.has-awake-column td:nth-child(4) {
+  width: 110px;
+}
+
+.weapon-detail-resonance-table.has-awake-column th:nth-child(5),
+.weapon-detail-resonance-table.has-awake-column td:nth-child(5) {
+  width: 168px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .weapon-detail-resonance-table th,
 .weapon-detail-resonance-table td {
   padding: 10px 14px;
@@ -898,6 +910,67 @@
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.weapon-detail-awake-indicator,
+.weapon-detail-awake-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(255, 255, 255, 0.64);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.weapon-detail-awake-indicator.is-checked {
+  color: #0f766e;
+  border-color: rgba(45, 212, 191, 0.35);
+  background: rgba(45, 212, 191, 0.12);
+}
+
+.weapon-detail-awake-indicator.is-crossed {
+  color: #b91c1c;
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.weapon-detail-awake-toggle {
+  position: relative;
+  cursor: pointer;
+}
+
+.weapon-detail-awake-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.weapon-detail-awake-toggle span {
+  color: #0f766e;
+}
+
+.weapon-detail-awake-toggle input:not(:checked) + span::before {
+  content: '×';
+  color: #b91c1c;
+}
+
+.weapon-detail-awake-toggle input:not(:checked) + span {
+  color: transparent;
+}
+
+.weapon-detail-awake-toggle:has(input:checked) {
+  border-color: rgba(45, 212, 191, 0.35);
+  background: rgba(45, 212, 191, 0.12);
+}
+
+.weapon-detail-awake-toggle:has(input:not(:checked)) {
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(248, 113, 113, 0.12);
 }
 
 .weapon-detail-resonance-effect-btn {

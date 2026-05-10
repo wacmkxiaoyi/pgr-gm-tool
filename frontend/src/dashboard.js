@@ -24,8 +24,10 @@ const rerenderLocaleSensitiveViews = () => {
   app.updatePlayerProfileAccess();
   app.updateItemManagementAccess();
   app.updateWeaponManagementAccess();
+  app.updateMemoryManagementAccess();
   app.rerenderItemManagementLocale?.();
   app.rerenderWeaponManagementLocale?.();
+  app.rerenderMemoryManagementLocale?.();
   app.updateStatusActionButtons({ controls: app.getControlState(state.serverControlState), sections: state.latestStatusSnapshot?.sections ?? [] });
 
   if (state.latestStatusSnapshot) {
@@ -105,6 +107,7 @@ const initDashboard = () => {
   app.setActiveDashboardPage('server-management');
   app.setActiveDatabaseTab('database-service-status-section');
   app.updateDatabaseAccountsAccess(null);
+  app.updateMemoryManagementAccess(null);
   app.updateItemManagementAccess(null);
   renderDashboardStaticState();
 

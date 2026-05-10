@@ -48,6 +48,10 @@ const {
   weaponOverrunPickerConfirmButton,
   weaponOverrunPickerCloseTargets,
 } = dom;
+const weaponDetailAwakeHeader = document.querySelector('#weapon-detail-awake-header');
+const weaponDetailResonanceTable = weaponDetailResonanceSection instanceof HTMLElement
+  ? weaponDetailResonanceSection.querySelector('.weapon-detail-resonance-table')
+  : null;
 
 const WEAPON_DETAIL_TOOLTIP_DELAY_MS = 500;
 
@@ -669,6 +673,57 @@ app.canSaveResonanceSlot = (slot) => {
   const effectState = app.getEffectiveResonanceEffectSelection(slot);
   return Number.isFinite(Number(effectState.effect?.type))
     && Number.isFinite(Number(effectState.effect?.template_id));
+};
+
+app.getAwakeSlotList = (extraInfo = state.currentWeaponDetailExtraInfo) => {
+  return Array.isArray(extraInfo?.awake_slot_list)
+    ? extraInfo.awake_slot_list
+      .map((slot) => Number(slot))
+      .filter((slot) => Number.isFinite(slot))
+    : [];
+};
+
+app.hasAwakeSlotConfig = (extraInfo = state.currentWeaponDetailExtraInfo) => Object.prototype.hasOwnProperty.call(extraInfo || {}, 'awake_slot_list');
+
+app.getEffectiveResonanceAwakeState = (slot) => {
+  if (state._weaponResonancePendingAwake && Object.prototype.hasOwnProperty.call(state._weaponResonancePendingAwake, slot)) {
+    return Boolean(state._weaponResonancePendingAwake[slot]);
+  }
+
+  return app.getAwakeSlotList().includes(Number(slot));
+};
+
+app.renderResonanceAwakeCellContent = (slot) => {
+  if (!app.hasAwakeSlotConfig()) {
+    return '--';
+  }
+
+  const isEditing = state._weaponResonanceEditSlots?.[slot];
+  const resonanceInfo = Array.isArray(state.currentWeaponDetailExtraInfo?.resonance_info)
+    ? state.currentWeaponDetailExtraInfo.resonance_info
+    : [];
+  const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
+
+  const checked = app.getEffectiveResonanceAwakeState(slot);
+  if (isEditing) {
+    return `<label class="weapon-detail-awake-toggle"><input class="weapon-detail-awake-checkbox" type="checkbox" data-resonance-awake-toggle ${checked ? 'checked' : ''}><span>${checked ? '✓' : ''}</span></label>`;
+  }
+
+  if (!entry) {
+    return '--';
+  }
+
+  return `<span class="weapon-detail-awake-indicator ${checked ? 'is-checked' : 'is-crossed'}" aria-label="${checked ? 'checked' : 'crossed'}">${checked ? '✓' : '×'}</span>`;
+};
+
+app._renderResonanceAwakeCell = (slot) => {
+  if (!app.hasAwakeSlotConfig()) return;
+  if (!(weaponDetailResonanceBody instanceof HTMLElement)) return;
+  const row = weaponDetailResonanceBody.querySelector(`tr[data-resonance-slot="${slot}"]`);
+  if (!(row instanceof HTMLElement)) return;
+  const awakeCell = row.querySelector('td:nth-child(4)');
+  if (!(awakeCell instanceof HTMLElement)) return;
+  awakeCell.innerHTML = app.renderResonanceAwakeCellContent(slot);
 };
 
 app.hasWeaponResonanceConfig = (weaponTemplateId) => {
@@ -1892,6 +1947,8 @@ app.handleWeaponManagementActionClick = (event) => {
 };
 
 app.populateWeaponDetailCard = (item) => {
+  const detailMode = state.currentEquipDetailMode === 'memory' ? 'memory' : 'weapon';
+  const isMemoryMode = detailMode === 'memory';
   const extraInfo = state.currentWeaponDetailExtraInfo && typeof state.currentWeaponDetailExtraInfo === 'object'
     ? state.currentWeaponDetailExtraInfo
     : {};
@@ -1904,16 +1961,25 @@ app.populateWeaponDetailCard = (item) => {
   const iconUrl = app.getWeaponIconByTemplateId(templateId);
   const weaponName = app.getWeaponNameByTemplateId(templateId);
   const resonanceInfo = Array.isArray(extraInfo?.resonance_info) ? extraInfo.resonance_info : [];
+  const hasAwakeConfig = app.hasAwakeSlotConfig(extraInfo);
   const hasValidStar = Number.isFinite(star) && star >= 2 && star <= 6;
   const btTier = Math.min(Math.max(breakthrough, 0), 4);
   const weaponDescription = app.stripMarkupText(extraInfo?.description || '');
   const hasDescription = Boolean(weaponDescription);
   const skillName = app.resolveWeaponSkillName(templateId);
   const skillDescription = app.stripMarkupText(app.resolveWeaponSkillDescription(templateId));
-  const hasSkill = Boolean(skillName);
+  const hasSkill = !isMemoryMode && Boolean(skillName);
   const hasResonanceConfig = app.hasWeaponResonanceConfig(templateId);
 
   state.currentWeaponDetailItem = item;
+
+  if (weaponDetailAwakeHeader instanceof HTMLElement) {
+    weaponDetailAwakeHeader.hidden = !hasAwakeConfig;
+  }
+
+  if (weaponDetailResonanceTable instanceof HTMLElement) {
+    weaponDetailResonanceTable.classList.toggle('has-awake-column', hasAwakeConfig);
+  }
 
   if (weaponDetailCard instanceof HTMLElement) {
     if (hasValidStar) {
@@ -1935,7 +2001,7 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailType instanceof HTMLElement) {
-    const typeName = app.getWeaponTypeByTemplateId(templateId);
+    const typeName = isMemoryMode ? app.getMemoryPositionByTemplateId(templateId) : app.getWeaponTypeByTemplateId(templateId);
     weaponDetailType.textContent = `[${typeName}]`;
   }
 
@@ -2020,13 +2086,14 @@ app.populateWeaponDetailCard = (item) => {
     if (!(extraInfo && 'resonance_info' in extraInfo && hasResonanceConfig)) {
       weaponDetailResonanceBody.innerHTML = '';
     } else {
-      const rows = [1, 2, 3].map((slot) => {
+      const rows = (isMemoryMode ? [1, 2] : [1, 2, 3]).map((slot) => {
         const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
         const slotText = slot;
         const unselectedLabel = app.translate('common.unselected');
 
         let effectText = '--';
         let characterText = '--';
+        let awakeText = '--';
         const isEditing = state._weaponResonanceEditSlots?.[slot];
         const effectState = app.getEffectiveResonanceEffectSelection(slot);
         const canDelete = app.hasResonanceSlotData(slot);
@@ -2070,11 +2137,16 @@ app.populateWeaponDetailCard = (item) => {
           }
         }
 
+        if (hasAwakeConfig) {
+          awakeText = app.renderResonanceAwakeCellContent(slot);
+        }
+
         return `
           <tr class="${isEditing ? 'resonance-row-editing' : ''}" data-resonance-slot="${slot}">
             <td>${slotText}</td>
             <td>${effectText}</td>
             <td>${characterText}</td>
+            ${hasAwakeConfig ? `<td>${awakeText}</td>` : ''}
             <td>
               <div class="weapon-detail-resonance-actions">
                 ${isEditing ? `
@@ -2094,10 +2166,14 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailOverrunSection instanceof HTMLElement) {
-    weaponDetailOverrunSection.hidden = !(extraInfo && 'weapon_overrun_data' in extraInfo);
+    weaponDetailOverrunSection.hidden = isMemoryMode || !(extraInfo && 'weapon_overrun_data' in extraInfo);
   }
 
-  app.renderWeaponOverrunContent(extraInfo);
+  if (!isMemoryMode) {
+    app.renderWeaponOverrunContent(extraInfo);
+  } else if (weaponDetailOverrunSection instanceof HTMLElement) {
+    weaponDetailOverrunSection.hidden = true;
+  }
 };
 
 app.closeWeaponDetailModal = () => {
@@ -2113,9 +2189,11 @@ app.closeWeaponDetailModal = () => {
   app.setBodyModalOpen(false);
   state.currentWeaponDetailItem = null;
   state.currentWeaponDetailExtraInfo = null;
+  state.currentEquipDetailMode = 'weapon';
   state.weaponDetailLoading = false;
   state._weaponResonanceEditSlots = {};
   state._weaponResonancePendingEffect = {};
+  state._weaponResonancePendingAwake = {};
   state._weaponResonancePendingCharacter = {};
   state._weaponOverrunPickerOriginalSuitId = null;
   state._weaponOverrunPickerSelectedSuitId = null;
@@ -2196,6 +2274,9 @@ app.beginWeaponDetailFieldEdit = (field) => {
   } else if (field === 'Exp') {
     rawValue = String(element.dataset.weaponExpCurrent ?? '');
   } else if (field === 'OverrunLevel') {
+    if (state.currentEquipDetailMode === 'memory') {
+      return;
+    }
     rawValue = String(element.dataset.weaponOverrunLevelCurrent ?? '');
   }
 
@@ -2287,6 +2368,9 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
       return;
     }
   } else if (field === 'OverrunLevel') {
+    if (state.currentEquipDetailMode === 'memory') {
+      return;
+    }
     const overrunLevelMax = Number.parseInt(element.dataset.weaponOverrunLevelMax ?? '0', 10);
     if (parsedValue <= 0) {
       app.openControlModal(app.translate('runtime.weaponOverrunLevelBelowMin'));
@@ -2305,7 +2389,8 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
   }
 
   try {
-    const payload = await app.apiFetch(field === 'OverrunLevel' ? `/api/database-weapons/selected/${recordId}/overrun` : `/api/database-weapons/selected/${recordId}`, {
+    const basePath = state.currentEquipDetailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
+    const payload = await app.apiFetch(field === 'OverrunLevel' ? `${basePath}/${recordId}/overrun` : `${basePath}/${recordId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -2323,17 +2408,24 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
     state.weaponDetailEditState = null;
 
     if (field !== 'OverrunLevel') {
-      const idx = state.weaponManagementItems?.findIndex(
-        (i) => (i?._id ?? i?.record_id) === recordId
-      );
-      if (idx >= 0 && state.weaponManagementItems) {
-        state.weaponManagementItems[idx] = payload;
+      const targetItems = state.currentEquipDetailMode === 'memory' ? state.memoryManagementItems : state.weaponManagementItems;
+      const idx = targetItems?.findIndex((i) => (i?._id ?? i?.record_id) === recordId);
+      if (idx >= 0 && targetItems) {
+        targetItems[idx] = payload;
         state.currentWeaponDetailItem = payload;
-        app.renderWeaponRows(state.weaponManagementItems);
+        if (state.currentEquipDetailMode === 'memory') {
+          app.renderMemoryRows(state.memoryManagementItems);
+        } else {
+          app.renderWeaponRows(state.weaponManagementItems);
+        }
       }
     }
 
-    await app.loadWeaponDetailExtraInfo(recordId);
+    if (state.currentEquipDetailMode === 'memory') {
+      await app.loadMemoryDetailExtraInfo(recordId);
+    } else {
+      await app.loadWeaponDetailExtraInfo(recordId);
+    }
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       currentState.pending = false;
@@ -2373,6 +2465,7 @@ app._renderResonanceRowActionCell = (slot) => {
 
   app._renderResonanceEffectCell(slot);
   app._renderResonanceBoundCharacterCell(slot);
+  app._renderResonanceAwakeCell(slot);
 };
 
 app.handleResonanceActionClick = (event) => {
@@ -2406,6 +2499,9 @@ app.handleResonanceActionClick = (event) => {
     if (state._weaponResonancePendingEffect) {
       delete state._weaponResonancePendingEffect[slot];
     }
+    if (state._weaponResonancePendingAwake) {
+      delete state._weaponResonancePendingAwake[slot];
+    }
     if (state._weaponResonancePendingCharacter) {
       delete state._weaponResonancePendingCharacter[slot];
     }
@@ -2417,6 +2513,9 @@ app.handleResonanceActionClick = (event) => {
     delete state._weaponResonanceEditSlots[slot];
     if (state._weaponResonancePendingEffect) {
       delete state._weaponResonancePendingEffect[slot];
+    }
+    if (state._weaponResonancePendingAwake) {
+      delete state._weaponResonancePendingAwake[slot];
     }
     if (state._weaponResonancePendingCharacter) {
       delete state._weaponResonancePendingCharacter[slot];
@@ -2454,8 +2553,12 @@ app.handleResonanceActionClick = (event) => {
       return;
     }
 
+    const awakeChanged = app.hasAwakeSlotConfig()
+      && state._weaponResonancePendingAwake
+      && Object.prototype.hasOwnProperty.call(state._weaponResonancePendingAwake, slot);
     const dataChanged = pendingCharacterId != null
       || effectState.hasPending
+      || awakeChanged
       || !Number.isFinite(entry?.character_id)
       || !Number.isFinite(entry?.type)
       || !Number.isFinite(entry?.template_id);
@@ -2473,26 +2576,39 @@ app.handleResonanceActionClick = (event) => {
 
     void (async () => {
       try {
-        await app.apiFetch(`/api/database-weapons/selected/${recordId}/resonance`, {
+        const basePath = state.currentEquipDetailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
+        const requestBody = {
+          Slot: slot,
+          Type: effectType,
+          TemplateId: effectTemplateId,
+          CharacterId: characterId,
+        };
+        if (app.hasAwakeSlotConfig()) {
+          requestBody.Awake = app.getEffectiveResonanceAwakeState(slot);
+        }
+
+        await app.apiFetch(`${basePath}/${recordId}/resonance`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            Slot: slot,
-            Type: effectType,
-            TemplateId: effectTemplateId,
-            CharacterId: characterId,
-          }),
+          body: JSON.stringify(requestBody),
         });
         delete state._weaponResonanceEditSlots[slot];
         if (state._weaponResonancePendingEffect) {
           delete state._weaponResonancePendingEffect[slot];
         }
+        if (state._weaponResonancePendingAwake) {
+          delete state._weaponResonancePendingAwake[slot];
+        }
         if (state._weaponResonancePendingCharacter) {
           delete state._weaponResonancePendingCharacter[slot];
         }
-        await app.loadWeaponDetailExtraInfo(recordId);
+        if (state.currentEquipDetailMode === 'memory') {
+          await app.loadMemoryDetailExtraInfo(recordId);
+        } else {
+          await app.loadWeaponDetailExtraInfo(recordId);
+        }
       } catch (error) {
         if (app.isMutationRiskCancelled(error)) {
           return;
@@ -2518,6 +2634,7 @@ app.handleResonanceActionClick = (event) => {
       recordId,
       slot,
       weaponName: app.getWeaponNameByTemplateId(state.currentWeaponDetailItem?.TemplateId),
+      detailMode: state.currentEquipDetailMode,
     };
     app.openWeaponResonanceDeleteModal({
       slot,
@@ -2541,6 +2658,26 @@ app.handleResonanceEffectCellClick = (event) => {
   if (!Number.isFinite(slot)) return;
 
   app.openResonanceEffectModal(slot);
+};
+
+app.handleResonanceAwakeToggleClick = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const checkbox = target.closest('[data-resonance-awake-toggle]');
+  if (!(checkbox instanceof HTMLInputElement)) return;
+
+  const row = checkbox.closest('tr[data-resonance-slot]');
+  if (!(row instanceof HTMLElement)) return;
+
+  const slot = Number(row.dataset.resonanceSlot);
+  if (!Number.isFinite(slot)) return;
+
+  if (!state._weaponResonancePendingAwake) {
+    state._weaponResonancePendingAwake = {};
+  }
+  state._weaponResonancePendingAwake[slot] = checkbox.checked;
+  app._renderResonanceAwakeCell(slot);
 };
 
 app.handleWeaponDetailTooltipEvent = (event) => {
@@ -2586,6 +2723,9 @@ app.handleWeaponDetailTooltipEvent = (event) => {
 };
 
 app.handleWeaponOverrunActivate = (event) => {
+  if (state.currentEquipDetailMode === 'memory') {
+    return;
+  }
   const target = event.target;
   if (!(target instanceof HTMLElement) || !(weaponDetailOverrunContent instanceof HTMLElement)) {
     return;
@@ -2652,6 +2792,7 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
     return;
   }
 
+  state.currentEquipDetailMode = 'weapon';
   state.lastWeaponDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
   state.currentWeaponDetailItem = item;
   state.currentWeaponDetailExtraInfo = null;
@@ -2750,6 +2891,7 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponDetailModal.addEventListener('click', app.handleWeaponDetailFieldActivate);
     weaponDetailModal.addEventListener('click', app.handleResonanceActionClick);
     weaponDetailModal.addEventListener('click', app.handleResonanceEffectCellClick);
+    weaponDetailModal.addEventListener('click', app.handleResonanceAwakeToggleClick);
     weaponDetailModal.addEventListener('click', app.handleResonanceBoundCharacterClick);
     weaponDetailModal.addEventListener('click', app.handleWeaponOverrunActivate);
     weaponDetailModal.addEventListener('mouseover', app.handleWeaponDetailTooltipEvent);

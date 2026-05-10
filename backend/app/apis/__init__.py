@@ -8,6 +8,7 @@ from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
+    AddMemoryResponse,
     AddWeaponRequest,
     AddWeaponResponse,
     AddInventoryItemsRequest,
@@ -17,6 +18,8 @@ from backend.app.apis.schemas import (
     ClearInventoryItemsResponse,
     ClearWeaponsRequest,
     ClearWeaponsResponse,
+    MemoryExtraInfoResponse,
+    MemoryListResponse,
     DatabaseHealthStatusResponse,
     DeleteAccountResponse,
     DeleteWeaponResonanceResponse,
@@ -586,6 +589,36 @@ async def get_selected_database_weapons(
     return weapons
 
 
+@router.get("/database-memories/selected", response_model=MemoryListResponse, response_model_exclude_none=True)
+async def get_selected_database_memories(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    sort_by: Literal["name", "character", "position", "star", "enhancement"] = Query(default="character"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
+    login_session_token: str | None = Cookie(default=None),
+) -> MemoryListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    memories = await equips_service.list_character_memories(
+        selected_uid,
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+    return MemoryListResponse.model_validate(memories.model_dump())
+
+
 @router.post("/database-weapons/selected", response_model=AddWeaponResponse)
 async def add_selected_database_weapon(
     request: Request,
@@ -615,6 +648,35 @@ async def add_selected_database_weapon(
     return result
 
 
+@router.post("/database-memories/selected", response_model=AddMemoryResponse)
+async def add_selected_database_memory(
+    request: Request,
+    payload: AddWeaponRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddMemoryResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.add_memories(selected_uid, payload.template_ids)
+    except ValueError as error:
+        if str(error) == "equips.template_invalid":
+            raise_http_error(422, "equips.add_template_invalid", {"template_ids": payload.template_ids})
+        if str(error) == "equips.equips_missing":
+            raise_http_error(404, "equips.equips_missing", {"uid": selected_uid})
+        if str(error) == "equips.add_failed":
+            raise_http_error(500, "equips.add_failed", {"template_ids": payload.template_ids})
+        raise
+
+    return AddMemoryResponse.model_validate(result.model_dump())
+
+
 @router.api_route("/database-weapons/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)
 async def clear_selected_database_weapons(
     request: Request,
@@ -636,6 +698,27 @@ async def clear_selected_database_weapons(
     return ClearWeaponsResponse(keyword=keyword, deleted_count=result.deleted_count)
 
 
+@router.api_route("/database-memories/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)
+async def clear_selected_database_memories(
+    request: Request,
+    payload: ClearWeaponsRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> ClearWeaponsResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    keyword = str(payload.keyword or "").strip()
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    result = await equips_service.clear_unequipped_memories_by_keyword(selected_uid, keyword)
+    return ClearWeaponsResponse(keyword=keyword, deleted_count=result.deleted_count)
+
+
 @router.delete("/database-weapons/selected/{record_id}", response_model=DeleteWeaponResponse)
 async def delete_selected_database_weapon(
     record_id: int,
@@ -653,6 +736,34 @@ async def delete_selected_database_weapon(
 
     try:
         deleted = await equips_service.delete_unequipped_weapon(selected_uid, record_id)
+    except ValueError as error:
+        if str(error) == "equips.equipped_delete_forbidden":
+            raise_http_error(409, "equips.delete_equipped_forbidden", {"record_id": record_id})
+        raise
+
+    if not deleted:
+        raise_http_error(404, "equips.not_found", {"record_id": record_id})
+
+    return DeleteWeaponResponse(_id=record_id, deleted=True)
+
+
+@router.delete("/database-memories/selected/{record_id}", response_model=DeleteWeaponResponse)
+async def delete_selected_database_memory(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        deleted = await equips_service.delete_unequipped_memory(selected_uid, record_id)
     except ValueError as error:
         if str(error) == "equips.equipped_delete_forbidden":
             raise_http_error(409, "equips.delete_equipped_forbidden", {"record_id": record_id})
@@ -707,6 +818,49 @@ async def update_selected_database_weapon(
     return updated_weapon
 
 
+@router.put("/database-memories/selected/{record_id}", response_model=UpdateWeaponResponse)
+async def update_selected_database_memory(
+    record_id: int,
+    payload: UpdateWeaponRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        updated_memory = await equips_service.update_memory(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.breakthrough_out_of_range":
+            raise_http_error(422, "equips.breakthrough_invalid", {"record_id": record_id})
+        if error_message == "equips.invalid_field":
+            raise_http_error(422, "equips.invalid_field", {"record_id": record_id})
+        if error_message == "equips.level_below_min":
+            raise_http_error(422, "equips.level_below_min", {"record_id": record_id})
+        if error_message == "equips.level_above_limit":
+            raise_http_error(422, "equips.level_above_limit", {"record_id": record_id})
+        if error_message == "equips.exp_below_min":
+            raise_http_error(422, "equips.exp_below_min", {"record_id": record_id})
+        if error_message == "equips.exp_above_limit":
+            raise_http_error(422, "equips.exp_above_limit", {"record_id": record_id})
+        if error_message == "equips.update_failed":
+            raise_http_error(500, "equips.update_failed", {"record_id": record_id})
+        raise
+
+    return UpdateWeaponResponse.model_validate(updated_memory.model_dump())
+
+
 @router.put("/database-weapons/selected/{record_id}/resonance", response_model=UpdateWeaponResonanceResponse)
 async def update_selected_database_weapon_resonance(
     record_id: int,
@@ -725,6 +879,37 @@ async def update_selected_database_weapon_resonance(
 
     try:
         result = await equips_service.set_weapon_resonance(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.resonance_invalid":
+            raise_http_error(422, "equips.resonance_invalid", {"record_id": record_id})
+        raise
+
+    return result
+
+
+@router.put("/database-memories/selected/{record_id}/resonance", response_model=UpdateWeaponResonanceResponse)
+async def update_selected_database_memory_resonance(
+    record_id: int,
+    payload: UpdateWeaponResonanceRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateWeaponResonanceResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.set_memory_resonance(selected_uid, record_id, payload)
     except ValueError as error:
         error_message = str(error)
         if error_message == "equips.not_found":
@@ -810,6 +995,38 @@ async def delete_selected_database_weapon_resonance(
     return DeleteWeaponResonanceResponse(Slot=slot, deleted=True)
 
 
+@router.delete("/database-memories/selected/{record_id}/resonance/{slot}", response_model=DeleteWeaponResonanceResponse)
+async def delete_selected_database_memory_resonance(
+    record_id: int,
+    slot: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteWeaponResonanceResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        deleted = await equips_service.delete_memory_resonance(selected_uid, record_id, slot)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        raise
+
+    if not deleted:
+        raise_http_error(404, "equips.resonance_not_found", {"record_id": record_id, "slot": slot})
+
+    return DeleteWeaponResonanceResponse(Slot=slot, deleted=True)
+
+
 @router.get("/database-weapons/selected/{record_id}/extra-info", response_model=WeaponExtraInfoResponse, response_model_exclude_none=True)
 async def get_selected_database_weapon_extra_info(
     record_id: int,
@@ -838,6 +1055,36 @@ async def get_selected_database_weapon_extra_info(
         raise
 
     return WeaponExtraInfoResponse.model_validate(extra_info.model_dump())
+
+
+@router.get("/database-memories/selected/{record_id}/extra-info", response_model=MemoryExtraInfoResponse, response_model_exclude_none=True)
+async def get_selected_database_memory_extra_info(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> MemoryExtraInfoResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        extra_info = await equips_service.get_memory_extra_info(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": record_id})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": record_id})
+        if error_message == "equips.resonance_invalid":
+            raise_http_error(422, "equips.resonance_invalid", {"record_id": record_id})
+        raise
+
+    return MemoryExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
 @router.delete("/database-items/selected/{item_id}", response_model=DeleteInventoryItemResponse)

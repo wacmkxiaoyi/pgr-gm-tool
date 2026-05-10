@@ -12,9 +12,11 @@ const {
 app.closeItemDeleteModal = () => {
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
   if (!(itemDeleteModal instanceof HTMLElement) || itemDeleteModal.hidden) {
     return;
   }
@@ -34,9 +36,11 @@ app.openItemDeleteModal = (item, trigger) => {
 
   state.pendingDeleteItem = item;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.itemDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.itemDeleteConfirm', {
@@ -62,8 +66,10 @@ app.openWeaponResonanceDeleteModal = (payload, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponResonanceDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.weaponResonanceDeleteConfirm', {
@@ -88,9 +94,11 @@ app.openWeaponDeleteModal = (weapon, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = weapon;
+  state.pendingDeleteMemory = null;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.weaponDeleteConfirm', {
@@ -116,9 +124,11 @@ app.openClearItemsModal = (keyword, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = keyword;
   state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.itemClearTitle');
   itemDeleteMessage.textContent = keyword
@@ -142,9 +152,11 @@ app.openClearWeaponsModal = (keyword, trigger) => {
 
   state.pendingDeleteItem = null;
   state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = keyword;
+  state.pendingClearMemoriesKeyword = null;
   state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponClearTitle');
   itemDeleteMessage.textContent = keyword
@@ -152,6 +164,64 @@ app.openClearWeaponsModal = (keyword, trigger) => {
     : app.translate('runtime.weaponClearAllConfirm');
   if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
     itemDeleteConfirmButton.textContent = app.translate('runtime.weaponClearSubmit');
+  }
+  itemDeleteModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.focus();
+  }
+};
+
+app.openMemoryDeleteModal = (memory, trigger) => {
+  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+    return;
+  }
+
+  state.pendingDeleteItem = null;
+  state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = memory;
+  state.pendingDeleteWeaponResonance = null;
+  state.pendingClearItemsKeyword = null;
+  state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
+  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  itemDeleteTitle.textContent = app.translate('runtime.memoryDeleteTitle');
+  itemDeleteMessage.textContent = app.translate('runtime.memoryDeleteConfirm', {
+    memoryName: memory?.memoryName ?? app.translate('common.notAvailable'),
+    templateId: memory?.templateId ?? app.translate('common.notAvailable'),
+    characterName: memory?.characterName ?? app.translate('common.notAvailable'),
+  });
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.textContent = app.translate('runtime.memoryDeleteSubmit');
+  }
+  itemDeleteModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.focus();
+  }
+};
+
+app.openClearMemoriesModal = (keyword, trigger) => {
+  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+    return;
+  }
+
+  state.pendingDeleteItem = null;
+  state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
+  state.pendingDeleteWeaponResonance = null;
+  state.pendingClearItemsKeyword = null;
+  state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = keyword;
+  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  itemDeleteTitle.textContent = app.translate('runtime.memoryClearTitle');
+  itemDeleteMessage.textContent = keyword
+    ? app.translate('runtime.memoryClearConfirm', { keyword })
+    : app.translate('runtime.memoryClearAllConfirm');
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.textContent = app.translate('runtime.memoryClearSubmit');
   }
   itemDeleteModal.hidden = false;
   app.setBodyModalOpen(true);
@@ -191,9 +261,21 @@ app.confirmDeleteOrClearItems = async () => {
       return;
     }
 
+    if (state.pendingDeleteMemory) {
+      const { recordId, memoryName, templateId } = state.pendingDeleteMemory;
+      await app.apiFetch(`/api/database-memories/selected/${recordId}`, {
+        method: 'DELETE',
+      });
+      app.closeItemDeleteModal();
+      app.openSuccessModal(app.translate('runtime.memoryDeleteSuccess', { memoryName, templateId }), app.translate('runtime.memoryDeleteSuccessTitle'));
+      await app.reloadMemoryManagementCurrentPage();
+      return;
+    }
+
     if (state.pendingDeleteWeaponResonance) {
-      const { recordId, slot, weaponName } = state.pendingDeleteWeaponResonance;
-      await app.apiFetch(`/api/database-weapons/selected/${recordId}/resonance/${slot}`, {
+      const { recordId, slot, weaponName, detailMode } = state.pendingDeleteWeaponResonance;
+      const basePath = detailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
+      await app.apiFetch(`${basePath}/${recordId}/resonance/${slot}`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
@@ -203,8 +285,13 @@ app.confirmDeleteOrClearItems = async () => {
       );
       delete state._weaponResonanceEditSlots?.[slot];
       delete state._weaponResonancePendingEffect?.[slot];
+      delete state._weaponResonancePendingAwake?.[slot];
       delete state._weaponResonancePendingCharacter?.[slot];
-      await app.loadWeaponDetailExtraInfo(recordId);
+      if (detailMode === 'memory') {
+        await app.loadMemoryDetailExtraInfo(recordId);
+      } else {
+        await app.loadWeaponDetailExtraInfo(recordId);
+      }
       return;
     }
 
@@ -248,6 +335,26 @@ app.confirmDeleteOrClearItems = async () => {
       await app.reloadWeaponManagementCurrentPage();
       return;
     }
+
+    if (state.pendingClearMemoriesKeyword !== null) {
+      const keyword = state.pendingClearMemoriesKeyword;
+      const payload = await app.apiFetch('/api/database-memories/selected', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ keyword }),
+      });
+      app.closeItemDeleteModal();
+      app.openSuccessModal(
+        keyword
+          ? app.translate('runtime.memoryClearSuccess', { keyword, count: payload?.deleted_count ?? 0 })
+          : app.translate('runtime.memoryClearAllSuccess', { count: payload?.deleted_count ?? 0 }),
+        app.translate('runtime.memoryClearSuccessTitle'),
+      );
+      await app.reloadMemoryManagementCurrentPage();
+      return;
+    }
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -257,11 +364,15 @@ app.confirmDeleteOrClearItems = async () => {
       ? 'runtime.itemDeleteFailed'
       : state.pendingDeleteWeapon
         ? 'runtime.weaponDeleteFailed'
+        : state.pendingDeleteMemory
+          ? 'runtime.memoryDeleteFailed'
         : state.pendingDeleteWeaponResonance
           ? 'runtime.weaponResonanceDeleteFailed'
         : state.pendingClearWeaponsKeyword !== null
-        ? 'runtime.weaponClearFailed'
-        : 'runtime.itemClearFailed';
+          ? 'runtime.weaponClearFailed'
+          : state.pendingClearMemoriesKeyword !== null
+            ? 'runtime.memoryClearFailed'
+            : 'runtime.itemClearFailed';
     app.closeItemDeleteModal();
     app.openControlModal(app.apiErrorMessage(
       error,
