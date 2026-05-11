@@ -351,6 +351,7 @@ def _apply_awake_slot_update(existing_awake_slot_list: list[int], slot: int, awa
 
 def _is_valid_weapon_resonance_entry(
     weapon_template_id: int,
+    slot: int,
     entry_type: int,
     template_id: int,
     character_id: int,
@@ -360,29 +361,36 @@ def _is_valid_weapon_resonance_entry(
     if not isinstance(resonance_pools, list) or len(resonance_pools) < 3:
         return False
 
+    slot_index = int(slot) - 1
+    if slot_index < 0:
+        return False
+
     if entry_type == 1:
+        attrib_pool_ids = resonance_pools[0] if isinstance(resonance_pools[0], list) else []
+        if slot_index >= len(attrib_pool_ids):
+            return False
+        pool_id = attrib_pool_ids[slot_index]
         attrib_pool_entries_map = get_attrib_pool_entries_map()
-        return any(
-            any(int(entry.get("TemplateId", -1)) == template_id for entry in attrib_pool_entries_map.get(pool_id, []))
-            for pool_id in resonance_pools[0]
-        )
+        return any(int(entry.get("TemplateId", -1)) == template_id for entry in attrib_pool_entries_map.get(pool_id, []))
 
     if entry_type == 2:
+        character_skill_pool_ids = resonance_pools[1] if isinstance(resonance_pools[1], list) else []
+        if slot_index >= len(character_skill_pool_ids):
+            return False
+        pool_id = character_skill_pool_ids[slot_index]
         character_skill_pool_entries_map = get_character_skill_pool_entries_map()
         return any(
-            any(
-                int(entry.get("TemplateId", -1)) == template_id
-                for entry in character_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
-            )
-            for pool_id in resonance_pools[1]
+            int(entry.get("TemplateId", -1)) == template_id
+            for entry in character_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
         )
 
     if entry_type == 3:
+        weapon_skill_pool_ids = resonance_pools[2] if isinstance(resonance_pools[2], list) else []
+        if slot_index >= len(weapon_skill_pool_ids):
+            return False
+        pool_id = weapon_skill_pool_ids[slot_index]
         weapon_skill_pool_entries_map = get_weapon_skill_pool_entries_map()
-        return any(
-            template_id in weapon_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
-            for pool_id in resonance_pools[2]
-        )
+        return template_id in weapon_skill_pool_entries_map.get(pool_id, {}).get(character_id, [])
 
     return False
 
@@ -1343,7 +1351,7 @@ class PlayerEquipsService:
         character_id = int(payload.CharacterId)
         awake_enabled = bool(payload.Awake) if payload.Awake is not None else None
 
-        if not _is_valid_weapon_resonance_entry(template_id, entry_type, template_id_value, character_id):
+        if not _is_valid_weapon_resonance_entry(template_id, slot, entry_type, template_id_value, character_id):
             raise ValueError("equips.resonance_invalid")
 
         new_entry = WeaponResonanceRecord(
@@ -1447,7 +1455,7 @@ class PlayerEquipsService:
         character_id = int(payload.CharacterId)
         awake_enabled = bool(payload.Awake) if payload.Awake is not None else None
 
-        if not _is_valid_weapon_resonance_entry(template_id, entry_type, template_id_value, character_id):
+        if not _is_valid_weapon_resonance_entry(template_id, slot, entry_type, template_id_value, character_id):
             raise ValueError("equips.resonance_invalid")
 
         new_entry = WeaponResonanceRecord(

@@ -765,9 +765,14 @@ app.hasWeaponResonanceConfig = (weaponTemplateId) => {
     : false;
 };
 
-app.buildResonanceEffectCatalog = (weaponTemplateId, characterId) => {
+app.buildResonanceEffectCatalog = (weaponTemplateId, characterId, slot) => {
   const resonanceData = state.equipResonanceMap?.[weaponTemplateId];
   if (!Array.isArray(resonanceData) || resonanceData.length < 3) {
+    return [];
+  }
+
+  const slotIndex = Number(slot) - 1;
+  if (!Number.isInteger(slotIndex) || slotIndex < 0) {
     return [];
   }
 
@@ -782,58 +787,60 @@ app.buildResonanceEffectCatalog = (weaponTemplateId, characterId) => {
   const catalog = [];
   const normalizedCharacterId = Number(characterId);
 
-  const attribPoolIds = resonanceData[0] || [];
-  for (const poolId of attribPoolIds) {
-    const entries = state.attribPoolEntriesMap?.[poolId];
-    if (!Array.isArray(entries)) continue;
-    for (const entry of entries) {
-      if (!entry || typeof entry !== 'object') continue;
-      const templateId = Number(entry.TemplateId);
-      if (!Number.isFinite(templateId)) continue;
-      addIfNew({
-        type: 1,
-        template_id: templateId,
-        name: String(entry.Name ?? ''),
-        description: String(entry.Description ?? ''),
-      });
-    }
-  }
-
-  const charSkillPoolIds = resonanceData[1] || [];
-  for (const poolId of charSkillPoolIds) {
-    const entries = state.characterSkillPoolEntriesMap?.[poolId]?.[normalizedCharacterId];
-    if (!Array.isArray(entries)) continue;
-    for (const entry of entries) {
-      if (!entry || typeof entry !== 'object') continue;
-      const templateId = Number(entry.TemplateId);
-      if (!Number.isFinite(templateId)) continue;
-      addIfNew({
-        type: 2,
-        template_id: templateId,
-        name: String(entry.Name ?? ''),
-        description: String(entry.Description ?? ''),
-      });
-    }
-  }
-
-  const weaponSkillPoolIds = resonanceData[2] || [];
-  if (Number.isFinite(normalizedCharacterId)) {
-    for (const poolId of weaponSkillPoolIds) {
-      const poolEntries = state.weaponSkillPoolEntriesMap?.[poolId];
-      if (!poolEntries || typeof poolEntries !== 'object') continue;
-      const skillIds = poolEntries[normalizedCharacterId];
-      if (!Array.isArray(skillIds)) continue;
-      for (const skillId of skillIds) {
-        const skillNum = Number(skillId);
-        if (!Number.isFinite(skillNum)) continue;
-        const skillEntry = state.weaponSkillEntriesMap?.[skillNum];
-        if (!skillEntry || typeof skillEntry !== 'object') continue;
+  const attribPoolId = Number(resonanceData[0]?.[slotIndex]);
+  if (Number.isFinite(attribPoolId)) {
+    const entries = state.attribPoolEntriesMap?.[attribPoolId];
+    if (Array.isArray(entries)) {
+      for (const entry of entries) {
+        if (!entry || typeof entry !== 'object') continue;
+        const templateId = Number(entry.TemplateId);
+        if (!Number.isFinite(templateId)) continue;
         addIfNew({
-          type: 3,
-          template_id: skillNum,
-          name: String(skillEntry.Name ?? ''),
-          description: String(skillEntry.Description ?? ''),
+          type: 1,
+          template_id: templateId,
+          name: String(entry.Name ?? ''),
+          description: String(entry.Description ?? ''),
         });
+      }
+    }
+  }
+
+  const charSkillPoolId = Number(resonanceData[1]?.[slotIndex]);
+  if (Number.isFinite(charSkillPoolId)) {
+    const entries = state.characterSkillPoolEntriesMap?.[charSkillPoolId]?.[normalizedCharacterId];
+    if (Array.isArray(entries)) {
+      for (const entry of entries) {
+        if (!entry || typeof entry !== 'object') continue;
+        const templateId = Number(entry.TemplateId);
+        if (!Number.isFinite(templateId)) continue;
+        addIfNew({
+          type: 2,
+          template_id: templateId,
+          name: String(entry.Name ?? ''),
+          description: String(entry.Description ?? ''),
+        });
+      }
+    }
+  }
+
+  const weaponSkillPoolId = Number(resonanceData[2]?.[slotIndex]);
+  if (Number.isFinite(normalizedCharacterId) && Number.isFinite(weaponSkillPoolId)) {
+    const poolEntries = state.weaponSkillPoolEntriesMap?.[weaponSkillPoolId];
+    if (poolEntries && typeof poolEntries === 'object') {
+      const skillIds = poolEntries[normalizedCharacterId];
+      if (Array.isArray(skillIds)) {
+        for (const skillId of skillIds) {
+          const skillNum = Number(skillId);
+          if (!Number.isFinite(skillNum)) continue;
+          const skillEntry = state.weaponSkillEntriesMap?.[skillNum];
+          if (!skillEntry || typeof skillEntry !== 'object') continue;
+          addIfNew({
+            type: 3,
+            template_id: skillNum,
+            name: String(skillEntry.Name ?? ''),
+            description: String(skillEntry.Description ?? ''),
+          });
+        }
       }
     }
   }
@@ -883,7 +890,7 @@ app.renderResonanceEffectModalRows = () => {
     return;
   }
 
-  const catalog = app.buildResonanceEffectCatalog(Number(currentItem.TemplateId), characterId);
+  const catalog = app.buildResonanceEffectCatalog(Number(currentItem.TemplateId), characterId, slot);
   if (catalog.length === 0) {
     els.tableBody.innerHTML = '';
     els.emptyState.hidden = false;
@@ -1208,7 +1215,7 @@ app.closeCharacterPickerModal = (confirm) => {
       const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
       const weaponTemplateId = Number(state.currentWeaponDetailItem?.TemplateId);
       if (Number.isFinite(weaponTemplateId)) {
-        const catalog = app.buildResonanceEffectCatalog(weaponTemplateId, selectedId);
+        const catalog = app.buildResonanceEffectCatalog(weaponTemplateId, selectedId, slot);
         const effectState = app.getEffectiveResonanceEffectSelection(slot);
         const currentEffect = effectState.effect
           ? { type: Number(effectState.effect.type), template_id: Number(effectState.effect.template_id) }
