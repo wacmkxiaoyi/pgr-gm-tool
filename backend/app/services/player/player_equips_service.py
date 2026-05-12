@@ -3,7 +3,7 @@ from __future__ import annotations
 import contextlib
 import math
 import time
-from typing import Callable, Literal
+from typing import Literal
 from typing import Any
 
 from bson.int64 import Int64
@@ -12,7 +12,9 @@ from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AddMemoryResponse, AddWeaponResponse, ClearWeaponsResponse, MemoryExtraInfoRecord, MemoryListResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
+from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.equips import (
+    get_breakthrough_levelup_template_map,
     get_equip_awake_template_id_set,
     get_equip_resonance_map,
     get_equip_breakthrough_level_limit_map,
@@ -22,12 +24,12 @@ from backend.app.services.player.equips import (
     get_equip_site_map,
     get_equip_star_map,
 )
-from backend.app.services.player.characters import (
+from backend.app.services.player.player_characters import (
     get_attrib_pool_entries_map,
     get_character_skill_pool_entries_map,
+    get_character_log_name_map,
 )
-from backend.app.services.player.equips.levelup_template import (
-    get_breakthrough_levelup_template_map,
+from backend.app.services.player.levelup_template import (
     get_level_all_exp,
     get_level_from_total_exp,
     get_level_per_exp,
@@ -39,9 +41,6 @@ from backend.app.services.player.equips.weapon import (
     get_weapon_overrun_max_level_map,
     get_weapon_type_name_map,
 )
-from backend.app.services.player.player_profile import get_character_log_name_map
-
-
 CHARACTERS_COLLECTION_NAME = "characters"
 ITEM_PAGE_SIZE = 10
 WeaponSortField = Literal["name", "character", "type", "star", "enhancement"]
@@ -53,29 +52,6 @@ EQUIPS_SCHEMA_PATH = "equips"
 EQUIP_ITEM_SCHEMA_PATH = "equips.0"
 
 
-def _unwrap_bson_numeric(value: Any) -> Any:
-    if isinstance(value, dict):
-        if "$numberLong" in value:
-            return _parse_optional_int(value.get("$numberLong"))
-        if "$numberInt" in value:
-            return _parse_optional_int(value.get("$numberInt"))
-        if "$numberDouble" in value:
-            raw = value.get("$numberDouble")
-            try:
-                return float(raw)
-            except (TypeError, ValueError):
-                return raw
-    return value
-
-
-def _parse_optional_int(value: Any) -> int | None:
-    normalized = _unwrap_bson_numeric(value)
-    try:
-        return int(normalized)
-    except (TypeError, ValueError):
-        return None
-
-
 def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]) -> list[int]:
     if not isinstance(raw_awake_slot_list, list):
         return []
@@ -85,11 +61,11 @@ def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]
     for raw_entry in raw_awake_slot_list:
         slot: int | None = None
         if isinstance(raw_entry, dict):
-            slot = _parse_optional_int(raw_entry.get("_id"))
+            slot = parse_optional_int(raw_entry.get("_id"))
             if slot is None:
-                slot = _parse_optional_int(raw_entry.get("Slot"))
+                slot = parse_optional_int(raw_entry.get("Slot"))
         else:
-            slot = _parse_optional_int(raw_entry)
+            slot = parse_optional_int(raw_entry)
 
         if slot is None or slot not in allowed_slots or slot in seen_slots:
             continue
@@ -104,10 +80,6 @@ def _serialize_awake_slot_list(awake_slot_list: list[int]) -> list[dict[str, int
     return [{"_id": int(slot)} for slot in awake_slot_list if isinstance(slot, int)]
 
 
-def _normalize_weapon_search_keyword(keyword: str | None) -> str:
-    return str(keyword or "").strip().lower()
-
-
 def _get_weapon_search_priority(
     keyword: str,
     weapon_name: str,
@@ -117,15 +89,15 @@ def _get_weapon_search_priority(
     if not keyword:
         return 0
 
-    normalized_weapon_name = str(weapon_name or "").strip().lower()
+    normalized_weapon_name = normalize_search_keyword(weapon_name)
     if keyword in normalized_weapon_name:
         return 0
 
-    normalized_character_name = str(character_name or "").strip().lower()
+    normalized_character_name = normalize_search_keyword(character_name)
     if keyword in normalized_character_name:
         return 1
 
-    normalized_weapon_type_name = str(weapon_type_name or "").strip().lower()
+    normalized_weapon_type_name = normalize_search_keyword(weapon_type_name)
     if keyword in normalized_weapon_type_name:
         return 2
 
@@ -148,23 +120,6 @@ def _is_memory_template_id(template_id: int | None) -> bool:
     return bool(site_value) and site_value != "0"
 
 
-def _normalize_sort_text(value: Any) -> str:
-    return str(value or "").strip().lower()
-
-
-def _descending_text_key(value: str) -> tuple[int, ...]:
-    return tuple(-ord(character) for character in value)
-
-
-def _ordered_text_key(value: Any, sort_order: WeaponSortOrder) -> str | tuple[int, ...]:
-    normalized = _normalize_sort_text(value)
-    if sort_order == "desc":
-        return _descending_text_key(normalized)
-    return normalized
-
-
-def _ordered_number_key(value: int, sort_order: WeaponSortOrder) -> int:
-    return -value if sort_order == "desc" else value
 
 
 def _weapon_enhancement_level(item: WeaponItemRecord, breakthrough_level_limit_map: dict[int, dict[int, int]]) -> int:
@@ -203,38 +158,38 @@ def _weapon_sort_key(
         return (
             search_priority,
             is_unequipped,
-            _ordered_text_key(character_name_map.get(character_id, ""), sort_order),
-            _ordered_text_key(weapon_name, sort_order),
+            ordered_text_key(character_name_map.get(character_id, ""), sort_order),
+            ordered_text_key(weapon_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "type":
         return (
             search_priority,
-            _ordered_text_key(weapon_type_name_map.get(item.TemplateId, ""), sort_order),
-            _ordered_text_key(weapon_name, sort_order),
+            ordered_text_key(weapon_type_name_map.get(item.TemplateId, ""), sort_order),
+            ordered_text_key(weapon_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "star":
         return (
             search_priority,
-            _ordered_number_key(int(weapon_star_map.get(item.TemplateId, 0)), sort_order),
-            _ordered_text_key(weapon_name, sort_order),
+            ordered_number_key(int(weapon_star_map.get(item.TemplateId, 0)), sort_order),
+            ordered_text_key(weapon_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "enhancement":
         return (
             search_priority,
-            _ordered_number_key(_weapon_enhancement_level(item, breakthrough_level_limit_map), sort_order),
-            _ordered_text_key(weapon_name, sort_order),
+            ordered_number_key(_weapon_enhancement_level(item, breakthrough_level_limit_map), sort_order),
+            ordered_text_key(weapon_name, sort_order),
             item.record_id,
         )
 
     return (
         search_priority,
-        _ordered_text_key(weapon_name, sort_order),
+        ordered_text_key(weapon_name, sort_order),
         item.record_id,
     )
 
@@ -277,39 +232,39 @@ def _memory_sort_key(
         return (
             search_priority,
             is_unequipped,
-            _ordered_text_key(character_name_map.get(character_id, ""), sort_order),
-            _ordered_text_key(memory_name, sort_order),
+            ordered_text_key(character_name_map.get(character_id, ""), sort_order),
+            ordered_text_key(memory_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "position":
-        position_value = _parse_optional_int(equip_site_map.get(item.TemplateId)) or 0
+        position_value = parse_optional_int(equip_site_map.get(item.TemplateId)) or 0
         return (
             search_priority,
-            _ordered_number_key(position_value, sort_order),
-            _ordered_text_key(memory_name, sort_order),
+            ordered_number_key(position_value, sort_order),
+            ordered_text_key(memory_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "star":
         return (
             search_priority,
-            _ordered_number_key(int(memory_star_map.get(item.TemplateId, 0)), sort_order),
-            _ordered_text_key(memory_name, sort_order),
+            ordered_number_key(int(memory_star_map.get(item.TemplateId, 0)), sort_order),
+            ordered_text_key(memory_name, sort_order),
             item.record_id,
         )
 
     if sort_by == "enhancement":
         return (
             search_priority,
-            _ordered_number_key(_weapon_enhancement_level(item, breakthrough_level_limit_map), sort_order),
-            _ordered_text_key(memory_name, sort_order),
+            ordered_number_key(_weapon_enhancement_level(item, breakthrough_level_limit_map), sort_order),
+            ordered_text_key(memory_name, sort_order),
             item.record_id,
         )
 
     return (
         search_priority,
-        _ordered_text_key(memory_name, sort_order),
+        ordered_text_key(memory_name, sort_order),
         item.record_id,
     )
 
@@ -321,10 +276,10 @@ def _normalize_weapon_resonance_list(value: Any) -> list[WeaponResonanceRecord]:
             continue
 
         normalized_list.append(WeaponResonanceRecord(
-            Slot=_parse_optional_int(entry.get("Slot")),
-            Type=_parse_optional_int(entry.get("Type")),
-            CharacterId=_parse_optional_int(entry.get("CharacterId")),
-            TemplateId=_parse_optional_int(entry.get("TemplateId")),
+            Slot=parse_optional_int(entry.get("Slot")),
+            Type=parse_optional_int(entry.get("Type")),
+            CharacterId=parse_optional_int(entry.get("CharacterId")),
+            TemplateId=parse_optional_int(entry.get("TemplateId")),
         ))
 
     return normalized_list
@@ -401,20 +356,20 @@ def _normalize_weapon_overrun_data(value: Any) -> WeaponOverrunRecord | None:
 
     active_suits: list[int] = []
     for suit_id in value.get("ActiveSuits") if isinstance(value.get("ActiveSuits"), list) else []:
-        normalized_suit_id = _parse_optional_int(suit_id)
+        normalized_suit_id = parse_optional_int(suit_id)
         if normalized_suit_id is not None:
             active_suits.append(normalized_suit_id)
 
     return WeaponOverrunRecord(
-        Level=_parse_optional_int(value.get("Level")),
+        Level=parse_optional_int(value.get("Level")),
         ActiveSuits=active_suits,
-        ChoseSuit=_parse_optional_int(value.get("ChoseSuit")),
+        ChoseSuit=parse_optional_int(value.get("ChoseSuit")),
     )
 
 
 def _build_weapon_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | None:
-    record_id = _parse_optional_int(raw_equip.get("_id"))
-    template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+    record_id = parse_optional_int(raw_equip.get("_id"))
+    template_id = parse_optional_int(raw_equip.get("TemplateId"))
     if record_id is None or template_id is None or not _is_weapon_template_id(template_id):
         return None
 
@@ -422,18 +377,18 @@ def _build_weapon_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     normalized_item = WeaponItemRecord(
         record_id=record_id,
         TemplateId=template_id,
-        CharacterId=_parse_optional_int(raw_equip.get("CharacterId")) or 0,
-        Level=_parse_optional_int(raw_equip.get("Level")),
-        Exp=_parse_optional_int(raw_equip.get("Exp")),
-        Breakthrough=_parse_optional_int(raw_equip.get("Breakthrough")),
+        CharacterId=parse_optional_int(raw_equip.get("CharacterId")) or 0,
+        Level=parse_optional_int(raw_equip.get("Level")),
+        Exp=parse_optional_int(raw_equip.get("Exp")),
+        Breakthrough=parse_optional_int(raw_equip.get("Breakthrough")),
     )
     normalized_item.EnhancementLevel = _weapon_enhancement_level(normalized_item, breakthrough_level_limit_map)
     return normalized_item
 
 
 def _build_memory_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | None:
-    record_id = _parse_optional_int(raw_equip.get("_id"))
-    template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+    record_id = parse_optional_int(raw_equip.get("_id"))
+    template_id = parse_optional_int(raw_equip.get("TemplateId"))
     if record_id is None or template_id is None or not _is_memory_template_id(template_id):
         return None
 
@@ -441,22 +396,13 @@ def _build_memory_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     normalized_item = WeaponItemRecord(
         record_id=record_id,
         TemplateId=template_id,
-        CharacterId=_parse_optional_int(raw_equip.get("CharacterId")) or 0,
-        Level=_parse_optional_int(raw_equip.get("Level")),
-        Exp=_parse_optional_int(raw_equip.get("Exp")),
-        Breakthrough=_parse_optional_int(raw_equip.get("Breakthrough")),
+        CharacterId=parse_optional_int(raw_equip.get("CharacterId")) or 0,
+        Level=parse_optional_int(raw_equip.get("Level")),
+        Exp=parse_optional_int(raw_equip.get("Exp")),
+        Breakthrough=parse_optional_int(raw_equip.get("Breakthrough")),
     )
     normalized_item.EnhancementLevel = _weapon_enhancement_level(normalized_item, breakthrough_level_limit_map)
     return normalized_item
-
-
-def _matching_uid_query(uid: int) -> dict[str, Any]:
-    return {
-        "$or": [
-            {"_id": {"$in": [uid, Int64(uid), str(uid)]}},
-            {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
-        ],
-    }
 
 
 def _get_next_weapon_record_id(raw_equips: list[Any]) -> int:
@@ -464,7 +410,7 @@ def _get_next_weapon_record_id(raw_equips: list[Any]) -> int:
         current_id
         for raw_equip in raw_equips
         if isinstance(raw_equip, dict)
-        for current_id in [_parse_optional_int(raw_equip.get("_id"))]
+        for current_id in [parse_optional_int(raw_equip.get("_id"))]
         if current_id is not None and current_id > 0
     })
 
@@ -497,19 +443,19 @@ class PlayerEquipsService:
 
     def _get_default_weapon_overrun_level(self) -> int:
         default_value = self._get_characters_schema().build_default(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData.Level")
-        return max(0, int(_parse_optional_int(default_value) or 0))
+        return max(0, int(parse_optional_int(default_value) or 0))
 
     def _serialize_weapon_overrun_data(self, value: Any) -> dict[str, Any]:
         normalized_value = _normalize_weapon_overrun_data(value)
         if normalized_value is None:
             return {}
 
-        level = _parse_optional_int(normalized_value.Level)
-        chose_suit = _parse_optional_int(normalized_value.ChoseSuit)
+        level = parse_optional_int(normalized_value.Level)
+        chose_suit = parse_optional_int(normalized_value.ChoseSuit)
         active_suits = [
             suit_id
             for suit_id in normalized_value.ActiveSuits
-            if _parse_optional_int(suit_id) is not None
+            if parse_optional_int(suit_id) is not None
         ]
 
         if level is None and chose_suit is None and not active_suits:
@@ -590,7 +536,7 @@ class PlayerEquipsService:
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
-            document = await collection.find_one(_matching_uid_query(uid), {"equips": 1})
+            document = await collection.find_one(matching_uid_query(uid), {"equips": 1})
             if not isinstance(document, dict):
                 raise ValueError("equips.equips_missing")
 
@@ -631,7 +577,7 @@ class PlayerEquipsService:
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
-            document = await collection.find_one(_matching_uid_query(uid), {"equips": 1})
+            document = await collection.find_one(matching_uid_query(uid), {"equips": 1})
             if not isinstance(document, dict):
                 raise ValueError("equips.equips_missing")
 
@@ -666,7 +612,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -681,16 +627,16 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                current_record_id = parse_optional_int(raw_equip.get("_id"))
                 if current_record_id != normalized_record_id:
                     continue
 
                 target_exists = True
-                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                template_id = parse_optional_int(raw_equip.get("TemplateId"))
                 if not _is_weapon_template_id(template_id):
                     return False
 
-                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
                 if character_id != 0:
                     raise ValueError("equips.equipped_delete_forbidden")
 
@@ -702,7 +648,7 @@ class PlayerEquipsService:
             remaining_equips = [
                 raw_equip
                 for raw_equip in raw_equips
-                if _parse_optional_int(raw_equip.get("_id")) != normalized_record_id
+                if parse_optional_int(raw_equip.get("_id")) != normalized_record_id
             ]
             normalized_update = self._build_equips_update(remaining_equips)
 
@@ -723,7 +669,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -738,16 +684,16 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                current_record_id = parse_optional_int(raw_equip.get("_id"))
                 if current_record_id != normalized_record_id:
                     continue
 
                 target_exists = True
-                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                template_id = parse_optional_int(raw_equip.get("TemplateId"))
                 if not _is_memory_template_id(template_id):
                     return False
 
-                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
                 if character_id != 0:
                     raise ValueError("equips.equipped_delete_forbidden")
 
@@ -759,7 +705,7 @@ class PlayerEquipsService:
             remaining_equips = [
                 raw_equip
                 for raw_equip in raw_equips
-                if _parse_optional_int(raw_equip.get("_id")) != normalized_record_id
+                if parse_optional_int(raw_equip.get("_id")) != normalized_record_id
             ]
 
             normalized_update = self._build_equips_update(remaining_equips)
@@ -780,7 +726,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -796,7 +742,7 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                current_record_id = parse_optional_int(raw_equip.get("_id"))
                 if current_record_id == normalized_record_id:
                     target_index = index
                     target_equip = dict(raw_equip)
@@ -805,13 +751,13 @@ class PlayerEquipsService:
             if target_index is None or target_equip is None:
                 raise ValueError("equips.not_found")
 
-            template_id = _parse_optional_int(target_equip.get("TemplateId"))
+            template_id = parse_optional_int(target_equip.get("TemplateId"))
             if template_id is None or not _is_weapon_template_id(template_id):
                 raise ValueError("equips.template_invalid")
 
-            current_level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
-            current_exp_total = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
-            current_breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
+            current_level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
+            current_exp_total = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
+            current_breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
 
             breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
             breakthrough_max_map = get_equip_breakthrough_max_map()
@@ -929,7 +875,7 @@ class PlayerEquipsService:
         response_item = WeaponItemRecord(
             record_id=normalized_record_id,
             TemplateId=template_id,
-            CharacterId=_parse_optional_int(target_equip.get("CharacterId")),
+            CharacterId=parse_optional_int(target_equip.get("CharacterId")),
             Level=current_level,
             Exp=response_exp,
             Breakthrough=current_breakthrough,
@@ -944,7 +890,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -960,7 +906,7 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                current_record_id = _parse_optional_int(raw_equip.get("_id"))
+                current_record_id = parse_optional_int(raw_equip.get("_id"))
                 if current_record_id == normalized_record_id:
                     target_index = index
                     target_equip = dict(raw_equip)
@@ -969,13 +915,13 @@ class PlayerEquipsService:
             if target_index is None or target_equip is None:
                 raise ValueError("equips.not_found")
 
-            template_id = _parse_optional_int(target_equip.get("TemplateId"))
+            template_id = parse_optional_int(target_equip.get("TemplateId"))
             if template_id is None or not _is_memory_template_id(template_id):
                 raise ValueError("equips.template_invalid")
 
-            current_level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
-            current_exp_total = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
-            current_breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
+            current_level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
+            current_exp_total = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
+            current_breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
 
             breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
             breakthrough_max_map = get_equip_breakthrough_max_map()
@@ -1090,7 +1036,7 @@ class PlayerEquipsService:
         response_item = WeaponItemRecord(
             record_id=normalized_record_id,
             TemplateId=template_id,
-            CharacterId=_parse_optional_int(target_equip.get("CharacterId")),
+            CharacterId=parse_optional_int(target_equip.get("CharacterId")),
             Level=current_level,
             Exp=response_exp,
             Breakthrough=current_breakthrough,
@@ -1105,7 +1051,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1122,7 +1068,7 @@ class PlayerEquipsService:
             if not isinstance(raw_equip, dict):
                 continue
 
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_equip = raw_equip
                 break
@@ -1131,7 +1077,7 @@ class PlayerEquipsService:
             if not isinstance(raw_equip, dict):
                 continue
 
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 original_target_equip = raw_equip
                 break
@@ -1142,13 +1088,13 @@ class PlayerEquipsService:
         if original_target_equip is None:
             original_target_equip = {}
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
-        breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
-        level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
-        raw_exp = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
+        breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
+        level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
+        raw_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
 
         breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
         max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
@@ -1170,15 +1116,15 @@ class PlayerEquipsService:
             resonance_entries = _normalize_weapon_resonance_list(resonance_raw)
             resonance_info = []
             for entry in resonance_entries:
-                slot = _parse_optional_int(entry.Slot)
+                slot = parse_optional_int(entry.Slot)
                 if slot is None:
                     continue
 
                 resonance_info.append(WeaponResonanceExtraInfoRecord(
                     slot=slot,
-                    type=_parse_optional_int(entry.Type),
-                    template_id=_parse_optional_int(entry.TemplateId),
-                    character_id=_parse_optional_int(entry.CharacterId),
+                    type=parse_optional_int(entry.Type),
+                    template_id=parse_optional_int(entry.TemplateId),
+                    character_id=parse_optional_int(entry.CharacterId),
                 ))
 
         awake_slot_list = _resolve_awake_slot_list(target_equip.get("AwakeSlotList"), template_id, {1, 2, 3})
@@ -1197,9 +1143,9 @@ class PlayerEquipsService:
                 weapon_overrun_data = WeaponOverrunExtraInfoRecord()
             else:
                 weapon_overrun_data = WeaponOverrunExtraInfoRecord(
-                    level=_parse_optional_int(normalized_weapon_overrun_data.Level),
+                    level=parse_optional_int(normalized_weapon_overrun_data.Level),
                     max_level=max_overrun_level,
-                    chose_suit=_parse_optional_int(normalized_weapon_overrun_data.ChoseSuit),
+                    chose_suit=parse_optional_int(normalized_weapon_overrun_data.ChoseSuit),
                 )
 
         return WeaponExtraInfoRecord(
@@ -1223,7 +1169,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1238,7 +1184,7 @@ class PlayerEquipsService:
             if not isinstance(raw_equip, dict):
                 continue
 
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_equip = raw_equip
                 break
@@ -1246,13 +1192,13 @@ class PlayerEquipsService:
         if target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_memory_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
-        breakthrough = max(0, int(_parse_optional_int(target_equip.get("Breakthrough")) or 0))
-        level = max(1, int(_parse_optional_int(target_equip.get("Level")) or 1))
-        raw_exp = max(0, int(_parse_optional_int(target_equip.get("Exp")) or 0))
+        breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
+        level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
+        raw_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
 
         breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
         max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
@@ -1274,15 +1220,15 @@ class PlayerEquipsService:
             resonance_entries = _normalize_weapon_resonance_list(resonance_raw)
             resonance_info = []
             for entry in resonance_entries:
-                slot = _parse_optional_int(entry.Slot)
+                slot = parse_optional_int(entry.Slot)
                 if slot is None or slot not in {1, 2}:
                     continue
 
                 resonance_info.append(WeaponResonanceExtraInfoRecord(
                     slot=slot,
-                    type=_parse_optional_int(entry.Type),
-                    template_id=_parse_optional_int(entry.TemplateId),
-                    character_id=_parse_optional_int(entry.CharacterId),
+                    type=parse_optional_int(entry.Type),
+                    template_id=parse_optional_int(entry.TemplateId),
+                    character_id=parse_optional_int(entry.CharacterId),
                 ))
 
         awake_slot_list = _resolve_awake_slot_list(target_equip.get("AwakeSlotList"), template_id, {1, 2})
@@ -1307,7 +1253,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1325,7 +1271,7 @@ class PlayerEquipsService:
         for index, raw_equip in enumerate(raw_equips):
             if not isinstance(raw_equip, dict):
                 continue
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_index = index
                 target_equip = dict(raw_equip)
@@ -1334,7 +1280,7 @@ class PlayerEquipsService:
         if target_index is None or target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
@@ -1363,7 +1309,7 @@ class PlayerEquipsService:
 
         updated = False
         for i, entry in enumerate(existing_resonance):
-            if _parse_optional_int(entry.Slot) == slot:
+            if parse_optional_int(entry.Slot) == slot:
                 existing_resonance[i] = new_entry
                 updated = True
                 break
@@ -1411,7 +1357,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1429,7 +1375,7 @@ class PlayerEquipsService:
         for index, raw_equip in enumerate(raw_equips):
             if not isinstance(raw_equip, dict):
                 continue
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_index = index
                 target_equip = dict(raw_equip)
@@ -1438,7 +1384,7 @@ class PlayerEquipsService:
         if target_index is None or target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_memory_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
@@ -1466,9 +1412,9 @@ class PlayerEquipsService:
         )
 
         updated = False
-        filtered_resonance = [entry for entry in existing_resonance if _parse_optional_int(entry.Slot) in {1, 2}]
+        filtered_resonance = [entry for entry in existing_resonance if parse_optional_int(entry.Slot) in {1, 2}]
         for i, entry in enumerate(filtered_resonance):
-            if _parse_optional_int(entry.Slot) == slot:
+            if parse_optional_int(entry.Slot) == slot:
                 filtered_resonance[i] = new_entry
                 updated = True
                 break
@@ -1511,7 +1457,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1528,7 +1474,7 @@ class PlayerEquipsService:
         for index, raw_equip in enumerate(raw_equips):
             if not isinstance(raw_equip, dict):
                 continue
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_index = index
                 target_equip = dict(raw_equip)
@@ -1537,7 +1483,7 @@ class PlayerEquipsService:
         if target_index is None or target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
@@ -1548,15 +1494,15 @@ class PlayerEquipsService:
         if weapon_overrun_max_level_map.get(template_id) is None:
             raise ValueError("equips.overrun_not_supported")
 
-        chose_suit = _parse_optional_int(getattr(payload, "chose_suit", None))
-        requested_level = _parse_optional_int(getattr(payload, "level", None))
+        chose_suit = parse_optional_int(getattr(payload, "chose_suit", None))
+        requested_level = parse_optional_int(getattr(payload, "level", None))
         max_overrun_level = weapon_overrun_max_level_map.get(template_id)
         if max_overrun_level is None:
             raise ValueError("equips.overrun_not_supported")
 
         existing_overrun_data = _normalize_weapon_overrun_data(target_equip.get("WeaponOverrunData"))
-        existing_level = _parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
-        existing_chose_suit = _parse_optional_int(existing_overrun_data.ChoseSuit) if existing_overrun_data is not None else None
+        existing_level = parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
+        existing_chose_suit = parse_optional_int(existing_overrun_data.ChoseSuit) if existing_overrun_data is not None else None
 
         resolved_level = requested_level if requested_level is not None else existing_level
         if resolved_level is None:
@@ -1606,7 +1552,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1624,7 +1570,7 @@ class PlayerEquipsService:
         for index, raw_equip in enumerate(raw_equips):
             if not isinstance(raw_equip, dict):
                 continue
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_index = index
                 target_equip = dict(raw_equip)
@@ -1633,7 +1579,7 @@ class PlayerEquipsService:
         if target_index is None or target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
@@ -1645,7 +1591,7 @@ class PlayerEquipsService:
         )
 
         filtered_resonance = [
-            entry for entry in existing_resonance if _parse_optional_int(entry.Slot) != normalized_slot
+            entry for entry in existing_resonance if parse_optional_int(entry.Slot) != normalized_slot
         ]
         if len(filtered_resonance) == len(existing_resonance):
             return False
@@ -1687,7 +1633,7 @@ class PlayerEquipsService:
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1705,7 +1651,7 @@ class PlayerEquipsService:
         for index, raw_equip in enumerate(raw_equips):
             if not isinstance(raw_equip, dict):
                 continue
-            current_record_id = _parse_optional_int(raw_equip.get("_id"))
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
             if current_record_id == normalized_record_id:
                 target_index = index
                 target_equip = dict(raw_equip)
@@ -1714,7 +1660,7 @@ class PlayerEquipsService:
         if target_index is None or target_equip is None:
             raise ValueError("equips.not_found")
 
-        template_id = _parse_optional_int(target_equip.get("TemplateId"))
+        template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_memory_template_id(template_id):
             raise ValueError("equips.template_invalid")
 
@@ -1726,9 +1672,9 @@ class PlayerEquipsService:
         )
 
         filtered_resonance = [
-            entry for entry in existing_resonance if _parse_optional_int(entry.Slot) != normalized_slot and _parse_optional_int(entry.Slot) in {1, 2}
+            entry for entry in existing_resonance if parse_optional_int(entry.Slot) != normalized_slot and parse_optional_int(entry.Slot) in {1, 2}
         ]
-        if len(filtered_resonance) == len([entry for entry in existing_resonance if _parse_optional_int(entry.Slot) in {1, 2}]):
+        if len(filtered_resonance) == len([entry for entry in existing_resonance if parse_optional_int(entry.Slot) in {1, 2}]):
             return False
 
         awake_slot_list = _normalize_awake_slot_list(target_equip.get("AwakeSlotList"), {1, 2})
@@ -1766,13 +1712,13 @@ class PlayerEquipsService:
     ) -> WeaponListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
-        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1792,11 +1738,11 @@ class PlayerEquipsService:
             if not isinstance(raw_equip, dict):
                 continue
 
-            template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
             if not _is_weapon_template_id(template_id):
                 continue
 
-            character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+            character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
             search_priority = _get_weapon_search_priority(
                 normalized_keyword,
                 weapon_name_map.get(template_id, "") if template_id is not None else "",
@@ -1810,7 +1756,7 @@ class PlayerEquipsService:
             if normalized_item is None or template_id is None:
                 continue
 
-            raw_exp = _parse_optional_int(raw_equip.get("Exp"))
+            raw_exp = parse_optional_int(raw_equip.get("Exp"))
             current_breakthrough = max(0, int(normalized_item.Breakthrough or 0))
             template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
             if isinstance(template_stage_map, dict) and normalized_item.Level is not None and raw_exp is not None:
@@ -1856,13 +1802,13 @@ class PlayerEquipsService:
         )
 
     async def clear_unequipped_weapons_by_keyword(self, uid: int, keyword: str) -> ClearWeaponsResponse:
-        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -1880,11 +1826,11 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                template_id = parse_optional_int(raw_equip.get("TemplateId"))
                 if not _is_weapon_template_id(template_id):
                     continue
 
-                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
                 if character_id != 0:
                     continue
 
@@ -1897,7 +1843,7 @@ class PlayerEquipsService:
                 if search_priority is None:
                     continue
 
-                record_id = _parse_optional_int(raw_equip.get("_id"))
+                record_id = parse_optional_int(raw_equip.get("_id"))
                 if record_id is None:
                     continue
 
@@ -1909,7 +1855,7 @@ class PlayerEquipsService:
             remaining_equips = [
                 raw_equip
                 for raw_equip in raw_equips
-                if _parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
+                if parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
             ]
             if len(remaining_equips) == len(raw_equips):
                 return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
@@ -1940,13 +1886,13 @@ class PlayerEquipsService:
     ) -> MemoryListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
-        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
         finally:
@@ -1966,11 +1912,11 @@ class PlayerEquipsService:
             if not isinstance(raw_equip, dict):
                 continue
 
-            template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
             if not _is_memory_template_id(template_id):
                 continue
 
-            character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+            character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
             search_priority = _get_memory_search_priority(
                 normalized_keyword,
                 memory_name_map.get(template_id, "") if template_id is not None else "",
@@ -1983,7 +1929,7 @@ class PlayerEquipsService:
             if normalized_item is None or template_id is None:
                 continue
 
-            raw_exp = _parse_optional_int(raw_equip.get("Exp"))
+            raw_exp = parse_optional_int(raw_equip.get("Exp"))
             current_breakthrough = max(0, int(normalized_item.Breakthrough or 0))
             template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
             if isinstance(template_stage_map, dict) and normalized_item.Level is not None and raw_exp is not None:
@@ -2027,13 +1973,13 @@ class PlayerEquipsService:
         )
 
     async def clear_unequipped_memories_by_keyword(self, uid: int, keyword: str) -> ClearWeaponsResponse:
-        normalized_keyword = _normalize_weapon_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
             collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
             document = await collection.find_one(
-                _matching_uid_query(uid),
+                matching_uid_query(uid),
                 {"equips": 1},
             )
 
@@ -2050,11 +1996,11 @@ class PlayerEquipsService:
                 if not isinstance(raw_equip, dict):
                     continue
 
-                template_id = _parse_optional_int(raw_equip.get("TemplateId"))
+                template_id = parse_optional_int(raw_equip.get("TemplateId"))
                 if not _is_memory_template_id(template_id):
                     continue
 
-                character_id = _parse_optional_int(raw_equip.get("CharacterId")) or 0
+                character_id = parse_optional_int(raw_equip.get("CharacterId")) or 0
                 if character_id != 0:
                     continue
 
@@ -2066,7 +2012,7 @@ class PlayerEquipsService:
                 if search_priority is None:
                     continue
 
-                record_id = _parse_optional_int(raw_equip.get("_id"))
+                record_id = parse_optional_int(raw_equip.get("_id"))
                 if record_id is None:
                     continue
 
@@ -2078,7 +2024,7 @@ class PlayerEquipsService:
             remaining_equips = [
                 raw_equip
                 for raw_equip in raw_equips
-                if _parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
+                if parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
             ]
             if len(remaining_equips) == len(raw_equips):
                 return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)

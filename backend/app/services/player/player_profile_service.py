@@ -10,6 +10,7 @@ from backend.app.db import create_mongo_client
 from backend.app.db.models import PlayerProfileRecord, UpdatePlayerProfilePayload
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_items_service import PlayerItemsService
+from backend.app.services.player.utils import parse_optional_int, parse_optional_string
 
 
 PLAYER_COLLECTION_NAME = "players"
@@ -39,37 +40,6 @@ PLAYER_DOCUMENT_FIELD_PATHS = {
     "use_background_id": PLAYER_BACKGROUND_ID_FIELD,
 }
 PLAYER_DATA_SCHEMA_PATH = "player_data"
-
-
-def _unwrap_bson_numeric(value: Any) -> Any:
-    if isinstance(value, dict):
-        if "$numberLong" in value:
-            return _parse_optional_int(value.get("$numberLong"))
-        if "$numberInt" in value:
-            return _parse_optional_int(value.get("$numberInt"))
-        if "$numberDouble" in value:
-            raw = value.get("$numberDouble")
-            try:
-                return float(raw)
-            except (TypeError, ValueError):
-                return raw
-    return value
-
-
-def _parse_optional_int(value: Any) -> int | None:
-    normalized = _unwrap_bson_numeric(value)
-    try:
-        return int(normalized)
-    except (TypeError, ValueError):
-        return None
-
-
-def _parse_optional_string(value: Any) -> str | None:
-    if value is None:
-        return None
-    normalized = _unwrap_bson_numeric(value)
-    text = str(normalized)
-    return text if text else None
 
 
 class PlayerProfileService:
@@ -175,7 +145,7 @@ class PlayerProfileService:
                     if not isinstance(raw_item, dict):
                         continue
 
-                    current_item_id = _parse_optional_int(raw_item.get("_id"))
+                    current_item_id = parse_optional_int(raw_item.get("_id"))
                     if current_item_id != item_id:
                         continue
 
@@ -230,21 +200,21 @@ class PlayerProfileService:
         if not isinstance(player_data, dict):
             return None
 
-        normalized_uid = _parse_optional_int(player_data.get("_id"))
+        normalized_uid = parse_optional_int(player_data.get("_id"))
         if normalized_uid is None:
             return None
 
-        head_portrait_id = _parse_optional_int(player_data.get("CurrHeadPortraitId"))
-        head_frame_id = _parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
-        use_background_id = _parse_optional_int(normalized_document.get(PLAYER_BACKGROUND_ID_FIELD))
+        head_portrait_id = parse_optional_int(player_data.get("CurrHeadPortraitId"))
+        head_frame_id = parse_optional_int(player_data.get(PLAYER_HEAD_FRAME_ID_FIELD))
+        use_background_id = parse_optional_int(normalized_document.get(PLAYER_BACKGROUND_ID_FIELD))
         inventory_quantities = await self._items_service.get_inventory_quantities(uid)
 
         return PlayerProfileRecord(
             uid=normalized_uid,
-            name=_parse_optional_string(player_data.get("Name")),
-            gender=_parse_optional_int(player_data.get("Gender")),
-            level=_parse_optional_int(player_data.get("Level")),
-            likes=_parse_optional_int(player_data.get("Likes")),
+            name=parse_optional_string(player_data.get("Name")),
+            gender=parse_optional_int(player_data.get("Gender")),
+            level=parse_optional_int(player_data.get("Level")),
+            likes=parse_optional_int(player_data.get("Likes")),
             exp=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["exp"], 0),
             money=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["money"], 0),
             serum=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["serum"], 0),

@@ -14,6 +14,7 @@ from backend.app.apis.schemas import (
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
+    CharacterExtraInfoResponse,
     CharacterManagementListResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
@@ -58,21 +59,23 @@ from backend.app.services.player.equips import (
     get_equip_site_map,
     get_equip_star_map,
 )
+from backend.app.services.player.equips.constants import EQUIPPABLE_MEMORY_NUMS
 from backend.app.services.player.equips.weapon import (
     get_weapon_overrun_suit_entries_map,
     get_weapon_skill_entries_map,
     get_weapon_skill_pool_entries_map,
     get_weapon_type_name_map,
 )
-from backend.app.services.player.characters import (
+from backend.app.services.player.player_characters import (
     get_attrib_pool_entries_map,
+    get_character_head_icon_url_map,
     get_character_grade_name_map,
+    get_character_log_name_map,
     get_character_skill_pool_entries_map,
+    get_character_trust_exp_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
 from backend.app.services.player.player_profile import (
-    get_character_head_icon_url_map,
-    get_character_log_name_map,
     get_player_background_name_map,
     get_player_background_url_map,
     get_player_level_allowed_exp_max,
@@ -137,18 +140,20 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
         "equip_name_map": get_equip_name_map(),
-        "weapon_type_name_map": get_weapon_type_name_map(),
         "equip_star_map": get_equip_star_map(),
         "equip_site_map": get_equip_site_map(),
+        "equippable_memory_nums": EQUIPPABLE_MEMORY_NUMS,
         "equip_icon_url_map": get_equip_icon_url_map(),
-        "character_log_name_map": get_character_log_name_map(),
-        "character_head_icon_url_map": get_character_head_icon_url_map(),
+        "weapon_type_name_map": get_weapon_type_name_map(),
         "weapon_skill_entries_map": get_weapon_skill_entries_map(),
         "weapon_overrun_suit_entries_map": get_weapon_overrun_suit_entries_map() if supports_weapon_overrun else None,
         "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
         "attrib_pool_entries_map": get_attrib_pool_entries_map(),
+        "character_log_name_map": get_character_log_name_map(),
+        "character_head_icon_url_map": get_character_head_icon_url_map(),
         "character_skill_pool_entries_map": get_character_skill_pool_entries_map(),
         "character_grade_name_map": get_character_grade_name_map(),
+        "character_trust_exp_map": get_character_trust_exp_map(),
         "equip_resonance_map": get_equip_resonance_map(),
     })
 
@@ -642,6 +647,32 @@ async def set_selected_database_character_support(
 
     result = SetCharacterSupportDomainResponse(record_id=record_id, updated=True)
     return SetCharacterSupportResponse.model_validate(result.model_dump())
+
+
+@router.get("/database-characters/selected/{record_id}/extra-info", response_model=CharacterExtraInfoResponse, response_model_exclude_none=True)
+async def get_selected_database_character_extra_info(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> CharacterExtraInfoResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        extra_info = await characters_service.get_character_extra_info(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        raise
+
+    return CharacterExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
 @router.get("/database-memories/selected", response_model=MemoryListResponse, response_model_exclude_none=True)

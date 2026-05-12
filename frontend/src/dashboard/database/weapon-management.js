@@ -2005,6 +2005,14 @@ app.populateWeaponDetailCard = (item) => {
   const skillDescription = app.stripMarkupText(app.resolveWeaponSkillDescription(templateId));
   const hasSkill = !isMemoryMode && Boolean(skillName);
   const hasResonanceConfig = app.hasWeaponResonanceConfig(templateId);
+  const stageMap = extraInfo?.breakthrough_level_limit_map && typeof extraInfo.breakthrough_level_limit_map === 'object'
+    ? extraInfo.breakthrough_level_limit_map
+    : null;
+  const maxBreakthrough = app.getMaxNumericMapKey(stageMap);
+  const currentBreakthroughLevelLimit = Number.isFinite(Number(stageMap?.[breakthrough]))
+    ? Number(stageMap[breakthrough])
+    : null;
+  const maxBreakthroughTier = Math.min(Math.max(Number.isFinite(maxBreakthrough) ? maxBreakthrough : 0, 0), 4);
 
   state.currentWeaponDetailItem = item;
 
@@ -2074,24 +2082,30 @@ app.populateWeaponDetailCard = (item) => {
   }
 
   if (weaponDetailBreakthrough instanceof HTMLElement) {
-    weaponDetailBreakthrough.textContent = breakthrough;
-    weaponDetailBreakthrough.className = `weapon-detail-stat-value weapon-detail-bt-tier-${btTier}`;
+    weaponDetailBreakthrough.innerHTML = app.renderCompositeStatValue({
+      currentValue: breakthrough,
+      maxValue: maxBreakthrough,
+      currentClass: `weapon-detail-bt-tier-${btTier}`,
+      maxClass: Number.isFinite(maxBreakthrough) ? `weapon-detail-bt-tier-${maxBreakthroughTier}` : '',
+    });
+    weaponDetailBreakthrough.className = 'weapon-detail-stat-value';
     weaponDetailBreakthrough.classList.add('is-editable');
     weaponDetailBreakthrough.setAttribute('tabindex', '0');
     weaponDetailBreakthrough.setAttribute('role', 'button');
-    weaponDetailBreakthrough.dataset.weaponBtMax = Number.isFinite(Number(extraInfo?.max_breakthrough)) ? String(extraInfo.max_breakthrough) : '0';
+    weaponDetailBreakthrough.dataset.weaponBtMax = Number.isFinite(maxBreakthrough) ? String(maxBreakthrough) : '0';
     weaponDetailBreakthrough.dataset.weaponBtCurrent = String(breakthrough);
   }
 
   if (weaponDetailLevel instanceof HTMLElement) {
-    weaponDetailLevel.textContent = level !== null ? String(level) : '--';
+    weaponDetailLevel.innerHTML = app.renderCompositeStatValue({
+      currentValue: level,
+      maxValue: currentBreakthroughLevelLimit,
+    });
     weaponDetailLevel.className = 'weapon-detail-stat-value is-editable';
     weaponDetailLevel.setAttribute('tabindex', level !== null ? '0' : '-1');
     weaponDetailLevel.setAttribute('role', level !== null ? 'button' : '');
-    const stageMap = extraInfo?.breakthrough_level_limit_map;
-    const levelLimit = stageMap?.[breakthrough];
     weaponDetailLevel.dataset.weaponLevelMin = '1';
-    weaponDetailLevel.dataset.weaponLevelMax = Number.isFinite(Number(levelLimit)) ? String(levelLimit) : '0';
+    weaponDetailLevel.dataset.weaponLevelMax = Number.isFinite(currentBreakthroughLevelLimit) ? String(currentBreakthroughLevelLimit) : '0';
     weaponDetailLevel.dataset.weaponLevelCurrent = level !== null ? String(level) : '';
   }
 

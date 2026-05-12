@@ -1,47 +1,16 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from pathlib import Path
 
+from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, ROLE_WAFER_BAG_ASSET_PREFIX, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
+from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
-
-from backend.app.services.player.equips import EQUIP_TSV_PATH
-
-
-ARCHIVE_WEAPON_GROUP_TSV_PATH = Path("assets/ArchiveWeaponGroup.tsv")
-WEAPON_SKILL_TSV_PATH = Path("assets/WeaponSkill.tsv")
-WEAPON_SKILL_POOL_TSV_PATH = Path("assets/WeaponSkillPool.tsv")
-EQUIP_SUIT_TSV_PATH = Path("assets/EquipSuit.tsv")
-WEAPON_OVERRUN_TSV_PATH = Path("assets/WeaponOverrun.tsv")
-ROLE_WAFER_BAG_ASSET_PREFIX = "/assets/rolewaferbag/"
-
-
-def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
-    filename = Path(str(raw_path).strip()).name.strip().lower()
-    if not filename:
-        return None
-    return f"{prefix}{filename}"
 
 
 @lru_cache(maxsize=1)
 def get_weapon_group_name_map() -> dict[int, str]:
     reader = TSVReader(ARCHIVE_WEAPON_GROUP_TSV_PATH, typed=True)
-    raw_group_name_map = reader.get_maps("Id", "GroupName")[0]
-
-    group_name_map: dict[int, str] = {}
-    for group_id_raw, group_name_raw in raw_group_name_map.items():
-        try:
-            group_id = int(group_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        group_name = str(group_name_raw).strip()
-        if not group_name:
-            continue
-
-        group_name_map[group_id] = group_name
-
-    return group_name_map
+    return normalize_int_text_map(reader.get_maps("Id", "GroupName")[0])
 
 
 @lru_cache(maxsize=1)
@@ -70,14 +39,12 @@ def get_weapon_type_name_map() -> dict[int, str]:
 @lru_cache(maxsize=1)
 def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(WEAPON_SKILL_TSV_PATH, typed=True)
+    skill_table = reader.get_sub_table("Id", ["Name", "Description"])
     normalized_map: dict[int, dict[str, str]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
+    for raw_id, row in skill_table.items():
         try:
-            skill_id = int(row.get("Id"))
+            skill_id = int(raw_id)
         except (TypeError, ValueError):
             continue
 
@@ -89,36 +56,24 @@ def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
     return normalized_map
 
 
-def _parse_int(value: object) -> int | None:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return None
-
-
 @lru_cache(maxsize=1)
 def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
     reader = TSVReader(WEAPON_SKILL_POOL_TSV_PATH, typed=True)
+    skill_columns = [
+        column
+        for column in reader.data[0].keys()
+        if str(column).startswith("SkillId[")
+    ] if reader.data else []
+    rows = reader.select(["PoolId", "CharacterId", *skill_columns])
     normalized_map: dict[int, dict[int, list[int]]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        pool_id = _parse_int(row.get("PoolId"))
-        character_id = _parse_int(row.get("CharacterId"))
+    for row in rows:
+        pool_id = parse_int(row.get("PoolId"))
+        character_id = parse_int(row.get("CharacterId"))
         if pool_id is None or character_id is None:
             continue
 
-        skill_ids: list[int] = []
-        for column_name, raw_value in row.items():
-            if not str(column_name).startswith("SkillId["):
-                continue
-
-            skill_id = _parse_int(raw_value)
-            if skill_id is None:
-                continue
-            skill_ids.append(skill_id)
+        skill_ids = extract_int_list(row, skill_columns)
 
         if not skill_ids:
             continue
@@ -131,16 +86,10 @@ def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
 @lru_cache(maxsize=1)
 def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
+    suit_table = reader.get_sub_table("Id", ["Name", "SkillDescription", "WaferBagPath"])
     normalized_map: dict[int, dict[str, str]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        suit_id_raw = row.get("Id")
-        if suit_id_raw == "" or suit_id_raw is None:
-            continue
-
+    for suit_id_raw, row in suit_table.items():
         try:
             suit_id = int(suit_id_raw)
         except (TypeError, ValueError):
@@ -149,7 +98,7 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
         normalized_map[suit_id] = {
             "Name": str(row.get("Name") or "").strip(),
             "SkillDescription": str(row.get("SkillDescription") or "").strip(),
-            "WaferBagPath": _normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
+            "WaferBagPath": normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
         }
 
     return normalized_map
@@ -157,22 +106,15 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
 @lru_cache(maxsize=1)
 def get_weapon_overrun_suit_equip_ids_map() -> dict[int, dict[int, int]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
+    raw_equip_ids_map = reader.get_maps("Id", "EquipIds")[0]
     normalized_map: dict[int, dict[int, int]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        suit_id_raw = row.get("Id")
-        if suit_id_raw == "" or suit_id_raw is None:
-            continue
-
+    for suit_id_raw, equip_ids_raw in raw_equip_ids_map.items():
         try:
             suit_id = int(suit_id_raw)
         except (TypeError, ValueError):
             continue
 
-        equip_ids_raw = row.get("EquipIds")
         if equip_ids_raw == "" or equip_ids_raw is None:
             continue
 
@@ -216,14 +158,12 @@ def get_weapon_overrun_suit_equip_ids_map() -> dict[int, dict[int, int]]:
 @lru_cache(maxsize=1)
 def get_weapon_overrun_max_level_map() -> dict[int, int]:
     reader = TSVReader(WEAPON_OVERRUN_TSV_PATH, typed=True)
+    rows = reader.select(["WeaponId", "Level"])
     weapon_max_level_map: dict[int, int] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        weapon_id = _parse_int(row.get("WeaponId"))
-        level = _parse_int(row.get("Level"))
+    for row in rows:
+        weapon_id = parse_int(row.get("WeaponId"))
+        level = parse_int(row.get("Level"))
         if weapon_id is None or level is None:
             continue
 

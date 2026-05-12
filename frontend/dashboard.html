@@ -807,6 +807,121 @@
       </section>
     </div>
 
+    <div class="login-modal" hidden id="character-detail-modal">
+      <div class="login-modal-backdrop" data-character-detail-close></div>
+      <section class="character-detail-card" role="dialog" aria-modal="true" aria-labelledby="character-detail-name" tabindex="-1">
+        <div class="character-detail-hero">
+          <div class="character-detail-main-icon-shell">
+            <div class="character-detail-main-icon-stack">
+              <img class="character-detail-main-icon" id="character-detail-main-icon" src="" alt="">
+              <span class="character-detail-main-fashion-icon" id="character-detail-main-fashion-icon" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="character-detail-main-panel">
+            <div class="character-detail-title-row">
+              <div class="character-detail-title-copy">
+                <div class="character-detail-name-line">
+                  <h3 class="character-detail-name" id="character-detail-name">--</h3>
+                  <span class="character-detail-evolution" id="character-detail-evolution">--</span>
+                </div>
+              </div>
+              <button class="status-action-button status-action-button-stop character-detail-max-button" type="button" id="character-detail-max-all" data-i18n="dashboard.characterDetailMaxAll">一键全满</button>
+            </div>
+            <div class="character-detail-stats-grid">
+              <div class="character-detail-stat-card">
+                <span class="character-detail-stat-label" data-i18n="dashboard.characterDetailPromote">Promote</span>
+                <strong class="character-detail-stat-value" id="character-detail-grade">--</strong>
+              </div>
+              <div class="character-detail-stat-card">
+                <span class="character-detail-stat-label" data-i18n="dashboard.characterDetailAwaken">Awaken</span>
+                <strong class="character-detail-stat-value" id="character-detail-awaken">--</strong>
+              </div>
+              <div class="character-detail-stat-card">
+                <span class="character-detail-stat-label" data-i18n="dashboard.characterDetailLevel">Level</span>
+                <strong class="character-detail-stat-value" id="character-detail-level">--</strong>
+              </div>
+              <div class="character-detail-stat-card">
+                <span class="character-detail-stat-label" data-i18n="dashboard.characterDetailTrust">Trust</span>
+                <strong class="character-detail-stat-value" id="character-detail-trust">--</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="character-detail-section-grid">
+          <section class="character-detail-section character-detail-section-wide">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailInformation">Information</span></div>
+            <div class="character-detail-information-body" id="character-detail-information"></div>
+          </section>
+
+          <section class="character-detail-section character-detail-section-wide">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailFashions">Fashions</span></div>
+            <div class="character-detail-fashion-grid" id="character-detail-fashions"></div>
+          </section>
+
+          <section class="character-detail-section">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailWeapon">Weapon</span></div>
+            <div class="character-detail-single-slot" id="character-detail-weapon">
+              <div class="character-detail-slot character-detail-slot-medium is-empty"></div>
+            </div>
+          </section>
+
+          <section class="character-detail-section">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailPet">Pet</span></div>
+            <div class="character-detail-single-slot" id="character-detail-pet">
+              <div class="character-detail-slot character-detail-slot-medium is-empty"></div>
+            </div>
+          </section>
+
+          <section class="character-detail-section character-detail-section-wide">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailMemories">Memories</span></div>
+            <div class="character-detail-memory-grid" id="character-detail-memories">
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+              <div class="character-detail-slot character-detail-slot-small is-empty"></div>
+            </div>
+          </section>
+
+          <section class="character-detail-section character-detail-section-wide">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailSkills">Skills</span></div>
+            <div class="character-detail-skill-table-shell">
+              <table class="character-detail-skill-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="dashboard.characterDetailSkillName">Skill</th>
+                    <th data-i18n="dashboard.characterDetailSkillLevel">Level</th>
+                    <th data-i18n="dashboard.characterDetailSkillName">Skill</th>
+                    <th data-i18n="dashboard.characterDetailSkillLevel">Level</th>
+                  </tr>
+                </thead>
+                <tbody id="character-detail-skills-body"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="character-detail-section character-detail-section-wide">
+            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailEnhanceSkills">Enhanced Skills</span></div>
+            <div class="character-detail-skill-table-shell">
+              <table class="character-detail-skill-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="dashboard.characterDetailSkillName">Skill</th>
+                    <th data-i18n="dashboard.characterDetailSkillLevel">Level</th>
+                    <th data-i18n="dashboard.characterDetailSkillName">Skill</th>
+                    <th data-i18n="dashboard.characterDetailSkillLevel">Level</th>
+                  </tr>
+                </thead>
+                <tbody id="character-detail-enhance-skills-body"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+
     <div class="login-modal" hidden id="memory-add-modal">
       <div class="login-modal-backdrop" data-memory-add-close></div>
       <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="memory-add-title" aria-describedby="memory-add-description">
@@ -955,6 +1070,8 @@
         </div>
       </section>
     </div>
+
+    <div class="character-detail-equip-tooltip" id="character-detail-equip-tooltip" hidden></div>
 
     <script type="module" src="./src/dashboard.js"></script>
   </body>

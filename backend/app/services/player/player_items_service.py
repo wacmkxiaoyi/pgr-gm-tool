@@ -13,6 +13,7 @@ from backend.app.db import create_mongo_client
 from backend.app.db.models import InventoryItemRecord, InventoryListResponse
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.utils import normalize_search_keyword, parse_optional_int
 
 
 INVENTORY_COLLECTION_NAME = "inventory"
@@ -23,33 +24,6 @@ InventorySortField = Literal["item_id", "name", "quantity"]
 InventorySortOrder = Literal["asc", "desc"]
 INVENTORY_ITEMS_SCHEMA_PATH = "items"
 INVENTORY_ITEM_SCHEMA_PATH = "items.0"
-
-
-def _unwrap_bson_numeric(value: Any) -> Any:
-    if isinstance(value, dict):
-        if "$numberLong" in value:
-            return _parse_optional_int(value.get("$numberLong"))
-        if "$numberInt" in value:
-            return _parse_optional_int(value.get("$numberInt"))
-        if "$numberDouble" in value:
-            raw = value.get("$numberDouble")
-            try:
-                return float(raw)
-            except (TypeError, ValueError):
-                return raw
-    return value
-
-
-def _parse_optional_int(value: Any) -> int | None:
-    normalized = _unwrap_bson_numeric(value)
-    try:
-        return int(normalized)
-    except (TypeError, ValueError):
-        return None
-
-
-def _normalize_item_search_keyword(keyword: str | None) -> str:
-    return str(keyword or "").strip().lower()
 
 
 def _is_item_id_protected(item_id: int) -> bool:
@@ -126,7 +100,7 @@ class PlayerItemsService:
     ) -> InventoryListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
-        normalized_keyword = _normalize_item_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
@@ -146,8 +120,8 @@ class PlayerItemsService:
             if not isinstance(raw_item, dict):
                 continue
 
-            item_id = _parse_optional_int(raw_item.get("_id"))
-            quantity = _parse_optional_int(raw_item.get("Count"))
+            item_id = parse_optional_int(raw_item.get("_id"))
+            quantity = parse_optional_int(raw_item.get("Count"))
             if item_id is None or quantity is None:
                 continue
 
@@ -197,7 +171,7 @@ class PlayerItemsService:
         return result.modified_count > 0
 
     async def clear_inventory_items_by_keyword(self, uid: int, keyword: str) -> int:
-        normalized_keyword = _normalize_item_search_keyword(keyword)
+        normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
         try:
@@ -214,7 +188,7 @@ class PlayerItemsService:
                 if not isinstance(raw_item, dict):
                     continue
 
-                item_id = _parse_optional_int(raw_item.get("_id"))
+                item_id = parse_optional_int(raw_item.get("_id"))
                 if item_id is None or _is_item_id_protected(item_id):
                     continue
 
@@ -255,7 +229,7 @@ class PlayerItemsService:
             for raw_item in raw_items:
                 if not isinstance(raw_item, dict):
                     continue
-                current_item_id = _parse_optional_int(raw_item.get("_id"))
+                current_item_id = parse_optional_int(raw_item.get("_id"))
                 if current_item_id != item_id:
                     continue
                 raw_item["Count"] = Int64(quantity)
@@ -293,7 +267,7 @@ class PlayerItemsService:
             for raw_item in raw_items:
                 if not isinstance(raw_item, dict):
                     continue
-                item_id = _parse_optional_int(raw_item.get("_id"))
+                item_id = parse_optional_int(raw_item.get("_id"))
                 if item_id is None:
                     continue
                 existing_item_by_id[item_id] = raw_item
@@ -305,7 +279,7 @@ class PlayerItemsService:
                 quantity = int(item["quantity"])
 
                 if item_id in existing_item_by_id:
-                    current_quantity = _parse_optional_int(existing_item_by_id[item_id].get("Count")) or 0
+                    current_quantity = parse_optional_int(existing_item_by_id[item_id].get("Count")) or 0
                     existing_item_by_id[item_id]["Count"] = Int64(current_quantity + quantity)
                     updated_count += 1
                     continue
@@ -354,8 +328,8 @@ class PlayerItemsService:
             if not isinstance(raw_item, dict):
                 continue
 
-            item_id = _parse_optional_int(raw_item.get("_id"))
-            quantity = _parse_optional_int(raw_item.get("Count"))
+            item_id = parse_optional_int(raw_item.get("_id"))
+            quantity = parse_optional_int(raw_item.get("Count"))
             if item_id is None or quantity is None:
                 continue
 

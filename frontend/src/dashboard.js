@@ -64,6 +64,7 @@ const initGlobalKeyboardShortcuts = () => {
       app.closeLogoutConfirmModal();
       app.closePlayerPortraitPicker();
       app.closeWeaponDetailModal?.();
+      app.closeCharacterDetailModal?.();
     }
   });
 };

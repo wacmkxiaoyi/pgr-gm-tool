@@ -401,7 +401,7 @@
             },
             "IsLock": {
               "type": "boolean",
-              "default": false
+              "default": true
             }
           }
         },

@@ -1,24 +1,11 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from pathlib import Path
 
+from backend.app.services.player.constants import ICON_TOOLS_ASSET_PREFIX
+from backend.app.services.player.equips.constants import EQUIP_AWAKE_TSV_PATH, EQUIP_BREAK_THROUGH_TSV_PATH, EQUIP_RESONANCE_TSV_PATH, EQUIP_RES_TSV_PATH, EQUIP_TSV_PATH
+from backend.app.services.player.utils import extract_int_list, normalize_asset_path
 from backend.app.utils.tsv_reader import TSVReader
-
-
-EQUIP_TSV_PATH = Path("assets/Equip.tsv")
-EQUIP_RES_TSV_PATH = Path("assets/EquipRes.tsv")
-EQUIP_BREAK_THROUGH_TSV_PATH = Path("assets/EquipBreakThrough.tsv")
-EQUIP_RESONANCE_TSV_PATH = Path("assets/EquipResonance.tsv")
-EQUIP_AWAKE_TSV_PATH = Path("assets/EquipAwake.tsv")
-ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
-
-
-def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
-    filename = Path(str(raw_path).strip()).name.strip().lower()
-    if not filename:
-        return None
-    return f"{prefix}{filename}"
 
 
 @lru_cache(maxsize=1)
@@ -105,7 +92,7 @@ def get_equip_icon_url_map() -> dict[int, str]:
         except (TypeError, ValueError):
             continue
 
-        asset_path = _normalize_asset_path(str(asset_path_raw), ICON_TOOLS_ASSET_PREFIX)
+        asset_path = normalize_asset_path(str(asset_path_raw), ICON_TOOLS_ASSET_PREFIX)
         if asset_path is None:
             continue
 
@@ -117,12 +104,10 @@ def get_equip_icon_url_map() -> dict[int, str]:
 @lru_cache(maxsize=1)
 def get_equip_breakthrough_level_limit_map() -> dict[int, dict[int, int]]:
     reader = TSVReader(EQUIP_BREAK_THROUGH_TSV_PATH, typed=True)
+    rows = reader.select(["EquipId", "Times", "LevelLimit"])
     normalized_map: dict[int, dict[int, int]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
+    for row in rows:
         try:
             equip_id = int(row.get("EquipId"))
             breakthrough_times = int(row.get("Times"))
@@ -159,58 +144,25 @@ def get_equip_breakthrough_max_map() -> dict[int, dict[str, int]]:
 @lru_cache(maxsize=1)
 def get_equip_resonance_map() -> dict[int, list[list[int]]]:
     reader = TSVReader(EQUIP_RESONANCE_TSV_PATH, typed=True)
+    attrib_columns = [f"AttribPoolId[{idx}]" for idx in (1, 2, 3)]
+    character_skill_columns = [f"CharacterSkillPoolId[{idx}]" for idx in (1, 2, 3)]
+    weapon_skill_columns = [f"WeaponSkillPoolId[{idx}]" for idx in (1, 2, 3)]
+    resonance_table = reader.get_sub_table(
+        "Id",
+        [*attrib_columns, *character_skill_columns, *weapon_skill_columns],
+    )
     normalized_map: dict[int, list[list[int]]] = {}
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        raw_id = row.get("Id")
+    for raw_id, row in resonance_table.items():
         try:
             equip_id = int(raw_id)
         except (TypeError, ValueError):
             continue
 
-        attrib_pool_ids: list[int] = []
-        for idx in (1, 2, 3):
-            attrib_col = f"AttribPoolId[{idx}]"
-            raw_val = row.get(attrib_col)
-            if isinstance(raw_val, int):
-                attrib_pool_ids.append(raw_val)
-            elif isinstance(raw_val, str) and raw_val.strip():
-                try:
-                    attrib_pool_ids.append(int(raw_val.strip()))
-                except (TypeError, ValueError):
-                    pass
-
-        character_skill_pool_ids: list[int] = []
-        for idx in (1, 2, 3):
-            skill_col = f"CharacterSkillPoolId[{idx}]"
-            raw_val = row.get(skill_col)
-            if isinstance(raw_val, int):
-                character_skill_pool_ids.append(raw_val)
-            elif isinstance(raw_val, str) and raw_val.strip():
-                try:
-                    character_skill_pool_ids.append(int(raw_val.strip()))
-                except (TypeError, ValueError):
-                    pass
-
-        weapon_skill_pool_ids: list[int] = []
-        for idx in (1, 2, 3):
-            weapon_col = f"WeaponSkillPoolId[{idx}]"
-            raw_val = row.get(weapon_col)
-            if isinstance(raw_val, int):
-                weapon_skill_pool_ids.append(raw_val)
-            elif isinstance(raw_val, str) and raw_val.strip():
-                try:
-                    weapon_skill_pool_ids.append(int(raw_val.strip()))
-                except (TypeError, ValueError):
-                    pass
-
         normalized_map[equip_id] = [
-            attrib_pool_ids,
-            character_skill_pool_ids,
-            weapon_skill_pool_ids,
+            extract_int_list(row, attrib_columns),
+            extract_int_list(row, character_skill_columns),
+            extract_int_list(row, weapon_skill_columns),
         ]
 
     return normalized_map
@@ -219,16 +171,34 @@ def get_equip_resonance_map() -> dict[int, list[list[int]]]:
 @lru_cache(maxsize=1)
 def get_equip_awake_template_id_set() -> set[int]:
     reader = TSVReader(EQUIP_AWAKE_TSV_PATH, typed=True)
+    awake_template_map = reader.get_maps("Id", "Id")[0]
     template_ids: set[int] = set()
 
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        raw_id = row.get("Id")
+    for raw_id in awake_template_map.values():
         try:
             template_ids.add(int(raw_id))
         except (TypeError, ValueError):
             continue
 
     return template_ids
+
+@lru_cache(maxsize=1)
+def get_breakthrough_levelup_template_map() -> dict[int, dict[int, int]]:
+    reader = TSVReader(EQUIP_BREAK_THROUGH_TSV_PATH, typed=True)
+    rows = reader.select(["EquipId", "Times", "LevelUpTemplateId"])
+    normalized_map: dict[int, dict[int, int]] = {}
+
+    for row in rows:
+        try:
+            equip_id = int(row.get("EquipId"))
+            breakthrough_times = int(row.get("Times"))
+            levelup_template_id = int(row.get("LevelUpTemplateId"))
+        except (TypeError, ValueError):
+            continue
+
+        if equip_id not in normalized_map:
+            normalized_map[equip_id] = {}
+
+        normalized_map[equip_id][breakthrough_times] = levelup_template_id
+
+    return normalized_map

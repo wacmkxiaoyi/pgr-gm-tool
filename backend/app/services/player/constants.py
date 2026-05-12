@@ -1,0 +1,30 @@
+from pathlib import Path
+
+
+ATTRIB_POOL_TSV_PATH = Path("assets/AttribPool.tsv")
+CHARACTER_SKILL_TSV_PATH = Path("assets/CharacterSkill.tsv")
+CHARACTER_SKILL_GROUP_TSV_PATH = Path("assets/CharacterSkillGroup.tsv")
+CHARACTER_SKILL_POOL_TSV_PATH = Path("assets/CharacterSkillPool.tsv")
+CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH = Path("assets/CharacterSkillLevelEffect.tsv")
+CHARACTER_SKILL_UPGRADE_DES_TSV_PATH = Path("assets/CharacterSkillUpgradeDes.tsv")
+ENHANCE_SKILL_TSV_PATH = Path("assets/EnhanceSkill.tsv")
+ENHANCE_SKILL_GROUP_TSV_PATH = Path("assets/EnhanceSkillGroup.tsv")
+ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH = Path("assets/EnhanceSkillLevelEffect.tsv")
+ENHANCE_SKILL_UPGRADE_DES_TSV_PATH = Path("assets/EnhanceSkillUpgradeDes.tsv")
+CHARACTER_GRADE_TSV_PATH = Path("assets/CharacterGrade.tsv")
+CHARACTER_QUALITY_TSV_PATH = Path("assets/CharacterQuality.tsv")
+CHARACTER_TRUST_EXP_TSV_PATH = Path("assets/CharacterTrustExp.tsv")
+EXHIBITION_REWARD_TSV_PATH = Path("assets/ExhibitionReward.tsv")
+CHARACTER_TSV_PATH = Path("assets/Character.tsv")
+FASHION_TSV_PATH = Path("assets/Fashion.tsv")
+
+HEAD_PORTRAIT_TSV_PATH = Path("assets/HeadPortrait.tsv")
+BACKGROUND_TSV_PATH = Path("assets/Background.tsv")
+PLAYER_LEVEL_TSV_PATH = Path("assets/Player.tsv")
+
+ITEM_TSV_PATH = Path("assets/Item.tsv")
+
+ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
+ROLE_CHARACTER_ASSET_PREFIX = "/assets/rolecharacter/"
+ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"
+UI_PHOTOGRAPH_ASSET_PREFIX = "/assets/uiphotograph/"

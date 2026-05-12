@@ -242,10 +242,12 @@ app.loadAppInfo = async () => {
     state.weaponTypeNameMap = payload?.weapon_type_name_map && typeof payload.weapon_type_name_map === 'object' ? payload.weapon_type_name_map : {};
     state.equipStarMap = payload?.equip_star_map && typeof payload.equip_star_map === 'object' ? payload.equip_star_map : {};
     state.equipSiteMap = payload?.equip_site_map && typeof payload.equip_site_map === 'object' ? payload.equip_site_map : {};
+    state.equippableMemoryNums = Number.isFinite(Number(payload?.equippable_memory_nums)) ? Math.max(0, Number(payload.equippable_memory_nums)) : 0;
     state.equipIconUrlMap = payload?.equip_icon_url_map && typeof payload.equip_icon_url_map === 'object' ? payload.equip_icon_url_map : {};
     state.characterLogNameMap = payload?.character_log_name_map && typeof payload.character_log_name_map === 'object' ? payload.character_log_name_map : {};
     state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
     state.characterGradeNameMap = payload?.character_grade_name_map && typeof payload.character_grade_name_map === 'object' ? payload.character_grade_name_map : {};
+    state.characterTrustExpMap = payload?.character_trust_exp_map && typeof payload.character_trust_exp_map === 'object' ? payload.character_trust_exp_map : {};
     state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
     state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
     state.weaponSkillPoolEntriesMap = payload?.weapon_skill_pool_entries_map && typeof payload.weapon_skill_pool_entries_map === 'object' ? payload.weapon_skill_pool_entries_map : {};
@@ -271,10 +273,12 @@ app.loadAppInfo = async () => {
     state.weaponTypeNameMap = {};
     state.equipStarMap = {};
     state.equipSiteMap = {};
+    state.equippableMemoryNums = 0;
     state.equipIconUrlMap = {};
     state.characterLogNameMap = {};
     state.characterHeadIconUrlMap = {};
     state.characterGradeNameMap = {};
+    state.characterTrustExpMap = {};
     state.weaponSkillEntriesMap = {};
     state.weaponOverrunSuitEntriesMap = {};
     state.weaponSkillPoolEntriesMap = {};

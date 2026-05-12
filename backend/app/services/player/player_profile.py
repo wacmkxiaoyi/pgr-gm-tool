@@ -1,70 +1,29 @@
 from __future__ import annotations
 
 from functools import lru_cache
-from pathlib import Path
 
+from backend.app.services.player.constants import BACKGROUND_TSV_PATH, HEAD_PORTRAIT_TSV_PATH, PLAYER_LEVEL_TSV_PATH, ROLE_PLAYER_ASSET_PREFIX, UI_PHOTOGRAPH_ASSET_PREFIX
+from backend.app.services.player.utils import normalize_int_asset_map, normalize_int_text_map
 from backend.app.utils.tsv_reader import TSVReader
 
 
-HEAD_PORTRAIT_TSV_PATH = Path("assets/HeadPortrait.tsv")
-BACKGROUND_TSV_PATH = Path("assets/Background.tsv")
-CHARACTER_TSV_PATH = Path("assets/Character.tsv")
-FASHION_TSV_PATH = Path("assets/Fashion.tsv")
-PLAYER_LEVEL_TSV_PATH = Path("assets/Player.tsv")
 PORTRAIT_TYPE = "1"
 PORTRAIT_FRAME_TYPE = "2"
-ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"
-ROLE_CHARACTER_ASSET_PREFIX = "/assets/rolecharacter/"
-UI_PHOTOGRAPH_ASSET_PREFIX = "/assets/uiphotograph/"
-
-
-def _normalize_asset_path(raw_path: str, prefix: str) -> str | None:
-    filename = Path(str(raw_path).strip()).name.strip().lower()
-    if not filename:
-        return None
-    return f"{prefix}{filename}"
 
 
 @lru_cache(maxsize=1)
 def _get_player_portrait_url_map_by_type(portrait_type: str) -> dict[int, str]:
     reader = TSVReader(HEAD_PORTRAIT_TSV_PATH, typed=True)
-    portrait_asset_map = reader.get_maps("Id", "ImgSrc", f"Type = {portrait_type}")[0]
-
-    portrait_map: dict[int, str] = {}
-    for portrait_id_raw, asset_path_raw in portrait_asset_map.items():
-        try:
-            portrait_id = int(portrait_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        asset_path = _normalize_asset_path(str(asset_path_raw), ROLE_PLAYER_ASSET_PREFIX)
-        if asset_path is None:
-            continue
-
-        portrait_map[portrait_id] = asset_path
-
-    return portrait_map
+    return normalize_int_asset_map(
+        reader.get_maps("Id", "ImgSrc", f"Type = {portrait_type}")[0],
+        ROLE_PLAYER_ASSET_PREFIX,
+    )
 
 
 @lru_cache(maxsize=1)
 def _get_player_portrait_name_map_by_type(portrait_type: str) -> dict[int, str]:
     reader = TSVReader(HEAD_PORTRAIT_TSV_PATH, typed=True)
-    portrait_name_map = reader.get_maps("Id", "Name", f"Type = {portrait_type}")[0]
-
-    name_map: dict[int, str] = {}
-    for portrait_id_raw, portrait_name_raw in portrait_name_map.items():
-        try:
-            portrait_id = int(portrait_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        portrait_name = str(portrait_name_raw).strip()
-        if not portrait_name:
-            continue
-
-        name_map[portrait_id] = portrait_name
-
-    return name_map
+    return normalize_int_text_map(reader.get_maps("Id", "Name", f"Type = {portrait_type}")[0])
 
 
 @lru_cache(maxsize=1)
@@ -90,90 +49,13 @@ def get_player_portrait_frame_name_map() -> dict[int, str]:
 @lru_cache(maxsize=1)
 def get_player_background_url_map() -> dict[int, str]:
     reader = TSVReader(BACKGROUND_TSV_PATH, typed=True)
-    background_asset_map = reader.get_maps("Id", "IconPath")[0]
-
-    background_map: dict[int, str] = {}
-    for background_id_raw, asset_path_raw in background_asset_map.items():
-        try:
-            background_id = int(background_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        asset_path = _normalize_asset_path(str(asset_path_raw), UI_PHOTOGRAPH_ASSET_PREFIX)
-        if asset_path is None:
-            continue
-
-        background_map[background_id] = asset_path
-
-    return background_map
+    return normalize_int_asset_map(reader.get_maps("Id", "IconPath")[0], UI_PHOTOGRAPH_ASSET_PREFIX)
 
 
 @lru_cache(maxsize=1)
 def get_player_background_name_map() -> dict[int, str]:
     reader = TSVReader(BACKGROUND_TSV_PATH, typed=True)
-    background_name_map = reader.get_maps("Id", "Name")[0]
-
-    name_map: dict[int, str] = {}
-    for background_id_raw, background_name_raw in background_name_map.items():
-        try:
-            background_id = int(background_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        background_name = str(background_name_raw).strip()
-        if not background_name:
-            continue
-
-        name_map[background_id] = background_name
-
-    return name_map
-
-
-@lru_cache(maxsize=1)
-def get_character_log_name_map() -> dict[int, str]:
-    reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
-    character_name_map = reader.get_maps("Id", "LogName")[0]
-
-    normalized_map: dict[int, str] = {}
-    for character_id_raw, character_name_raw in character_name_map.items():
-        try:
-            character_id = int(character_id_raw)
-        except (TypeError, ValueError):
-            continue
-
-        character_name = str(character_name_raw).strip()
-        if not character_name:
-            continue
-
-        normalized_map[character_id] = character_name
-
-    return normalized_map
-
-
-@lru_cache(maxsize=1)
-def get_character_head_icon_url_map() -> dict[int, str]:
-    reader = TSVReader(FASHION_TSV_PATH, typed=True)
-    normalized_map: dict[int, str] = {}
-
-    for row in reader.data:
-        if not isinstance(row, dict):
-            continue
-
-        try:
-            character_id = int(row.get("CharacterId"))
-        except (TypeError, ValueError):
-            continue
-
-        if character_id in normalized_map:
-            continue
-
-        asset_path = _normalize_asset_path(str(row.get("BigHeadIcon", "")), ROLE_CHARACTER_ASSET_PREFIX)
-        if asset_path is None:
-            continue
-
-        normalized_map[character_id] = asset_path
-
-    return normalized_map
+    return normalize_int_text_map(reader.get_maps("Id", "Name")[0])
 
 
 @lru_cache(maxsize=1)

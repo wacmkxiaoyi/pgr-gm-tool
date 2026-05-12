@@ -419,3 +419,24 @@ class TSVReader:
             maps.append(current_map)
 
         return maps
+
+    def get_sub_table(self, key_column, value_columns, query=""):
+        if not isinstance(value_columns, list):
+            value_columns = [value_columns]
+
+        query = query.strip()
+        if query:
+            selected_columns = [key_column]
+            for column in value_columns:
+                if column not in selected_columns:
+                    selected_columns.append(column)
+            rows = self.select(selected_columns, query)
+        else:
+            rows = self.data
+
+        sub_table = {}
+        for row in rows:
+            key = row.get(key_column, "")
+            sub_table[key] = {column: row.get(column, "") for column in value_columns}
+
+        return sub_table

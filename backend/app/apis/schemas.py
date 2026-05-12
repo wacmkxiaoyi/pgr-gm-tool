@@ -42,6 +42,7 @@ class AppInfoResponse(BaseModel):
     weapon_type_name_map: dict[int, str]
     equip_star_map: dict[int, int]
     equip_site_map: dict[int, str]
+    equippable_memory_nums: int
     equip_icon_url_map: dict[int, str]
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
@@ -52,6 +53,7 @@ class AppInfoResponse(BaseModel):
     character_skill_pool_entries_map: dict[int, dict[int, list[dict[str, object]]]] = Field(default_factory=dict)
     equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
     character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
+    character_trust_exp_map: dict[int, int] = Field(default_factory=dict)
 
 
 class CharacterManagementItemResponse(BaseModel):
@@ -62,6 +64,7 @@ class CharacterManagementItemResponse(BaseModel):
     Sequence: int
     Level: int | None = None
     Quality: int | None = None
+    Star: int | None = None
     Grade: int | None = None
     GradeName: str | None = None
     AwakenLevel: int = 0
@@ -78,6 +81,65 @@ class CharacterManagementListResponse(BaseModel):
 class SetCharacterSupportResponse(BaseModel):
     record_id: int
     updated: bool = True
+
+
+class CharacterFashionResponse(BaseModel):
+    Id: int
+    Quality: int
+    IsLock: bool = True
+    BigIcon: str
+    BigHeadIconFashion: str
+
+
+class CharacterEquipResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    TemplateId: int
+    Breakthrough: int | None = None
+    Level: int | None = None
+
+
+class CharacterEquipResonanceResponse(BaseModel):
+    slot: int
+    type: int | None = None
+    template_id: int | None = None
+    character_id: int | None = None
+
+
+class CharacterWeaponOverrunResponse(BaseModel):
+    level: int | None = None
+    max_level: int | None = None
+    chose_suit: int | None = None
+
+
+class CharacterDetailWeaponResponse(CharacterEquipResponse):
+    resonance_info: list[CharacterEquipResonanceResponse] | None = None
+    weapon_overrun_data: CharacterWeaponOverrunResponse | None = None
+
+
+class CharacterDetailMemoryResponse(CharacterEquipResponse):
+    resonance_info: list[CharacterEquipResonanceResponse] | None = None
+
+
+class CharacterSkillInfoResponse(BaseModel):
+    SkillId: int
+    Name: str = ""
+    Level: int = 0
+    MaxLevel: int = 0
+
+
+class CharacterExtraInfoResponse(BaseModel):
+    TrustLv: int | None = None
+    TrustExp: int | None = None
+    LevelExpMap: dict[int, int] = Field(default_factory=dict)
+    Intro: str | None = None
+    CurrentFahionId: int | None = None
+    Fashions: list[CharacterFashionResponse] = Field(default_factory=list)
+    Weapon: CharacterDetailWeaponResponse | None = None
+    Memories: list[CharacterDetailMemoryResponse] = Field(default_factory=list)
+    SkillsList: list[CharacterSkillInfoResponse] = Field(default_factory=list)
+    EnhanceSkillList: list[CharacterSkillInfoResponse] = Field(default_factory=list)
 
 
 class InventoryItemResponse(BaseModel):
