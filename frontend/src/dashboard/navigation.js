@@ -33,8 +33,11 @@ app.setActiveDashboardPage = (pageKey) => {
     const fallbackPage = sidebarLinks[0].dataset.dashboardPage;
     if (fallbackPage && fallbackPage !== pageKey) {
       app.setActiveDashboardPage(fallbackPage);
+      return;
     }
   }
+
+  app.refreshHealthPolling?.();
 };
 
 app.focusContentStart = () => {
@@ -71,8 +74,11 @@ app.setActiveDatabaseTab = (tabId) => {
     const fallback = databaseTabButtons[0].dataset.databaseTab;
     if (fallback && fallback !== tabId) {
       app.setActiveDatabaseTab(fallback);
+      return;
     }
   }
+
+  app.refreshHealthPolling?.();
 };
 
 app.initNavigation = () => {

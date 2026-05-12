@@ -398,7 +398,11 @@ export const state = {
   lastLogoutFocusedControl: null,
   locale: getLocale(),
   mutationRiskResolve: null,
-  timerId: null,
+  healthPollingReady: false,
+  statusPollingTimerId: null,
+  databaseStatusPollingTimerId: null,
+  statusPollingRequestInFlight: false,
+  databaseStatusPollingRequestInFlight: false,
   countdownTimerId: null,
   historyGridResizeObserver: null,
 };
@@ -431,6 +435,9 @@ Object.assign(app, {
   getStatusLabel: (serviceState) => t(constants.stateMeta[serviceState]?.labelKey ?? constants.stateMeta.unknown.labelKey, {}, state.locale),
   getHistoryGrids: () => [dom.sdkGrid, dom.gameGrid, dom.databaseGrid].filter(Boolean),
   getActiveDashboardPage: () => dom.dashboardPages.find((page) => page.classList.contains('is-active')) ?? null,
+  getActiveDatabaseTabButton: () => dom.databaseTabButtons.find((button) => button.classList.contains('is-active')) ?? null,
+  isServerManagementPageActive: () => app.getActiveDashboardPage()?.dataset.dashboardPanel === 'server-management',
+  isDatabaseManagementPageActive: () => app.getActiveDashboardPage()?.dataset.dashboardPanel === 'database-management',
   getServiceHealthState: (service) => service?.latest?.state ?? 'unknown',
   isServiceHealthy: (service) => app.getServiceHealthState(service) === 'healthy',
   getDatabaseSection: (payload) => {
@@ -445,6 +452,9 @@ Object.assign(app, {
   isDatabaseHealthy: (payload = state.databaseHealthSnapshot) => app.isServiceHealthy(app.getDatabasePrimaryService(payload)),
   isDatabaseAccountsSectionActive: () => {
     return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-accounts-section');
+  },
+  isDatabaseStatusSectionActive: () => {
+    return app.getActiveDatabaseTabButton()?.dataset.databaseTab === 'database-service-status-section';
   },
   isDatabasePlayerProfileSectionActive: () => {
     return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-player-profile-section');

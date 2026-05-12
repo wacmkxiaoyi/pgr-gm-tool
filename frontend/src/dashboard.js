@@ -69,21 +69,107 @@ const initGlobalKeyboardShortcuts = () => {
   });
 };
 
-const startPolling = async () => {
-  await app.loadAppInfo();
+const clearStatusPollingTimer = () => {
+  if (state.statusPollingTimerId) {
+    window.clearTimeout(state.statusPollingTimerId);
+    state.statusPollingTimerId = null;
+  }
+};
 
-  const intervalSeconds = await app.loadStatus();
-  await app.loadDatabaseStatus();
-  await app.loadSelectedAccount();
+const clearDatabaseStatusPollingTimer = () => {
+  if (state.databaseStatusPollingTimerId) {
+    window.clearTimeout(state.databaseStatusPollingTimerId);
+    state.databaseStatusPollingTimerId = null;
+  }
+};
 
-  if (state.timerId) {
-    window.clearInterval(state.timerId);
+const scheduleStatusPolling = (intervalSeconds) => {
+  clearStatusPollingTimer();
+  if (!state.healthPollingReady || !app.isServerManagementPageActive()) {
+    return;
   }
 
-  state.timerId = window.setInterval(() => {
-    void app.loadStatus();
-    void app.loadDatabaseStatus();
-  }, Math.max(5, intervalSeconds) * 1000);
+  state.statusPollingTimerId = window.setTimeout(() => {
+    void refreshStatusPolling();
+  }, Math.max(5, Number(intervalSeconds) || 60) * 1000);
+};
+
+const scheduleDatabaseStatusPolling = (intervalSeconds) => {
+  clearDatabaseStatusPollingTimer();
+  if (!state.healthPollingReady || !app.isDatabaseManagementPageActive() || !app.isDatabaseStatusSectionActive()) {
+    return;
+  }
+
+  state.databaseStatusPollingTimerId = window.setTimeout(() => {
+    void refreshDatabaseStatusPolling();
+  }, Math.max(5, Number(intervalSeconds) || 60) * 1000);
+};
+
+const refreshStatusPolling = async () => {
+  if (!state.healthPollingReady || !app.isServerManagementPageActive()) {
+    clearStatusPollingTimer();
+    return;
+  }
+
+  if (state.statusPollingRequestInFlight) {
+    return;
+  }
+
+  state.statusPollingRequestInFlight = true;
+  try {
+    const intervalSeconds = await app.loadStatus();
+    scheduleStatusPolling(intervalSeconds);
+  } finally {
+    state.statusPollingRequestInFlight = false;
+  }
+};
+
+const refreshDatabaseStatusPolling = async () => {
+  if (!state.healthPollingReady || !app.isDatabaseManagementPageActive() || !app.isDatabaseStatusSectionActive()) {
+    clearDatabaseStatusPollingTimer();
+    return;
+  }
+
+  if (state.databaseStatusPollingRequestInFlight) {
+    return;
+  }
+
+  state.databaseStatusPollingRequestInFlight = true;
+  try {
+    const intervalSeconds = await app.loadDatabaseStatus();
+    scheduleDatabaseStatusPolling(intervalSeconds);
+  } finally {
+    state.databaseStatusPollingRequestInFlight = false;
+  }
+};
+
+app.refreshHealthPolling = () => {
+  if (!state.healthPollingReady) {
+    return;
+  }
+
+  if (app.isServerManagementPageActive()) {
+    if (!state.statusPollingTimerId) {
+      void refreshStatusPolling();
+    }
+  } else {
+    clearStatusPollingTimer();
+  }
+
+  if (app.isDatabaseManagementPageActive() && app.isDatabaseStatusSectionActive()) {
+    if (!state.databaseStatusPollingTimerId) {
+      void refreshDatabaseStatusPolling();
+    }
+  } else {
+    clearDatabaseStatusPollingTimer();
+  }
+};
+
+const startPolling = async () => {
+  await app.loadAppInfo();
+  await app.loadSelectedAccount();
+  state.healthPollingReady = true;
+  app.refreshHealthPolling();
 };
 
 const initDashboard = () => {
