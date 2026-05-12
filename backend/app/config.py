@@ -120,25 +120,31 @@ class Settings:
     SRC_DIR = FRONTEND_DIR / "src"
     ASSETS_DIR = FRONTEND_DIR / "assets"
 
-    def __init__(self, server_version: int | float | str) -> None:
-        self.app_name = os.getenv("APP_NAME", "WACMK PGR Management")
-        self.app_env = os.getenv("APP_ENV", "development")
-        self.app_host = os.getenv("APP_HOST", "0.0.0.0")
-        self.app_port = _to_int(os.getenv("APP_PORT"), 8000)
-        self.is_dev = _to_bool(os.getenv("IS_DEV"), False)
+    def __init__(self, cli_args: dict[str, Any] | None = None) -> None:
+        self._cli_args = cli_args or {}
 
-        self.server_version = str(server_version)
-        self.server_path = os.getenv("SERVER_PATH", "/root/wacmk-pgr-server")
-        self.server_binary_file = os.getenv("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
-        self.server_runtime_log_path = os.getenv("SERVER_RUNTIME_LOG_PATH", "/tmp/rpg-server.log").strip() or "/tmp/rpg-server.log"
+        self.app_name = self._resolve("APP_NAME", "WACMK PGR Management")
+        self.app_env = self._resolve("APP_ENV", "production")
+        self.app_host = self._resolve("APP_HOST", "0.0.0.0")
+        self.app_port = _to_int(self._resolve("APP_PORT"), 8000)
+
+        self.server_version = self._resolve("GAME_VERSION", "0.0")
+        self.server_path = self._resolve("SERVER_PATH", "/root/wacmk-pgr-server")
+        self.server_binary_file = self._resolve("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
+        self.server_runtime_log_path = (self._resolve("SERVER_RUNTIME_LOG_PATH") or "").strip() or "/tmp/rpg-server.log"
         self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
         self.server_config_path = Path(self.server_path) / "Configs" / "config.json"
 
-        self.healthy_check_interval = max(1, _to_int(os.getenv("HEALTHY_CHECK_INTERVAL"), 60))
-        self.admin_username = os.getenv("ADMIN_USERNAME", "").strip()
-        self.admin_password = os.getenv("ADMIN_PASSWORD", "").strip()
+        self.healthy_check_interval = max(1, _to_int(self._resolve("HEALTHY_CHECK_INTERVAL"), 60))
+        self.admin_username = (self._resolve("ADMIN_USERNAME") or "").strip()
+        self.admin_password = (self._resolve("ADMIN_PASSWORD") or "").strip()
 
         self.reload_server_runtime_config()
+
+    def _resolve(self, key: str, env_default: Any = None) -> Any:
+        if key in self._cli_args:
+            return self._cli_args[key]
+        return os.getenv(key, env_default)
 
     def _apply_server_runtime_config(self, server_config: dict[str, Any] | None) -> None:
         if server_config is not None:
@@ -166,20 +172,20 @@ class Settings:
             self.mongo_tls = False
             return
 
-        self.sdk_server_scheme = os.getenv("SDK_SERVER_SCHEME", "http").strip().lower() or "http"
-        self.sdk_server_host = os.getenv("SDK_SERVER_HOST", "127.0.0.1").strip()
-        self.sdk_server_port = _to_int(os.getenv("SDK_SERVER_PORT"), 80)
-        self.game_server_host = os.getenv("GAME_SERVER_HOST", "127.0.0.1").strip()
-        self.game_server_port = _to_int(os.getenv("GAME_SERVER_PORT"), 2335)
+        self.sdk_server_scheme = (self._resolve("SDK_SERVER_SCHEME") or "").strip().lower() or "http"
+        self.sdk_server_host = (self._resolve("SDK_SERVER_HOST") or "").strip() or "127.0.0.1"
+        self.sdk_server_port = _to_int(self._resolve("SDK_SERVER_PORT"), 80)
+        self.game_server_host = (self._resolve("GAME_SERVER_HOST") or "").strip() or "127.0.0.1"
+        self.game_server_port = _to_int(self._resolve("GAME_SERVER_PORT"), 2335)
 
-        self.mongo_uri = os.getenv("MONGO_URI", "").strip()
-        self.mongo_host = os.getenv("MONGO_HOST", "localhost")
-        self.mongo_port = _to_int(os.getenv("MONGO_PORT"), 27017)
-        self.mongo_db = os.getenv("MONGO_DB", "asc_net")
-        self.mongo_username = os.getenv("MONGO_USERNAME", "").strip()
-        self.mongo_password = os.getenv("MONGO_PASSWORD", "").strip()
-        self.mongo_auth_source = os.getenv("MONGO_AUTH_SOURCE", "admin")
-        self.mongo_tls = _to_bool(os.getenv("MONGO_TLS"), False)
+        self.mongo_uri = (self._resolve("MONGO_URI") or "").strip()
+        self.mongo_host = self._resolve("MONGO_HOST") or "localhost"
+        self.mongo_port = _to_int(self._resolve("MONGO_PORT"), 27017)
+        self.mongo_db = self._resolve("MONGO_DB") or "asc_net"
+        self.mongo_username = (self._resolve("MONGO_USERNAME") or "").strip()
+        self.mongo_password = (self._resolve("MONGO_PASSWORD") or "").strip()
+        self.mongo_auth_source = self._resolve("MONGO_AUTH_SOURCE") or "admin"
+        self.mongo_tls = _to_bool(self._resolve("MONGO_TLS"), False)
 
     def reload_server_runtime_config(self) -> None:
         self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
@@ -207,10 +213,8 @@ class Settings:
     def as_dict(self) -> dict[str, Any]:
         return {
             "app_name": self.app_name,
-            "app_env": self.app_env,
             "app_host": self.app_host,
             "app_port": self.app_port,
-            "is_dev": self.is_dev,
             "server_version": self.server_version,
             "server_runtime_log_path": self.server_runtime_log_path,
             "healthy_check_interval": self.healthy_check_interval,

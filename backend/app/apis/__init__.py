@@ -126,7 +126,6 @@ async def app_info(request: Request) -> AppInfoResponse:
     supports_weapon_overrun = player_equips_service.supports_weapon_overrun_data()
     return AppInfoResponse.model_validate({
         "name": settings.app_name,
-        "environment": settings.app_env,
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
         "server_controls_visible": controller.controls_visible(),

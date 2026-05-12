@@ -25,7 +25,6 @@ class SessionResponse(BaseModel):
 
 class AppInfoResponse(BaseModel):
     name: str
-    environment: str
     mongo_db: str
     mongo_configured: bool
     server_controls_visible: bool
