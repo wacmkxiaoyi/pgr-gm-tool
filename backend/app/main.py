@@ -9,7 +9,6 @@ from backend.app.services import init_app
 def _parse_cli_args() -> dict[str, object]:
     parser = argparse.ArgumentParser()
     parser.add_argument("--APP_NAME", default=None)
-    parser.add_argument("--APP_ENV", default=None)
     parser.add_argument("--APP_HOST", default=None)
     parser.add_argument("--APP_PORT", type=int, default=None)
     parser.add_argument("--GAME_VERSION", default=None)
@@ -42,4 +41,4 @@ init_app(app, settings)
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run("backend.app.main:app", host=settings.app_host, port=settings.app_port, reload=settings.app_env.lower() in ('development', 'dev'))
+    uvicorn.run(app, host=settings.app_host, port=settings.app_port)

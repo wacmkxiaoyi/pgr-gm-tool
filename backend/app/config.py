@@ -124,7 +124,6 @@ class Settings:
         self._cli_args = cli_args or {}
 
         self.app_name = self._resolve("APP_NAME", "WACMK PGR Management")
-        self.app_env = self._resolve("APP_ENV", "production")
         self.app_host = self._resolve("APP_HOST", "0.0.0.0")
         self.app_port = _to_int(self._resolve("APP_PORT"), 8000)
 
