@@ -342,7 +342,7 @@ app.openMemoryDetailModal = (recordId, triggerButton) => {
   }
 
   state.currentEquipDetailMode = 'memory';
-  state.lastWeaponDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state.lastWeaponDetailTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
   state.currentWeaponDetailItem = item;
   state.currentWeaponDetailExtraInfo = null;
   app.populateWeaponDetailCard(item);
@@ -353,7 +353,7 @@ app.openMemoryDetailModal = (recordId, triggerButton) => {
       app.populateWeaponDetailCard(state.currentWeaponDetailItem);
     }
     if (dom.weaponDetailModal instanceof HTMLElement && !dom.weaponDetailModal.hidden) {
-      app.openControlModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
     }
   });
 
@@ -422,7 +422,7 @@ app.handleMemoryManagementActionClick = (event) => {
     }
 
     if (Number.isFinite(characterId) && characterId !== 0) {
-      app.openControlModal(app.translate('runtime.equipsDeleteEquippedForbidden'));
+      app.openNoticeModal(app.translate('runtime.equipsDeleteEquippedForbidden'));
       return;
     }
 

@@ -54,7 +54,7 @@ const rerenderLocaleSensitiveViews = () => {
 const initGlobalKeyboardShortcuts = () => {
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      app.closeControlModal();
+      app.closeNoticeModal();
       app.closeLogModal();
       app.closeConfigModal();
       app.closeAccountDeleteModal();
@@ -65,6 +65,8 @@ const initGlobalKeyboardShortcuts = () => {
       app.closePlayerPortraitPicker();
       app.closeWeaponDetailModal?.();
       app.closeCharacterDetailModal?.();
+      app.closeCharacterQualityEditModal?.();
+      app.closeCharacterTrustEditModal?.();
     }
   });
 };

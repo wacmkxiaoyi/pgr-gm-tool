@@ -60,12 +60,12 @@ app.startServer = async () => {
 
     if (typeof controls?.startup_error === 'string' && controls.startup_error) {
       state.serverControlFailureMessage = controls.startup_error;
-      app.openControlModal(app.resolveUiTextToken(controls.startup_error));
+      app.openNoticeModal(app.resolveUiTextToken(controls.startup_error));
     }
   } catch (error) {
     const message = app.apiErrorMessage(error, 'runtime.serverStartFailed');
     state.serverControlFailureMessage = message;
-    app.openControlModal(message);
+    app.openNoticeModal(message);
     startButton.textContent = app.translate('runtime.serverStart');
     startButton.disabled = false;
     stopButton.disabled = true;
@@ -102,7 +102,7 @@ app.stopServer = async () => {
     await app.loadStatus();
   } catch (error) {
     const message = app.apiErrorMessage(error, 'runtime.serverStopFailed');
-    app.openControlModal(message);
+    app.openNoticeModal(message);
     await app.loadStatus();
   }
 };

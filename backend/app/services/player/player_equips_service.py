@@ -10,7 +10,7 @@ from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddMemoryResponse, AddWeaponResponse, ClearWeaponsResponse, MemoryExtraInfoRecord, MemoryListResponse, UpdateWeaponRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
+from backend.app.db.models import AddEquipResponse, AddEquipResponse, ClearEquipsResponse, MemoryExtraInfoRecord, EquipListResponse, UpdateEquipRequest, WeaponExtraInfoRecord, WeaponItemRecord, EquipListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.equips import (
@@ -523,7 +523,7 @@ class PlayerEquipsService:
     def _build_memory_document(self, template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
         return self._build_weapon_document(template_id, raw_equips)
 
-    async def add_weapons(self, uid: int, template_ids: list[int]) -> AddWeaponResponse:
+    async def add_weapons(self, uid: int, template_ids: list[int]) -> AddEquipResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
         if not normalized_template_ids:
             raise ValueError("equips.template_invalid")
@@ -562,9 +562,9 @@ class PlayerEquipsService:
         if result.modified_count <= 0:
             raise ValueError("equips.add_failed")
 
-        return AddWeaponResponse(added=True, added_count=len(weapon_documents))
+        return AddEquipResponse(added=True, added_count=len(weapon_documents))
 
-    async def add_memories(self, uid: int, template_ids: list[int]) -> AddMemoryResponse:
+    async def add_memories(self, uid: int, template_ids: list[int]) -> AddEquipResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))
         if not normalized_template_ids:
             raise ValueError("equips.template_invalid")
@@ -603,7 +603,7 @@ class PlayerEquipsService:
         if result.modified_count <= 0:
             raise ValueError("equips.add_failed")
 
-        return AddMemoryResponse(added=True, added_count=len(memory_documents))
+        return AddEquipResponse(added=True, added_count=len(memory_documents))
 
     async def delete_unequipped_weapon(self, uid: int, record_id: int) -> bool:
         normalized_record_id = int(record_id)
@@ -719,7 +719,7 @@ class PlayerEquipsService:
 
         return result.modified_count > 0
 
-    async def update_weapon(self, uid: int, record_id: int, payload: UpdateWeaponRequest) -> WeaponItemRecord:
+    async def update_weapon(self, uid: int, record_id: int, payload: UpdateEquipRequest) -> WeaponItemRecord:
         normalized_record_id = int(record_id)
         client = create_mongo_client(self._settings)
 
@@ -883,7 +883,7 @@ class PlayerEquipsService:
         response_item.EnhancementLevel = _weapon_enhancement_level(response_item, get_equip_breakthrough_level_limit_map())
         return response_item
 
-    async def update_memory(self, uid: int, record_id: int, payload: UpdateWeaponRequest) -> WeaponItemRecord:
+    async def update_memory(self, uid: int, record_id: int, payload: UpdateEquipRequest) -> WeaponItemRecord:
         normalized_record_id = int(record_id)
         client = create_mongo_client(self._settings)
 
@@ -1127,8 +1127,6 @@ class PlayerEquipsService:
                     character_id=parse_optional_int(entry.CharacterId),
                 ))
 
-        awake_slot_list = _resolve_awake_slot_list(target_equip.get("AwakeSlotList"), template_id, {1, 2, 3})
-
         allows_overrun_data = self.supports_weapon_overrun_data()
 
         weapon_overrun_data = None
@@ -1158,7 +1156,6 @@ class PlayerEquipsService:
             description=description,
             current_level_exp_limit=current_level_exp_limit,
             resonance_info=resonance_info,
-            awake_slot_list=awake_slot_list,
             weapon_overrun_data=weapon_overrun_data,
         )
 
@@ -1709,7 +1706,7 @@ class PlayerEquipsService:
         keyword: str | None = None,
         sort_by: WeaponSortField = "character",
         sort_order: WeaponSortOrder = "asc",
-    ) -> WeaponListResponse:
+    ) -> EquipListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
@@ -1793,7 +1790,7 @@ class PlayerEquipsService:
         start = (current_page - 1) * normalized_page_size
         end = start + normalized_page_size
 
-        return WeaponListResponse(
+        return EquipListResponse(
             items=normalized_items[start:end],
             page=current_page,
             page_size=normalized_page_size,
@@ -1801,7 +1798,7 @@ class PlayerEquipsService:
             total_pages=total_pages,
         )
 
-    async def clear_unequipped_weapons_by_keyword(self, uid: int, keyword: str) -> ClearWeaponsResponse:
+    async def clear_unequipped_weapons_by_keyword(self, uid: int, keyword: str) -> ClearEquipsResponse:
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
@@ -1813,7 +1810,7 @@ class PlayerEquipsService:
             )
 
             if not isinstance(document, dict):
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             normalized_document = self._sanitize_characters_document(document)
             raw_equips = self._sanitize_equips(normalized_document.get("equips"))
@@ -1850,7 +1847,7 @@ class PlayerEquipsService:
                 deletable_record_ids.append(record_id)
 
             if not deletable_record_ids:
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             remaining_equips = [
                 raw_equip
@@ -1858,7 +1855,7 @@ class PlayerEquipsService:
                 if parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
             ]
             if len(remaining_equips) == len(raw_equips):
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             normalized_update = self._build_equips_update(remaining_equips)
 
@@ -1871,9 +1868,9 @@ class PlayerEquipsService:
                 client.close()
 
         if result.modified_count <= 0:
-            return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+            return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
-        return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=len(deletable_record_ids))
+        return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=len(deletable_record_ids))
 
     async def list_character_memories(
         self,
@@ -1883,7 +1880,7 @@ class PlayerEquipsService:
         keyword: str | None = None,
         sort_by: MemorySortField = "character",
         sort_order: WeaponSortOrder = "asc",
-    ) -> MemoryListResponse:
+    ) -> EquipListResponse:
         current_page = max(1, int(page))
         normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
@@ -1964,7 +1961,7 @@ class PlayerEquipsService:
         start = (current_page - 1) * normalized_page_size
         end = start + normalized_page_size
 
-        return MemoryListResponse(
+        return EquipListResponse(
             items=normalized_items[start:end],
             page=current_page,
             page_size=normalized_page_size,
@@ -1972,7 +1969,7 @@ class PlayerEquipsService:
             total_pages=total_pages,
         )
 
-    async def clear_unequipped_memories_by_keyword(self, uid: int, keyword: str) -> ClearWeaponsResponse:
+    async def clear_unequipped_memories_by_keyword(self, uid: int, keyword: str) -> ClearEquipsResponse:
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
@@ -1984,7 +1981,7 @@ class PlayerEquipsService:
             )
 
             if not isinstance(document, dict):
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             normalized_document = self._sanitize_characters_document(document)
             raw_equips = self._sanitize_equips(normalized_document.get("equips"))
@@ -2019,7 +2016,7 @@ class PlayerEquipsService:
                 deletable_record_ids.append(record_id)
 
             if not deletable_record_ids:
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             remaining_equips = [
                 raw_equip
@@ -2027,7 +2024,7 @@ class PlayerEquipsService:
                 if parse_optional_int(raw_equip.get("_id")) not in deletable_record_ids
             ]
             if len(remaining_equips) == len(raw_equips):
-                return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+                return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
             normalized_update = self._build_equips_update(remaining_equips)
 
@@ -2040,6 +2037,6 @@ class PlayerEquipsService:
                 client.close()
 
         if result.modified_count <= 0:
-            return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=0)
+            return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=0)
 
-        return ClearWeaponsResponse(keyword=normalized_keyword, deleted_count=len(deletable_record_ids))
+        return ClearEquipsResponse(keyword=normalized_keyword, deleted_count=len(deletable_record_ids))

@@ -214,8 +214,8 @@ app.closeConfigModal = () => {
   configModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (state.lastConfigFocusedControl instanceof HTMLElement) {
-    state.lastConfigFocusedControl.focus();
+  if (state.lastConfigTrigger instanceof HTMLElement) {
+    state.lastConfigTrigger.focus();
   }
 };
 
@@ -224,7 +224,7 @@ app.openConfigModal = () => {
     return;
   }
 
-  state.lastConfigFocusedControl = document.activeElement;
+  state.lastConfigTrigger = document.activeElement;
   configModal.hidden = false;
   app.setBodyModalOpen(true);
 

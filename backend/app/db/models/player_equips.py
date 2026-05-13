@@ -60,7 +60,7 @@ class MemoryExtraInfoRecord(BaseModel):
     awake_slot_list: list[int] | None = None
 
 
-class MemoryListResponse(BaseModel):
+class EquipListResponse(BaseModel):
     items: list[WeaponItemRecord] = Field(default_factory=list)
     page: int = 1
     page_size: int = 10
@@ -68,7 +68,7 @@ class MemoryListResponse(BaseModel):
     total_pages: int = 0
 
 
-class WeaponListResponse(BaseModel):
+class EquipListResponse(BaseModel):
     items: list[WeaponItemRecord] = Field(default_factory=list)
     page: int = 1
     page_size: int = 10
@@ -76,7 +76,7 @@ class WeaponListResponse(BaseModel):
     total_pages: int = 0
 
 
-class UpdateWeaponRequest(BaseModel):
+class UpdateEquipRequest(BaseModel):
     field: str
     value: int
 
@@ -86,16 +86,16 @@ class UpdateWeaponOverrunRequest(BaseModel):
     level: int | None = None
 
 
-class ClearWeaponsResponse(BaseModel):
+class ClearEquipsResponse(BaseModel):
     keyword: str
     deleted_count: int
 
 
-class AddWeaponResponse(BaseModel):
+class AddEquipResponse(BaseModel):
     added: bool
     added_count: int
 
 
-class AddMemoryResponse(BaseModel):
+class AddEquipResponse(BaseModel):
     added: bool
     added_count: int

@@ -401,7 +401,7 @@ app.closeWeaponOverrunPickerModal = () => {
 app.submitWeaponOverrunSelection = async () => {
   const recordId = Number(state.currentWeaponDetailItem?._id ?? state.currentWeaponDetailItem?.record_id);
   if (!Number.isFinite(recordId) || recordId <= 0) {
-    app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
     return;
   }
 
@@ -441,7 +441,7 @@ app.submitWeaponOverrunSelection = async () => {
     app.openWeaponOverrunPickerModal(weaponDetailOverrunContent);
     state._weaponOverrunPickerSelectedSuitId = hasSelectedSuit ? selectedSuitId : null;
     app.renderWeaponOverrunPickerGrid();
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
   }
 };
 
@@ -972,13 +972,13 @@ app.openResonanceEffectModal = (slot) => {
     ? Number(pendingCharId)
     : Number(entry?.character_id);
   if (!Number.isFinite(characterId)) {
-    app.openControlModal(app.translate('dashboard.weaponDetailResonanceBindCharFirst'), { title: app.translate('dashboard.weaponDetailCannotSelect'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceBindCharFirst'), { title: app.translate('dashboard.weaponDetailCannotSelect'), tone: 'error' });
     return;
   }
 
   const currentItem = state.currentWeaponDetailItem;
   if (currentItem == null || !Number.isFinite(Number(currentItem.TemplateId))) {
-    app.openControlModal(app.translate('dashboard.weaponDetailCannotGetWeaponInfo'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.weaponDetailCannotGetWeaponInfo'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
     return;
   }
 
@@ -1968,7 +1968,7 @@ app.handleWeaponManagementActionClick = (event) => {
     }
 
     if (Number.isFinite(characterId) && characterId !== 0) {
-      app.openControlModal(app.translate('runtime.equipsDeleteEquippedForbidden'));
+      app.openNoticeModal(app.translate('runtime.equipsDeleteEquippedForbidden'));
       return;
     }
 
@@ -2252,9 +2252,9 @@ app.closeWeaponDetailModal = () => {
   }
   app.hideWeaponDetailTooltip();
 
-  if (state.lastWeaponDetailFocusedControl instanceof HTMLElement) {
-    state.lastWeaponDetailFocusedControl.focus();
-    state.lastWeaponDetailFocusedControl = null;
+  if (state.lastWeaponDetailTrigger instanceof HTMLElement) {
+    state.lastWeaponDetailTrigger.focus();
+    state.lastWeaponDetailTrigger = null;
   }
 };
 
@@ -2389,7 +2389,7 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
         : field === 'Exp'
           ? 'runtime.equipsExpBelowMin'
           : 'runtime.weaponOverrunLevelBelowMin';
-    app.openControlModal(app.translate(invalidKey));
+    app.openNoticeModal(app.translate(invalidKey));
     return;
   }
 
@@ -2400,20 +2400,20 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
   if (field === 'Breakthrough') {
     const btMax = Number.parseInt(element.dataset.weaponBtMax ?? '0', 10);
     if (parsedValue < 0 || parsedValue > btMax) {
-      app.openControlModal(app.translate('runtime.weaponBreakthroughMaxExceeded', { max: btMax }));
+      app.openNoticeModal(app.translate('runtime.weaponBreakthroughMaxExceeded', { max: btMax }));
       return;
     }
   } else if (field === 'Level') {
     const levelMin = Number.parseInt(element.dataset.weaponLevelMin ?? '1', 10);
     const levelMax = Number.parseInt(element.dataset.weaponLevelMax ?? '0', 10);
     if (parsedValue < levelMin || parsedValue > levelMax) {
-      app.openControlModal(app.translate('runtime.equipsLevelAboveLimit', { max: levelMax }));
+      app.openNoticeModal(app.translate('runtime.equipsLevelAboveLimit', { max: levelMax }));
       return;
     }
   } else if (field === 'Exp') {
     const expMax = Number.parseInt(element.dataset.weaponExpMax ?? '0', 10);
     if (parsedValue < 0 || parsedValue > expMax) {
-      app.openControlModal(app.translate('runtime.equipsExpAboveLimit', { max: expMax }));
+      app.openNoticeModal(app.translate('runtime.equipsExpAboveLimit', { max: expMax }));
       return;
     }
   } else if (field === 'OverrunLevel') {
@@ -2422,11 +2422,11 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
     }
     const overrunLevelMax = Number.parseInt(element.dataset.weaponOverrunLevelMax ?? '0', 10);
     if (parsedValue <= 0) {
-      app.openControlModal(app.translate('runtime.weaponOverrunLevelBelowMin'));
+      app.openNoticeModal(app.translate('runtime.weaponOverrunLevelBelowMin'));
       return;
     }
     if (parsedValue > overrunLevelMax) {
-      app.openControlModal(app.translate('runtime.weaponOverrunLevelAboveLimit', { max: overrunLevelMax }));
+      app.openNoticeModal(app.translate('runtime.weaponOverrunLevelAboveLimit', { max: overrunLevelMax }));
       return;
     }
   }
@@ -2484,7 +2484,7 @@ app.submitWeaponDetailFieldEdit = async (field, nextValue) => {
 
     state.weaponDetailEditState = null;
     app.populateWeaponDetailCard(state.currentWeaponDetailItem);
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
   }
 };
 
@@ -2583,7 +2583,7 @@ app.handleResonanceActionClick = (event) => {
       ? Number(pendingCharacterId)
       : Number(entry?.character_id);
     if (!Number.isFinite(characterId)) {
-      app.openControlModal(app.translate('dashboard.weaponDetailResonanceBindCharBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceBindCharBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
       return;
     }
 
@@ -2598,7 +2598,7 @@ app.handleResonanceActionClick = (event) => {
       effectTemplateId = Number(entry.template_id);
     }
     if (!Number.isFinite(effectType) || !Number.isFinite(effectTemplateId)) {
-      app.openControlModal(app.translate('dashboard.weaponDetailResonanceSelectEffectBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceSelectEffectBeforeSave'), { title: app.translate('dashboard.weaponDetailCannotSave'), tone: 'error' });
       return;
     }
 
@@ -2619,7 +2619,7 @@ app.handleResonanceActionClick = (event) => {
 
     const recordId = app.getCurrentWeaponDetailRecordId();
     if (recordId === null) {
-      app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
       return;
     }
 
@@ -2662,7 +2662,7 @@ app.handleResonanceActionClick = (event) => {
         if (app.isMutationRiskCancelled(error)) {
           return;
         }
-        app.openControlModal(app.apiErrorMessage(error, 'dashboard.weaponDetailResonanceSaveFailed'));
+        app.openNoticeModal(app.apiErrorMessage(error, 'dashboard.weaponDetailResonanceSaveFailed'));
       }
     })();
     return;
@@ -2675,7 +2675,7 @@ app.handleResonanceActionClick = (event) => {
 
     const recordId = app.getCurrentWeaponDetailRecordId();
     if (recordId === null) {
-      app.openControlModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailCannotGetRecordId'), { title: app.translate('dashboard.weaponDetailError'), tone: 'error' });
       return;
     }
 
@@ -2843,7 +2843,7 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
   }
 
   state.currentEquipDetailMode = 'weapon';
-  state.lastWeaponDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state.lastWeaponDetailTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
   state.currentWeaponDetailItem = item;
   state.currentWeaponDetailExtraInfo = null;
   app.populateWeaponDetailCard(item);
@@ -2854,7 +2854,7 @@ app.openWeaponDetailModal = (recordId, triggerButton) => {
       app.populateWeaponDetailCard(state.currentWeaponDetailItem);
     }
     if (weaponDetailModal instanceof HTMLElement && !weaponDetailModal.hidden) {
-      app.openControlModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
     }
   });
 
@@ -3046,7 +3046,7 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponResonanceCharacterPickerModal.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target === weaponResonanceCharacterPickerModal || target.classList.contains('login-modal-backdrop')) {
+      if (target === weaponResonanceCharacterPickerModal || target.classList.contains('shared-modal-backdrop')) {
         app.closeCharacterPickerModal(false);
       }
     });
@@ -3089,7 +3089,7 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponOverrunPickerModal.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target === weaponOverrunPickerModal || target.classList.contains('login-modal-backdrop')) {
+      if (target === weaponOverrunPickerModal || target.classList.contains('shared-modal-backdrop')) {
         app.closeWeaponOverrunPickerModal();
       }
     });

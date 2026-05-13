@@ -19,12 +19,48 @@ const {
   characterDetailCard,
   characterDetailCloseTargets,
   characterDetailMainIcon,
+  characterDetailMainFashionShell,
   characterDetailMainFashionIcon,
+  characterDetailMainFashionPlaceholder,
   characterDetailFashions,
   characterDetailWeapon,
   characterDetailMemories,
   characterDetailName,
   characterDetailEvolution,
+  characterQualityEditModal,
+  characterQualityEditCard,
+  characterQualityEditCloseTargets,
+  characterQualityEditQualitySelect,
+  characterQualityEditStarSelect,
+  characterQualityEditConfirmButton,
+  characterLevelEditModal,
+  characterLevelEditCard,
+  characterLevelEditCloseTargets,
+  characterLevelEditLevelInput,
+  characterLevelEditExpInput,
+  characterLevelEditConfirmButton,
+  characterTrustEditModal,
+  characterTrustEditCard,
+  characterTrustEditCloseTargets,
+  characterTrustEditHearts,
+  characterTrustEditExpInput,
+  characterTrustEditConfirmButton,
+  characterGradeEditModal,
+  characterGradeEditCard,
+  characterGradeEditCloseTargets,
+  characterGradeEditSelect,
+  characterGradeEditConfirmButton,
+  characterAwakenEditModal,
+  characterAwakenEditCard,
+  characterAwakenEditCloseTargets,
+  characterAwakenEditLevelSelect,
+  characterAwakenEditConfirmButton,
+  characterSkillEditModal,
+  characterSkillEditCard,
+  characterSkillEditCloseTargets,
+  characterSkillEditTitle,
+  characterSkillEditLevelInput,
+  characterSkillEditConfirmButton,
   characterDetailGrade,
   characterDetailAwaken,
   characterDetailLevel,
@@ -36,6 +72,1246 @@ const {
 } = dom;
 
 const CHARACTER_DETAIL_EQUIP_TOOLTIP_DELAY_MS = 500;
+const CHARACTER_QUALITY_EDIT_OPTIONS = [1, 2, 3, 4, 5, 6];
+const CHARACTER_AWAKEN_EDIT_OPTIONS = [1, 2, 3, 4, 5];
+
+app.getCharacterGradeOptions = (characterId) => {
+  const normalizedCharacterId = Number.isFinite(Number(characterId)) ? Number(characterId) : null;
+  if (normalizedCharacterId === null) {
+    return [];
+  }
+
+  const gradeNames = state.characterGradeNameMap?.[normalizedCharacterId] ?? state.characterGradeNameMap?.[String(normalizedCharacterId)];
+  if (!Array.isArray(gradeNames)) {
+    return [];
+  }
+
+  return gradeNames
+    .map((label, index) => ({
+      value: index + 1,
+      label: typeof label === 'string' ? label.trim() : '',
+    }))
+    .filter((option) => option.label);
+};
+
+app.resolveCharacterGradeName = (characterId, grade, fallback = '--') => {
+  const normalizedGrade = Number.isFinite(Number(grade)) ? Math.max(0, Math.floor(Number(grade))) : 0;
+  if (normalizedGrade <= 0) {
+    return fallback;
+  }
+
+  const matchedOption = app.getCharacterGradeOptions(characterId).find((option) => option.value === normalizedGrade);
+  return matchedOption?.label || fallback;
+};
+
+app.getCharacterMaxLiberateLevel = (extraInfo) => {
+  const maxLiberateLevel = Number(extraInfo?.MaxLiberateLevel);
+  if (!Number.isFinite(maxLiberateLevel)) {
+    return null;
+  }
+
+  return Math.min(5, Math.max(1, Math.floor(maxLiberateLevel)));
+};
+
+app.getCharacterAwakenSelectableOptions = (extraInfo) => {
+  const maxLiberateLevel = app.getCharacterMaxLiberateLevel(extraInfo);
+  if (maxLiberateLevel === null) {
+    return [];
+  }
+
+  return CHARACTER_AWAKEN_EDIT_OPTIONS.filter((awakenLevel) => awakenLevel <= maxLiberateLevel);
+};
+
+app.getCharacterQualityBound = (extraInfo) => {
+  if (!Array.isArray(extraInfo?.QualityBound) || extraInfo.QualityBound.length < 2) {
+    return null;
+  }
+
+  const minQuality = Number(extraInfo.QualityBound[0]);
+  const maxQuality = Number(extraInfo.QualityBound[1]);
+  if (!Number.isFinite(minQuality) || !Number.isFinite(maxQuality)) {
+    return null;
+  }
+
+  return [Math.max(1, minQuality), Math.min(6, maxQuality)];
+};
+
+app.getCharacterQualitySelectableOptions = (extraInfo) => {
+  const qualityBound = app.getCharacterQualityBound(extraInfo);
+  if (!qualityBound) {
+    return [];
+  }
+
+  const [minQuality, maxQuality] = qualityBound;
+  return CHARACTER_QUALITY_EDIT_OPTIONS.filter((quality) => quality >= minQuality && quality <= maxQuality);
+};
+
+app.getCharacterQualityEditState = () => {
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  if (!item || !extraInfo || typeof extraInfo !== 'object') {
+    return null;
+  }
+
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
+  const star = Number.isFinite(Number(item?.Star)) ? Math.max(0, Number(item.Star)) : 0;
+  const options = app.getCharacterQualitySelectableOptions(extraInfo);
+  if (recordId === null || options.length === 0 || !options.includes(quality)) {
+    return null;
+  }
+
+  return {
+    item,
+    recordId,
+    quality,
+    star,
+    options,
+  };
+};
+
+app.renderCharacterQualityStarOptions = (quality) => {
+  if (!(characterQualityEditStarSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const normalizedQuality = Number.isFinite(Number(quality)) ? Number(quality) : 0;
+  const isSssPlus = normalizedQuality === 6;
+  const starOptions = isSssPlus ? [0] : Array.from({ length: 10 }, (_, index) => index);
+  characterQualityEditStarSelect.innerHTML = starOptions.map((starValue) => (
+    `<option value="${starValue}">${app.escapeHtml(String(starValue))}</option>`
+  )).join('');
+  characterQualityEditStarSelect.disabled = isSssPlus || state.characterQualityEditPending;
+};
+
+app.syncCharacterQualityEditControls = () => {
+  const editState = app.getCharacterQualityEditState();
+  const isEditable = Boolean(editState);
+
+  if (characterDetailEvolution instanceof HTMLElement) {
+    characterDetailEvolution.classList.toggle('is-editable', isEditable);
+    characterDetailEvolution.tabIndex = isEditable ? 0 : -1;
+    characterDetailEvolution.setAttribute('role', isEditable ? 'button' : 'status');
+    if (isEditable) {
+      characterDetailEvolution.setAttribute('aria-label', app.translate('dashboard.characterDetailQualityEditTrigger'));
+      characterDetailEvolution.title = app.translate('dashboard.characterDetailQualityEditTrigger');
+    } else {
+      characterDetailEvolution.removeAttribute('aria-label');
+      characterDetailEvolution.removeAttribute('title');
+    }
+  }
+
+  return editState;
+};
+
+app.populateCharacterQualityEditModal = () => {
+  const editState = app.getCharacterQualityEditState();
+  if (!editState) {
+    return false;
+  }
+
+  if (characterQualityEditQualitySelect instanceof HTMLSelectElement) {
+    characterQualityEditQualitySelect.className = `character-quality-edit-select ${app.getCharacterQualityClass(editState.quality)}`;
+    characterQualityEditQualitySelect.innerHTML = editState.options.map((qualityOption) => (
+      `<option value="${qualityOption}">${app.escapeHtml(app.getCharacterQualityLabel(qualityOption))}</option>`
+    )).join('');
+    characterQualityEditQualitySelect.value = String(editState.quality);
+    characterQualityEditQualitySelect.disabled = state.characterQualityEditPending;
+  }
+
+  app.renderCharacterQualityStarOptions(editState.quality);
+
+  if (characterQualityEditStarSelect instanceof HTMLSelectElement) {
+    characterQualityEditStarSelect.value = String(editState.quality === 6 ? 0 : editState.star);
+  }
+
+  if (characterQualityEditConfirmButton instanceof HTMLButtonElement) {
+    characterQualityEditConfirmButton.disabled = state.characterQualityEditPending;
+    characterQualityEditConfirmButton.textContent = state.characterQualityEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterQualityEditModal = () => {
+  if (!(characterQualityEditModal instanceof HTMLElement) || characterQualityEditModal.hidden) {
+    return;
+  }
+
+  characterQualityEditModal.hidden = true;
+  state.characterQualityEditPending = false;
+
+  if (state.lastCharacterQualityEditTrigger instanceof HTMLElement) {
+    state.lastCharacterQualityEditTrigger.focus();
+    state.lastCharacterQualityEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterQualityEditModal = (trigger = null) => {
+  if (!(characterQualityEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!app.populateCharacterQualityEditModal()) {
+    return;
+  }
+
+  state.lastCharacterQualityEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterQualityEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (characterQualityEditQualitySelect instanceof HTMLSelectElement) {
+    characterQualityEditQualitySelect.focus();
+  } else if (characterQualityEditCard instanceof HTMLElement) {
+    characterQualityEditCard.focus();
+  }
+};
+
+app.getCharacterLevelBounds = (levelExpMap) => {
+  if (!levelExpMap || typeof levelExpMap !== 'object') {
+    return null;
+  }
+
+  const levels = Object.keys(levelExpMap)
+    .map((key) => Number(key))
+    .filter((value) => Number.isFinite(value))
+    .sort((left, right) => left - right);
+  if (levels.length === 0) {
+    return null;
+  }
+
+  return {
+    minLevel: levels[0],
+    maxLevel: levels[levels.length - 1],
+  };
+};
+
+app.getCharacterExpLimit = (levelExpMap, level) => {
+  const bounds = app.getCharacterLevelBounds(levelExpMap);
+  if (!bounds || !Number.isFinite(Number(level))) {
+    return null;
+  }
+
+  const normalizedLevel = Number(level);
+  const rawLimit = Number(levelExpMap?.[normalizedLevel]);
+  if (!Number.isFinite(rawLimit)) {
+    return null;
+  }
+
+  return normalizedLevel === bounds.maxLevel ? rawLimit : Math.max(rawLimit - 1, 0);
+};
+
+app.getCharacterLevelEditState = () => {
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  if (!item || !extraInfo || typeof extraInfo !== 'object') {
+    return null;
+  }
+
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
+  const exp = Number.isFinite(Number(extraInfo?.Exp)) ? Math.max(0, Number(extraInfo.Exp)) : 0;
+  const levelExpMap = extraInfo?.LevelExpMap && typeof extraInfo.LevelExpMap === 'object' ? extraInfo.LevelExpMap : null;
+  const bounds = app.getCharacterLevelBounds(levelExpMap);
+  if (recordId === null || level === null || !bounds) {
+    return null;
+  }
+
+  return {
+    recordId,
+    level,
+    exp,
+    levelExpMap,
+    minLevel: bounds.minLevel,
+    maxLevel: bounds.maxLevel,
+  };
+};
+
+app.syncCharacterLevelEditExpInput = () => {
+  if (!(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const editState = app.getCharacterLevelEditState();
+  if (!editState) {
+    return;
+  }
+
+  const selectedLevel = Number.parseInt(characterLevelEditLevelInput.value, 10);
+  const effectiveLevel = Number.isFinite(selectedLevel) ? selectedLevel : editState.level;
+  const maxExp = app.getCharacterExpLimit(editState.levelExpMap, effectiveLevel);
+  if (!Number.isFinite(maxExp)) {
+    characterLevelEditExpInput.min = '0';
+    characterLevelEditExpInput.max = '0';
+    return;
+  }
+
+  characterLevelEditExpInput.min = '0';
+  characterLevelEditExpInput.max = String(maxExp);
+
+  const currentExp = Number.parseInt(characterLevelEditExpInput.value, 10);
+  if (!Number.isFinite(currentExp) || currentExp < 0) {
+    characterLevelEditExpInput.value = '0';
+    return;
+  }
+
+  if (currentExp > maxExp) {
+    characterLevelEditExpInput.value = String(maxExp);
+  }
+};
+
+app.syncCharacterLevelEditControls = () => {
+  const editState = app.getCharacterLevelEditState();
+  const isEditable = Boolean(editState);
+
+  if (characterDetailLevel instanceof HTMLElement) {
+    characterDetailLevel.classList.toggle('is-editable', isEditable);
+    characterDetailLevel.tabIndex = isEditable ? 0 : -1;
+    characterDetailLevel.setAttribute('role', isEditable ? 'button' : 'status');
+    if (isEditable) {
+      characterDetailLevel.setAttribute('aria-label', app.translate('dashboard.characterDetailLevelEditTrigger'));
+      characterDetailLevel.title = app.translate('dashboard.characterDetailLevelEditTrigger');
+    } else {
+      characterDetailLevel.removeAttribute('aria-label');
+      characterDetailLevel.removeAttribute('title');
+    }
+  }
+
+  return editState;
+};
+
+app.populateCharacterLevelEditModal = () => {
+  const editState = app.getCharacterLevelEditState();
+  if (!editState || !(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+    return false;
+  }
+
+  characterLevelEditLevelInput.min = String(editState.minLevel);
+  characterLevelEditLevelInput.max = String(editState.maxLevel);
+  characterLevelEditLevelInput.value = String(editState.level);
+  characterLevelEditLevelInput.disabled = state.characterLevelEditPending;
+
+  characterLevelEditExpInput.value = String(editState.exp);
+  characterLevelEditExpInput.disabled = state.characterLevelEditPending;
+  app.syncCharacterLevelEditExpInput();
+
+  if (characterLevelEditConfirmButton instanceof HTMLButtonElement) {
+    characterLevelEditConfirmButton.disabled = state.characterLevelEditPending;
+    characterLevelEditConfirmButton.textContent = state.characterLevelEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterLevelEditModal = () => {
+  if (!(characterLevelEditModal instanceof HTMLElement) || characterLevelEditModal.hidden) {
+    return;
+  }
+
+  characterLevelEditModal.hidden = true;
+  state.characterLevelEditPending = false;
+
+  if (state.lastCharacterLevelEditTrigger instanceof HTMLElement) {
+    state.lastCharacterLevelEditTrigger.focus();
+    state.lastCharacterLevelEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterLevelEditModal = (trigger = null) => {
+  if (!(characterLevelEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!app.populateCharacterLevelEditModal()) {
+    return;
+  }
+
+  state.lastCharacterLevelEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterLevelEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (characterLevelEditLevelInput instanceof HTMLInputElement) {
+    characterLevelEditLevelInput.focus();
+  } else if (characterLevelEditCard instanceof HTMLElement) {
+    characterLevelEditCard.focus();
+  }
+};
+
+app.getCharacterTrustBounds = (trustExpMap = state.characterTrustExpMap) => {
+  if (!trustExpMap || typeof trustExpMap !== 'object') {
+    return null;
+  }
+
+  const levels = Object.keys(trustExpMap)
+    .map((key) => Number(key))
+    .filter((value) => Number.isFinite(value) && value > 0 && value <= 8)
+    .sort((left, right) => left - right);
+  if (levels.length === 0) {
+    return null;
+  }
+
+  return {
+    minTrustLv: levels[0],
+    maxTrustLv: Math.min(levels[levels.length - 1], 8),
+  };
+};
+
+app.getCharacterTrustExpLimit = (trustExpMap, trustLv) => {
+  const bounds = app.getCharacterTrustBounds(trustExpMap);
+  if (!bounds || !Number.isFinite(Number(trustLv))) {
+    return null;
+  }
+
+  const normalizedTrustLv = Number(trustLv);
+  const rawLimit = Number(trustExpMap?.[normalizedTrustLv]);
+  if (!Number.isFinite(rawLimit)) {
+    return null;
+  }
+
+  return normalizedTrustLv === bounds.maxTrustLv ? rawLimit : Math.max(rawLimit - 1, 0);
+};
+
+app.getCharacterTrustEditState = () => {
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  const trustExpMap = state.characterTrustExpMap && typeof state.characterTrustExpMap === 'object'
+    ? state.characterTrustExpMap
+    : null;
+  if (!item || !extraInfo || typeof extraInfo !== 'object' || !trustExpMap) {
+    return null;
+  }
+
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const bounds = app.getCharacterTrustBounds(trustExpMap);
+  if (recordId === null || !bounds) {
+    return null;
+  }
+
+  const rawTrustLv = Number.isFinite(Number(extraInfo?.TrustLv)) ? Math.max(0, Math.floor(Number(extraInfo.TrustLv))) : 0;
+  const trustLv = Math.min(Math.max(rawTrustLv, bounds.minTrustLv), bounds.maxTrustLv);
+  const trustExpLimit = app.getCharacterTrustExpLimit(trustExpMap, trustLv);
+  if (!Number.isFinite(trustExpLimit)) {
+    return null;
+  }
+
+  const rawTrustExp = Number.isFinite(Number(extraInfo?.TrustExp)) ? Math.max(0, Number(extraInfo.TrustExp)) : 0;
+
+  return {
+    recordId,
+    trustLv,
+    trustExp: Math.min(rawTrustExp, trustExpLimit),
+    trustExpMap,
+    minTrustLv: bounds.minTrustLv,
+    maxTrustLv: bounds.maxTrustLv,
+  };
+};
+
+app.renderCharacterTrustEditHearts = (selectedTrustLv) => {
+  if (!(characterTrustEditHearts instanceof HTMLElement)) {
+    return;
+  }
+
+  const editState = app.getCharacterTrustEditState();
+  if (!editState) {
+    characterTrustEditHearts.innerHTML = '';
+    return;
+  }
+
+  const normalizedTrustLv = Number.isFinite(Number(selectedTrustLv))
+    ? Math.min(Math.max(Number(selectedTrustLv), editState.minTrustLv), editState.maxTrustLv)
+    : editState.trustLv;
+  const selectedSymbol = app.getCharacterTrustSymbol(normalizedTrustLv) || '🤍';
+
+  characterTrustEditHearts.innerHTML = Array.from({ length: editState.maxTrustLv }, (_, index) => {
+    const trustLv = index + 1;
+    const isSelected = trustLv <= normalizedTrustLv;
+    const isCurrent = trustLv === normalizedTrustLv;
+    const isDisabled = trustLv < editState.minTrustLv || state.characterTrustEditPending;
+    const symbol = isSelected ? selectedSymbol : '🤍';
+    return `
+      <button
+        type="button"
+        class="character-trust-edit-heart${isSelected ? ' is-selected' : ''}"
+        data-character-trust-level="${trustLv}"
+        aria-label="${app.escapeHtml(app.translate('dashboard.characterDetailTrustLevelOption', { level: trustLv }))}"
+        aria-pressed="${isCurrent ? 'true' : 'false'}"
+        ${isDisabled ? 'disabled' : ''}
+      >${symbol}</button>
+    `;
+  }).join('');
+
+  characterTrustEditHearts.setAttribute('aria-label', app.translate('dashboard.characterDetailTrustEditTrigger'));
+};
+
+app.syncCharacterTrustEditExpInput = () => {
+  if (!(characterTrustEditHearts instanceof HTMLElement) || !(characterTrustEditExpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const editState = app.getCharacterTrustEditState();
+  if (!editState) {
+    return;
+  }
+
+  const selectedButton = characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]');
+  const selectedTrustLv = selectedButton instanceof HTMLButtonElement
+    ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
+    : editState.trustLv;
+  const effectiveTrustLv = Number.isFinite(selectedTrustLv)
+    ? Math.min(Math.max(selectedTrustLv, editState.minTrustLv), editState.maxTrustLv)
+    : editState.trustLv;
+  const maxExp = app.getCharacterTrustExpLimit(editState.trustExpMap, effectiveTrustLv);
+  if (!Number.isFinite(maxExp)) {
+    characterTrustEditExpInput.min = '0';
+    characterTrustEditExpInput.max = '0';
+    return;
+  }
+
+  characterTrustEditExpInput.min = '0';
+  characterTrustEditExpInput.max = String(maxExp);
+
+  const currentExp = Number.parseInt(characterTrustEditExpInput.value, 10);
+  if (!Number.isFinite(currentExp) || currentExp < 0) {
+    characterTrustEditExpInput.value = '0';
+    return;
+  }
+
+  if (currentExp > maxExp) {
+    characterTrustEditExpInput.value = String(maxExp);
+  }
+};
+
+app.syncCharacterTrustEditControls = () => {
+  const editState = app.getCharacterTrustEditState();
+  const isEditable = Boolean(editState);
+
+  if (characterDetailTrust instanceof HTMLElement) {
+    characterDetailTrust.classList.toggle('is-editable', isEditable);
+    characterDetailTrust.tabIndex = isEditable ? 0 : -1;
+    characterDetailTrust.setAttribute('role', isEditable ? 'button' : 'status');
+    if (isEditable) {
+      characterDetailTrust.setAttribute('aria-label', app.translate('dashboard.characterDetailTrustEditTrigger'));
+      characterDetailTrust.title = app.translate('dashboard.characterDetailTrustEditTrigger');
+    } else {
+      characterDetailTrust.removeAttribute('aria-label');
+      characterDetailTrust.removeAttribute('title');
+    }
+  }
+
+  return editState;
+};
+
+app.populateCharacterTrustEditModal = () => {
+  const editState = app.getCharacterTrustEditState();
+  if (!editState || !(characterTrustEditExpInput instanceof HTMLInputElement)) {
+    return false;
+  }
+
+  app.renderCharacterTrustEditHearts(editState.trustLv);
+
+  characterTrustEditExpInput.value = String(editState.trustExp);
+  characterTrustEditExpInput.disabled = state.characterTrustEditPending;
+  app.syncCharacterTrustEditExpInput();
+
+  if (characterTrustEditConfirmButton instanceof HTMLButtonElement) {
+    characterTrustEditConfirmButton.disabled = state.characterTrustEditPending;
+    characterTrustEditConfirmButton.textContent = state.characterTrustEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterTrustEditModal = () => {
+  if (!(characterTrustEditModal instanceof HTMLElement) || characterTrustEditModal.hidden) {
+    return;
+  }
+
+  characterTrustEditModal.hidden = true;
+  state.characterTrustEditPending = false;
+
+  if (state.lastCharacterTrustEditTrigger instanceof HTMLElement) {
+    state.lastCharacterTrustEditTrigger.focus();
+    state.lastCharacterTrustEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterTrustEditModal = (trigger = null) => {
+  if (!(characterTrustEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!app.populateCharacterTrustEditModal()) {
+    return;
+  }
+
+  state.lastCharacterTrustEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterTrustEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  const selectedButton = characterTrustEditHearts instanceof HTMLElement
+    ? characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]')
+    : null;
+  if (selectedButton instanceof HTMLButtonElement) {
+    selectedButton.focus();
+  } else if (characterTrustEditExpInput instanceof HTMLInputElement) {
+    characterTrustEditExpInput.focus();
+  } else if (characterTrustEditCard instanceof HTMLElement) {
+    characterTrustEditCard.focus();
+  }
+};
+
+app.getCharacterGradeEditState = () => {
+  const item = state.currentCharacterDetailItem;
+  if (!item) {
+    return null;
+  }
+
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const characterId = Number.isFinite(Number(item?.CharacterId ?? item?._id ?? item?.record_id)) ? Number(item.CharacterId ?? item._id ?? item.record_id) : null;
+  const grade = Number.isFinite(Number(item?.Grade)) ? Math.max(1, Math.floor(Number(item.Grade))) : 0;
+  const options = app.getCharacterGradeOptions(characterId);
+  if (recordId === null || characterId === null || grade <= 0 || options.length === 0 || !options.some((option) => option.value === grade)) {
+    return null;
+  }
+
+  return {
+    recordId,
+    characterId,
+    grade,
+    options,
+  };
+};
+
+app.syncCharacterGradeEditControls = () => {
+  const editState = app.getCharacterGradeEditState();
+  const isEditable = Boolean(editState);
+
+  if (characterDetailGrade instanceof HTMLElement) {
+    characterDetailGrade.classList.toggle('is-editable', isEditable);
+    characterDetailGrade.tabIndex = isEditable ? 0 : -1;
+    characterDetailGrade.setAttribute('role', isEditable ? 'button' : 'status');
+    if (isEditable) {
+      characterDetailGrade.setAttribute('aria-label', app.translate('dashboard.characterDetailGradeEditTrigger'));
+      characterDetailGrade.title = app.translate('dashboard.characterDetailGradeEditTrigger');
+    } else {
+      characterDetailGrade.removeAttribute('aria-label');
+      characterDetailGrade.removeAttribute('title');
+    }
+  }
+
+  return editState;
+};
+
+app.populateCharacterGradeEditModal = () => {
+  const editState = app.getCharacterGradeEditState();
+  if (!editState || !(characterGradeEditSelect instanceof HTMLSelectElement)) {
+    return false;
+  }
+
+  characterGradeEditSelect.innerHTML = editState.options.map((option) => (
+    `<option value="${option.value}">${app.escapeHtml(option.label)}</option>`
+  )).join('');
+  characterGradeEditSelect.value = String(editState.grade);
+  characterGradeEditSelect.className = `character-quality-edit-select ${app.getCharacterGradeClass(editState.grade)}`;
+  characterGradeEditSelect.disabled = state.characterGradeEditPending;
+
+  if (characterGradeEditConfirmButton instanceof HTMLButtonElement) {
+    characterGradeEditConfirmButton.disabled = state.characterGradeEditPending;
+    characterGradeEditConfirmButton.textContent = state.characterGradeEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterGradeEditModal = () => {
+  if (!(characterGradeEditModal instanceof HTMLElement) || characterGradeEditModal.hidden) {
+    return;
+  }
+
+  characterGradeEditModal.hidden = true;
+  state.characterGradeEditPending = false;
+
+  if (state.lastCharacterGradeEditTrigger instanceof HTMLElement) {
+    state.lastCharacterGradeEditTrigger.focus();
+    state.lastCharacterGradeEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterGradeEditModal = (trigger = null) => {
+  if (!(characterGradeEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!app.populateCharacterGradeEditModal()) {
+    return;
+  }
+
+  state.lastCharacterGradeEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterGradeEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (characterGradeEditSelect instanceof HTMLSelectElement) {
+    characterGradeEditSelect.focus();
+  } else if (characterGradeEditCard instanceof HTMLElement) {
+    characterGradeEditCard.focus();
+  }
+};
+
+app.updateCharacterGrade = async () => {
+  const editState = app.getCharacterGradeEditState();
+  if (!editState || !(characterGradeEditSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const grade = Number.parseInt(characterGradeEditSelect.value, 10);
+  if (!editState.options.some((option) => option.value === grade)) {
+    app.openNoticeModal(app.translate('runtime.characterGradeUpdateInvalid'));
+    return;
+  }
+
+  state.characterGradeEditPending = true;
+  app.populateCharacterGradeEditModal();
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/grade`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        Grade: grade,
+      }),
+    });
+
+    const updatedGrade = Number.isFinite(Number(payload?.Grade)) ? Math.max(1, Math.floor(Number(payload.Grade))) : grade;
+    const updatedGradeName = app.resolveCharacterGradeName(editState.characterId, updatedGrade, '--');
+    const currentRecordId = editState.recordId;
+
+    state.characterManagementItems = Array.isArray(state.characterManagementItems)
+      ? state.characterManagementItems.map((entry) => {
+        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        if (entryRecordId !== currentRecordId) {
+          return entry;
+        }
+        return {
+          ...entry,
+          Grade: updatedGrade,
+          GradeName: updatedGradeName,
+        };
+      })
+      : state.characterManagementItems;
+
+    if (state.currentCharacterDetailItem) {
+      state.currentCharacterDetailItem = {
+        ...state.currentCharacterDetailItem,
+        Grade: updatedGrade,
+        GradeName: updatedGradeName,
+      };
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
+      app.renderCharacterRows(state.characterManagementItems);
+    }
+
+    app.closeCharacterGradeEditModal();
+    app.openSuccessModal(app.translate('runtime.characterGradeUpdateSuccess'), app.translate('runtime.characterGradeUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterGradeUpdateFailed'));
+  } finally {
+    state.characterGradeEditPending = false;
+    if (characterGradeEditModal instanceof HTMLElement && !characterGradeEditModal.hidden) {
+      app.populateCharacterGradeEditModal();
+    }
+  }
+};
+
+app.getCharacterAwakenEditState = () => {
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  if (!item) {
+    return null;
+  }
+
+  if (!extraInfo || typeof extraInfo !== 'object') {
+    return null;
+  }
+
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const rawAwakenLevel = Number.isFinite(Number(item?.AwakenLevel)) ? Math.max(0, Math.floor(Number(item.AwakenLevel))) : 0;
+  const awakenLevel = Math.min(Math.max(rawAwakenLevel, 1), 5);
+  const options = app.getCharacterAwakenSelectableOptions(extraInfo);
+  if (recordId === null) {
+    return null;
+  }
+
+  if (options.length === 0 || !options.includes(awakenLevel)) {
+    return null;
+  }
+
+  return {
+    recordId,
+    awakenLevel,
+    options,
+  };
+};
+
+app.syncCharacterAwakenEditControls = () => {
+  const editState = app.getCharacterAwakenEditState();
+  const isEditable = Boolean(editState);
+
+  if (characterDetailAwaken instanceof HTMLElement) {
+    characterDetailAwaken.classList.toggle('is-editable', isEditable);
+    characterDetailAwaken.tabIndex = isEditable ? 0 : -1;
+    characterDetailAwaken.setAttribute('role', isEditable ? 'button' : 'status');
+    if (isEditable) {
+      characterDetailAwaken.setAttribute('aria-label', app.translate('dashboard.characterDetailAwakenEditTrigger'));
+      characterDetailAwaken.title = app.translate('dashboard.characterDetailAwakenEditTrigger');
+    } else {
+      characterDetailAwaken.removeAttribute('aria-label');
+      characterDetailAwaken.removeAttribute('title');
+    }
+  }
+
+  return editState;
+};
+
+app.populateCharacterAwakenEditModal = () => {
+  const editState = app.getCharacterAwakenEditState();
+  if (!editState || !(characterAwakenEditLevelSelect instanceof HTMLSelectElement)) {
+    return false;
+  }
+
+  characterAwakenEditLevelSelect.innerHTML = editState.options.map((awakenOption) => (
+    `<option value="${awakenOption}">${app.escapeHtml(app.getCharacterAwakenDisplay(awakenOption))}</option>`
+  )).join('');
+  characterAwakenEditLevelSelect.value = String(editState.awakenLevel);
+  characterAwakenEditLevelSelect.className = `character-quality-edit-select ${app.getCharacterAwakenClass(editState.awakenLevel)}`;
+  characterAwakenEditLevelSelect.disabled = state.characterAwakenEditPending;
+
+  if (characterAwakenEditConfirmButton instanceof HTMLButtonElement) {
+    characterAwakenEditConfirmButton.disabled = state.characterAwakenEditPending;
+    characterAwakenEditConfirmButton.textContent = state.characterAwakenEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterAwakenEditModal = () => {
+  if (!(characterAwakenEditModal instanceof HTMLElement) || characterAwakenEditModal.hidden) {
+    return;
+  }
+
+  characterAwakenEditModal.hidden = true;
+  state.characterAwakenEditPending = false;
+
+  if (state.lastCharacterAwakenEditTrigger instanceof HTMLElement) {
+    state.lastCharacterAwakenEditTrigger.focus();
+    state.lastCharacterAwakenEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterAwakenEditModal = (trigger = null) => {
+  if (!(characterAwakenEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  if (!app.populateCharacterAwakenEditModal()) {
+    return;
+  }
+
+  state.lastCharacterAwakenEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterAwakenEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (characterAwakenEditLevelSelect instanceof HTMLSelectElement) {
+    characterAwakenEditLevelSelect.focus();
+  } else if (characterAwakenEditCard instanceof HTMLElement) {
+    characterAwakenEditCard.focus();
+  }
+};
+
+app.updateCharacterAwaken = async () => {
+  const editState = app.getCharacterAwakenEditState();
+  if (!editState || !(characterAwakenEditLevelSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const awakenLevel = Number.parseInt(characterAwakenEditLevelSelect.value, 10);
+  if (!editState.options.includes(awakenLevel)) {
+    app.openNoticeModal(app.translate('runtime.characterAwakenUpdateInvalid'));
+    return;
+  }
+
+  state.characterAwakenEditPending = true;
+  app.populateCharacterAwakenEditModal();
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/awaken`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        AwakenLevel: awakenLevel,
+      }),
+    });
+
+    const updatedAwakenLevel = Number.isFinite(Number(payload?.AwakenLevel)) ? Number(payload.AwakenLevel) : awakenLevel;
+    const currentRecordId = editState.recordId;
+
+    state.characterManagementItems = Array.isArray(state.characterManagementItems)
+      ? state.characterManagementItems.map((entry) => {
+        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        if (entryRecordId !== currentRecordId) {
+          return entry;
+        }
+        return {
+          ...entry,
+          AwakenLevel: updatedAwakenLevel,
+        };
+      })
+      : state.characterManagementItems;
+
+    if (state.currentCharacterDetailItem) {
+      state.currentCharacterDetailItem = {
+        ...state.currentCharacterDetailItem,
+        AwakenLevel: updatedAwakenLevel,
+      };
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
+      app.renderCharacterRows(state.characterManagementItems);
+    }
+
+    app.closeCharacterAwakenEditModal();
+    app.openSuccessModal(app.translate('runtime.characterAwakenUpdateSuccess'), app.translate('runtime.characterAwakenUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterAwakenUpdateFailed'));
+  } finally {
+    state.characterAwakenEditPending = false;
+    if (characterAwakenEditModal instanceof HTMLElement && !characterAwakenEditModal.hidden) {
+      app.populateCharacterAwakenEditModal();
+    }
+  }
+};
+
+app.updateCharacterTrust = async () => {
+  const editState = app.getCharacterTrustEditState();
+  if (!editState || !(characterTrustEditHearts instanceof HTMLElement) || !(characterTrustEditExpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const selectedButton = characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]');
+  const trustLv = selectedButton instanceof HTMLButtonElement
+    ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
+    : NaN;
+  const trustExp = Number.parseInt(characterTrustEditExpInput.value, 10);
+  if (!Number.isFinite(trustLv) || !Number.isFinite(trustExp) || trustExp < 0) {
+    app.openNoticeModal(app.translate('runtime.characterTrustUpdateInvalid'));
+    return;
+  }
+
+  if (trustLv < editState.minTrustLv || trustLv > editState.maxTrustLv) {
+    app.openNoticeModal(app.translate('runtime.characterTrustUpdateInvalid'));
+    return;
+  }
+
+  const maxExp = app.getCharacterTrustExpLimit(editState.trustExpMap, trustLv);
+  if (!Number.isFinite(maxExp) || trustExp > maxExp) {
+    app.openNoticeModal(app.translate('runtime.characterTrustUpdateInvalid'));
+    return;
+  }
+
+  state.characterTrustEditPending = true;
+  app.populateCharacterTrustEditModal();
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/trust`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        TrustLv: trustLv,
+        TrustExp: trustExp,
+      }),
+    });
+
+    const updatedTrustLv = Number.isFinite(Number(payload?.TrustLv)) ? Number(payload.TrustLv) : trustLv;
+    const updatedTrustExp = Number.isFinite(Number(payload?.TrustExp)) ? Number(payload.TrustExp) : trustExp;
+
+    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+      state.currentCharacterDetailExtraInfo = {
+        ...state.currentCharacterDetailExtraInfo,
+        TrustLv: updatedTrustLv,
+        TrustExp: updatedTrustExp,
+      };
+    }
+
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    app.closeCharacterTrustEditModal();
+    app.openSuccessModal(app.translate('runtime.characterTrustUpdateSuccess'), app.translate('runtime.characterTrustUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterTrustUpdateFailed'));
+  } finally {
+    state.characterTrustEditPending = false;
+    if (characterTrustEditModal instanceof HTMLElement && !characterTrustEditModal.hidden) {
+      app.populateCharacterTrustEditModal();
+    }
+  }
+};
+
+app.handleCharacterQualityEditQualityChange = () => {
+  if (!(characterQualityEditQualitySelect instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const quality = Number.parseInt(characterQualityEditQualitySelect.value, 10);
+  const normalizedQuality = Number.isFinite(quality) ? quality : 0;
+  const previousStar = characterQualityEditStarSelect instanceof HTMLSelectElement
+    ? Number.parseInt(characterQualityEditStarSelect.value, 10)
+    : 0;
+  characterQualityEditQualitySelect.className = `character-quality-edit-select ${app.getCharacterQualityClass(normalizedQuality)}`;
+  app.renderCharacterQualityStarOptions(normalizedQuality);
+  if (characterQualityEditStarSelect instanceof HTMLSelectElement) {
+    const nextStar = normalizedQuality === 6
+      ? 0
+      : (Number.isFinite(previousStar) ? Math.min(Math.max(previousStar, 0), 9) : 0);
+    characterQualityEditStarSelect.value = String(nextStar);
+  }
+};
+
+app.updateCharacterQualityStar = async () => {
+  const editState = app.getCharacterQualityEditState();
+  if (!editState || !(characterQualityEditQualitySelect instanceof HTMLSelectElement) || !(characterQualityEditStarSelect instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  const quality = Number.parseInt(characterQualityEditQualitySelect.value, 10);
+  const star = Number.parseInt(characterQualityEditStarSelect.value, 10);
+  const normalizedQuality = Number.isFinite(quality) ? quality : NaN;
+  const normalizedStar = Number.isFinite(star) ? star : NaN;
+
+  if (!editState.options.includes(normalizedQuality)) {
+    app.openNoticeModal(app.translate('runtime.characterQualityUpdateInvalid'));
+    return;
+  }
+
+  if (normalizedQuality === 6 ? normalizedStar !== 0 : normalizedStar < 0 || normalizedStar > 9) {
+    app.openNoticeModal(app.translate('runtime.characterQualityUpdateInvalid'));
+    return;
+  }
+
+  state.characterQualityEditPending = true;
+  app.populateCharacterQualityEditModal();
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/evolution`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        Quality: normalizedQuality,
+        Star: normalizedQuality === 6 ? 0 : normalizedStar,
+      }),
+    });
+
+    const updatedQuality = Number.isFinite(Number(payload?.Quality)) ? Number(payload.Quality) : normalizedQuality;
+    const updatedStar = Number.isFinite(Number(payload?.Star)) ? Number(payload.Star) : (updatedQuality === 6 ? 0 : normalizedStar);
+    const currentRecordId = editState.recordId;
+
+    state.characterManagementItems = Array.isArray(state.characterManagementItems)
+      ? state.characterManagementItems.map((entry) => {
+        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        if (entryRecordId !== currentRecordId) {
+          return entry;
+        }
+        return {
+          ...entry,
+          Quality: updatedQuality,
+          Star: updatedStar,
+        };
+      })
+      : state.characterManagementItems;
+
+    if (state.currentCharacterDetailItem) {
+      state.currentCharacterDetailItem = {
+        ...state.currentCharacterDetailItem,
+        Quality: updatedQuality,
+        Star: updatedStar,
+      };
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
+      app.renderCharacterRows(state.characterManagementItems);
+    }
+
+    app.closeCharacterQualityEditModal();
+    app.openSuccessModal(app.translate('runtime.characterQualityUpdateSuccess'), app.translate('runtime.characterQualityUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterQualityUpdateFailed'));
+  } finally {
+    state.characterQualityEditPending = false;
+    if (characterQualityEditModal instanceof HTMLElement && !characterQualityEditModal.hidden) {
+      app.populateCharacterQualityEditModal();
+    }
+  }
+};
+
+app.updateCharacterLevelExp = async () => {
+  const editState = app.getCharacterLevelEditState();
+  if (!editState || !(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const level = Number.parseInt(characterLevelEditLevelInput.value, 10);
+  const exp = Number.parseInt(characterLevelEditExpInput.value, 10);
+  if (!Number.isFinite(level) || !Number.isFinite(exp) || exp < 0) {
+    app.openNoticeModal(app.translate('runtime.characterLevelUpdateInvalid'));
+    return;
+  }
+
+  if (level < editState.minLevel || level > editState.maxLevel) {
+    app.openNoticeModal(app.translate('runtime.characterLevelMaxExceeded', {
+      min: editState.minLevel,
+      max: editState.maxLevel,
+    }));
+    return;
+  }
+
+  const maxExp = app.getCharacterExpLimit(editState.levelExpMap, level);
+  if (!Number.isFinite(maxExp)) {
+    app.openNoticeModal(app.translate('runtime.characterLevelUpdateInvalid'));
+    return;
+  }
+
+  if (exp > maxExp) {
+    app.openNoticeModal(app.translate('runtime.characterExpMaxExceeded', { max: maxExp }));
+    return;
+  }
+
+  state.characterLevelEditPending = true;
+  app.populateCharacterLevelEditModal();
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/levelup`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        Level: level,
+        Exp: exp,
+      }),
+    });
+
+    const updatedLevel = Number.isFinite(Number(payload?.Level)) ? Number(payload.Level) : level;
+    const updatedExp = Number.isFinite(Number(payload?.Exp)) ? Number(payload.Exp) : exp;
+    const currentRecordId = editState.recordId;
+
+    state.characterManagementItems = Array.isArray(state.characterManagementItems)
+      ? state.characterManagementItems.map((entry) => {
+        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        if (entryRecordId !== currentRecordId) {
+          return entry;
+        }
+        return {
+          ...entry,
+          Level: updatedLevel,
+        };
+      })
+      : state.characterManagementItems;
+
+    if (state.currentCharacterDetailItem) {
+      state.currentCharacterDetailItem = {
+        ...state.currentCharacterDetailItem,
+        Level: updatedLevel,
+      };
+    }
+
+    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+      state.currentCharacterDetailExtraInfo = {
+        ...state.currentCharacterDetailExtraInfo,
+        Exp: updatedExp,
+      };
+    }
+
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
+      app.renderCharacterRows(state.characterManagementItems);
+    }
+
+    app.closeCharacterLevelEditModal();
+    app.openSuccessModal(app.translate('runtime.characterLevelUpdateSuccess'), app.translate('runtime.characterLevelUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterLevelUpdateFailed'));
+  } finally {
+    state.characterLevelEditPending = false;
+    if (characterLevelEditModal instanceof HTMLElement && !characterLevelEditModal.hidden) {
+      app.populateCharacterLevelEditModal();
+    }
+  }
+};
 
 app.getCharacterQualityLabel = (quality) => {
   const normalizedQuality = Number.isFinite(Number(quality)) ? Number(quality) : 0;
@@ -112,6 +1388,12 @@ app.normalizeCharacterFashions = (extraInfo) => {
     const bigHeadIconFashion = typeof fashion?.BigHeadIconFashion === 'string' && fashion.BigHeadIconFashion.trim()
       ? fashion.BigHeadIconFashion.trim()
       : '';
+    const name = typeof fashion?.Name === 'string' && fashion.Name.trim()
+      ? fashion.Name.trim()
+      : '--';
+    const description = typeof fashion?.Description === 'string' && fashion.Description.trim()
+      ? fashion.Description.trim()
+      : '--';
 
     if (id === null || !bigIcon || !bigHeadIconFashion) {
       return null;
@@ -123,8 +1405,23 @@ app.normalizeCharacterFashions = (extraInfo) => {
       IsLock: Boolean(fashion?.IsLock),
       BigIcon: bigIcon,
       BigHeadIconFashion: bigHeadIconFashion,
+      Name: name,
+      Description: description,
     };
   }).filter((fashion) => Boolean(fashion));
+};
+
+app.getCharacterDetailFashionTooltipText = (fashion) => {
+  if (!fashion || typeof fashion !== 'object') {
+    return '';
+  }
+
+  return JSON.stringify({
+    type: 'fashion',
+    name: typeof fashion.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--',
+    description: typeof fashion.Description === 'string' && fashion.Description.trim() ? fashion.Description.trim() : '--',
+    quality: Number.isFinite(Number(fashion.Quality)) ? Math.max(0, Number(fashion.Quality)) : 0,
+  });
 };
 
 app.normalizeCharacterSkillList = (value) => {
@@ -151,7 +1448,19 @@ app.normalizeCharacterSkillList = (value) => {
   }).filter((entry) => Boolean(entry));
 };
 
-app.renderCharacterSkillTableRows = (items, tableBody) => {
+app.getCharacterSkillSectionType = (tableBody) => {
+  if (tableBody === characterDetailSkillsBody) {
+    return 'normal';
+  }
+
+  if (tableBody === characterDetailEnhanceSkillsBody) {
+    return 'enhance';
+  }
+
+  return null;
+};
+
+app.renderCharacterSkillTableRows = (items, tableBody, sectionType = app.getCharacterSkillSectionType(tableBody)) => {
   if (!(tableBody instanceof HTMLElement)) {
     return;
   }
@@ -175,7 +1484,7 @@ app.renderCharacterSkillTableRows = (items, tableBody) => {
       const levelText = entry.MaxLevel > 0
         ? `${entry.Level} / ${entry.MaxLevel}`
         : String(entry.Level);
-      return `<td>${app.escapeHtml(levelText)}</td>`;
+      return `<td class="character-detail-skill-level is-editable" tabindex="0" role="button" data-character-skill-edit="${app.escapeHtml(sectionType || '')}" data-character-skill-id="${entry.SkillId}" aria-label="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}" title="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}">${app.escapeHtml(levelText)}</td>`;
     };
 
     rows.push(`<tr>${renderNameCell(left)}${renderLevelCell(left)}${renderNameCell(right)}${renderLevelCell(right)}</tr>`);
@@ -184,25 +1493,239 @@ app.renderCharacterSkillTableRows = (items, tableBody) => {
   tableBody.innerHTML = rows.join('');
 };
 
+app.getCharacterSkillEditState = () => {
+  const modalState = state.characterSkillEditState;
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  if (!modalState || !item || !extraInfo || typeof extraInfo !== 'object') {
+    return null;
+  }
+
+  const sectionType = modalState.sectionType === 'enhance' ? 'enhance' : 'normal';
+  const list = sectionType === 'enhance'
+    ? app.normalizeCharacterSkillList(extraInfo?.EnhanceSkillList)
+    : app.normalizeCharacterSkillList(extraInfo?.SkillsList);
+  const skillId = Number.isFinite(Number(modalState.skillId)) ? Number(modalState.skillId) : null;
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  if (skillId === null || recordId === null) {
+    return null;
+  }
+
+  const entry = list.find((skill) => skill.SkillId === skillId) ?? null;
+  if (!entry || entry.MaxLevel <= 0) {
+    return null;
+  }
+
+  return {
+    recordId,
+    sectionType,
+    skillId,
+    name: entry.Name,
+    level: Math.max(0, entry.Level),
+    maxLevel: Math.max(0, entry.MaxLevel),
+  };
+};
+
+app.populateCharacterSkillEditModal = () => {
+  const editState = app.getCharacterSkillEditState();
+  if (!editState || !(characterSkillEditLevelInput instanceof HTMLInputElement)) {
+    return false;
+  }
+
+  if (characterSkillEditTitle instanceof HTMLElement) {
+    const titleKey = editState.sectionType === 'enhance'
+      ? 'dashboard.characterDetailEnhanceSkillEditTitle'
+      : 'dashboard.characterDetailSkillEditTitle';
+    const titleSeparator = String(state.locale || '').startsWith('zh') ? '：' : ': ';
+    characterSkillEditTitle.textContent = `${app.translate(titleKey)}${titleSeparator}${editState.name || '--'}`;
+  }
+
+  characterSkillEditLevelInput.min = '0';
+  characterSkillEditLevelInput.max = String(editState.maxLevel);
+  characterSkillEditLevelInput.value = String(editState.level);
+  characterSkillEditLevelInput.disabled = state.characterSkillEditPending;
+
+  if (characterSkillEditConfirmButton instanceof HTMLButtonElement) {
+    characterSkillEditConfirmButton.disabled = state.characterSkillEditPending;
+    characterSkillEditConfirmButton.textContent = state.characterSkillEditPending
+      ? app.translate('common.loading')
+      : app.translate('common.confirm');
+  }
+
+  return true;
+};
+
+app.closeCharacterSkillEditModal = () => {
+  if (!(characterSkillEditModal instanceof HTMLElement) || characterSkillEditModal.hidden) {
+    return;
+  }
+
+  characterSkillEditModal.hidden = true;
+  state.characterSkillEditPending = false;
+  state.characterSkillEditState = null;
+
+  if (state.lastCharacterSkillEditTrigger instanceof HTMLElement) {
+    state.lastCharacterSkillEditTrigger.focus();
+    state.lastCharacterSkillEditTrigger = null;
+  }
+
+  if (!(characterDetailModal instanceof HTMLElement) || characterDetailModal.hidden) {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterSkillEditModal = (sectionType, skillId, trigger = null) => {
+  if (!(characterSkillEditModal instanceof HTMLElement)) {
+    return;
+  }
+
+  state.characterSkillEditState = {
+    sectionType: sectionType === 'enhance' ? 'enhance' : 'normal',
+    skillId,
+  };
+
+  if (!app.populateCharacterSkillEditModal()) {
+    state.characterSkillEditState = null;
+    return;
+  }
+
+  state.lastCharacterSkillEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterSkillEditModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (characterSkillEditLevelInput instanceof HTMLInputElement) {
+    characterSkillEditLevelInput.focus();
+    characterSkillEditLevelInput.select();
+  } else if (characterSkillEditCard instanceof HTMLElement) {
+    characterSkillEditCard.focus();
+  }
+};
+
+app.updateCharacterSkillLevel = async () => {
+  const editState = app.getCharacterSkillEditState();
+  if (!editState || !(characterSkillEditLevelInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const level = Number.parseInt(characterSkillEditLevelInput.value, 10);
+  if (!Number.isFinite(level) || level < 0 || level > editState.maxLevel) {
+    app.openNoticeModal(app.translate('runtime.characterSkillUpdateInvalid'));
+    return;
+  }
+
+  state.characterSkillEditPending = true;
+  app.populateCharacterSkillEditModal();
+
+  try {
+    const endpoint = editState.sectionType === 'enhance' ? 'enhance-skill' : 'skill';
+    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        SkillId: editState.skillId,
+        Level: level,
+      }),
+    });
+
+    const updatedLevel = Number.isFinite(Number(payload?.Level)) ? Math.max(0, Number(payload.Level)) : level;
+    const listKey = editState.sectionType === 'enhance' ? 'EnhanceSkillList' : 'SkillsList';
+    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+      const currentList = app.normalizeCharacterSkillList(state.currentCharacterDetailExtraInfo[listKey]);
+      state.currentCharacterDetailExtraInfo = {
+        ...state.currentCharacterDetailExtraInfo,
+        [listKey]: currentList.map((entry) => (
+          entry.SkillId === editState.skillId
+            ? { ...entry, Level: updatedLevel }
+            : entry
+        )),
+      };
+    }
+
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    app.closeCharacterSkillEditModal();
+    app.openSuccessModal(app.translate('runtime.characterSkillUpdateSuccess'), app.translate('runtime.characterSkillUpdateSuccessTitle'));
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterSkillUpdateFailed'));
+  } finally {
+    state.characterSkillEditPending = false;
+    if (characterSkillEditModal instanceof HTMLElement && !characterSkillEditModal.hidden) {
+      app.populateCharacterSkillEditModal();
+    }
+  }
+};
+
+app.handleCharacterSkillEditActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const trigger = target.closest('[data-character-skill-edit]');
+  if (!(trigger instanceof HTMLElement)) {
+    return;
+  }
+
+  if (event.type === 'keydown' && event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
+    return;
+  }
+
+  if (event.type === 'keydown') {
+    event.preventDefault();
+  }
+
+  const sectionType = trigger.dataset.characterSkillEdit;
+  const skillId = Number.parseInt(trigger.dataset.characterSkillId ?? '', 10);
+  if (!Number.isFinite(skillId)) {
+    return;
+  }
+
+  app.openCharacterSkillEditModal(sectionType, skillId, trigger);
+};
+
 app.renderCharacterFashionSlots = (fashions) => {
   if (!(characterDetailFashions instanceof HTMLElement)) {
     return;
   }
 
+  const currentFashionId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId))
+    ? Number(state.currentCharacterDetailExtraInfo.CurrentFahionId)
+    : null;
+  const isPending = state.characterFashionSwitchPending;
+
   characterDetailFashions.innerHTML = Array.isArray(fashions) ? fashions.map((fashion, index) => {
     const qualityEffectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
     const lockClass = fashion.IsLock ? ' is-locked' : '';
+    const isSelected = currentFashionId !== null && fashion.Id === currentFashionId;
+    const selectedClass = isSelected ? ' is-selected' : '';
+    const pendingClass = isPending ? ' is-pending' : '';
+    const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
     const className = [
       'character-detail-slot',
       'character-detail-slot-small',
       'character-detail-fashion-slot',
       lockClass.trim(),
+      selectedClass,
+      pendingClass,
       qualityEffectClass,
     ].filter(Boolean).join(' ');
+    const fashionName = typeof fashion.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--';
+    const actionText = fashion.IsLock
+      ? app.translate('dashboard.characterDetailFashionUnlockAndSwitchAction', { name: fashionName })
+      : app.translate('dashboard.characterDetailFashionSwitchAction', { name: fashionName });
 
     return `
-      <div class="${className}" data-fashion-index="${index}">
+      <div class="${className}" data-fashion-index="${index}" data-fashion-id="${fashion.Id}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" role="button" tabindex="0" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${currentFashionId !== null && fashion.Id === currentFashionId ? 'true' : 'false'}" aria-busy="${isPending ? 'true' : 'false'}" aria-disabled="${isPending ? 'true' : 'false'}">
         <div class="character-detail-fashion-slot-image"></div>
+        ${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}
         ${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
       </div>
     `;
@@ -226,6 +1749,112 @@ app.renderCharacterFashionSlots = (fashions) => {
   });
 };
 
+app.switchCharacterFashion = async (fashionIndex) => {
+  if (state.characterFashionSwitchPending) {
+    return;
+  }
+
+  const item = state.currentCharacterDetailItem;
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const fashions = Array.isArray(extraInfo?.Fashions) ? extraInfo.Fashions : [];
+  const targetFashion = Number.isInteger(fashionIndex) ? fashions[fashionIndex] : null;
+  const currentFashionId = Number.isFinite(Number(extraInfo?.CurrentFahionId)) ? Number(extraInfo.CurrentFahionId) : null;
+  if (recordId === null || !targetFashion || (targetFashion.Id === currentFashionId && targetFashion.IsLock === false)) {
+    return;
+  }
+
+  state.characterFashionSwitchPending = true;
+  if (state.currentCharacterDetailItem) {
+    app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+  }
+
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/fashion`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        FashionId: targetFashion.Id,
+      }),
+    });
+
+    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+      state.currentCharacterDetailExtraInfo = {
+        ...state.currentCharacterDetailExtraInfo,
+        CurrentFahionId: Number.isFinite(Number(payload?.CurrentFahionId))
+          ? Number(payload.CurrentFahionId)
+          : targetFashion.Id,
+        Fashions: fashions.map((fashion) => {
+          if (!fashion || typeof fashion !== 'object') {
+            return fashion;
+          }
+
+          return fashion.Id === targetFashion.Id
+            ? { ...fashion, IsLock: false }
+            : fashion;
+        }),
+      };
+    }
+
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    app.openSuccessModal(
+      app.translate('runtime.characterFashionUpdateSuccess', {
+        name: typeof targetFashion.Name === 'string' && targetFashion.Name.trim() ? targetFashion.Name.trim() : '--',
+      }),
+      app.translate('runtime.characterFashionUpdateSuccessTitle'),
+    );
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterFashionUpdateFailed'));
+  } finally {
+    state.characterFashionSwitchPending = false;
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+  }
+};
+
+app.handleCharacterFashionSlotActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || !(characterDetailFashions instanceof HTMLElement)) {
+    return;
+  }
+
+  const slot = target.closest('.character-detail-fashion-slot');
+  if (!(slot instanceof HTMLElement) || !characterDetailFashions.contains(slot)) {
+    return;
+  }
+
+  if (state.characterFashionSwitchPending || slot.getAttribute('aria-disabled') === 'true') {
+    if (event.type === 'keydown') {
+      event.preventDefault();
+    }
+    return;
+  }
+
+  if (event.type === 'keydown') {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+    event.preventDefault();
+  }
+
+  const index = Number.parseInt(slot.dataset.fashionIndex ?? '', 10);
+  if (!Number.isInteger(index)) {
+    return;
+  }
+
+  void app.switchCharacterFashion(index);
+};
+
 app.normalizeCharacterDetailEquip = (equip) => {
   const recordId = Number.isFinite(Number(equip?._id ?? equip?.record_id)) ? Number(equip._id ?? equip.record_id) : null;
   const templateId = Number.isFinite(Number(equip?.TemplateId)) ? Number(equip.TemplateId) : null;
@@ -238,6 +1867,7 @@ app.normalizeCharacterDetailEquip = (equip) => {
     TemplateId: templateId,
     Breakthrough: Number.isFinite(Number(equip?.Breakthrough)) ? Math.max(0, Number(equip.Breakthrough)) : 0,
     Level: Number.isFinite(Number(equip?.Level)) ? Math.max(0, Number(equip.Level)) : null,
+    Description: typeof equip?.Description === 'string' ? equip.Description.trim() : '',
     resonance_info: Array.isArray(equip?.resonance_info) ? equip.resonance_info : [],
     weapon_overrun_data: Object.prototype.hasOwnProperty.call(equip || {}, 'weapon_overrun_data')
       ? (equip.weapon_overrun_data && typeof equip.weapon_overrun_data === 'object' ? equip.weapon_overrun_data : null)
@@ -281,6 +1911,7 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
     star: Number.isFinite(star) ? Math.max(0, Number(star)) : 0,
     breakthrough,
     level,
+    description: normalizedEquip.Description || '--',
     resonanceInfo: Array.isArray(normalizedEquip.resonance_info) ? normalizedEquip.resonance_info : [],
     supportsResonance,
     weaponOverrunData: normalizedEquip.weapon_overrun_data && typeof normalizedEquip.weapon_overrun_data === 'object'
@@ -293,6 +1924,18 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
 
 app.getCharacterDetailEquipTooltipLines = (payload) => {
   const lines = [];
+  if (payload?.type === 'fashion') {
+    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
+    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
   const star = Number.isFinite(Number(payload?.star)) ? Math.max(0, Number(payload.star)) : 0;
   const breakthrough = Number.isFinite(Number(payload?.breakthrough)) ? Math.max(0, Number(payload.breakthrough)) : 0;
   const level = Number.isFinite(Number(payload?.level)) ? Math.max(0, Number(payload.level)) : null;
@@ -327,6 +1970,9 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
       : app.translate('dashboard.weaponDetailOverrunInactive');
     lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipHarmony'))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(harmonyText)}</span></div>`);
   }
+
+  lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+  lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
 
   return lines;
 };
@@ -542,6 +2188,7 @@ app.getCharacterDetailGradeTier = (grade) => {
 app.getCharacterAwakenDisplay = (awakenLevel) => {
   const normalizedAwakenLevel = Number.isFinite(Number(awakenLevel)) ? Math.max(0, Number(awakenLevel)) : 0;
   const awakenKeyMap = {
+    0: 'dashboard.characterAwakenLevel1',
     1: 'dashboard.characterAwakenLevel1',
     2: 'dashboard.characterAwakenLevel2',
     3: 'dashboard.characterAwakenLevel3',
@@ -549,7 +2196,7 @@ app.getCharacterAwakenDisplay = (awakenLevel) => {
     5: 'dashboard.characterAwakenLevel5',
   };
   const awakenKey = awakenKeyMap[Math.min(normalizedAwakenLevel, 5)];
-  return awakenKey ? app.translate(awakenKey) : '--';
+  return awakenKey ? app.translate(awakenKey) : app.translate('common.notAvailable');
 };
 
 app.getCharacterTrustSymbol = (trustLv) => {
@@ -804,7 +2451,7 @@ app.setCharacterSupport = async (recordId, characterName) => {
       return;
     }
 
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.characterManagementSupportSetFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterManagementSupportSetFailed'));
   } finally {
     state.characterManagementActionPendingRecordId = null;
     if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
@@ -1026,6 +2673,8 @@ app.populateCharacterDetailCard = (item) => {
   const trustText = app.getCharacterTrustDisplay(trustLv);
   const gradeTier = app.getCharacterDetailGradeTier(grade);
   const maxLevel = app.getMaxNumericMapKey(extraInfo?.LevelExpMap);
+  const currentExp = Number.isFinite(Number(extraInfo?.Exp)) ? Math.max(0, Number(extraInfo.Exp)) : null;
+  const currentExpLimit = level !== null ? app.getCharacterExpLimit(extraInfo?.LevelExpMap, level) : null;
   state.currentCharacterDetailItem = item;
   state.currentCharacterDetailExtraInfo = extraInfo;
 
@@ -1051,24 +2700,37 @@ app.populateCharacterDetailCard = (item) => {
     }
   }
 
-  if (characterDetailMainFashionIcon instanceof HTMLElement) {
+  if (characterDetailMainFashionShell instanceof HTMLElement) {
     const fashionEffectClass = unlockedCurrentFashion ? app.getFashionQualityEffectClass(unlockedCurrentFashion.Quality) : '';
-    characterDetailMainFashionIcon.className = [
-      'character-detail-main-fashion-icon',
+    characterDetailMainFashionShell.className = [
+      'character-detail-main-fashion-shell',
       unlockedCurrentFashion ? 'is-filled' : '',
       fashionEffectClass,
     ].filter(Boolean).join(' ');
-    characterDetailMainFashionIcon.style.backgroundImage = unlockedCurrentFashion
-      ? `url(".${unlockedCurrentFashion.BigIcon}")`
-      : '';
-    characterDetailMainFashionIcon.hidden = false;
+    characterDetailMainFashionShell.hidden = false;
+  }
+
+  if (characterDetailMainFashionIcon instanceof HTMLImageElement) {
+    if (unlockedCurrentFashion) {
+      characterDetailMainFashionIcon.src = `.${unlockedCurrentFashion.BigIcon}`;
+      characterDetailMainFashionIcon.alt = unlockedCurrentFashion.Name || characterName;
+      characterDetailMainFashionIcon.hidden = false;
+    } else {
+      characterDetailMainFashionIcon.src = '';
+      characterDetailMainFashionIcon.alt = '';
+      characterDetailMainFashionIcon.hidden = true;
+    }
+  }
+
+  if (characterDetailMainFashionPlaceholder instanceof HTMLElement) {
+    characterDetailMainFashionPlaceholder.hidden = Boolean(unlockedCurrentFashion);
   }
 
   app.renderCharacterFashionSlots(fashions);
   app.renderCharacterDetailWeaponSlot(weapon);
   app.renderCharacterDetailMemorySlots(memories);
-  app.renderCharacterSkillTableRows(skills, characterDetailSkillsBody);
-  app.renderCharacterSkillTableRows(enhanceSkills, characterDetailEnhanceSkillsBody);
+  app.renderCharacterSkillTableRows(skills, characterDetailSkillsBody, 'normal');
+  app.renderCharacterSkillTableRows(enhanceSkills, characterDetailEnhanceSkillsBody, 'enhance');
 
   const enhanceSkillsSection = characterDetailEnhanceSkillsBody instanceof HTMLElement
     ? characterDetailEnhanceSkillsBody.closest('.character-detail-section')
@@ -1086,8 +2748,10 @@ app.populateCharacterDetailCard = (item) => {
     characterDetailEvolution.className = `character-detail-evolution ${app.getCharacterQualityClass(quality)}`;
   }
 
+  app.syncCharacterQualityEditControls();
+
   if (characterDetailGrade instanceof HTMLElement) {
-    characterDetailGrade.textContent = gradeName;
+    characterDetailGrade.textContent = app.resolveCharacterGradeName(characterId, grade, gradeName);
     characterDetailGrade.className = `character-detail-stat-value ${app.getCharacterGradeClass(grade)}`;
   }
 
@@ -1100,14 +2764,21 @@ app.populateCharacterDetailCard = (item) => {
     characterDetailLevel.innerHTML = app.renderCompositeStatValue({
       currentValue: level,
       maxValue: maxLevel,
+      currentClass: currentExp !== null && currentExpLimit !== null ? '' : '',
     });
     characterDetailLevel.className = 'character-detail-stat-value';
   }
+
+  app.syncCharacterLevelEditControls();
 
   if (characterDetailTrust instanceof HTMLElement) {
     characterDetailTrust.textContent = trustText;
     characterDetailTrust.className = 'character-detail-stat-value character-detail-trust-value';
   }
+
+  app.syncCharacterTrustEditControls();
+  app.syncCharacterGradeEditControls();
+  app.syncCharacterAwakenEditControls();
 
   if (characterDetailInformation instanceof HTMLElement) {
     characterDetailInformation.textContent = introText;
@@ -1119,16 +2790,23 @@ app.closeCharacterDetailModal = () => {
     return;
   }
 
+  app.closeCharacterQualityEditModal();
+  app.closeCharacterLevelEditModal();
+  app.closeCharacterTrustEditModal();
+  app.closeCharacterGradeEditModal();
+  app.closeCharacterAwakenEditModal();
+  app.closeCharacterSkillEditModal();
   app.hideCharacterDetailEquipTooltip();
   characterDetailModal.hidden = true;
   app.setBodyModalOpen(false);
   state.currentCharacterDetailItem = null;
   state.currentCharacterDetailExtraInfo = null;
   state.characterDetailLoading = false;
+  state.characterFashionSwitchPending = false;
 
-  if (state.lastCharacterDetailFocusedControl instanceof HTMLElement) {
-    state.lastCharacterDetailFocusedControl.focus();
-    state.lastCharacterDetailFocusedControl = null;
+  if (state.lastCharacterDetailTrigger instanceof HTMLElement) {
+    state.lastCharacterDetailTrigger.focus();
+    state.lastCharacterDetailTrigger = null;
   }
 };
 
@@ -1157,9 +2835,10 @@ app.openCharacterDetailModal = (recordId, triggerButton) => {
     return;
   }
 
-  state.lastCharacterDetailFocusedControl = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state.lastCharacterDetailTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
   state.currentCharacterDetailItem = item;
   state.currentCharacterDetailExtraInfo = null;
+  state.characterFashionSwitchPending = false;
   app.hideCharacterDetailEquipTooltip();
   app.populateCharacterDetailCard(item);
   characterDetailModal.hidden = false;
@@ -1169,7 +2848,7 @@ app.openCharacterDetailModal = (recordId, triggerButton) => {
       app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     }
     if (characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden) {
-      app.openControlModal(app.apiErrorMessage(error, 'runtime.characterManagementLoadFailed'));
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterManagementLoadFailed'));
     }
   });
 
@@ -1262,6 +2941,312 @@ export const initDatabaseCharacterManagementFeature = () => {
     characterDetailModal.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         app.closeCharacterDetailModal();
+      }
+    });
+  }
+
+  if (characterDetailFashions instanceof HTMLElement) {
+    characterDetailFashions.addEventListener('click', app.handleCharacterFashionSlotActivate);
+    characterDetailFashions.addEventListener('keydown', app.handleCharacterFashionSlotActivate);
+  }
+
+  if (characterDetailEvolution instanceof HTMLElement) {
+    characterDetailEvolution.addEventListener('click', () => {
+      if (!characterDetailEvolution.classList.contains('is-editable')) {
+        return;
+      }
+      app.openCharacterQualityEditModal(characterDetailEvolution);
+    });
+    characterDetailEvolution.addEventListener('keydown', (event) => {
+      if (!characterDetailEvolution.classList.contains('is-editable')) {
+        return;
+      }
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      app.openCharacterQualityEditModal(characterDetailEvolution);
+    });
+  }
+
+  if (characterDetailLevel instanceof HTMLElement) {
+    characterDetailLevel.addEventListener('click', () => {
+      if (!characterDetailLevel.classList.contains('is-editable')) {
+        return;
+      }
+      app.openCharacterLevelEditModal(characterDetailLevel);
+    });
+    characterDetailLevel.addEventListener('keydown', (event) => {
+      if (!characterDetailLevel.classList.contains('is-editable')) {
+        return;
+      }
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      app.openCharacterLevelEditModal(characterDetailLevel);
+    });
+  }
+
+  if (characterDetailTrust instanceof HTMLElement) {
+    characterDetailTrust.addEventListener('click', () => {
+      if (!characterDetailTrust.classList.contains('is-editable')) {
+        return;
+      }
+      app.openCharacterTrustEditModal(characterDetailTrust);
+    });
+    characterDetailTrust.addEventListener('keydown', (event) => {
+      if (!characterDetailTrust.classList.contains('is-editable')) {
+        return;
+      }
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      app.openCharacterTrustEditModal(characterDetailTrust);
+    });
+  }
+
+  if (characterDetailGrade instanceof HTMLElement) {
+    characterDetailGrade.addEventListener('click', () => {
+      if (!characterDetailGrade.classList.contains('is-editable')) {
+        return;
+      }
+      app.openCharacterGradeEditModal(characterDetailGrade);
+    });
+    characterDetailGrade.addEventListener('keydown', (event) => {
+      if (!characterDetailGrade.classList.contains('is-editable')) {
+        return;
+      }
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      app.openCharacterGradeEditModal(characterDetailGrade);
+    });
+  }
+
+  if (characterDetailAwaken instanceof HTMLElement) {
+    characterDetailAwaken.addEventListener('click', () => {
+      if (!characterDetailAwaken.classList.contains('is-editable')) {
+        return;
+      }
+      app.openCharacterAwakenEditModal(characterDetailAwaken);
+    });
+    characterDetailAwaken.addEventListener('keydown', (event) => {
+      if (!characterDetailAwaken.classList.contains('is-editable')) {
+        return;
+      }
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+      event.preventDefault();
+      app.openCharacterAwakenEditModal(characterDetailAwaken);
+    });
+  }
+
+  if (characterDetailSkillsBody instanceof HTMLElement) {
+    characterDetailSkillsBody.addEventListener('click', app.handleCharacterSkillEditActivate);
+    characterDetailSkillsBody.addEventListener('keydown', app.handleCharacterSkillEditActivate);
+  }
+
+  if (characterDetailEnhanceSkillsBody instanceof HTMLElement) {
+    characterDetailEnhanceSkillsBody.addEventListener('click', app.handleCharacterSkillEditActivate);
+    characterDetailEnhanceSkillsBody.addEventListener('keydown', app.handleCharacterSkillEditActivate);
+  }
+
+  characterQualityEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterQualityEditModal);
+  });
+
+  if (characterQualityEditQualitySelect instanceof HTMLSelectElement) {
+    characterQualityEditQualitySelect.addEventListener('change', app.handleCharacterQualityEditQualityChange);
+  }
+
+  if (characterQualityEditConfirmButton instanceof HTMLButtonElement) {
+    characterQualityEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterQualityStar();
+    });
+  }
+
+  characterLevelEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterLevelEditModal);
+  });
+
+  if (characterLevelEditLevelInput instanceof HTMLInputElement) {
+    characterLevelEditLevelInput.addEventListener('input', app.syncCharacterLevelEditExpInput);
+    characterLevelEditLevelInput.addEventListener('change', app.syncCharacterLevelEditExpInput);
+  }
+
+  if (characterLevelEditConfirmButton instanceof HTMLButtonElement) {
+    characterLevelEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterLevelExp();
+    });
+  }
+
+  characterTrustEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterTrustEditModal);
+  });
+
+  if (characterTrustEditHearts instanceof HTMLElement) {
+    characterTrustEditHearts.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const button = target.closest('[data-character-trust-level]');
+      if (!(button instanceof HTMLButtonElement) || button.disabled) {
+        return;
+      }
+
+      const trustLv = Number.parseInt(button.dataset.characterTrustLevel ?? '', 10);
+      if (!Number.isFinite(trustLv)) {
+        return;
+      }
+
+      app.renderCharacterTrustEditHearts(trustLv);
+      app.syncCharacterTrustEditExpInput();
+      const nextSelectedButton = characterTrustEditHearts.querySelector(`[data-character-trust-level="${trustLv}"]`);
+      if (nextSelectedButton instanceof HTMLButtonElement) {
+        nextSelectedButton.focus();
+      }
+    });
+    characterTrustEditHearts.addEventListener('keydown', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const button = target.closest('[data-character-trust-level]');
+      if (!(button instanceof HTMLButtonElement) || button.disabled) {
+        return;
+      }
+
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      event.preventDefault();
+      const trustLv = Number.parseInt(button.dataset.characterTrustLevel ?? '', 10);
+      if (!Number.isFinite(trustLv)) {
+        return;
+      }
+
+      app.renderCharacterTrustEditHearts(trustLv);
+      app.syncCharacterTrustEditExpInput();
+      const nextSelectedButton = characterTrustEditHearts.querySelector(`[data-character-trust-level="${trustLv}"]`);
+      if (nextSelectedButton instanceof HTMLButtonElement) {
+        nextSelectedButton.focus();
+      }
+    });
+  }
+
+  if (characterTrustEditExpInput instanceof HTMLInputElement) {
+    characterTrustEditExpInput.addEventListener('input', app.syncCharacterTrustEditExpInput);
+    characterTrustEditExpInput.addEventListener('change', app.syncCharacterTrustEditExpInput);
+  }
+
+  if (characterTrustEditConfirmButton instanceof HTMLButtonElement) {
+    characterTrustEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterTrust();
+    });
+  }
+
+  characterGradeEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterGradeEditModal);
+  });
+
+  if (characterGradeEditSelect instanceof HTMLSelectElement) {
+    characterGradeEditSelect.addEventListener('change', () => {
+      const grade = Number.parseInt(characterGradeEditSelect.value, 10);
+      characterGradeEditSelect.className = `character-quality-edit-select ${app.getCharacterGradeClass(grade)}`;
+    });
+  }
+
+  if (characterGradeEditConfirmButton instanceof HTMLButtonElement) {
+    characterGradeEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterGrade();
+    });
+  }
+
+  characterAwakenEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterAwakenEditModal);
+  });
+
+  if (characterAwakenEditLevelSelect instanceof HTMLSelectElement) {
+    characterAwakenEditLevelSelect.addEventListener('change', () => {
+      const awakenLevel = Number.parseInt(characterAwakenEditLevelSelect.value, 10);
+      characterAwakenEditLevelSelect.className = `character-quality-edit-select ${app.getCharacterAwakenClass(awakenLevel)}`;
+    });
+  }
+
+  if (characterAwakenEditConfirmButton instanceof HTMLButtonElement) {
+    characterAwakenEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterAwaken();
+    });
+  }
+
+  characterSkillEditCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterSkillEditModal);
+  });
+
+  if (characterSkillEditConfirmButton instanceof HTMLButtonElement) {
+    characterSkillEditConfirmButton.addEventListener('click', () => {
+      void app.updateCharacterSkillLevel();
+    });
+  }
+
+  if (characterQualityEditModal instanceof HTMLElement) {
+    characterQualityEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterQualityEditModal();
+      }
+    });
+  }
+
+  if (characterLevelEditModal instanceof HTMLElement) {
+    characterLevelEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterLevelEditModal();
+      }
+    });
+  }
+
+  if (characterTrustEditModal instanceof HTMLElement) {
+    characterTrustEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterTrustEditModal();
+      }
+    });
+  }
+
+  if (characterGradeEditModal instanceof HTMLElement) {
+    characterGradeEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterGradeEditModal();
+      }
+    });
+  }
+
+  if (characterAwakenEditModal instanceof HTMLElement) {
+    characterAwakenEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterAwakenEditModal();
+      }
+    });
+  }
+
+  if (characterSkillEditModal instanceof HTMLElement) {
+    characterSkillEditModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterSkillEditModal();
+        return;
+      }
+
+      if (event.key === 'Enter' && event.target === characterSkillEditLevelInput) {
+        event.preventDefault();
+        void app.updateCharacterSkillLevel();
       }
     });
   }

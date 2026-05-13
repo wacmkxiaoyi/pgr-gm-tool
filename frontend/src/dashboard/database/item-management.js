@@ -211,7 +211,7 @@ app.beginItemQuantityEdit = (quantityElement) => {
   }
 
   if (itemId >= 1 && itemId <= 18) {
-    app.openControlModal(app.translate('runtime.itemUpdateProtected'));
+    app.openNoticeModal(app.translate('runtime.itemUpdateProtected'));
     return;
   }
 
@@ -273,7 +273,7 @@ app.submitItemQuantityEdit = async (itemId, currentQuantity, nextValue) => {
   const normalizedValue = String(nextValue ?? '').trim();
   const validationMessage = app.validateItemQuantity(normalizedValue);
   if (validationMessage) {
-    app.openControlModal(validationMessage);
+    app.openNoticeModal(validationMessage);
     return;
   }
 
@@ -308,7 +308,7 @@ app.submitItemQuantityEdit = async (itemId, currentQuantity, nextValue) => {
 
     currentState.pending = false;
     await app.reloadItemManagementCurrentPage();
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.itemQuantityUpdateFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.itemQuantityUpdateFailed'));
   }
 };
 
@@ -506,7 +506,7 @@ app.handleItemManagementActionClick = (event) => {
     }
 
     if (itemId >= 1 && itemId <= 18) {
-      app.openControlModal(app.translate('runtime.itemDeleteProtected'));
+      app.openNoticeModal(app.translate('runtime.itemDeleteProtected'));
       return;
     }
 

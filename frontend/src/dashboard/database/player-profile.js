@@ -497,7 +497,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
   const normalizedValue = config.normalize(nextValue);
   const validationMessage = config.validate(normalizedValue);
   if (validationMessage) {
-    app.openControlModal(validationMessage);
+    app.openNoticeModal(validationMessage);
     return;
   }
 
@@ -541,7 +541,7 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
 
     currentState.pending = false;
     app.renderPlayerProfile(state.playerProfileData);
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }
 };
 

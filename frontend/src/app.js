@@ -16,27 +16,27 @@ renderLoginStaticState();
 if (form) {
   const hint = form.querySelector('.hint');
   const card = document.querySelector('.login-card');
-  const modal = document.querySelector('.login-modal');
-  const modalMessage = document.querySelector('.login-modal-message');
-  const modalCloseTargets = document.querySelectorAll('[data-login-modal-close]');
+  const noticeModal = document.querySelector('#notice-modal');
+  const noticeModalMessage = document.querySelector('#notice-modal-message');
+  const noticeModalCloseTargets = document.querySelectorAll('[data-notice-modal-close]');
 
   let lastFocusedElement = null;
 
-  const closeModal = () => {
-    if (!modal || modal.hidden) {
+  const closeNoticeModal = () => {
+    if (!noticeModal || noticeModal.hidden) {
       return;
     }
 
-    modal.hidden = true;
-    document.body.classList.remove('login-modal-open');
+    noticeModal.hidden = true;
+    document.body.classList.remove('shared-modal-open');
 
     if (lastFocusedElement instanceof HTMLElement) {
       lastFocusedElement.focus();
     }
   };
 
-  const openModal = (message) => {
-    if (!modal || !modalMessage) {
+  const openNoticeModal = (message) => {
+    if (!noticeModal || !noticeModalMessage) {
       return;
     }
 
@@ -45,11 +45,11 @@ if (form) {
     }
 
     lastFocusedElement = document.activeElement;
-    modalMessage.textContent = message;
-    modal.hidden = false;
-    document.body.classList.add('login-modal-open');
+    noticeModalMessage.textContent = message;
+    noticeModal.hidden = false;
+    document.body.classList.add('shared-modal-open');
 
-    const primaryButton = modal.querySelector('.login-modal-button');
+    const primaryButton = noticeModal.querySelector('.shared-modal-button');
     if (primaryButton instanceof HTMLElement) {
       primaryButton.focus();
     }
@@ -84,13 +84,13 @@ if (form) {
     card.addEventListener('mouseleave', resetTilt);
   }
 
-  modalCloseTargets.forEach((target) => {
-    target.addEventListener('click', closeModal);
+  noticeModalCloseTargets.forEach((target) => {
+    target.addEventListener('click', closeNoticeModal);
   });
 
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      closeModal();
+      closeNoticeModal();
     }
   });
 
@@ -149,7 +149,7 @@ if (form) {
           button.textContent = t('login.submit');
         }
 
-        openModal(getLocalizedApiErrorMessage(error, undefined, 'login.invalidCredentials'));
+        openNoticeModal(getLocalizedApiErrorMessage(error, undefined, 'login.invalidCredentials'));
       });
   });
 }

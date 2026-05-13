@@ -129,8 +129,8 @@ app.closeItemAddModal = () => {
 
   itemAddModal.hidden = true;
   app.setBodyModalOpen(false);
-  if (state.lastAddItemFocusedControl instanceof HTMLElement) {
-    state.lastAddItemFocusedControl.focus();
+  if (state.lastItemAddTrigger instanceof HTMLElement) {
+    state.lastItemAddTrigger.focus();
   }
 };
 
@@ -139,7 +139,7 @@ app.openItemAddModal = (trigger) => {
     return;
   }
 
-  state.lastAddItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemAddTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetItemAddModalState();
   app._syncItemAddSortArrows();
   app.renderItemAddModalRows();
@@ -184,7 +184,7 @@ app.submitItemAddModal = async () => {
 
   const { error, items } = app.collectItemAddPayload();
   if (error) {
-    app.openControlModal(error);
+    app.openNoticeModal(error);
     return;
   }
 
@@ -215,7 +215,7 @@ app.submitItemAddModal = async () => {
       return;
     }
 
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.itemAddFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.itemAddFailed'));
   } finally {
     state.itemAddSubmitting = false;
     if (itemAddSubmitButton instanceof HTMLButtonElement) {

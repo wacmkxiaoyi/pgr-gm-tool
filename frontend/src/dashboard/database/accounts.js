@@ -234,7 +234,7 @@ app.selectDatabaseAccount = async (uid) => {
   }
 
   if (!app.isDatabaseHealthy()) {
-    app.openControlModal(app.translate('runtime.databaseUnhealthySelectBlocked'));
+    app.openNoticeModal(app.translate('runtime.databaseUnhealthySelectBlocked'));
     return;
   }
 
@@ -256,7 +256,7 @@ app.selectDatabaseAccount = async (uid) => {
       void app.loadSelectedPlayerProfile();
     }
   } catch (error) {
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.selectAccountFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.selectAccountFailed'));
   } finally {
     state.accountSelectionPendingUid = null;
     app.updateAccountSelectionUi();

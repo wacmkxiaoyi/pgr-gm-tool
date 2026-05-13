@@ -2,11 +2,11 @@ import { app } from './shared.js';
 
 const { dom, state } = app;
 const {
-  controlModal,
-  controlModalMessage,
-  controlModalIcon,
-  controlModalEyebrow,
-  controlModalCloseTargets,
+  noticeModal,
+  noticeModalMessage,
+  noticeModalIcon,
+  noticeModalEyebrow,
+  noticeModalCloseTargets,
   logoutConfirmModal,
   logoutConfirmCloseTargets,
   logoutConfirmSubmitButton,
@@ -18,35 +18,35 @@ const {
   playerMutationRiskResetButton,
 } = dom;
 
-app.closeControlModal = () => {
-  if (!controlModal || controlModal.hidden) {
+app.closeNoticeModal = () => {
+  if (!noticeModal || noticeModal.hidden) {
     return;
   }
 
-  controlModal.hidden = true;
+  noticeModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (controlModalIcon instanceof HTMLElement) {
-    controlModalIcon.textContent = '!';
-    controlModalIcon.classList.remove('is-success');
+  if (noticeModalIcon instanceof HTMLElement) {
+    noticeModalIcon.textContent = '!';
+    noticeModalIcon.classList.remove('is-success');
   }
 
-  if (controlModalEyebrow instanceof HTMLElement) {
-    controlModalEyebrow.textContent = app.translate('dashboard.modalEyebrowDefault');
-    controlModalEyebrow.classList.remove('is-success');
+  if (noticeModalEyebrow instanceof HTMLElement) {
+    noticeModalEyebrow.textContent = app.translate('dashboard.modalEyebrowDefault');
+    noticeModalEyebrow.classList.remove('is-success');
   }
 
-  if (state.lastFocusedControl instanceof HTMLElement) {
-    state.lastFocusedControl.focus();
+  if (state.lastNoticeTrigger instanceof HTMLElement) {
+    state.lastNoticeTrigger.focus();
   }
 };
 
-app.openControlModal = (message, options = {}) => {
-  if (!controlModal || !controlModalMessage) {
+app.openNoticeModal = (message, options = {}) => {
+  if (!noticeModal || !noticeModalMessage) {
     return;
   }
 
-  const titleElement = controlModal.querySelector('#server-modal-title');
+  const titleElement = noticeModal.querySelector('#notice-modal-title');
   const {
     title = app.translate('dashboard.modalTitleDefault'),
     eyebrow = app.translate('dashboard.modalEyebrowDefault'),
@@ -54,30 +54,30 @@ app.openControlModal = (message, options = {}) => {
     tone = 'default',
   } = options;
 
-  state.lastFocusedControl = document.activeElement;
+  state.lastNoticeTrigger = document.activeElement;
   if (titleElement instanceof HTMLElement) {
     titleElement.textContent = title;
   }
-  if (controlModalIcon instanceof HTMLElement) {
-    controlModalIcon.textContent = icon;
-    controlModalIcon.classList.toggle('is-success', tone === 'success');
+  if (noticeModalIcon instanceof HTMLElement) {
+    noticeModalIcon.textContent = icon;
+    noticeModalIcon.classList.toggle('is-success', tone === 'success');
   }
-  if (controlModalEyebrow instanceof HTMLElement) {
-    controlModalEyebrow.textContent = eyebrow;
-    controlModalEyebrow.classList.toggle('is-success', tone === 'success');
+  if (noticeModalEyebrow instanceof HTMLElement) {
+    noticeModalEyebrow.textContent = eyebrow;
+    noticeModalEyebrow.classList.toggle('is-success', tone === 'success');
   }
-  controlModalMessage.textContent = message;
-  controlModal.hidden = false;
+  noticeModalMessage.textContent = message;
+  noticeModal.hidden = false;
   app.setBodyModalOpen(true);
 
-  const primaryButton = controlModal.querySelector('.login-modal-button');
+  const primaryButton = noticeModal.querySelector('.shared-modal-button');
   if (primaryButton instanceof HTMLElement) {
     primaryButton.focus();
   }
 };
 
 app.openSuccessModal = (message, title = app.translate('dashboard.modalSuccessTitle')) => {
-  app.openControlModal(message, {
+  app.openNoticeModal(message, {
     title,
     eyebrow: app.translate('dashboard.modalSuccessEyebrow'),
     icon: '✓',
@@ -98,8 +98,8 @@ app.closeLogoutConfirmModal = () => {
     logoutButton.textContent = app.translate('dashboard.logout');
   }
 
-  if (state.lastLogoutFocusedControl instanceof HTMLElement) {
-    state.lastLogoutFocusedControl.focus();
+  if (state.lastLogoutTrigger instanceof HTMLElement) {
+    state.lastLogoutTrigger.focus();
   }
 };
 
@@ -108,7 +108,7 @@ app.openLogoutConfirmModal = () => {
     return;
   }
 
-  state.lastLogoutFocusedControl = document.activeElement;
+  state.lastLogoutTrigger = document.activeElement;
   logoutConfirmModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -169,8 +169,8 @@ app.closePlayerMutationRiskModal = () => {
 };
 
 app.initSharedModals = () => {
-  controlModalCloseTargets.forEach((target) => {
-    target.addEventListener('click', app.closeControlModal);
+  noticeModalCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeNoticeModal);
   });
 
   logoutConfirmCloseTargets.forEach((target) => {

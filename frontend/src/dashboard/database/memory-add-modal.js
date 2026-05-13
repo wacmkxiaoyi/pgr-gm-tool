@@ -167,8 +167,8 @@ app.closeMemoryAddModal = () => {
 
   memoryAddModal.hidden = true;
   app.setBodyModalOpen(false);
-  if (state.lastAddMemoryFocusedControl instanceof HTMLElement) {
-    state.lastAddMemoryFocusedControl.focus();
+  if (state.lastMemoryAddTrigger instanceof HTMLElement) {
+    state.lastMemoryAddTrigger.focus();
   }
 };
 
@@ -177,7 +177,7 @@ app.openMemoryAddModal = (trigger) => {
     return;
   }
 
-  state.lastAddMemoryFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastMemoryAddTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetMemoryAddModalState();
   app._syncMemoryAddSortArrows();
   app.renderMemoryAddModalRows();
@@ -198,7 +198,7 @@ app.submitMemoryAddModal = async () => {
     .filter((templateId) => Number.isFinite(templateId))));
 
   if (templateIds.length === 0) {
-    app.openControlModal(app.translate('dashboard.memoryAddNoSelection'));
+    app.openNoticeModal(app.translate('dashboard.memoryAddNoSelection'));
     return;
   }
 
@@ -227,7 +227,7 @@ app.submitMemoryAddModal = async () => {
       return;
     }
 
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.memoryAddFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.memoryAddFailed'));
   } finally {
     state.memoryAddSubmitting = false;
     if (memoryAddSubmitButton instanceof HTMLButtonElement) {

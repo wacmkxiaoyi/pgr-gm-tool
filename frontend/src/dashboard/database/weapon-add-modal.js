@@ -171,8 +171,8 @@ app.closeWeaponAddModal = () => {
 
   weaponAddModal.hidden = true;
   app.setBodyModalOpen(false);
-  if (state.lastAddWeaponFocusedControl instanceof HTMLElement) {
-    state.lastAddWeaponFocusedControl.focus();
+  if (state.lastWeaponAddTrigger instanceof HTMLElement) {
+    state.lastWeaponAddTrigger.focus();
   }
 };
 
@@ -181,7 +181,7 @@ app.openWeaponAddModal = (trigger) => {
     return;
   }
 
-  state.lastAddWeaponFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastWeaponAddTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetWeaponAddModalState();
   app._syncWeaponAddSortArrows();
   app.renderWeaponAddModalRows();
@@ -202,7 +202,7 @@ app.submitWeaponAddModal = async () => {
     .filter((templateId) => Number.isFinite(templateId))));
 
   if (templateIds.length === 0) {
-    app.openControlModal(app.translate('dashboard.weaponAddNoSelection'));
+    app.openNoticeModal(app.translate('dashboard.weaponAddNoSelection'));
     return;
   }
 
@@ -231,7 +231,7 @@ app.submitWeaponAddModal = async () => {
       return;
     }
 
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.equipsAddFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.equipsAddFailed'));
   } finally {
     state.weaponAddSubmitting = false;
     if (weaponAddSubmitButton instanceof HTMLButtonElement) {

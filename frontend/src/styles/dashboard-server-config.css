@@ -190,7 +190,7 @@
   flex-wrap: wrap;
 }
 
-.server-config-actions .login-modal-button:last-child {
+.server-config-actions .shared-modal-button:last-child {
   margin-left: auto;
 }
 

@@ -24,8 +24,8 @@ app.closeItemDeleteModal = () => {
   itemDeleteModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (state.lastDeleteItemFocusedControl instanceof HTMLElement) {
-    state.lastDeleteItemFocusedControl.focus();
+  if (state.lastItemDeleteTrigger instanceof HTMLElement) {
+    state.lastItemDeleteTrigger.focus();
   }
 };
 
@@ -41,7 +41,7 @@ app.openItemDeleteModal = (item, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.itemDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.itemDeleteConfirm', {
     itemName: item?.itemName ?? app.translate('common.notAvailable'),
@@ -70,7 +70,7 @@ app.openWeaponResonanceDeleteModal = (payload, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponResonanceDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.weaponResonanceDeleteConfirm', {
     weaponName: payload?.weaponName ?? app.translate('common.notAvailable'),
@@ -99,7 +99,7 @@ app.openWeaponDeleteModal = (weapon, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.weaponDeleteConfirm', {
     weaponName: weapon?.weaponName ?? app.translate('common.notAvailable'),
@@ -129,7 +129,7 @@ app.openClearItemsModal = (keyword, trigger) => {
   state.pendingClearItemsKeyword = keyword;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.itemClearTitle');
   itemDeleteMessage.textContent = keyword
     ? app.translate('runtime.itemClearConfirm', { keyword })
@@ -157,7 +157,7 @@ app.openClearWeaponsModal = (keyword, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = keyword;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.weaponClearTitle');
   itemDeleteMessage.textContent = keyword
     ? app.translate('runtime.weaponClearConfirm', { keyword })
@@ -185,7 +185,7 @@ app.openMemoryDeleteModal = (memory, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.memoryDeleteTitle');
   itemDeleteMessage.textContent = app.translate('runtime.memoryDeleteConfirm', {
     memoryName: memory?.memoryName ?? app.translate('common.notAvailable'),
@@ -215,7 +215,7 @@ app.openClearMemoriesModal = (keyword, trigger) => {
   state.pendingClearItemsKeyword = null;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = keyword;
-  state.lastDeleteItemFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   itemDeleteTitle.textContent = app.translate('runtime.memoryClearTitle');
   itemDeleteMessage.textContent = keyword
     ? app.translate('runtime.memoryClearConfirm', { keyword })
@@ -252,7 +252,7 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingDeleteWeapon) {
       const { recordId, weaponName, templateId } = state.pendingDeleteWeapon;
-      await app.apiFetch(`/api/database-weapons/selected/${recordId}`, {
+      await app.apiFetch(`/api/database-weapons/selected/${recordId}/enhance`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
@@ -263,7 +263,7 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingDeleteMemory) {
       const { recordId, memoryName, templateId } = state.pendingDeleteMemory;
-      await app.apiFetch(`/api/database-memories/selected/${recordId}`, {
+      await app.apiFetch(`/api/database-memories/selected/${recordId}/enhance`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
@@ -374,7 +374,7 @@ app.confirmDeleteOrClearItems = async () => {
             ? 'runtime.memoryClearFailed'
             : 'runtime.itemClearFailed';
     app.closeItemDeleteModal();
-    app.openControlModal(app.apiErrorMessage(
+    app.openNoticeModal(app.apiErrorMessage(
       error,
       fallbackKey,
     ));

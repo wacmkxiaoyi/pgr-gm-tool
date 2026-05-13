@@ -29,12 +29,64 @@ class SetCharacterSupportResponse(BaseModel):
     updated: bool = True
 
 
+class UpdateCharacterResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    Quality: int | None = None
+    Star: int | None = None
+
+
+class UpdateCharacterGradeResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    Grade: int | None = None
+
+
+class UpdateCharacterLevelupResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    Level: int | None = None
+    Exp: int | None = None
+
+
+class UpdateCharacterTrustResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    TrustLv: int | None = None
+    TrustExp: int | None = None
+
+
+class UpdateCharacterAwakenResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    AwakenLevel: int = 1
+    LiberateLv: int = 1
+
+
+class UpdateCharacterFashionResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    CurrentFahionId: int
+    HeadFashionId: int
+    HeadFashionType: int | None = None
+
+
+class UpdateCharacterSkillResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    SkillId: int
+    Level: int = 0
+    MaxLevel: int = 0
+
+
 class CharacterFashionRecord(BaseModel):
     Id: int
     Quality: int
     IsLock: bool = True
     BigIcon: str
     BigHeadIconFashion: str
+    Name: str
+    Description: str
 
 
 class CharacterEquipRecord(BaseModel):
@@ -58,11 +110,13 @@ class CharacterWeaponOverrunRecord(BaseModel):
 
 
 class CharacterDetailWeaponRecord(CharacterEquipRecord):
+    Description: str | None = None
     resonance_info: list[CharacterEquipResonanceRecord] | None = None
     weapon_overrun_data: CharacterWeaponOverrunRecord | None = None
 
 
 class CharacterDetailMemoryRecord(CharacterEquipRecord):
+    Description: str | None = None
     resonance_info: list[CharacterEquipResonanceRecord] | None = None
 
 
@@ -76,7 +130,10 @@ class CharacterSkillInfoRecord(BaseModel):
 class CharacterExtraInfoRecord(BaseModel):
     TrustLv: int | None = None
     TrustExp: int | None = None
+    Exp: int | None = None
+    MaxLiberateLevel: int | None = None
     LevelExpMap: dict[int, int] = Field(default_factory=dict)
+    QualityBound: list[int] = Field(default_factory=list)
     Intro: str | None = None
     CurrentFahionId: int | None = None
     Fashions: list[CharacterFashionRecord] = Field(default_factory=list)

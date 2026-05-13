@@ -8,9 +8,9 @@ from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
-    AddMemoryResponse,
-    AddWeaponRequest,
-    AddWeaponResponse,
+    AddEquipResponse,
+    AddEquipRequest,
+    AddEquipResponse,
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
@@ -18,14 +18,14 @@ from backend.app.apis.schemas import (
     CharacterManagementListResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
-    ClearWeaponsRequest,
-    ClearWeaponsResponse,
+    ClearEquipsRequest,
+    ClearEquipsResponse,
     MemoryExtraInfoResponse,
-    MemoryListResponse,
+    EquipListResponse,
     DatabaseHealthStatusResponse,
     DeleteAccountResponse,
-    DeleteWeaponResonanceResponse,
-    DeleteWeaponResponse,
+    DeleteEquipResonanceResponse,
+    DeleteEquipResponse,
     DeleteInventoryItemResponse,
     HealthStatusResponse,
     InventoryListResponse,
@@ -40,16 +40,30 @@ from backend.app.apis.schemas import (
     SetCharacterSupportResponse,
     SessionResponse,
     ServerConfigResponse,
+    UpdateCharacterEvolutionRequest,
+    UpdateCharacterEvolutionResponse,
+    UpdateCharacterAwakenRequest,
+    UpdateCharacterAwakenResponse,
+    UpdateCharacterFashionRequest,
+    UpdateCharacterFashionResponse,
+    UpdateCharacterGradeRequest,
+    UpdateCharacterGradeResponse,
+    UpdateCharacterLevelupRequest,
+    UpdateCharacterLevelupResponse,
+    UpdateCharacterSkillRequest,
+    UpdateCharacterSkillResponse,
+    UpdateCharacterTrustRequest,
+    UpdateCharacterTrustResponse,
     UpdateInventoryItemRequest,
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
     UpdateWeaponOverrunRequest,
-    UpdateWeaponRequest,
-    UpdateWeaponResonanceRequest,
-    UpdateWeaponResonanceResponse,
+    UpdateEquipRequest,
+    UpdateEquipResonanceRequest,
+    UpdateEquipResonanceResponse,
     WeaponExtraInfoResponse,
-    UpdateWeaponResponse,
-    WeaponListResponse,
+    UpdateEquipResponse,
+    EquipListResponse,
 )
 from backend.app.db.models import AccountListResponse, SetCharacterSupportResponse as SetCharacterSupportDomainResponse, UpdatePlayerProfilePayload
 from backend.app.services.player.equips import (
@@ -567,7 +581,7 @@ async def add_selected_database_items(
     return AddInventoryItemsResponse(**result)
 
 
-@router.get("/database-weapons/selected", response_model=WeaponListResponse, response_model_exclude_none=True)
+@router.get("/database-weapons/selected", response_model=EquipListResponse, response_model_exclude_none=True)
 async def get_selected_database_weapons(
     request: Request,
     page: int = Query(default=1, ge=1),
@@ -576,7 +590,7 @@ async def get_selected_database_weapons(
     sort_by: Literal["name", "character", "type", "star", "enhancement"] = Query(default="character"),
     sort_order: Literal["asc", "desc"] = Query(default="asc"),
     login_session_token: str | None = Cookie(default=None),
-) -> WeaponListResponse:
+) -> EquipListResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -674,7 +688,294 @@ async def get_selected_database_character_extra_info(
     return CharacterExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
-@router.get("/database-memories/selected", response_model=MemoryListResponse, response_model_exclude_none=True)
+@router.put("/database-characters/selected/{record_id}/evolution", response_model=UpdateCharacterEvolutionResponse, response_model_exclude_none=True)
+async def update_selected_database_character_evolution(
+    record_id: int,
+    payload: UpdateCharacterEvolutionRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterEvolutionResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_quality_star(
+            selected_uid,
+            record_id,
+            payload.Quality,
+            payload.Star,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_quality_star":
+            raise_http_error(422, "character.update_invalid_quality_star", {"record_id": record_id})
+        if error_message == "character.update_failed":
+            raise_http_error(500, "character.update_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterEvolutionResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/levelup", response_model=UpdateCharacterLevelupResponse, response_model_exclude_none=True)
+async def update_selected_database_character_levelup(
+    record_id: int,
+    payload: UpdateCharacterLevelupRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterLevelupResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_level_exp(
+            selected_uid,
+            record_id,
+            payload.Level,
+            payload.Exp,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_level_exp":
+            raise_http_error(422, "character.update_invalid_level_exp", {"record_id": record_id})
+        if error_message == "character.level_not_defined":
+            raise_http_error(422, "character.level_not_defined", {"record_id": record_id, "level": payload.Level})
+        if error_message == "character.update_levelup_failed":
+            raise_http_error(500, "character.update_levelup_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterLevelupResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/skill", response_model=UpdateCharacterSkillResponse, response_model_exclude_none=True)
+async def update_selected_database_character_skill(
+    record_id: int,
+    payload: UpdateCharacterSkillRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterSkillResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_skill_level(
+            selected_uid,
+            record_id,
+            payload.SkillId,
+            payload.Level,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_skill_level":
+            raise_http_error(422, "character.update_invalid_skill_level", {"record_id": record_id, "skill_id": payload.SkillId})
+        if error_message == "character.update_skill_failed":
+            raise_http_error(500, "character.update_skill_failed", {"record_id": record_id, "skill_id": payload.SkillId})
+        raise
+
+    return UpdateCharacterSkillResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/enhance-skill", response_model=UpdateCharacterSkillResponse, response_model_exclude_none=True)
+async def update_selected_database_character_enhance_skill(
+    record_id: int,
+    payload: UpdateCharacterSkillRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterSkillResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_enhance_skill_level(
+            selected_uid,
+            record_id,
+            payload.SkillId,
+            payload.Level,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_enhance_skill_level":
+            raise_http_error(422, "character.update_invalid_enhance_skill_level", {"record_id": record_id, "skill_id": payload.SkillId})
+        if error_message == "character.update_enhance_skill_failed":
+            raise_http_error(500, "character.update_enhance_skill_failed", {"record_id": record_id, "skill_id": payload.SkillId})
+        raise
+
+    return UpdateCharacterSkillResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/awaken", response_model=UpdateCharacterAwakenResponse, response_model_exclude_none=True)
+async def update_selected_database_character_awaken(
+    record_id: int,
+    payload: UpdateCharacterAwakenRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterAwakenResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_awaken(
+            selected_uid,
+            record_id,
+            payload.AwakenLevel,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_awaken":
+            raise_http_error(422, "character.update_invalid_awaken", {"record_id": record_id})
+        if error_message == "character.update_awaken_failed":
+            raise_http_error(500, "character.update_awaken_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterAwakenResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/fashion", response_model=UpdateCharacterFashionResponse, response_model_exclude_none=True)
+async def update_selected_database_character_fashion(
+    record_id: int,
+    payload: UpdateCharacterFashionRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterFashionResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_fashion(
+            selected_uid,
+            record_id,
+            payload.FashionId,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_fashion":
+            raise_http_error(422, "character.update_invalid_fashion", {"record_id": record_id})
+        if error_message == "character.update_fashion_failed":
+            raise_http_error(500, "character.update_fashion_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterFashionResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/grade", response_model=UpdateCharacterGradeResponse, response_model_exclude_none=True)
+async def update_selected_database_character_grade(
+    record_id: int,
+    payload: UpdateCharacterGradeRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterGradeResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_grade(
+            selected_uid,
+            record_id,
+            payload.Grade,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_grade":
+            raise_http_error(422, "character.update_invalid_grade", {"record_id": record_id})
+        if error_message == "character.update_grade_failed":
+            raise_http_error(500, "character.update_grade_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterGradeResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/trust", response_model=UpdateCharacterTrustResponse, response_model_exclude_none=True)
+async def update_selected_database_character_trust(
+    record_id: int,
+    payload: UpdateCharacterTrustRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterTrustResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.update_character_trust(
+            selected_uid,
+            record_id,
+            payload.TrustLv,
+            payload.TrustExp,
+        )
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_trust":
+            raise_http_error(422, "character.update_invalid_trust", {"record_id": record_id})
+        if error_message == "character.update_trust_failed":
+            raise_http_error(500, "character.update_trust_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterTrustResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.get("/database-memories/selected", response_model=EquipListResponse, response_model_exclude_none=True)
 async def get_selected_database_memories(
     request: Request,
     page: int = Query(default=1, ge=1),
@@ -683,7 +984,7 @@ async def get_selected_database_memories(
     sort_by: Literal["name", "character", "position", "star", "enhancement"] = Query(default="character"),
     sort_order: Literal["asc", "desc"] = Query(default="asc"),
     login_session_token: str | None = Cookie(default=None),
-) -> MemoryListResponse:
+) -> EquipListResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -701,15 +1002,15 @@ async def get_selected_database_memories(
         sort_by=sort_by,
         sort_order=sort_order,
     )
-    return MemoryListResponse.model_validate(memories.model_dump())
+    return EquipListResponse.model_validate(memories.model_dump())
 
 
-@router.post("/database-weapons/selected", response_model=AddWeaponResponse)
+@router.post("/database-weapons/selected", response_model=AddEquipResponse)
 async def add_selected_database_weapon(
     request: Request,
-    payload: AddWeaponRequest,
+    payload: AddEquipRequest,
     login_session_token: str | None = Cookie(default=None),
-) -> AddWeaponResponse:
+) -> AddEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -733,12 +1034,12 @@ async def add_selected_database_weapon(
     return result
 
 
-@router.post("/database-memories/selected", response_model=AddMemoryResponse)
+@router.post("/database-memories/selected", response_model=AddEquipResponse)
 async def add_selected_database_memory(
     request: Request,
-    payload: AddWeaponRequest,
+    payload: AddEquipRequest,
     login_session_token: str | None = Cookie(default=None),
-) -> AddMemoryResponse:
+) -> AddEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -759,15 +1060,15 @@ async def add_selected_database_memory(
             raise_http_error(500, "equips.add_failed", {"template_ids": payload.template_ids})
         raise
 
-    return AddMemoryResponse.model_validate(result.model_dump())
+    return AddEquipResponse.model_validate(result.model_dump())
 
 
-@router.api_route("/database-weapons/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)
+@router.api_route("/database-weapons/selected", methods=["DELETE"], response_model=ClearEquipsResponse)
 async def clear_selected_database_weapons(
     request: Request,
-    payload: ClearWeaponsRequest,
+    payload: ClearEquipsRequest,
     login_session_token: str | None = Cookie(default=None),
-) -> ClearWeaponsResponse:
+) -> ClearEquipsResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -780,15 +1081,15 @@ async def clear_selected_database_weapons(
     equips_service = request.app.state.player_equips_service
 
     result = await equips_service.clear_unequipped_weapons_by_keyword(selected_uid, keyword)
-    return ClearWeaponsResponse(keyword=keyword, deleted_count=result.deleted_count)
+    return ClearEquipsResponse(keyword=keyword, deleted_count=result.deleted_count)
 
 
-@router.api_route("/database-memories/selected", methods=["DELETE"], response_model=ClearWeaponsResponse)
+@router.api_route("/database-memories/selected", methods=["DELETE"], response_model=ClearEquipsResponse)
 async def clear_selected_database_memories(
     request: Request,
-    payload: ClearWeaponsRequest,
+    payload: ClearEquipsRequest,
     login_session_token: str | None = Cookie(default=None),
-) -> ClearWeaponsResponse:
+) -> ClearEquipsResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -801,15 +1102,15 @@ async def clear_selected_database_memories(
     equips_service = request.app.state.player_equips_service
 
     result = await equips_service.clear_unequipped_memories_by_keyword(selected_uid, keyword)
-    return ClearWeaponsResponse(keyword=keyword, deleted_count=result.deleted_count)
+    return ClearEquipsResponse(keyword=keyword, deleted_count=result.deleted_count)
 
 
-@router.delete("/database-weapons/selected/{record_id}", response_model=DeleteWeaponResponse)
+@router.delete("/database-weapons/selected/{record_id}", response_model=DeleteEquipResponse)
 async def delete_selected_database_weapon(
     record_id: int,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> DeleteWeaponResponse:
+) -> DeleteEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -829,15 +1130,15 @@ async def delete_selected_database_weapon(
     if not deleted:
         raise_http_error(404, "equips.not_found", {"record_id": record_id})
 
-    return DeleteWeaponResponse(_id=record_id, deleted=True)
+    return DeleteEquipResponse(_id=record_id, deleted=True)
 
 
-@router.delete("/database-memories/selected/{record_id}", response_model=DeleteWeaponResponse)
+@router.delete("/database-memories/selected/{record_id}", response_model=DeleteEquipResponse)
 async def delete_selected_database_memory(
     record_id: int,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> DeleteWeaponResponse:
+) -> DeleteEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -857,16 +1158,16 @@ async def delete_selected_database_memory(
     if not deleted:
         raise_http_error(404, "equips.not_found", {"record_id": record_id})
 
-    return DeleteWeaponResponse(_id=record_id, deleted=True)
+    return DeleteEquipResponse(_id=record_id, deleted=True)
 
 
-@router.put("/database-weapons/selected/{record_id}", response_model=UpdateWeaponResponse)
+@router.put("/database-weapons/selected/{record_id}/enhance", response_model=UpdateEquipResponse)
 async def update_selected_database_weapon(
     record_id: int,
-    payload: UpdateWeaponRequest,
+    payload: UpdateEquipRequest,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> UpdateWeaponResponse:
+) -> UpdateEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -903,13 +1204,13 @@ async def update_selected_database_weapon(
     return updated_weapon
 
 
-@router.put("/database-memories/selected/{record_id}", response_model=UpdateWeaponResponse)
+@router.put("/database-memories/selected/{record_id}/enhance", response_model=UpdateEquipResponse)
 async def update_selected_database_memory(
     record_id: int,
-    payload: UpdateWeaponRequest,
+    payload: UpdateEquipRequest,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> UpdateWeaponResponse:
+) -> UpdateEquipResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -943,16 +1244,16 @@ async def update_selected_database_memory(
             raise_http_error(500, "equips.update_failed", {"record_id": record_id})
         raise
 
-    return UpdateWeaponResponse.model_validate(updated_memory.model_dump())
+    return UpdateEquipResponse.model_validate(updated_memory.model_dump())
 
 
-@router.put("/database-weapons/selected/{record_id}/resonance", response_model=UpdateWeaponResonanceResponse)
+@router.put("/database-weapons/selected/{record_id}/resonance", response_model=UpdateEquipResonanceResponse)
 async def update_selected_database_weapon_resonance(
     record_id: int,
-    payload: UpdateWeaponResonanceRequest,
+    payload: UpdateEquipResonanceRequest,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> UpdateWeaponResonanceResponse:
+) -> UpdateEquipResonanceResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -977,13 +1278,13 @@ async def update_selected_database_weapon_resonance(
     return result
 
 
-@router.put("/database-memories/selected/{record_id}/resonance", response_model=UpdateWeaponResonanceResponse)
+@router.put("/database-memories/selected/{record_id}/resonance", response_model=UpdateEquipResonanceResponse)
 async def update_selected_database_memory_resonance(
     record_id: int,
-    payload: UpdateWeaponResonanceRequest,
+    payload: UpdateEquipResonanceRequest,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> UpdateWeaponResonanceResponse:
+) -> UpdateEquipResonanceResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -1048,13 +1349,13 @@ async def update_selected_database_weapon_overrun(
     return WeaponExtraInfoResponse.model_validate(extra_info.model_dump())
 
 
-@router.delete("/database-weapons/selected/{record_id}/resonance/{slot}", response_model=DeleteWeaponResonanceResponse)
+@router.delete("/database-weapons/selected/{record_id}/resonance/{slot}", response_model=DeleteEquipResonanceResponse)
 async def delete_selected_database_weapon_resonance(
     record_id: int,
     slot: int,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> DeleteWeaponResonanceResponse:
+) -> DeleteEquipResonanceResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -1077,16 +1378,16 @@ async def delete_selected_database_weapon_resonance(
     if not deleted:
         raise_http_error(404, "equips.resonance_not_found", {"record_id": record_id, "slot": slot})
 
-    return DeleteWeaponResonanceResponse(Slot=slot, deleted=True)
+    return DeleteEquipResonanceResponse(Slot=slot, deleted=True)
 
 
-@router.delete("/database-memories/selected/{record_id}/resonance/{slot}", response_model=DeleteWeaponResonanceResponse)
+@router.delete("/database-memories/selected/{record_id}/resonance/{slot}", response_model=DeleteEquipResonanceResponse)
 async def delete_selected_database_memory_resonance(
     record_id: int,
     slot: int,
     request: Request,
     login_session_token: str | None = Cookie(default=None),
-) -> DeleteWeaponResonanceResponse:
+) -> DeleteEquipResonanceResponse:
     active_session = _get_active_session(login_session_token)
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
@@ -1109,7 +1410,7 @@ async def delete_selected_database_memory_resonance(
     if not deleted:
         raise_http_error(404, "equips.resonance_not_found", {"record_id": record_id, "slot": slot})
 
-    return DeleteWeaponResonanceResponse(Slot=slot, deleted=True)
+    return DeleteEquipResonanceResponse(Slot=slot, deleted=True)
 
 
 @router.get("/database-weapons/selected/{record_id}/extra-info", response_model=WeaponExtraInfoResponse, response_model_exclude_none=True)

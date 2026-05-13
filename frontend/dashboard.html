@@ -478,50 +478,50 @@
     </main>
 
     <!-- Shared modals -->
-    <div class="login-modal" hidden id="server-control-modal">
-      <div class="login-modal-backdrop" data-server-modal-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-modal-title" aria-describedby="server-modal-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" id="server-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="notice-modal">
+      <div class="shared-modal-backdrop" data-notice-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="notice-modal-title" aria-describedby="notice-modal-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" id="notice-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" id="server-modal-eyebrow" data-i18n="dashboard.modalEyebrowDefault">提示</p>
-            <h3 id="server-modal-title" data-i18n="dashboard.modalTitleDefault">操作提示</h3>
+            <p class="shared-modal-eyebrow" id="notice-modal-eyebrow" data-i18n="dashboard.modalEyebrowDefault">提示</p>
+            <h3 id="notice-modal-title" data-i18n="dashboard.modalTitleDefault">操作提示</h3>
           </div>
         </div>
-        <p id="server-modal-message" class="login-modal-message"></p>
-        <div class="login-modal-actions">
-          <button type="button" class="login-modal-button" data-server-modal-close data-i18n="dashboard.controlAcknowledge">知道了</button>
+        <p id="notice-modal-message" class="shared-modal-message"></p>
+        <div class="shared-modal-actions">
+          <button type="button" class="shared-modal-button" data-notice-modal-close data-i18n="dashboard.controlAcknowledge">知道了</button>
         </div>
       </section>
     </div>
 
     <!-- Server log modal -->
-    <div class="login-modal" hidden id="server-log-modal">
-      <div class="login-modal-backdrop" data-server-log-close></div>
-      <section class="login-modal-card server-log-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-log-title" aria-describedby="server-log-content">
-        <div class="login-modal-header server-log-modal-header">
+    <div class="shared-modal" hidden id="server-log-modal">
+      <div class="shared-modal-backdrop" data-server-log-modal-close></div>
+      <section class="shared-modal-card server-log-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-log-title" aria-describedby="server-log-content">
+        <div class="shared-modal-header server-log-modal-header">
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.serverLogLive">实时日志</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.serverLogLive">实时日志</p>
             <h3 id="server-log-title" data-i18n="runtime.serverLogTitle">服务器日志</h3>
           </div>
           <span class="server-log-status" id="server-log-status" data-i18n="runtime.serverLogDisconnected">未连接</span>
         </div>
         <p class="server-log-path" id="server-log-path">日志文件: --</p>
         <pre class="server-log-content" id="server-log-content" data-i18n="runtime.serverLogInitialContent">点击“查看日志”后显示最近日志。</pre>
-        <div class="login-modal-actions server-log-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-log-clear data-i18n="runtime.serverLogClear">清空显示</button>
-          <button type="button" class="login-modal-button" data-server-log-close data-i18n="common.close">关闭</button>
+        <div class="shared-modal-actions server-log-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-server-log-clear data-i18n="runtime.serverLogClear">清空显示</button>
+          <button type="button" class="shared-modal-button" data-server-log-modal-close data-i18n="common.close">关闭</button>
         </div>
       </section>
     </div>
 
     <!-- Server config modal -->
-    <div class="login-modal" hidden id="server-config-modal">
-      <div class="login-modal-backdrop" data-server-config-close></div>
-      <section class="login-modal-card server-config-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-config-title" aria-describedby="server-config-description">
-        <div class="login-modal-header server-config-modal-header">
+    <div class="shared-modal" hidden id="server-config-modal">
+      <div class="shared-modal-backdrop" data-server-config-modal-close></div>
+      <section class="shared-modal-card server-config-modal-card" role="dialog" aria-modal="true" aria-labelledby="server-config-title" aria-describedby="server-config-description">
+        <div class="shared-modal-header server-config-modal-header">
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.configModalEyebrow">JSON 配置</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.configModalEyebrow">JSON 配置</p>
             <h3 id="server-config-title" data-i18n="runtime.configModalTitle">修改服务器配置</h3>
           </div>
           <span class="server-config-status" id="server-config-status" data-i18n="runtime.configModalIdle">未加载</span>
@@ -546,44 +546,44 @@
           </div>
         </div>
         <p class="server-config-feedback" id="server-config-feedback" data-i18n="dashboard.configEditorEmptyHint">点击“修改配置”后加载 config.json。</p>
-        <div class="login-modal-actions server-config-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-reload data-i18n="runtime.configReload">重新加载</button>
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-server-config-close data-i18n="common.close">关闭</button>
-          <button type="button" class="login-modal-button" data-server-config-save data-i18n="runtime.configSave">保存</button>
+        <div class="shared-modal-actions server-config-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-server-config-reload data-i18n="runtime.configReload">重新加载</button>
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-server-config-modal-close data-i18n="common.close">关闭</button>
+          <button type="button" class="shared-modal-button" data-server-config-save data-i18n="runtime.configSave">保存</button>
         </div>
       </section>
     </div>
 
     <!-- Account management modals -->
-    <div class="login-modal" hidden id="account-delete-modal">
-      <div class="login-modal-backdrop" data-account-delete-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-delete-title" aria-describedby="account-delete-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="account-delete-modal">
+      <div class="shared-modal-backdrop" data-account-delete-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-delete-title" aria-describedby="account-delete-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.accountDeleteEyebrow">删除确认</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.accountDeleteEyebrow">删除确认</p>
             <h3 id="account-delete-title" data-i18n="runtime.accountDeleteTitle">确认删除账户</h3>
           </div>
         </div>
-        <p id="account-delete-message" class="login-modal-message" data-i18n="runtime.accountDeleteDefaultMessage">确认删除该账户吗？</p>
-        <div class="login-modal-actions account-delete-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-delete-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button login-modal-button-danger" id="account-delete-confirm" data-i18n="runtime.accountDeleteSubmit">确认删除</button>
+        <p id="account-delete-message" class="shared-modal-message" data-i18n="runtime.accountDeleteDefaultMessage">确认删除该账户吗？</p>
+        <div class="shared-modal-actions account-delete-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-account-delete-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button shared-modal-button-danger" id="account-delete-confirm" data-i18n="runtime.accountDeleteSubmit">确认删除</button>
         </div>
       </section>
     </div>
 
-    <div class="login-modal" hidden id="account-password-modal">
-      <div class="login-modal-backdrop" data-account-password-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-password-title" aria-describedby="account-password-description">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="account-password-modal">
+      <div class="shared-modal-backdrop" data-account-password-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="account-password-title" aria-describedby="account-password-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.accountPasswordEyebrow">密码管理</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.accountPasswordEyebrow">密码管理</p>
             <h3 id="account-password-title" data-i18n="runtime.accountPasswordTitle">重置密码</h3>
           </div>
         </div>
-        <p id="account-password-description" class="login-modal-message" data-i18n="runtime.accountPasswordDescription">请为指定账户设置新的密码。</p>
+        <p id="account-password-description" class="shared-modal-message" data-i18n="runtime.accountPasswordDescription">请为指定账户设置新的密码。</p>
         <div class="account-password-form">
           <p class="account-password-target" id="account-password-target">目标账户：--</p>
           <label class="account-password-label" for="account-password-input" data-i18n="runtime.accountPasswordNew">新密码</label>
@@ -592,42 +592,42 @@
           <input class="account-password-input" id="account-password-confirm-input" type="password" autocomplete="new-password" />
           <p class="account-password-feedback" id="account-password-feedback" data-i18n="runtime.accountPasswordDefaultFeedback">密码长度需大于等于 6 位。</p>
         </div>
-        <div class="login-modal-actions account-password-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-account-password-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="account-password-confirm" data-i18n="common.confirm">确认</button>
+        <div class="shared-modal-actions account-password-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-account-password-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="account-password-confirm" data-i18n="common.confirm">确认</button>
         </div>
       </section>
     </div>
 
-    <div class="login-modal" hidden id="item-delete-modal">
-      <div class="login-modal-backdrop" data-item-delete-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-delete-title" aria-describedby="item-delete-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="item-delete-modal">
+      <div class="shared-modal-backdrop" data-item-delete-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-delete-title" aria-describedby="item-delete-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.itemDeleteEyebrow">道具操作</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.itemDeleteEyebrow">道具操作</p>
             <h3 id="item-delete-title" data-i18n="runtime.itemDeleteTitle">确认删除物品</h3>
           </div>
         </div>
-        <p id="item-delete-message" class="login-modal-message" data-i18n="runtime.itemDeleteDefaultMessage">确认执行当前道具操作吗？</p>
-        <div class="login-modal-actions account-delete-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-item-delete-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button login-modal-button-danger" id="item-delete-confirm" data-i18n="runtime.itemDeleteSubmit">确认删除</button>
+        <p id="item-delete-message" class="shared-modal-message" data-i18n="runtime.itemDeleteDefaultMessage">确认执行当前道具操作吗？</p>
+        <div class="shared-modal-actions account-delete-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-item-delete-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button shared-modal-button-danger" id="item-delete-confirm" data-i18n="runtime.itemDeleteSubmit">确认删除</button>
         </div>
       </section>
     </div>
 
-    <div class="login-modal" hidden id="item-add-modal">
-      <div class="login-modal-backdrop" data-item-add-close></div>
-      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-add-title" aria-describedby="item-add-description">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">+</span>
+    <div class="shared-modal" hidden id="item-add-modal">
+      <div class="shared-modal-backdrop" data-item-add-modal-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="item-add-title" aria-describedby="item-add-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">+</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.itemAddEyebrow">新增物品</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.itemAddEyebrow">新增物品</p>
             <h3 id="item-add-title" data-i18n="runtime.itemAddTitle">选择要新增的物品</h3>
           </div>
         </div>
-        <p id="item-add-description" class="login-modal-message" data-i18n="runtime.itemAddDescription">通过搜索和排序选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
+        <p id="item-add-description" class="shared-modal-message" data-i18n="runtime.itemAddDescription">通过搜索和排序选择物品，并在数量列填写 1 到 99999 之间的整数后提交。</p>
         <div class="database-item-controls item-add-search-shell">
           <input class="database-item-search-input item-add-search-input" type="search" id="item-add-search-input" data-i18n-placeholder="runtime.itemAddSearchPlaceholder" placeholder="输入物品名进行搜索">
         </div>
@@ -649,24 +649,24 @@
           </table>
           <div class="database-player-empty" id="item-add-empty-state" data-i18n="dashboard.itemAddEmpty">当前没有匹配的物品。</div>
         </div>
-        <div class="login-modal-actions item-add-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-item-add-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="item-add-submit" data-i18n="runtime.itemAddSubmit">确认新增</button>
+        <div class="shared-modal-actions item-add-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-item-add-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="item-add-submit" data-i18n="runtime.itemAddSubmit">确认新增</button>
         </div>
       </section>
     </div>
 
-    <div class="login-modal" hidden id="weapon-add-modal">
-      <div class="login-modal-backdrop" data-weapon-add-close></div>
-      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="weapon-add-title" aria-describedby="weapon-add-description">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">+</span>
+    <div class="shared-modal" hidden id="weapon-add-modal">
+      <div class="shared-modal-backdrop" data-weapon-add-modal-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="weapon-add-title" aria-describedby="weapon-add-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">+</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.weaponAddEyebrow">新增武器</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.weaponAddEyebrow">新增武器</p>
             <h3 id="weapon-add-title" data-i18n="runtime.weaponAddTitle">选择要新增的武器</h3>
           </div>
         </div>
-        <p id="weapon-add-description" class="login-modal-message" data-i18n="runtime.weaponAddDescription">通过搜索和排序选择武器，勾选多项后可批量提交。</p>
+        <p id="weapon-add-description" class="shared-modal-message" data-i18n="runtime.weaponAddDescription">通过搜索和排序选择武器，勾选多项后可批量提交。</p>
         <div class="database-item-controls item-add-search-shell">
           <input class="database-item-search-input item-add-search-input" type="search" id="weapon-add-search-input" data-i18n-placeholder="runtime.weaponAddSearchPlaceholder" placeholder="输入武器名进行搜索">
         </div>
@@ -690,25 +690,25 @@
           </table>
           <div class="database-player-empty" id="weapon-add-empty-state" data-i18n="dashboard.weaponAddEmpty">当前没有匹配的武器。</div>
         </div>
-        <div class="login-modal-actions item-add-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-weapon-add-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="weapon-add-submit" data-i18n="runtime.weaponAddSubmit">确认新增</button>
+        <div class="shared-modal-actions item-add-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-weapon-add-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="weapon-add-submit" data-i18n="runtime.weaponAddSubmit">确认新增</button>
         </div>
       </section>
     </div>
 
     <!-- Resonance effect selection modal -->
-    <div class="login-modal" hidden id="resonance-effect-modal">
-      <div class="login-modal-backdrop" data-resonance-effect-close></div>
-      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="resonance-effect-title">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+    <div class="shared-modal" hidden id="resonance-effect-modal">
+      <div class="shared-modal-backdrop" data-resonance-effect-modal-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="resonance-effect-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">&#x25C8;</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="dashboard.resonanceEffectEyebrow">选择</p>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.resonanceEffectEyebrow">选择</p>
             <h3 id="resonance-effect-title" data-i18n="dashboard.resonanceEffectTitle">共鸣效果</h3>
           </div>
         </div>
-        <p class="login-modal-message" data-i18n="dashboard.resonanceEffectDescription">搜索关键词可同时筛选名称和简介，点击名称旁的箭头可切换排序方向。</p>
+        <p class="shared-modal-message" data-i18n="dashboard.resonanceEffectDescription">搜索关键词可同时筛选名称和简介，点击名称旁的箭头可切换排序方向。</p>
         <div class="database-item-controls item-add-search-shell">
           <label class="database-item-control" for="resonance-effect-search-input">
             <input class="database-item-search-input item-add-search-input" type="search" id="resonance-effect-search-input" data-i18n-placeholder="dashboard.resonanceEffectSearchPlaceholder" placeholder="输入关键词搜索...">
@@ -731,17 +731,17 @@
           </table>
           <div class="database-player-empty" id="resonance-effect-empty-state" data-i18n="dashboard.resonanceEffectEmpty">当前没有匹配的共鸣效果。</div>
         </div>
-        <div class="login-modal-actions item-add-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-resonance-effect-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="resonance-effect-confirm" data-i18n="common.confirm">确认</button>
+        <div class="shared-modal-actions item-add-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-resonance-effect-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="resonance-effect-confirm" data-i18n="common.confirm">确认</button>
         </div>
         <div class="weapon-detail-tooltip" id="resonance-effect-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
 
     <!-- Weapon detail card -->
-    <div class="login-modal" hidden id="weapon-detail-modal">
-      <div class="login-modal-backdrop" data-weapon-detail-close></div>
+    <div class="shared-modal" hidden id="weapon-detail-modal">
+      <div class="shared-modal-backdrop" data-weapon-detail-modal-close></div>
       <section class="weapon-detail-card" role="dialog" aria-modal="true" aria-labelledby="weapon-detail-name" tabindex="-1">
         <div class="weapon-detail-header">
           <img class="weapon-detail-icon" id="weapon-detail-icon" src="" alt="">
@@ -807,14 +807,17 @@
       </section>
     </div>
 
-    <div class="login-modal" hidden id="character-detail-modal">
-      <div class="login-modal-backdrop" data-character-detail-close></div>
+    <div class="shared-modal" hidden id="character-detail-modal">
+      <div class="shared-modal-backdrop" data-character-detail-modal-close></div>
       <section class="character-detail-card" role="dialog" aria-modal="true" aria-labelledby="character-detail-name" tabindex="-1">
         <div class="character-detail-hero">
           <div class="character-detail-main-icon-shell">
             <div class="character-detail-main-icon-stack">
               <img class="character-detail-main-icon" id="character-detail-main-icon" src="" alt="">
-              <span class="character-detail-main-fashion-icon" id="character-detail-main-fashion-icon" aria-hidden="true"></span>
+              <span class="character-detail-main-fashion-shell" id="character-detail-main-fashion-shell" aria-hidden="true">
+                <img class="character-detail-main-fashion-icon" id="character-detail-main-fashion-icon" src="" alt="" hidden>
+                <span class="character-detail-main-fashion-placeholder" id="character-detail-main-fashion-placeholder"></span>
+              </span>
             </div>
           </div>
           <div class="character-detail-main-panel">
@@ -922,17 +925,167 @@
       </section>
     </div>
 
-    <div class="login-modal" hidden id="memory-add-modal">
-      <div class="login-modal-backdrop" data-memory-add-close></div>
-      <section class="login-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="memory-add-title" aria-describedby="memory-add-description">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">+</span>
+    <div class="shared-modal character-quality-edit-modal" hidden id="character-quality-edit-modal">
+      <div class="shared-modal-backdrop" data-character-quality-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-quality-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-quality-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">Q</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.memoryAddEyebrow">新增意识</p>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailQualityEditEyebrow">进化编辑</p>
+            <h3 id="character-quality-edit-title" data-i18n="dashboard.characterDetailQualityEditTitle">编辑 Quality</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <label class="character-quality-edit-row" for="character-quality-edit-quality">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailQualityLabel">进化</span>
+            <select class="character-quality-edit-select" id="character-quality-edit-quality"></select>
+          </label>
+          <label class="character-quality-edit-row" for="character-quality-edit-star">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailStarLabel">星级</span>
+            <select class="character-quality-edit-select" id="character-quality-edit-star"></select>
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-quality-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-quality-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-level-edit-modal" hidden id="character-level-edit-modal">
+      <div class="shared-modal-backdrop" data-character-level-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-level-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-level-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">L</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailLevelEditEyebrow">等级编辑</p>
+            <h3 id="character-level-edit-title" data-i18n="dashboard.characterDetailLevelEditTitle">编辑等级</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <label class="character-quality-edit-row" for="character-level-edit-level">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailLevelLabel">等级</span>
+            <input class="character-quality-edit-select" id="character-level-edit-level" type="number" inputmode="numeric">
+          </label>
+          <label class="character-quality-edit-row" for="character-level-edit-exp">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailExpLabel">经验</span>
+            <input class="character-quality-edit-select" id="character-level-edit-exp" type="number" inputmode="numeric">
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-level-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-level-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-trust-edit-modal" hidden id="character-trust-edit-modal">
+      <div class="shared-modal-backdrop" data-character-trust-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-trust-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-trust-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">T</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailTrustEditEyebrow">编辑</p>
+            <h3 id="character-trust-edit-title" data-i18n="dashboard.characterDetailTrustEditTitle">好感</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <div class="character-quality-edit-row">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailTrustLabel">好感</span>
+            <div class="character-trust-edit-hearts" id="character-trust-edit-hearts" role="group" aria-labelledby="character-trust-edit-title"></div>
+          </div>
+          <label class="character-quality-edit-row" for="character-trust-edit-exp">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailTrustExpLabel">经验</span>
+            <input class="character-quality-edit-select" id="character-trust-edit-exp" type="number" inputmode="numeric">
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-trust-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-trust-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-grade-edit-modal" hidden id="character-grade-edit-modal">
+      <div class="shared-modal-backdrop" data-character-grade-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-grade-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-grade-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">G</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailGradeEditEyebrow">编辑</p>
+            <h3 id="character-grade-edit-title" data-i18n="dashboard.characterDetailGradeEditTitle">军衔</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <label class="character-quality-edit-row" for="character-grade-edit-grade">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailGradeLabel">军衔</span>
+            <select class="character-quality-edit-select" id="character-grade-edit-grade"></select>
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-grade-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-grade-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-awaken-edit-modal" hidden id="character-awaken-edit-modal">
+      <div class="shared-modal-backdrop" data-character-awaken-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-awaken-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-awaken-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">A</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailAwakenEditEyebrow">编辑</p>
+            <h3 id="character-awaken-edit-title" data-i18n="dashboard.characterDetailAwakenEditTitle">解放</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <label class="character-quality-edit-row" for="character-awaken-edit-level">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailAwakenLabel">解放</span>
+            <select class="character-quality-edit-select" id="character-awaken-edit-level"></select>
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-awaken-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-awaken-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-skill-edit-modal" hidden id="character-skill-edit-modal">
+      <div class="shared-modal-backdrop" data-character-skill-edit-modal-close></div>
+      <section class="shared-modal-card character-quality-edit-card" id="character-skill-edit-card" role="dialog" aria-modal="true" aria-labelledby="character-skill-edit-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">S</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailSkillEditEyebrow">编辑</p>
+            <h3 id="character-skill-edit-title" data-i18n="dashboard.characterDetailSkillEditTitle">技能</h3>
+          </div>
+        </div>
+        <div class="character-quality-edit-form">
+          <label class="character-quality-edit-row" for="character-skill-edit-level">
+            <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailSkillLevel">等级</span>
+            <input class="character-quality-edit-select" id="character-skill-edit-level" type="number" inputmode="numeric">
+          </label>
+        </div>
+        <div class="shared-modal-actions character-quality-edit-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-skill-edit-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-skill-edit-confirm" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="memory-add-modal">
+      <div class="shared-modal-backdrop" data-memory-add-modal-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="memory-add-title" aria-describedby="memory-add-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">+</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.memoryAddEyebrow">新增意识</p>
             <h3 id="memory-add-title" data-i18n="runtime.memoryAddTitle">选择要新增的意识</h3>
           </div>
         </div>
-        <p id="memory-add-description" class="login-modal-message" data-i18n="runtime.memoryAddDescription">通过搜索和排序选择意识，勾选多项后可批量提交。</p>
+        <p id="memory-add-description" class="shared-modal-message" data-i18n="runtime.memoryAddDescription">通过搜索和排序选择意识，勾选多项后可批量提交。</p>
         <div class="database-item-controls item-add-search-shell">
           <input class="database-item-search-input item-add-search-input" type="search" id="memory-add-search-input" data-i18n-placeholder="runtime.memoryAddSearchPlaceholder" placeholder="输入意识名进行搜索">
         </div>
@@ -956,116 +1109,116 @@
           </table>
           <div class="database-player-empty" id="memory-add-empty-state" data-i18n="dashboard.memoryAddEmpty">当前没有匹配的意识。</div>
         </div>
-        <div class="login-modal-actions item-add-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-memory-add-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="memory-add-submit" data-i18n="runtime.memoryAddSubmit">确认新增</button>
+        <div class="shared-modal-actions item-add-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-memory-add-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="memory-add-submit" data-i18n="runtime.memoryAddSubmit">确认新增</button>
         </div>
       </section>
     </div>
 
     <!-- Weapon resonance character picker -->
-    <div class="login-modal character-picker-modal" hidden id="weapon-resonance-character-picker-modal">
-      <div class="login-modal-backdrop" data-weapon-resonance-character-picker-close></div>
-      <section class="login-modal-card character-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-resonance-character-picker-title">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+    <div class="shared-modal character-picker-modal" hidden id="weapon-resonance-character-picker-modal">
+      <div class="shared-modal-backdrop" data-weapon-resonance-character-picker-modal-close></div>
+      <section class="shared-modal-card character-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-resonance-character-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">&#x25C8;</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="dashboard.weaponDetailCharPickerEyebrow">绑定角色</p>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.weaponDetailCharPickerEyebrow">绑定角色</p>
             <h3 id="weapon-resonance-character-picker-title" data-i18n="dashboard.weaponDetailCharPickerTitle">选择绑定角色</h3>
           </div>
         </div>
-        <p class="login-modal-message" data-i18n="dashboard.weaponDetailCharPickerDesc">请为此共鸣槽位选择绑定的角色。</p>
+        <p class="shared-modal-message" data-i18n="dashboard.weaponDetailCharPickerDesc">请为此共鸣槽位选择绑定的角色。</p>
         <div class="character-picker-summary" id="weapon-resonance-character-picker-summary" hidden></div>
         <div class="character-picker-grid" id="weapon-resonance-character-picker-grid"></div>
-        <div class="login-modal-actions character-picker-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary character-picker-cancel" data-weapon-resonance-character-picker-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="weapon-resonance-character-picker-confirm" disabled data-i18n="dashboard.weaponDetailCharPickerConfirm">确认</button>
+        <div class="shared-modal-actions character-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary character-picker-cancel" data-weapon-resonance-character-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="weapon-resonance-character-picker-confirm" disabled data-i18n="dashboard.weaponDetailCharPickerConfirm">确认</button>
         </div>
       </section>
     </div>
 
     <!-- Weapon Harmony picker -->
-    <div class="login-modal overrun-picker-modal" hidden id="weapon-overrun-picker-modal">
-      <div class="login-modal-backdrop" data-weapon-overrun-picker-close></div>
-      <section class="login-modal-card overrun-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-overrun-picker-title">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">&#x25C8;</span>
+    <div class="shared-modal overrun-picker-modal" hidden id="weapon-overrun-picker-modal">
+      <div class="shared-modal-backdrop" data-weapon-overrun-picker-modal-close></div>
+      <section class="shared-modal-card overrun-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-overrun-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">&#x25C8;</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="dashboard.weaponDetailOverrunPickerEyebrow">协律</p>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.weaponDetailOverrunPickerEyebrow">协律</p>
             <h3 id="weapon-overrun-picker-title" data-i18n="dashboard.weaponDetailOverrunPickerTitle">选择协律</h3>
           </div>
         </div>
         <div class="overrun-picker-summary" id="weapon-overrun-picker-summary"></div>
         <div class="overrun-picker-grid" id="weapon-overrun-picker-grid"></div>
-        <div class="login-modal-actions overrun-picker-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary overrun-picker-clear" id="weapon-overrun-picker-clear" data-i18n="common.clear">清空</button>
-          <button type="button" class="login-modal-button" id="weapon-overrun-picker-confirm" data-i18n="dashboard.weaponDetailResonanceSave">保存</button>
+        <div class="shared-modal-actions overrun-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary overrun-picker-clear" id="weapon-overrun-picker-clear" data-i18n="common.clear">清空</button>
+          <button type="button" class="shared-modal-button" id="weapon-overrun-picker-confirm" data-i18n="dashboard.weaponDetailResonanceSave">保存</button>
         </div>
       </section>
     </div>
 
     <!-- Session modal -->
-    <div class="login-modal" hidden id="logout-confirm-modal">
-      <div class="login-modal-backdrop" data-logout-confirm-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="logout-confirm-modal">
+      <div class="shared-modal-backdrop" data-logout-confirm-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="dashboard.logoutConfirmEyebrow">退出确认</p>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.logoutConfirmEyebrow">退出确认</p>
             <h3 id="logout-confirm-title" data-i18n="dashboard.logoutConfirmTitle">确认退出登录</h3>
           </div>
         </div>
-        <p id="logout-confirm-message" class="login-modal-message" data-i18n="dashboard.logoutConfirmMessage">确认退出当前登录状态吗？</p>
-        <div class="login-modal-actions logout-confirm-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-logout-confirm-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button" id="logout-confirm-submit" data-i18n="dashboard.logoutConfirmSubmit">确认退出</button>
+        <p id="logout-confirm-message" class="shared-modal-message" data-i18n="dashboard.logoutConfirmMessage">确认退出当前登录状态吗？</p>
+        <div class="shared-modal-actions logout-confirm-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-logout-confirm-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="logout-confirm-submit" data-i18n="dashboard.logoutConfirmSubmit">确认退出</button>
         </div>
       </section>
     </div>
 
     <!-- Player mutation risk confirmation -->
-    <div class="login-modal" hidden id="player-mutation-risk-modal">
-      <div class="login-modal-backdrop" data-player-mutation-risk-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="player-mutation-risk-title" aria-describedby="player-mutation-risk-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="player-mutation-risk-modal">
+      <div class="shared-modal-backdrop" data-player-mutation-risk-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="player-mutation-risk-title" aria-describedby="player-mutation-risk-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="runtime.playerEditConfirmEyebrow">风险操作</p>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.playerEditConfirmEyebrow">风险操作</p>
             <h3 id="player-mutation-risk-title" data-i18n="runtime.playerEditConfirmTitle">数据修改风险提示</h3>
           </div>
         </div>
-        <p id="player-mutation-risk-message" class="login-modal-message" data-i18n="runtime.playerEditConfirmRisk">游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！</p>
+        <p id="player-mutation-risk-message" class="shared-modal-message" data-i18n="runtime.playerEditConfirmRisk">游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！</p>
         <label class="risk-confirm-checkbox">
           <input type="checkbox" id="player-mutation-risk-dont-show" />
           <span data-i18n="common.dontShowAgain">不再提示</span>
         </label>
-        <div class="login-modal-actions">
-          <button type="button" class="login-modal-button login-modal-button-secondary" data-player-mutation-risk-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="login-modal-button login-modal-button-danger" id="player-mutation-risk-confirm" data-i18n="runtime.playerEditConfirmSubmit">仍然修改</button>
+        <div class="shared-modal-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-player-mutation-risk-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button shared-modal-button-danger" id="player-mutation-risk-confirm" data-i18n="runtime.playerEditConfirmSubmit">仍然修改</button>
         </div>
       </section>
     </div>
 
     <!-- Player portrait picker -->
-    <div class="login-modal player-portrait-picker-modal" hidden id="player-portrait-picker-modal">
-      <div class="login-modal-backdrop" data-player-portrait-picker-close></div>
-      <section class="login-modal-card player-portrait-picker-card" role="dialog" aria-modal="true" aria-labelledby="player-portrait-picker-title" aria-describedby="player-portrait-picker-description">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" id="player-portrait-picker-icon" aria-hidden="true">◎</span>
+    <div class="shared-modal player-portrait-picker-modal" hidden id="player-portrait-picker-modal">
+      <div class="shared-modal-backdrop" data-player-portrait-picker-modal-close></div>
+      <section class="shared-modal-card player-portrait-picker-card" role="dialog" aria-modal="true" aria-labelledby="player-portrait-picker-title" aria-describedby="player-portrait-picker-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" id="player-portrait-picker-icon" aria-hidden="true">◎</span>
           <div>
-            <p class="login-modal-eyebrow" id="player-portrait-picker-eyebrow" data-i18n="runtime.playerPickerResourceEyebrow">资源选择</p>
+            <p class="shared-modal-eyebrow" id="player-portrait-picker-eyebrow" data-i18n="runtime.playerPickerResourceEyebrow">资源选择</p>
             <h3 id="player-portrait-picker-title" data-i18n="runtime.playerPickerResourceTitle">选择资源</h3>
           </div>
         </div>
-        <p id="player-portrait-picker-description" class="login-modal-message" data-i18n="runtime.playerPickerResourceDescription">请选择要应用到玩家名片上的资源。</p>
+        <p id="player-portrait-picker-description" class="shared-modal-message" data-i18n="runtime.playerPickerResourceDescription">请选择要应用到玩家名片上的资源。</p>
         <div class="player-portrait-picker-meta">
-          <span id="player-portrait-picker-current">当前使用：--</span>
+          <div class="player-portrait-picker-summary" id="player-portrait-picker-current"></div>
         </div>
         <div class="player-portrait-picker-grid" id="player-portrait-picker-grid"></div>
         <div class="player-portrait-picker-toolbar">
-          <div class="login-modal-actions player-portrait-picker-actions">
-            <button type="button" class="login-modal-button login-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-close data-i18n="common.cancel">取消</button>
-            <button type="button" class="login-modal-button" id="player-portrait-picker-confirm" disabled data-i18n="runtime.playerPickerConfirm">确认</button>
+          <div class="shared-modal-actions player-portrait-picker-actions">
+            <button type="button" class="shared-modal-button shared-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-modal-close data-i18n="common.cancel">取消</button>
+            <button type="button" class="shared-modal-button" id="player-portrait-picker-confirm" disabled data-i18n="runtime.playerPickerConfirm">确认</button>
           </div>
         </div>
       </section>

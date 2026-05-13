@@ -24,8 +24,8 @@ app.closePlayerPortraitPicker = () => {
   state.playerPortraitPickerState = null;
   state.playerProfileEditState = null;
 
-  if (state.lastFocusedControl instanceof HTMLElement) {
-    state.lastFocusedControl.focus({ preventScroll: true });
+  if (state.lastPlayerPortraitPickerTrigger instanceof HTMLElement) {
+    state.lastPlayerPortraitPickerTrigger.focus({ preventScroll: true });
   }
 };
 
@@ -47,7 +47,23 @@ app.renderPlayerPortraitPicker = () => {
     playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', { label: app.getPlayerResourceLabel(field) });
   }
   if (playerPortraitPickerCurrent instanceof HTMLElement) {
-    playerPortraitPickerCurrent.textContent = app.translate('runtime.portraitPickerCurrent', { name: app.getPlayerResourceCurrentName(field) });
+    const currentName = app.getPlayerResourceCurrentName(field);
+    const currentValue = app.getPlayerResourceCurrentValue(field);
+    const currentUrl = app.getPlayerResourceUrlByField(field, currentValue);
+    const escapedLabel = app.escapeHtml(app.translate('runtime.portraitPickerCurrent'));
+    const escapedName = app.escapeHtml(currentName || '--');
+    const previewAlt = app.escapeHtml(`${app.getPlayerResourceLabel(field)} ${currentName || '--'}`);
+    playerPortraitPickerCurrent.innerHTML = `
+      <div class="player-portrait-picker-summary-row">
+        <span class="player-portrait-picker-summary-key">${escapedLabel}</span>
+        <span class="player-portrait-picker-summary-value">
+          <span class="player-portrait-picker-summary-value-media">
+            <span class="player-portrait-picker-summary-value-label">${escapedName}</span>
+            ${currentUrl ? `<img class="player-portrait-picker-summary-value-icon${field === 'use_background_id' ? ' is-background' : ''}" src="${currentUrl}" alt="${previewAlt}">` : ''}
+          </span>
+        </span>
+      </div>
+    `;
   }
   if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
     playerPortraitPickerConfirmButton.disabled = !Number.isFinite(state.playerPortraitPickerState.selectedId);
@@ -82,7 +98,7 @@ app.openPlayerPortraitPicker = (field) => {
     app.stopPlayerProfileEdit(state.playerProfileEditState.field);
   }
 
-  state.lastFocusedControl = document.activeElement;
+  state.lastPlayerPortraitPickerTrigger = document.activeElement;
   state.playerProfileEditState = { field, pending: false };
   state.playerPortraitPickerState = {
     field,
@@ -118,7 +134,7 @@ app.submitPlayerPortraitPicker = async () => {
   }
 
   if (selectedId === null || selectedId === undefined) {
-    app.openControlModal(app.translate('runtime.portraitPickerMissing'));
+    app.openNoticeModal(app.translate('runtime.portraitPickerMissing'));
     return;
   }
 
@@ -164,7 +180,7 @@ app.submitPlayerPortraitPicker = async () => {
 
     state.playerProfileScrollRestoreY = null;
     playerPortraitPickerConfirmButton.disabled = false;
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.playerProfileUpdateFailed'));
   }
 };
 
@@ -214,7 +230,7 @@ export const initDatabasePortraitPickerFeature = () => {
         return;
       }
 
-      if (target === playerPortraitPickerModal || target.classList.contains('login-modal-backdrop')) {
+      if (target === playerPortraitPickerModal || target.classList.contains('shared-modal-backdrop')) {
         app.closePlayerPortraitPicker();
       }
     });

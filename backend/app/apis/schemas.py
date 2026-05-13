@@ -82,12 +82,110 @@ class SetCharacterSupportResponse(BaseModel):
     updated: bool = True
 
 
+class UpdateCharacterEvolutionRequest(BaseModel):
+    Quality: int
+    Star: int
+
+
+class UpdateCharacterEvolutionResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    Quality: int | None = None
+    Star: int | None = None
+
+
+class UpdateCharacterLevelupRequest(BaseModel):
+    Level: int
+    Exp: int
+
+
+class UpdateCharacterLevelupResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    Level: int | None = None
+    Exp: int | None = None
+
+
+class UpdateCharacterTrustRequest(BaseModel):
+    TrustLv: int
+    TrustExp: int
+
+
+class UpdateCharacterTrustResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    TrustLv: int | None = None
+    TrustExp: int | None = None
+
+
+class UpdateCharacterGradeRequest(BaseModel):
+    Grade: int
+
+
+class UpdateCharacterGradeResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    Grade: int | None = None
+
+
+class UpdateCharacterAwakenRequest(BaseModel):
+    AwakenLevel: int
+
+
+class UpdateCharacterAwakenResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    AwakenLevel: int = 1
+    LiberateLv: int = 1
+
+
+class UpdateCharacterFashionRequest(BaseModel):
+    FashionId: int
+
+
+class UpdateCharacterFashionResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    CurrentFahionId: int
+    HeadFashionId: int
+    HeadFashionType: int | None = None
+
+
+class UpdateCharacterSkillRequest(BaseModel):
+    SkillId: int
+    Level: int
+
+
+class UpdateCharacterSkillResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    CharacterId: int
+    SkillId: int
+    Level: int = 0
+    MaxLevel: int = 0
+
+
 class CharacterFashionResponse(BaseModel):
     Id: int
     Quality: int
     IsLock: bool = True
     BigIcon: str
     BigHeadIconFashion: str
+    Name: str
+    Description: str
 
 
 class CharacterEquipResponse(BaseModel):
@@ -113,11 +211,13 @@ class CharacterWeaponOverrunResponse(BaseModel):
 
 
 class CharacterDetailWeaponResponse(CharacterEquipResponse):
+    Description: str | None = None
     resonance_info: list[CharacterEquipResonanceResponse] | None = None
     weapon_overrun_data: CharacterWeaponOverrunResponse | None = None
 
 
 class CharacterDetailMemoryResponse(CharacterEquipResponse):
+    Description: str | None = None
     resonance_info: list[CharacterEquipResonanceResponse] | None = None
 
 
@@ -131,7 +231,10 @@ class CharacterSkillInfoResponse(BaseModel):
 class CharacterExtraInfoResponse(BaseModel):
     TrustLv: int | None = None
     TrustExp: int | None = None
+    Exp: int | None = None
+    MaxLiberateLevel: int | None = None
     LevelExpMap: dict[int, int] = Field(default_factory=dict)
+    QualityBound: list[int] = Field(default_factory=list)
     Intro: str | None = None
     CurrentFahionId: int | None = None
     Fashions: list[CharacterFashionResponse] = Field(default_factory=list)
@@ -154,20 +257,13 @@ class InventoryListResponse(BaseModel):
     total_pages: int = 0
 
 
-class WeaponResonanceResponse(BaseModel):
-    Slot: int | None = None
-    Type: int | None = None
-    CharacterId: int | None = None
-    TemplateId: int | None = None
-
-
 class WeaponOverrunExtraInfoResponse(BaseModel):
     level: int | None = None
     max_level: int | None = None
     chose_suit: int | None = None
 
 
-class WeaponItemResponse(BaseModel):
+class EquipItemResponse(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     record_id: int = Field(alias="_id", serialization_alias="_id")
@@ -179,73 +275,55 @@ class WeaponItemResponse(BaseModel):
     EnhancementLevel: int | None = None
 
 
-class WeaponListResponse(BaseModel):
-    items: list[WeaponItemResponse] = Field(default_factory=list)
+class EquipListResponse(BaseModel):
+    items: list[EquipItemResponse] = Field(default_factory=list)
     page: int = 1
     page_size: int = 10
     total: int = 0
     total_pages: int = 0
 
-
-class MemoryListResponse(BaseModel):
-    items: list[WeaponItemResponse] = Field(default_factory=list)
-    page: int = 1
-    page_size: int = 10
-    total: int = 0
-    total_pages: int = 0
-
-
-class ClearWeaponsRequest(BaseModel):
+class ClearEquipsRequest(BaseModel):
     keyword: str | None = None
 
 
-class ClearWeaponsResponse(BaseModel):
+class ClearEquipsResponse(BaseModel):
     keyword: str
     deleted_count: int
 
 
-class AddWeaponRequest(BaseModel):
+class AddEquipRequest(BaseModel):
     template_ids: list[int] = Field(min_length=1)
 
 
-class AddWeaponResponse(BaseModel):
+class AddEquipResponse(BaseModel):
     added: bool
     added_count: int
 
-
-class AddMemoryResponse(BaseModel):
-    added: bool
-    added_count: int
-
-
-class DeleteWeaponResponse(BaseModel):
+class DeleteEquipResponse(BaseModel):
     record_id: int = Field(alias="_id", serialization_alias="_id")
     deleted: bool
 
 
-class UpdateWeaponRequest(BaseModel):
+class UpdateEquipRequest(BaseModel):
     field: str
     value: int
 
+class UpdateEquipResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    record_id: int = Field(alias="_id", serialization_alias="_id")
+    TemplateId: int
+    CharacterId: int | None = None
+    Level: int | None = None
+    Exp: int | None = None
+    Breakthrough: int | None = None
+    EnhancementLevel: int | None = None
 
 class UpdateWeaponOverrunRequest(BaseModel):
     chose_suit: int | None = None
     level: int | None = None
 
-
-class UpdateWeaponResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
-    TemplateId: int
-    CharacterId: int | None = None
-    Level: int | None = None
-    Exp: int | None = None
-    Breakthrough: int | None = None
-    EnhancementLevel: int | None = None
-
-
-class WeaponResonanceExtraInfoResponse(BaseModel):
+class EquipResonanceExtraInfoResponse(BaseModel):
     slot: int
     type: int | None = None
     template_id: int | None = None
@@ -257,8 +335,7 @@ class WeaponExtraInfoResponse(BaseModel):
     breakthrough_level_limit_map: dict[int, int]
     description: str | None = None
     current_level_exp_limit: int | None = None
-    resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
-    awake_slot_list: list[int] | None = None
+    resonance_info: list[EquipResonanceExtraInfoResponse] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoResponse | None = None
 
 
@@ -267,11 +344,11 @@ class MemoryExtraInfoResponse(BaseModel):
     breakthrough_level_limit_map: dict[int, int]
     description: str | None = None
     current_level_exp_limit: int | None = None
-    resonance_info: list[WeaponResonanceExtraInfoResponse] | None = None
+    resonance_info: list[EquipResonanceExtraInfoResponse] | None = None
     awake_slot_list: list[int] | None = None
 
 
-class UpdateWeaponResonanceRequest(BaseModel):
+class UpdateEquipResonanceRequest(BaseModel):
     Slot: int
     Type: int
     TemplateId: int
@@ -279,14 +356,14 @@ class UpdateWeaponResonanceRequest(BaseModel):
     Awake: bool | None = None
 
 
-class UpdateWeaponResonanceResponse(BaseModel):
+class UpdateEquipResonanceResponse(BaseModel):
     Slot: int
     Type: int | None = None
     TemplateId: int | None = None
     CharacterId: int | None = None
 
 
-class DeleteWeaponResonanceResponse(BaseModel):
+class DeleteEquipResonanceResponse(BaseModel):
     Slot: int
     deleted: bool
 

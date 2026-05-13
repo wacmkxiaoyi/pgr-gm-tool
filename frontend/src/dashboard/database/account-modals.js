@@ -47,8 +47,8 @@ app.closeAccountPasswordModal = () => {
   accountPasswordModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (state.lastPasswordFocusedControl instanceof HTMLElement) {
-    state.lastPasswordFocusedControl.focus();
+  if (state.lastPasswordTrigger instanceof HTMLElement) {
+    state.lastPasswordTrigger.focus();
   }
 };
 
@@ -58,7 +58,7 @@ app.openAccountPasswordModal = (account, trigger) => {
   }
 
   state.pendingPasswordAccount = account;
-  state.lastPasswordFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastPasswordTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   if (accountPasswordTarget instanceof HTMLElement) {
     const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
     accountPasswordTarget.textContent = app.translate('runtime.accountPasswordTarget', {
@@ -141,8 +141,8 @@ app.closeAccountDeleteModal = () => {
   accountDeleteModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (state.lastDeleteFocusedControl instanceof HTMLElement) {
-    state.lastDeleteFocusedControl.focus();
+  if (state.lastAccountDeleteTrigger instanceof HTMLElement) {
+    state.lastAccountDeleteTrigger.focus();
   }
 };
 
@@ -152,7 +152,7 @@ app.openAccountDeleteModal = (account, trigger) => {
   }
 
   state.pendingDeleteAccount = account;
-  state.lastDeleteFocusedControl = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastAccountDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
   accountDeleteMessage.textContent = app.translate('runtime.accountDeleteConfirm', {
     uid: account.uid ?? app.translate('common.notAvailable'),
@@ -211,7 +211,7 @@ app.confirmDeleteAccount = async () => {
     }
 
     app.closeAccountDeleteModal();
-    app.openControlModal(app.apiErrorMessage(error, 'runtime.accountDeleteFailed'));
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.accountDeleteFailed'));
   } finally {
     accountDeleteConfirmButton.disabled = false;
   }

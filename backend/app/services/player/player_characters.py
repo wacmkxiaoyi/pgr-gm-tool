@@ -306,6 +306,25 @@ def get_character_exhibitions_map() -> dict[int, list[int]]:
 
 
 @lru_cache(maxsize=1)
+def get_character_max_liberate_level_map() -> dict[int, int]:
+    reader = TSVReader(EXHIBITION_REWARD_TSV_PATH, typed=True)
+    normalized_map: dict[int, int] = {}
+
+    for row in reader.data:
+        if not isinstance(row, dict):
+            continue
+
+        character_id = parse_int(row.get("CharacterId"))
+        level_id = parse_int(row.get("LevelId"))
+        if character_id is None or level_id is None:
+            continue
+
+        normalized_map[character_id] = max(normalized_map.get(character_id, 0), level_id)
+
+    return normalized_map
+
+
+@lru_cache(maxsize=1)
 def get_character_log_name_map() -> dict[int, str]:
     reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
     return normalize_int_text_map(reader.get_maps("Id", "LogName")[0])
@@ -370,6 +389,8 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
                 "Quality": quality,
                 "BigIcon": big_icon,
                 "BigHeadIconFashion": big_head_icon_fashion,
+                'Name': row.get('Name', ''),
+                'Description': row.get('WorldDescription', '')
             }
         )
 

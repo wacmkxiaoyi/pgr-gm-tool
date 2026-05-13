@@ -76,8 +76,8 @@ app.closeLogModal = () => {
   logModal.hidden = true;
   app.setBodyModalOpen(false);
 
-  if (state.lastLogFocusedControl instanceof HTMLElement) {
-    state.lastLogFocusedControl.focus();
+  if (state.lastLogTrigger instanceof HTMLElement) {
+    state.lastLogTrigger.focus();
   }
 };
 
@@ -86,12 +86,12 @@ app.openLogModal = () => {
     return;
   }
 
-  state.lastLogFocusedControl = document.activeElement;
+  state.lastLogTrigger = document.activeElement;
   logModal.hidden = false;
   app.setBodyModalOpen(true);
   app.setLogConnectionState(app.translate('runtime.serverLogConnecting'), 'is-pending');
 
-  const closeButton = logModal.querySelector('[data-server-log-close].login-modal-button');
+  const closeButton = logModal.querySelector('[data-server-log-modal-close].shared-modal-button');
   if (closeButton instanceof HTMLElement) {
     closeButton.focus();
   }

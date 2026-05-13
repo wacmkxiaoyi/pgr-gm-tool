@@ -45,19 +45,19 @@
       </section>
     </main>
 
-    <div class="login-modal" hidden>
-      <div class="login-modal-backdrop" data-login-modal-close></div>
-      <section class="login-modal-card" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" aria-describedby="login-modal-message">
-        <div class="login-modal-header">
-          <span class="login-modal-icon" aria-hidden="true">!</span>
+    <div class="shared-modal" hidden id="notice-modal">
+      <div class="shared-modal-backdrop" data-notice-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="notice-modal-title" aria-describedby="notice-modal-message">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" id="notice-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="login-modal-eyebrow" data-i18n="login.failedEyebrow">登录失败</p>
-            <h3 id="login-modal-title" data-i18n="login.failedTitle">请检查账号和密码</h3>
+            <p class="shared-modal-eyebrow" id="notice-modal-eyebrow" data-i18n="login.failedEyebrow">登录失败</p>
+            <h3 id="notice-modal-title" data-i18n="login.failedTitle">请检查账号和密码</h3>
           </div>
         </div>
-        <p id="login-modal-message" class="login-modal-message"></p>
-        <div class="login-modal-actions">
-          <button type="button" class="login-modal-button" data-login-modal-close data-i18n="common.gotIt">知道了</button>
+        <p id="notice-modal-message" class="shared-modal-message"></p>
+        <div class="shared-modal-actions">
+          <button type="button" class="shared-modal-button" data-notice-modal-close data-i18n="common.gotIt">知道了</button>
         </div>
       </section>
     </div>

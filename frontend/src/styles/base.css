@@ -76,7 +76,7 @@ body {
   cursor: pointer;
 }
 
-body.login-modal-open {
+body.shared-modal-open {
   overflow: hidden;
 }
 

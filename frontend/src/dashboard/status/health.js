@@ -151,7 +151,7 @@ app.renderSnapshot = (payload) => {
   const startupError = controls?.startup_error;
   if (typeof startupError === 'string' && startupError && startupError !== state.serverControlFailureMessage) {
     state.serverControlFailureMessage = startupError;
-    app.openControlModal(app.resolveUiTextToken(startupError));
+    app.openNoticeModal(app.resolveUiTextToken(startupError));
   } else if (!startupError) {
     state.serverControlFailureMessage = null;
   }
