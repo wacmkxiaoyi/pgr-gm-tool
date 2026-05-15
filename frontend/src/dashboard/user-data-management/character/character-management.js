@@ -25,6 +25,7 @@ const {
   characterDetailFashions,
   characterDetailWeapon,
   characterDetailMemories,
+  characterDetailMaxAllButton,
   characterDetailName,
   characterDetailEvolution,
   characterQualityEditModal,
@@ -1822,6 +1823,70 @@ app.switchCharacterFashion = async (fashionIndex) => {
   }
 };
 
+app.maxCurrentCharacterDetail = async () => {
+  const item = state.currentCharacterDetailItem;
+  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  if (recordId === null || state.characterFashionSwitchPending) {
+    return;
+  }
+
+  app.openCharacterMaxAllModal({
+    recordId,
+    characterName: app.getCharacterNameByCharacterId(item?.CharacterId ?? item?._id ?? recordId),
+  });
+};
+
+app.executeCharacterMaxAll = async (recordId) => {
+  const normalizedRecordId = Number(recordId);
+  if (!Number.isFinite(normalizedRecordId) || state.characterFashionSwitchPending) {
+    return;
+  }
+
+  state.characterFashionSwitchPending = true;
+  if (state.currentCharacterDetailItem) {
+    app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+  }
+
+  try {
+    await app.apiFetch(`/api/database-characters/selected/${normalizedRecordId}/max-all`, {
+      method: 'PUT',
+    });
+
+    await app.loadSelectedAccountCharacters(state.characterManagementCurrentPage || 1);
+
+    const updatedItem = Array.isArray(state.characterManagementItems)
+      ? state.characterManagementItems.find((entry) => Number(entry?._id ?? entry?.record_id) === normalizedRecordId) || null
+      : null;
+
+    if (updatedItem) {
+      state.currentCharacterDetailItem = updatedItem;
+    }
+
+    await app.loadCharacterDetailExtraInfo(normalizedRecordId);
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+
+    app.openSuccessModal(
+      app.translate('runtime.characterDetailMaxAllSuccess', {
+        characterName: app.getCharacterNameByCharacterId(state.currentCharacterDetailItem?.CharacterId ?? state.currentCharacterDetailItem?._id ?? normalizedRecordId),
+      }),
+      app.translate('runtime.characterDetailMaxAllSuccessTitle'),
+    );
+  } catch (error) {
+    if (app.isMutationRiskCancelled(error)) {
+      return;
+    }
+
+    app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterDetailMaxAllFailed'));
+  } finally {
+    state.characterFashionSwitchPending = false;
+    if (state.currentCharacterDetailItem) {
+      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    }
+  }
+};
+
 app.handleCharacterFashionSlotActivate = (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement) || !(characterDetailFashions instanceof HTMLElement)) {
@@ -2340,6 +2405,14 @@ app.updateCharacterManagementPagination = () => {
   if (databaseCharacterManagementJumpButton instanceof HTMLButtonElement) {
     databaseCharacterManagementJumpButton.disabled = jumpDisabled;
   }
+
+  if (dom.databaseCharacterAddButton instanceof HTMLButtonElement) {
+    dom.databaseCharacterAddButton.disabled = state.characterManagementLoading || !app.canAccessCharacterManagement();
+  }
+
+  if (dom.databaseCharacterFillButton instanceof HTMLButtonElement) {
+    dom.databaseCharacterFillButton.disabled = state.characterManagementLoading || !app.canAccessCharacterManagement();
+  }
 };
 
 app.submitCharacterManagementPageJump = () => {
@@ -2631,6 +2704,16 @@ app.handleCharacterManagementActionClick = (event) => {
   }
 
   const action = button.dataset.characterManagementAction;
+  if (action === 'fill') {
+    app.openCharacterManagementMaxAllModal(button);
+    return;
+  }
+
+  if (action === 'add-character') {
+    void app.openCharacterAddModal(button);
+    return;
+  }
+
   if (action === 'detail') {
     const recordId = Number.parseInt(button.dataset.characterRecordId ?? '', 10);
     if (!Number.isFinite(recordId)) {
@@ -2964,6 +3047,12 @@ export const initDatabaseCharacterManagementFeature = () => {
   if (characterDetailFashions instanceof HTMLElement) {
     characterDetailFashions.addEventListener('click', app.handleCharacterFashionSlotActivate);
     characterDetailFashions.addEventListener('keydown', app.handleCharacterFashionSlotActivate);
+  }
+
+  if (characterDetailMaxAllButton instanceof HTMLButtonElement) {
+    characterDetailMaxAllButton.addEventListener('click', () => {
+      void app.maxCurrentCharacterDetail();
+    });
   }
 
   if (characterDetailEvolution instanceof HTMLElement) {

@@ -16,6 +16,7 @@ CHARACTER_QUALITY_TSV_PATH = Path("assets/CharacterQuality.tsv")
 CHARACTER_TRUST_EXP_TSV_PATH = Path("assets/CharacterTrustExp.tsv")
 EXHIBITION_REWARD_TSV_PATH = Path("assets/ExhibitionReward.tsv")
 CHARACTER_TSV_PATH = Path("assets/Character.tsv")
+CHARACTER_RECOMMEND_EQUIPS_TSV_PATH = Path("assets/CharacterRecommendEquips.tsv")
 FASHION_TSV_PATH = Path("assets/Fashion.tsv")
 
 HEAD_PORTRAIT_TSV_PATH = Path("assets/HeadPortrait.tsv")
@@ -28,3 +29,20 @@ ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
 ROLE_CHARACTER_ASSET_PREFIX = "/assets/rolecharacter/"
 ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"
 UI_PHOTOGRAPH_ASSET_PREFIX = "/assets/uiphotograph/"
+
+FIXED_CHARACTER_MAX_MEMORY_RESONANCES = [
+    [
+        {
+            "Type": 1,
+            "TemplateId": 5
+        },
+        {
+            "Type": 1,
+            "TemplateId": 6
+        },
+        {
+            "Type": 1,
+            "TemplateId": 8
+        }
+    ]
+] * 2

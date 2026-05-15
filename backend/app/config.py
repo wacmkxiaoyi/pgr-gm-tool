@@ -137,6 +137,10 @@ class Settings:
         self.healthy_check_interval = max(1, _to_int(self._resolve("HEALTHY_CHECK_INTERVAL"), 60))
         self.admin_username = (self._resolve("ADMIN_USERNAME") or "").strip()
         self.admin_password = (self._resolve("ADMIN_PASSWORD") or "").strip()
+        self.max_character_use_fix_memory_resonance = _to_bool(
+            self._resolve("MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE"),
+            True,
+        )
 
         self.reload_server_runtime_config()
 
@@ -227,4 +231,14 @@ class Settings:
             "mongo_port": self.mongo_port,
             "mongo_tls": self.mongo_tls,
             "admin_username": self.admin_username,
+            "max_character_use_fix_memory_resonance": self.max_character_use_fix_memory_resonance,
         }
+
+
+settings = Settings()
+
+
+def configure_settings(cli_args: dict[str, Any] | None = None) -> Settings:
+    global settings
+    settings = Settings(cli_args=cli_args)
+    return settings

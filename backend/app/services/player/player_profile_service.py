@@ -72,7 +72,7 @@ class PlayerProfileService:
         return self._get_player_schema().allows_update_path(update_path)
 
     def _filter_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
-        return self._get_player_schema().normalize_update_fields(update_fields)
+        return self._get_player_schema().materialize_update_fields(update_fields)
 
     async def update_player_profile(self, uid: int, payload: UpdatePlayerProfilePayload) -> PlayerProfileRecord | None:
         update_fields: dict[str, Any] = {}
@@ -156,9 +156,13 @@ class PlayerProfileService:
                 if not item_found:
                     raw_items.append(self._items_service.inventory_item_template(item_id, quantity))
 
+                items_update = self._items_service._materialize_inventory_update_fields({"items": raw_items})
+                if "items" not in items_update:
+                    return False
+
                 result = await collection.update_one(
                     {"_id": document.get("_id")},
-                    {"$set": {"items": raw_items}},
+                    {"$set": {"items": items_update["items"]}},
                 )
                 return result.matched_count > 0
 

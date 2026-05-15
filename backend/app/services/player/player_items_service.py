@@ -58,8 +58,8 @@ class PlayerItemsService:
     def sanitize_inventory_items(self, raw_items: Any) -> list[dict[str, Any]]:
         return self._sanitize_raw_items(raw_items)
 
-    def _normalize_inventory_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
-        return self._get_inventory_schema().normalize_update_fields(update_fields)
+    def _materialize_inventory_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
+        return self._get_inventory_schema().materialize_update_fields(update_fields)
 
     def _sanitize_inventory_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_inventory_schema().sanitize_document(document)
@@ -239,13 +239,13 @@ class PlayerItemsService:
             if not updated or not isinstance(document, dict):
                 return False
 
-            normalized_update = self._normalize_inventory_update_fields({"items": raw_items})
-            if "items" not in normalized_update:
+            materialized_update = self._materialize_inventory_update_fields({"items": raw_items})
+            if "items" not in materialized_update:
                 return False
 
             result = await collection.update_one(
                 {"_id": document.get("_id")},
-                {"$set": {"items": normalized_update["items"]}},
+                {"$set": {"items": materialized_update["items"]}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -293,7 +293,7 @@ class PlayerItemsService:
                 normalized_document = self._sanitize_inventory_document(document)
                 result = await collection.update_one(
                     {"_id": document.get("_id")},
-                    {"$set": {"items": self._normalize_inventory_update_fields({"items": raw_items}).get("items", normalized_document.get("items", []))}},
+                    {"$set": {"items": self._materialize_inventory_update_fields({"items": raw_items}).get("items", normalized_document.get("items", []))}},
                 )
             else:
                 inventory_document = self._sanitize_inventory_document({"uid": Int64(uid), "items": raw_items})

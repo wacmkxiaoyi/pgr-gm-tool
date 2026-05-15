@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 
 from fastapi import FastAPI
-from backend.app.config import Settings
+from backend.app.config import configure_settings
 from backend.app.services import init_app
 
 def _parse_cli_args() -> dict[str, object]:
@@ -31,11 +31,12 @@ def _parse_cli_args() -> dict[str, object]:
     parser.add_argument("--MONGO_PASSWORD", default=None)
     parser.add_argument("--MONGO_AUTH_SOURCE", default=None)
     parser.add_argument("--MONGO_TLS", default=None)
+    parser.add_argument("--MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE", default=None)
     args, _ = parser.parse_known_args()
     return {k: v for k, v in vars(args).items() if v is not None}
 
 _cli_args = _parse_cli_args() if __name__ == '__main__' else {}
-settings = Settings(cli_args=_cli_args if _cli_args else None)
+settings = configure_settings(cli_args=_cli_args if _cli_args else None)
 app = FastAPI(title=settings.app_name)
 init_app(app, settings)
 

@@ -8,12 +8,14 @@ from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from backend.app.apis.schemas import (
-    AddEquipResponse,
+    AddCharacterRequest,
+    AddCharacterResponse,
     AddEquipRequest,
     AddEquipResponse,
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
+    CharacterAvailableListResponse,
     CharacterMemoryCandidatesResponse,
     CharacterWeaponCandidatesResponse,
     CharacterExtraInfoResponse,
@@ -56,6 +58,8 @@ from backend.app.apis.schemas import (
     UpdateCharacterGradeResponse,
     UpdateCharacterLevelupRequest,
     UpdateCharacterLevelupResponse,
+    MaxAllCharactersResponse,
+    MaxCharacterResponse,
     UpdateCharacterSkillRequest,
     UpdateCharacterSkillResponse,
     UpdateCharacterTrustRequest,
@@ -71,7 +75,7 @@ from backend.app.apis.schemas import (
     UpdateEquipResponse,
     EquipListResponse,
 )
-from backend.app.db.models import AccountListResponse, SetCharacterSupportResponse as SetCharacterSupportDomainResponse, UpdatePlayerProfilePayload
+from backend.app.db.models import AccountListResponse, MaxAllCharactersResponse as MaxAllCharactersDomainResponse, MaxCharacterResponse as MaxCharacterDomainResponse, SetCharacterSupportResponse as SetCharacterSupportDomainResponse, UpdatePlayerProfilePayload
 from backend.app.services.player.equips import (
     get_equip_icon_url_map,
     get_equip_name_map,
@@ -646,6 +650,53 @@ async def get_selected_database_characters(
     return CharacterManagementListResponse.model_validate(characters.model_dump(by_alias=True))
 
 
+@router.get("/database-characters/available", response_model=CharacterAvailableListResponse, response_model_exclude_none=True)
+async def get_selected_database_available_characters(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> CharacterAvailableListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+    result = await characters_service.list_available_characters(selected_uid)
+    return CharacterAvailableListResponse.model_validate(result.model_dump())
+
+
+@router.post("/database-characters/selected", response_model=AddCharacterResponse, response_model_exclude_none=True)
+async def add_selected_database_character(
+    request: Request,
+    payload: AddCharacterRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddCharacterResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.add_character(selected_uid, payload.CharacterId)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.add_invalid":
+            raise_http_error(422, "character.add_invalid", {"character_id": payload.CharacterId})
+        if error_message == "character.add_already_owned":
+            raise_http_error(422, "character.add_already_owned", {"character_id": payload.CharacterId})
+        if error_message == "character.add_failed":
+            raise_http_error(500, "character.add_failed", {"character_id": payload.CharacterId})
+        raise
+
+    return AddCharacterResponse.model_validate(result.model_dump(by_alias=True))
+
+
 @router.put("/database-characters/selected/{record_id}/support", response_model=SetCharacterSupportResponse)
 async def set_selected_database_character_support(
     record_id: int,
@@ -1037,6 +1088,61 @@ async def update_selected_database_character_fashion(
         raise
 
     return UpdateCharacterFashionResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/max-all", response_model=MaxCharacterResponse, response_model_exclude_none=True)
+async def max_selected_database_character(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> MaxCharacterResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.max_character(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.max_template_not_found":
+            raise_http_error(422, "character.max_template_not_found", {"record_id": record_id})
+        if error_message == "character.max_failed":
+            raise_http_error(500, "character.max_failed", {"record_id": record_id})
+        raise
+
+    return MaxCharacterResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/max-all", response_model=MaxAllCharactersResponse, response_model_exclude_none=True)
+async def max_selected_database_all_characters(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> MaxAllCharactersResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+
+    try:
+        result = await characters_service.max_all_characters(selected_uid)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.max_all_failed":
+            raise_http_error(500, "character.max_all_failed", {"uid": selected_uid})
+        raise
+
+    return MaxAllCharactersResponse.model_validate(MaxAllCharactersDomainResponse.model_validate(result.model_dump()).model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/grade", response_model=UpdateCharacterGradeResponse, response_model_exclude_none=True)

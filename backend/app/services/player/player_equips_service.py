@@ -31,8 +31,6 @@ from backend.app.services.player.player_characters import (
     get_character_log_name_map,
 )
 from backend.app.services.player.levelup_template import (
-    get_level_all_exp,
-    get_level_from_total_exp,
     get_level_per_exp,
     get_levelup_template_max_level,
 )
@@ -416,6 +414,18 @@ def _build_memory_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     )
     normalized_item.EnhancementLevel = _weapon_enhancement_level(normalized_item, breakthrough_level_limit_map)
     return normalized_item
+
+
+def _get_equip_allowed_max_exp(template_id: int, level: int) -> int | None:
+    per_exp = get_level_per_exp(template_id, level)
+    if per_exp is None:
+        return None
+
+    max_level = get_levelup_template_max_level(template_id)
+    if max_level is not None and level == max_level:
+        return per_exp
+
+    return max(per_exp - 1, 0)
 
 
 def _get_weapon_type_id(template_id: int | None) -> int | None:
@@ -848,12 +858,12 @@ class PlayerEquipsService:
         return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
 
     def _build_equips_update(self, equips: list[dict[str, Any]]) -> dict[str, Any]:
-        normalized_update = self._get_characters_schema().normalize_update_fields({
+        materialized_update = self._get_characters_schema().materialize_update_fields({
             "equips": self._sanitize_equips(equips),
         })
-        if "equips" not in normalized_update:
-            raise RuntimeError("Failed to normalize equips update")
-        return normalized_update
+        if "equips" not in materialized_update:
+            raise RuntimeError("Failed to materialize equips update")
+        return materialized_update
 
     def _build_weapon_document(self, template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
         now = int(time.time())
@@ -1117,7 +1127,7 @@ class PlayerEquipsService:
                 raise ValueError("equips.template_invalid")
 
             current_level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
-            current_exp_total = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
+            current_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
             current_breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
 
             breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
@@ -1141,20 +1151,18 @@ class PlayerEquipsService:
                 new_template_id = stage_template_map.get(current_breakthrough)
                 if new_template_id is not None:
                     current_template_id = new_template_id
-                    new_level, _new_current_exp = get_level_from_total_exp(current_exp_total, current_template_id)
                     stage_level_limit = stage_limit_map.get(current_breakthrough)
+                    new_level = current_level
                     if isinstance(stage_level_limit, int) and new_level > stage_level_limit:
                         new_level = stage_level_limit
-                        _new_current_exp = get_level_per_exp(current_template_id, new_level) or 0
                     max_lvl = get_levelup_template_max_level(current_template_id)
                     if max_lvl is not None and new_level > max_lvl:
                         new_level = max_lvl
                     current_level = new_level
-                    all_exp = get_level_all_exp(current_template_id, current_level) or 0
-                    per_exp = get_level_per_exp(current_template_id, current_level) or 0
-                    if max_lvl is not None and current_level == max_lvl and _new_current_exp > per_exp:
-                        _new_current_exp = per_exp
-                    current_exp_total = all_exp + _new_current_exp
+                    allowed_max = _get_equip_allowed_max_exp(current_template_id, current_level)
+                    if allowed_max is None:
+                        raise ValueError("equips.template_invalid")
+                    current_exp = min(current_exp, allowed_max)
 
             elif field_name == "level":
                 if field_value < 1:
@@ -1171,17 +1179,12 @@ class PlayerEquipsService:
                 if field_value > max_lvl:
                     raise ValueError("equips.level_above_limit")
 
-                all_exp = get_level_all_exp(current_template_id, field_value)
-                if all_exp is None:
+                allowed_max = _get_equip_allowed_max_exp(current_template_id, field_value)
+                if allowed_max is None:
                     raise ValueError("equips.template_invalid")
 
-                if field_value < current_level:
-                    per_exp = get_level_per_exp(current_template_id, field_value) or 0
-                    current_exp_total = all_exp + max(0, per_exp - 1)
-                else:
-                    current_exp_total = all_exp
-
                 current_level = field_value
+                current_exp = min(current_exp, allowed_max)
 
             elif field_name == "exp":
                 if field_value < 0:
@@ -1190,27 +1193,20 @@ class PlayerEquipsService:
                 if current_template_id is None:
                     raise ValueError("equips.template_invalid")
 
-                all_exp = get_level_all_exp(current_template_id, current_level)
-                per_exp = get_level_per_exp(current_template_id, current_level)
-                if all_exp is None or per_exp is None:
+                allowed_max = _get_equip_allowed_max_exp(current_template_id, current_level)
+                if allowed_max is None:
                     raise ValueError("equips.template_invalid")
-
-                max_lvl = get_levelup_template_max_level(current_template_id)
-                if max_lvl is not None and current_level == max_lvl:
-                    allowed_max = per_exp
-                else:
-                    allowed_max = per_exp - 1
 
                 if field_value > allowed_max:
                     raise ValueError("equips.exp_above_limit")
 
-                current_exp_total = all_exp + field_value
+                current_exp = field_value
 
             else:
                 raise ValueError("equips.invalid_field")
 
             target_equip["Level"] = current_level
-            target_equip["Exp"] = current_exp_total
+            target_equip["Exp"] = current_exp
             target_equip["Breakthrough"] = current_breakthrough
 
             raw_equips[target_index] = target_equip
@@ -1227,18 +1223,12 @@ class PlayerEquipsService:
         if result.modified_count <= 0:
             raise ValueError("equips.update_failed")
 
-        response_exp = current_exp_total
-        if current_template_id is not None:
-            all_exp = get_level_all_exp(current_template_id, current_level)
-            if all_exp is not None:
-                response_exp = max(0, current_exp_total - all_exp)
-
         response_item = WeaponItemRecord(
             record_id=normalized_record_id,
             TemplateId=template_id,
             CharacterId=parse_optional_int(target_equip.get("CharacterId")),
             Level=current_level,
-            Exp=response_exp,
+            Exp=current_exp,
             Breakthrough=current_breakthrough,
         )
         response_item.EnhancementLevel = _weapon_enhancement_level(response_item, get_equip_breakthrough_level_limit_map())
@@ -1281,7 +1271,7 @@ class PlayerEquipsService:
                 raise ValueError("equips.template_invalid")
 
             current_level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
-            current_exp_total = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
+            current_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
             current_breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
 
             breakthrough_levelup_template_map = get_breakthrough_levelup_template_map()
@@ -1305,20 +1295,18 @@ class PlayerEquipsService:
                 new_template_id = stage_template_map.get(current_breakthrough)
                 if new_template_id is not None:
                     current_template_id = new_template_id
-                    new_level, new_current_exp = get_level_from_total_exp(current_exp_total, current_template_id)
                     stage_level_limit = stage_limit_map.get(current_breakthrough)
+                    new_level = current_level
                     if isinstance(stage_level_limit, int) and new_level > stage_level_limit:
                         new_level = stage_level_limit
-                        new_current_exp = get_level_per_exp(current_template_id, new_level) or 0
                     max_lvl = get_levelup_template_max_level(current_template_id)
                     if max_lvl is not None and new_level > max_lvl:
                         new_level = max_lvl
                     current_level = new_level
-                    all_exp = get_level_all_exp(current_template_id, current_level) or 0
-                    per_exp = get_level_per_exp(current_template_id, current_level) or 0
-                    if max_lvl is not None and current_level == max_lvl and new_current_exp > per_exp:
-                        new_current_exp = per_exp
-                    current_exp_total = all_exp + new_current_exp
+                    allowed_max = _get_equip_allowed_max_exp(current_template_id, current_level)
+                    if allowed_max is None:
+                        raise ValueError("equips.template_invalid")
+                    current_exp = min(current_exp, allowed_max)
 
             elif field_name == "level":
                 if field_value < 1:
@@ -1335,17 +1323,12 @@ class PlayerEquipsService:
                 if field_value > max_lvl:
                     raise ValueError("equips.level_above_limit")
 
-                all_exp = get_level_all_exp(current_template_id, field_value)
-                if all_exp is None:
+                allowed_max = _get_equip_allowed_max_exp(current_template_id, field_value)
+                if allowed_max is None:
                     raise ValueError("equips.template_invalid")
 
-                if field_value < current_level:
-                    per_exp = get_level_per_exp(current_template_id, field_value) or 0
-                    current_exp_total = all_exp + max(0, per_exp - 1)
-                else:
-                    current_exp_total = all_exp
-
                 current_level = field_value
+                current_exp = min(current_exp, allowed_max)
 
             elif field_name == "exp":
                 if field_value < 0:
@@ -1354,24 +1337,20 @@ class PlayerEquipsService:
                 if current_template_id is None:
                     raise ValueError("equips.template_invalid")
 
-                all_exp = get_level_all_exp(current_template_id, current_level)
-                per_exp = get_level_per_exp(current_template_id, current_level)
-                if all_exp is None or per_exp is None:
+                allowed_max = _get_equip_allowed_max_exp(current_template_id, current_level)
+                if allowed_max is None:
                     raise ValueError("equips.template_invalid")
-
-                max_lvl = get_levelup_template_max_level(current_template_id)
-                allowed_max = per_exp if max_lvl is not None and current_level == max_lvl else per_exp - 1
 
                 if field_value > allowed_max:
                     raise ValueError("equips.exp_above_limit")
 
-                current_exp_total = all_exp + field_value
+                current_exp = field_value
 
             else:
                 raise ValueError("equips.invalid_field")
 
             target_equip["Level"] = current_level
-            target_equip["Exp"] = current_exp_total
+            target_equip["Exp"] = current_exp
             target_equip["Breakthrough"] = current_breakthrough
 
             raw_equips[target_index] = target_equip
@@ -1388,18 +1367,12 @@ class PlayerEquipsService:
         if result.modified_count <= 0:
             raise ValueError("equips.update_failed")
 
-        response_exp = current_exp_total
-        if current_template_id is not None:
-            all_exp = get_level_all_exp(current_template_id, current_level)
-            if all_exp is not None:
-                response_exp = max(0, current_exp_total - all_exp)
-
         response_item = WeaponItemRecord(
             record_id=normalized_record_id,
             TemplateId=template_id,
             CharacterId=parse_optional_int(target_equip.get("CharacterId")),
             Level=current_level,
-            Exp=response_exp,
+            Exp=current_exp,
             Breakthrough=current_breakthrough,
         )
         response_item.EnhancementLevel = _weapon_enhancement_level(response_item, get_equip_breakthrough_level_limit_map())
@@ -1455,8 +1428,6 @@ class PlayerEquipsService:
 
         breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
         level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
-        raw_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
-
         breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
         max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
         description = get_equip_descriptions_map().get(template_id)
@@ -1466,10 +1437,7 @@ class PlayerEquipsService:
         if isinstance(template_stage_map, dict):
             template_id_for_stage = template_stage_map.get(breakthrough)
             if template_id_for_stage is not None:
-                all_exp = get_level_all_exp(template_id_for_stage, level)
-                per_exp = get_level_per_exp(template_id_for_stage, level)
-                if all_exp is not None and per_exp is not None and raw_exp >= all_exp:
-                    current_level_exp_limit = per_exp
+                current_level_exp_limit = get_level_per_exp(template_id_for_stage, level)
 
         resonance_info = None
         resonance_raw = target_equip.get("ResonanceInfo")
@@ -1556,8 +1524,6 @@ class PlayerEquipsService:
 
         breakthrough = max(0, int(parse_optional_int(target_equip.get("Breakthrough")) or 0))
         level = max(1, int(parse_optional_int(target_equip.get("Level")) or 1))
-        raw_exp = max(0, int(parse_optional_int(target_equip.get("Exp")) or 0))
-
         breakthrough_level_limit_map = get_equip_breakthrough_level_limit_map().get(template_id, {})
         max_breakthrough = get_equip_breakthrough_max_map().get(template_id, {}).get("max_breakthrough", 0)
         description = get_equip_descriptions_map().get(template_id)
@@ -1567,10 +1533,7 @@ class PlayerEquipsService:
         if isinstance(template_stage_map, dict):
             template_id_for_stage = template_stage_map.get(breakthrough)
             if template_id_for_stage is not None:
-                all_exp = get_level_all_exp(template_id_for_stage, level)
-                per_exp = get_level_per_exp(template_id_for_stage, level)
-                if all_exp is not None and per_exp is not None and raw_exp >= all_exp:
-                    current_level_exp_limit = per_exp
+                current_level_exp_limit = get_level_per_exp(template_id_for_stage, level)
 
         resonance_info = None
         resonance_raw = target_equip.get("ResonanceInfo")
@@ -2114,16 +2077,6 @@ class PlayerEquipsService:
             if normalized_item is None or template_id is None:
                 continue
 
-            raw_exp = parse_optional_int(raw_equip.get("Exp"))
-            current_breakthrough = max(0, int(normalized_item.Breakthrough or 0))
-            template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
-            if isinstance(template_stage_map, dict) and normalized_item.Level is not None and raw_exp is not None:
-                template_id_for_stage = template_stage_map.get(current_breakthrough)
-                if template_id_for_stage is not None:
-                    all_exp = get_level_all_exp(template_id_for_stage, normalized_item.Level)
-                    if all_exp is not None:
-                        normalized_item.Exp = max(0, raw_exp - all_exp)
-
             normalized_items.append(normalized_item)
 
         normalized_items.sort(
@@ -2286,16 +2239,6 @@ class PlayerEquipsService:
             normalized_item = _build_memory_item_record(raw_equip)
             if normalized_item is None or template_id is None:
                 continue
-
-            raw_exp = parse_optional_int(raw_equip.get("Exp"))
-            current_breakthrough = max(0, int(normalized_item.Breakthrough or 0))
-            template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
-            if isinstance(template_stage_map, dict) and normalized_item.Level is not None and raw_exp is not None:
-                template_id_for_stage = template_stage_map.get(current_breakthrough)
-                if template_id_for_stage is not None:
-                    all_exp = get_level_all_exp(template_id_for_stage, normalized_item.Level)
-                    if all_exp is not None:
-                        normalized_item.Exp = max(0, raw_exp - all_exp)
 
             normalized_items.append(normalized_item)
 

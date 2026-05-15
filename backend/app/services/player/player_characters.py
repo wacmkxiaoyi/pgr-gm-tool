@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import ast
+import json
 from functools import lru_cache
 from typing import Any
 
-from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, ICON_TOOLS_ASSET_PREFIX, ROLE_CHARACTER_ASSET_PREFIX
+from backend.app.config import settings
+from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, ICON_TOOLS_ASSET_PREFIX, ROLE_CHARACTER_ASSET_PREFIX, FIXED_CHARACTER_MAX_MEMORY_RESONANCES
+from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map
+from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_entries_map, get_weapon_overrun_suit_memory_ids_map
+from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
 
@@ -410,5 +416,323 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
                 'Description': row.get('WorldDescription', '')
             }
         )
+
+    return normalized_map
+
+@lru_cache(maxsize=1)
+def get_character_default_weapon_map() -> dict[int, int]:
+    reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
+    raw_map = reader.get_maps("Id", "EquipId")[0]
+    normalized_map: dict[int, int] = {}
+
+    for character_id_raw, equip_id_raw in raw_map.items():
+        character_id = parse_int(character_id_raw)
+        equip_id = parse_int(equip_id_raw)
+
+        if character_id is None or equip_id is None:
+            continue
+
+        normalized_map[character_id] = equip_id
+
+    return normalized_map
+
+@lru_cache(maxsize=1)
+def get_character_recommend_equips_map() -> dict[int, dict[str, Any]]:
+    reader = TSVReader(CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, typed=True)
+    raw_table = reader.get_sub_table(
+        "Id",
+        ["WeaponId", "WeaponResonances", "Memories", "MemoryResonances"],
+    )
+    normalized_map: dict[int, dict[str, Any]] = {}
+
+    for character_id_raw, row in raw_table.items():
+        character_id = parse_int(character_id_raw)
+        weapon_id = parse_int(row.get("WeaponId"))
+
+        if character_id is None or weapon_id is None:
+            continue
+
+        weapon_resonances = row.get("WeaponResonances")
+        memories = row.get("Memories")
+        memory_resonances = row.get("MemoryResonances")
+
+        normalized_map[character_id] = {
+            "WeaponId": weapon_id,
+            "WeaponResonances": weapon_resonances if isinstance(weapon_resonances, list) else [],
+            "Memories": memories if isinstance(memories, list) else [],
+            "MemoryResonances": memory_resonances if isinstance(memory_resonances, list) else [],
+        }
+
+    return normalized_map
+
+def _normalize_resonance_entry(raw_entry: Any, *, slot: int, character_id: int) -> dict[str, int] | None:
+    if not isinstance(raw_entry, dict):
+        return None
+
+    entry_type = parse_int(raw_entry.get("Type"))
+    template_id = parse_int(raw_entry.get("TemplateId"))
+    if entry_type is None or entry_type <= 0 or template_id is None or template_id <= 0:
+        return None
+
+    return {
+        "Slot": slot,
+        "Type": entry_type,
+        "TemplateId": template_id,
+        "CharacterId": character_id,
+    }
+
+def _resolve_equip_max_level_exp(template_id: int, breakthrough: int) -> dict[str, int] | None:
+    template_stage_map = get_breakthrough_levelup_template_map().get(template_id)
+    if not isinstance(template_stage_map, dict):
+        return None
+
+    levelup_template_id = parse_int(template_stage_map.get(breakthrough))
+    if levelup_template_id is None:
+        return None
+
+    max_level = get_levelup_template_max_level(levelup_template_id)
+    if max_level is None:
+        return None
+
+    per_exp = get_level_per_exp(levelup_template_id, max_level)
+    if per_exp is None:
+        return None
+
+    return {
+        "Level": max_level,
+        "Exp": per_exp,
+    }
+
+
+def _parse_skill_description_thresholds(raw_value: Any) -> list[int]:
+    text = str(raw_value or "").strip()
+    if not text:
+        return []
+
+    parsed: Any = None
+    try:
+        parsed = ast.literal_eval(text)
+    except (ValueError, SyntaxError):
+        try:
+            parsed = json.loads(text)
+        except (ValueError, json.JSONDecodeError):
+            parsed = None
+
+    if not isinstance(parsed, dict):
+        return []
+
+    thresholds = [
+        threshold
+        for raw_key in parsed.keys()
+        for threshold in [parse_int(raw_key)]
+        if threshold is not None and threshold > 0
+    ]
+    return sorted(set(thresholds))
+
+
+def _choose_weapon_overrun_suit(memory_template_ids: list[int]) -> int | None:
+    suit_memory_ids_map = get_weapon_overrun_suit_memory_ids_map()
+    suit_entries_map = get_weapon_overrun_suit_entries_map()
+    if not memory_template_ids or not suit_memory_ids_map:
+        return None
+
+    equipped_memory_counts: dict[int, int] = {}
+    for template_id in memory_template_ids:
+        equipped_memory_counts[template_id] = equipped_memory_counts.get(template_id, 0) + 1
+
+    best_suit_id: int | None = None
+    best_sort_key: tuple[int, int, int] | None = None
+    for suit_id, slot_memory_map in suit_memory_ids_map.items():
+        if not isinstance(slot_memory_map, dict):
+            continue
+
+        matched_count = sum(
+            1
+            for memory_id_raw in slot_memory_map.values()
+            for memory_id in [parse_int(memory_id_raw)]
+            if memory_id is not None and equipped_memory_counts.get(memory_id, 0) > 0
+        )
+        if matched_count <= 0:
+            continue
+
+        thresholds = _parse_skill_description_thresholds(suit_entries_map.get(suit_id, {}).get("SkillDescription"))
+        active_skill_count = sum(1 for threshold in thresholds if matched_count >= threshold)
+        sort_key = (active_skill_count, matched_count, -suit_id)
+        if best_sort_key is None or sort_key > best_sort_key:
+            best_sort_key = sort_key
+            best_suit_id = suit_id
+
+    return best_suit_id
+
+
+@lru_cache(maxsize=1)
+def get_character_max_template_map() -> dict[int, dict[str, Any]]:
+    character_quality_bound_map = get_character_quality_bound_map()
+    character_grade_name_map = get_character_grade_name_map()
+    character_trust_exp_map = get_character_trust_exp_map()
+    character_levelup_template_map = get_character_levelup_template_map()
+    character_max_liberate_level_map = get_character_max_liberate_level_map()
+    character_exhibitions_map = get_character_exhibitions_map()
+    character_fashions_map = get_character_fashions_map()
+    character_recommend_equips_map = get_character_recommend_equips_map()
+    character_skill_ids_map = get_character_skill_ids_map()
+    character_skill_entries_map = get_character_skill_entries_map()
+    character_enhance_skill_ids_map = get_character_enhance_skill_ids_map()
+    character_enhance_skill_entries_map = get_character_enhance_skill_entries_map()
+    equip_breakthrough_max_map = get_equip_breakthrough_max_map()
+    awake_supported_template_ids = get_equip_awake_template_id_set()
+    weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
+
+    trust_levels = sorted(level for level in character_trust_exp_map if isinstance(level, int) and level > 0 and level <= 8)
+    max_trust_level = trust_levels[-1] if trust_levels else None
+
+    normalized_map: dict[int, dict[str, Any]] = {}
+    for character_id, recommend_equips in character_recommend_equips_map.items():
+        quality_bound = character_quality_bound_map.get(character_id)
+        grade_names = character_grade_name_map.get(character_id, [])
+        levelup_template_id = character_levelup_template_map.get(character_id)
+        max_liberate_level = character_max_liberate_level_map.get(character_id)
+        if not isinstance(quality_bound, list) or len(quality_bound) != 2 or not grade_names or levelup_template_id is None or max_liberate_level is None:
+            continue
+
+        level_exp_map = get_level_exp_map(levelup_template_id)
+        character_max_level = max(list(level_exp_map.keys()))
+        character_max_level_exp = level_exp_map[character_max_level]
+
+        max_quality = quality_bound[1]
+        max_grade = len(grade_names)
+        exhibitions = [
+            exhibition_id
+            for raw_exhibition_id in character_exhibitions_map.get(character_id, [])
+            for exhibition_id in [parse_int(raw_exhibition_id)]
+            if exhibition_id is not None
+        ]
+        fashions = [fashion for fashion in character_fashions_map.get(character_id, []) if isinstance(fashion, dict)]
+        chosen_fashion = max(
+            fashions,
+            key=lambda fashion: (parse_int(fashion.get("Quality")) or 0, parse_int(fashion.get("Id")) or 0),
+            default=None,
+        )
+        chosen_fashion_id = parse_int(chosen_fashion.get("Id")) if isinstance(chosen_fashion, dict) else None
+        unlock_fashion_ids = [
+            fashion_id
+            for fashion in fashions
+            for fashion_id in [parse_int(fashion.get("Id"))]
+            if fashion_id is not None
+        ]
+
+        memories = recommend_equips.get("Memories") if isinstance(recommend_equips.get("Memories"), list) else []
+        memory_resonances = recommend_equips.get("MemoryResonances") if isinstance(recommend_equips.get("MemoryResonances"), list) else []
+        memory_templates: list[dict[str, Any]] = []
+        resolved_memory_template_ids: list[int] = []
+        for site_index, raw_memory_template_id in enumerate(memories):
+            memory_template_id = parse_int(raw_memory_template_id)
+            if memory_template_id is None:
+                continue
+
+            max_breakthrough = equip_breakthrough_max_map.get(memory_template_id, {}).get("max_breakthrough", 0)
+            memory_level_exp = _resolve_equip_max_level_exp(memory_template_id, max_breakthrough)
+            if memory_level_exp is None:
+                continue
+
+            resonance_info: list[dict[str, int]] = []
+            awake_slots: list[int] = []
+            for slot_index, raw_slot_entries in enumerate(
+                FIXED_CHARACTER_MAX_MEMORY_RESONANCES
+                if settings.max_character_use_fix_memory_resonance
+                else memory_resonances
+            ):
+                if not isinstance(raw_slot_entries, list) or not raw_slot_entries:
+                    continue
+
+                raw_entry = raw_slot_entries[site_index % len(raw_slot_entries)]
+                normalized_entry = _normalize_resonance_entry(raw_entry, slot=slot_index + 1, character_id=character_id)
+                if normalized_entry is None:
+                    continue
+
+                resonance_info.append(normalized_entry)
+                if memory_template_id in awake_supported_template_ids:
+                    awake_slots.append(slot_index + 1)
+
+            memory_templates.append({
+                "TemplateId": memory_template_id,
+                "CharacterId": character_id,
+                "Breakthrough": max_breakthrough,
+                "Level": memory_level_exp["Level"],
+                "Exp": memory_level_exp["Exp"],
+                "ResonanceInfo": resonance_info,
+                "AwakeSlotList": sorted(set(awake_slots)),
+            })
+            resolved_memory_template_ids.append(memory_template_id)
+
+        weapon_template_id = parse_int(recommend_equips.get("WeaponId"))
+        weapon_template: dict[str, Any] | None = None
+        if weapon_template_id is not None:
+            max_breakthrough = equip_breakthrough_max_map.get(weapon_template_id, {}).get("max_breakthrough", 0)
+            weapon_level_exp = _resolve_equip_max_level_exp(weapon_template_id, max_breakthrough)
+            if weapon_level_exp is not None:
+                weapon_resonances = recommend_equips.get("WeaponResonances") if isinstance(recommend_equips.get("WeaponResonances"), list) else []
+                resonance_info = [
+                    normalized_entry
+                    for slot_index, raw_entry in enumerate(weapon_resonances)
+                    for normalized_entry in [_normalize_resonance_entry(raw_entry, slot=slot_index + 1, character_id=character_id)]
+                    if normalized_entry is not None
+                ]
+                awake_slots = sorted({entry["Slot"] for entry in resonance_info if weapon_template_id in awake_supported_template_ids})
+                overrun_suit_id = _choose_weapon_overrun_suit(resolved_memory_template_ids)
+                overrun_data: dict[str, Any] = {}
+                max_overrun_level = weapon_overrun_max_level_map.get(weapon_template_id)
+                if max_overrun_level is not None and overrun_suit_id is not None:
+                    overrun_data = {
+                        "Level": max_overrun_level,
+                        "ActiveSuits": [overrun_suit_id],
+                        "ChoseSuit": overrun_suit_id,
+                    }
+
+                weapon_template = {
+                    "TemplateId": weapon_template_id,
+                    "CharacterId": character_id,
+                    "Breakthrough": max_breakthrough,
+                    "Level": weapon_level_exp["Level"],
+                    "Exp": weapon_level_exp["Exp"],
+                    "ResonanceInfo": resonance_info,
+                    "AwakeSlotList": awake_slots,
+                    "WeaponOverrunData": overrun_data,
+                }
+
+        skill_list = [
+            {"_id": skill_id, "Level": parse_int(character_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}
+            for skill_id in character_skill_ids_map.get(character_id, [])
+            if (parse_int(character_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0) > 0
+        ]
+        enhance_skill_list = [
+            {"_id": skill_id, "Level": parse_int(character_enhance_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}
+            for skill_id in character_enhance_skill_ids_map.get(character_id, [])
+            if (parse_int(character_enhance_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0) > 0
+        ]
+
+        normalized_map[character_id] = {
+            "character": {
+                "Quality": max_quality,
+                "Star": 0 if max_quality == 6 else 9,
+                "Grade": max_grade,
+                "TrustLv": max_trust_level,
+                "TrustExp": character_trust_exp_map.get(max_trust_level, 0) if max_trust_level is not None else 0,
+                "LiberateLv": max_liberate_level,
+                "Level": character_max_level,
+                "Exp": character_max_level_exp,
+                "SkillList": skill_list,
+                "EnhanceSkillList": enhance_skill_list,
+            },
+            "awaken": {
+                "GatherRewards": exhibitions[:max_liberate_level],
+            },
+            "fashion": {
+                "UnlockFashionIds": unlock_fashion_ids,
+                "SelectedFashionId": chosen_fashion_id,
+            },
+            "memories": memory_templates,
+            "weapon": weapon_template,
+        }
 
     return normalized_map

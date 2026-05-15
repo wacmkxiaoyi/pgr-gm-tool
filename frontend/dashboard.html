@@ -566,7 +566,7 @@
           </div>
         </div>
         <p id="account-delete-message" class="shared-modal-message" data-i18n="runtime.accountDeleteDefaultMessage">确认删除该账户吗？</p>
-        <div class="shared-modal-actions account-delete-actions">
+        <div class="shared-modal-actions shared-modal-actions-split account-delete-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-account-delete-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button shared-modal-button-danger" id="account-delete-confirm" data-i18n="runtime.accountDeleteSubmit">确认删除</button>
         </div>
@@ -592,7 +592,7 @@
           <input class="account-password-input" id="account-password-confirm-input" type="password" autocomplete="new-password" />
           <p class="account-password-feedback" id="account-password-feedback" data-i18n="runtime.accountPasswordDefaultFeedback">密码长度需大于等于 6 位。</p>
         </div>
-        <div class="shared-modal-actions account-password-actions">
+        <div class="shared-modal-actions shared-modal-actions-split account-password-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-account-password-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button" id="account-password-confirm" data-i18n="common.confirm">确认</button>
         </div>
@@ -610,7 +610,7 @@
           </div>
         </div>
         <p id="item-delete-message" class="shared-modal-message" data-i18n="runtime.itemDeleteDefaultMessage">确认执行当前道具操作吗？</p>
-        <div class="shared-modal-actions account-delete-actions">
+        <div class="shared-modal-actions shared-modal-actions-split account-delete-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-item-delete-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button shared-modal-button-danger" id="item-delete-confirm" data-i18n="runtime.itemDeleteSubmit">确认删除</button>
         </div>
@@ -1265,7 +1265,7 @@
           </div>
         </div>
         <p id="logout-confirm-message" class="shared-modal-message" data-i18n="dashboard.logoutConfirmMessage">确认退出当前登录状态吗？</p>
-        <div class="shared-modal-actions logout-confirm-actions">
+        <div class="shared-modal-actions shared-modal-actions-split logout-confirm-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-logout-confirm-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button" id="logout-confirm-submit" data-i18n="dashboard.logoutConfirmSubmit">确认退出</button>
         </div>
@@ -1288,7 +1288,7 @@
           <input type="checkbox" id="player-mutation-risk-dont-show" />
           <span data-i18n="common.dontShowAgain">不再提示</span>
         </label>
-        <div class="shared-modal-actions">
+        <div class="shared-modal-actions shared-modal-actions-split">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-player-mutation-risk-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button shared-modal-button-danger" id="player-mutation-risk-confirm" data-i18n="runtime.playerEditConfirmSubmit">仍然修改</button>
         </div>
@@ -1316,6 +1316,28 @@
             <button type="button" class="shared-modal-button shared-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-modal-close data-i18n="common.cancel">取消</button>
             <button type="button" class="shared-modal-button" id="player-portrait-picker-confirm" disabled data-i18n="runtime.playerPickerConfirm">确认</button>
           </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal character-add-modal" hidden id="character-add-modal">
+      <div class="shared-modal-backdrop" data-character-add-modal-close></div>
+      <section class="shared-modal-card character-add-card" role="dialog" aria-modal="true" aria-labelledby="character-add-title" aria-describedby="character-add-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">◎</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="character-add-eyebrow" data-i18n="runtime.characterManagementAddPickerEyebrow">角色选择</p>
+            <h3 id="character-add-title" data-i18n="runtime.characterManagementAddPickerTitle">新增角色</h3>
+          </div>
+        </div>
+        <p id="character-add-description" class="shared-modal-message" data-i18n="runtime.characterManagementAddPickerDescription">请选择一个当前用户尚未拥有的角色。</p>
+        <div class="character-add-meta">
+          <div class="character-add-summary" id="character-add-current"></div>
+        </div>
+        <div class="character-picker-grid" id="character-add-grid"></div>
+        <div class="character-picker-actions shared-modal-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary character-add-cancel" data-character-add-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-add-confirm" disabled data-i18n="common.confirm">确认</button>
         </div>
       </section>
     </div>

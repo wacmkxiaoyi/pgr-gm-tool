@@ -314,6 +314,7 @@
         "characters": {
           "type": "array",
           "default": [],
+          "description": "player's characters",
           "schema": {
             "_id": {
               "type": "number",
@@ -396,7 +397,8 @@
                   "type": "number"
                 },
                 "HeadFashionType": {
-                  "type": "number"
+                  "type": "number",
+                  "default": 0
                 }
               }
             }
@@ -405,6 +407,7 @@
         "fashions": {
           "type": "array",
           "default": [],
+          "description": "character's fashions",
           "schema": {
             "_id": {
               "type": "number",
@@ -419,6 +422,7 @@
         "equips": {
           "type": "array",
           "default": [],
+          "description": "character's equips",
           "schema": {
             "_id": {
               "type": "number",
@@ -671,19 +675,21 @@
                 "schema": {
                   "Level": {
                     "type": "number",
-                    "default": 1
+                    "default": 0
                   },
                   "ActiveSuits": {
                     "type": "array",
                     "default": [],
                     "schema": {
                       "_id": {
-                        "type": "number"
+                        "type": "number",
+                        "default": 0
                       }
                     }
                   },
                   "ChoseSuit": {
-                    "type": "number"
+                    "type": "number",
+                    "default": 0
                   }
                 }
               }

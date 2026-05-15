@@ -89,6 +89,20 @@ class CompiledCollectionSchema:
             if self.allows_update_path(path)
         }
 
+    def materialize_update_fields(self, update_fields: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(update_fields, dict):
+            return {}
+
+        materialized: dict[str, Any] = {}
+        for path, value in update_fields.items():
+            schema_node = self.resolve_update_path(path)
+            if schema_node is None:
+                continue
+
+            materialized[path] = _sanitize_value(value, schema_node, fill_defaults=True)
+
+        return materialized
+
     def build_default(self, path: str = "") -> Any:
         schema_node = self.resolve(path)
         if schema_node is None:
@@ -142,6 +156,12 @@ class DatabaseSchemaRuntime:
         if collection_schema is None:
             return {}
         return collection_schema.normalize_update_fields(update_fields)
+
+    def materialize_update_fields(self, collection_name: str, update_fields: dict[str, Any]) -> dict[str, Any]:
+        collection_schema = self.get_collection_schema(collection_name)
+        if collection_schema is None:
+            return {}
+        return collection_schema.materialize_update_fields(update_fields)
 
     def has_collection(self, collection_name: str) -> bool:
         return self.get_collection_schema(collection_name) is not None

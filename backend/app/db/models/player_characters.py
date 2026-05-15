@@ -24,6 +24,16 @@ class CharacterManagementListResponse(BaseModel):
     total_pages: int = 0
 
 
+class CharacterAvailableListResponse(BaseModel):
+    character_ids: list[int]
+
+
+class AddCharacterResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    added: bool = True
+
+
 class SetCharacterSupportResponse(BaseModel):
     record_id: int
     updated: bool = True
@@ -77,6 +87,19 @@ class UpdateCharacterSkillResponse(BaseModel):
     SkillId: int
     Level: int = 0
     MaxLevel: int = 0
+
+
+class MaxCharacterResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    updated: bool = True
+
+
+class MaxAllCharactersResponse(BaseModel):
+    updated: bool = True
+    character_count: int = 0
+    equip_count: int = 0
+    gather_reward_count: int = 0
 
 
 class CharacterFashionRecord(BaseModel):

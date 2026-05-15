@@ -122,7 +122,7 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
     return normalized_map
 
 @lru_cache(maxsize=1)
-def get_weapon_overrun_suit_equip_ids_map() -> dict[int, dict[int, int]]:
+def get_weapon_overrun_suit_memory_ids_map() -> dict[int, dict[int, int]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
     raw_equip_ids_map = reader.get_maps("Id", "EquipIds")[0]
     normalized_map: dict[int, dict[int, int]] = {}

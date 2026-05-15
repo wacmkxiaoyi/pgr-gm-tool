@@ -129,6 +129,14 @@
   margin-top: 24px;
 }
 
+.shared-modal-actions-split {
+  gap: 12px;
+}
+
+.shared-modal-actions-split .shared-modal-button-secondary:first-child {
+  margin-right: auto;
+}
+
 .shared-modal-button {
   min-width: 96px;
   padding: 11px 16px;

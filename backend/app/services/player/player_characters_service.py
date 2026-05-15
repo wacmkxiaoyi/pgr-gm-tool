@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import copy
 import contextlib
 import math
+import time
 from typing import Any, Literal
 
 from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import CharacterDetailMemoryRecord, CharacterDetailWeaponRecord, CharacterEquipRecord, CharacterEquipResonanceRecord, CharacterExtraInfoRecord, CharacterFashionRecord, CharacterManagementItemRecord, CharacterManagementListResponse, CharacterSkillInfoRecord, CharacterWeaponOverrunRecord, UpdateCharacterAwakenResponse, UpdateCharacterFashionResponse, UpdateCharacterGradeResponse, UpdateCharacterLevelupResponse, UpdateCharacterResponse, UpdateCharacterSkillResponse, UpdateCharacterTrustResponse
+from backend.app.db.models import AddCharacterResponse, CharacterAvailableListResponse, CharacterDetailMemoryRecord, CharacterDetailWeaponRecord, CharacterEquipRecord, CharacterEquipResonanceRecord, CharacterExtraInfoRecord, CharacterFashionRecord, CharacterManagementItemRecord, CharacterManagementListResponse, CharacterSkillInfoRecord, CharacterWeaponOverrunRecord, MaxAllCharactersResponse, MaxCharacterResponse, UpdateCharacterAwakenResponse, UpdateCharacterFashionResponse, UpdateCharacterGradeResponse, UpdateCharacterLevelupResponse, UpdateCharacterResponse, UpdateCharacterSkillResponse, UpdateCharacterTrustResponse
 from backend.app.services.db_schema_runtime import CompiledCollectionSchema, DatabaseSchemaRuntime
 from backend.app.services.player.equips import get_equip_descriptions_map, get_equip_site_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map
@@ -23,11 +25,13 @@ from backend.app.services.player.player_characters import (
     get_character_grade_name_map,
     get_character_levelup_template_map,
     get_character_log_name_map,
+    get_character_max_template_map,
     get_character_max_liberate_level_map,
     get_character_quality_bound_map,
     get_character_skill_entries_map,
     get_character_skill_ids_map,
     get_character_trust_exp_map,
+    get_character_default_weapon_map
 )
 
 
@@ -36,9 +40,46 @@ PLAYER_COLLECTION_NAME = "players"
 ITEM_PAGE_SIZE = 10
 CHARACTER_LIST_SCHEMA_PATH = "characters"
 FASHIONS_SCHEMA_PATH = "fashions"
+FASHION_ITEM_SCHEMA_PATH = "fashions.0"
 EQUIPS_SCHEMA_PATH = "equips"
 CharacterSortField = Literal["sequence", "name", "quality", "level", "grade", "awaken_level"]
 CharacterSortOrder = Literal["asc", "desc"]
+
+
+def _serialize_awake_slot_list(awake_slot_list: list[int]) -> list[dict[str, int]]:
+    return [{"_id": int(slot)} for slot in awake_slot_list if isinstance(slot, int)]
+
+
+def _is_memory_template_id(template_id: int | None) -> bool:
+    if template_id is None:
+        return False
+
+    site_value = str(get_equip_site_map().get(template_id, "")).strip()
+    return bool(site_value) and site_value != "0"
+
+
+def _is_weapon_template_id(template_id: int | None) -> bool:
+    if template_id is None:
+        return False
+
+    site_value = str(get_equip_site_map().get(template_id, "")).strip()
+    return not site_value or site_value == "0"
+
+
+def _get_next_equip_record_id(raw_equips: list[Any]) -> int:
+    existing_ids = sorted({
+        current_id
+        for raw_equip in raw_equips
+        if isinstance(raw_equip, dict)
+        for current_id in [parse_optional_int(raw_equip.get("_id"))]
+        if current_id is not None and current_id > 0
+    })
+    next_id = 1
+    for current_id in existing_ids:
+        if current_id != next_id:
+            return next_id
+        next_id += 1
+    return next_id
 
 
 def _normalize_weapon_resonance_list(value: Any) -> list[CharacterEquipResonanceRecord]:
@@ -227,7 +268,6 @@ def _character_sort_key(
 class PlayerCharactersService:
     def __init__(self, settings: Settings, schema_runtime: DatabaseSchemaRuntime) -> None:
         self._settings = settings
-        self._schema_runtime = schema_runtime
         self._characters_schema = schema_runtime.get_collection_schema(CHARACTERS_COLLECTION_NAME)
         self._players_schema = schema_runtime.get_collection_schema(PLAYER_COLLECTION_NAME)
 
@@ -253,9 +293,337 @@ class PlayerCharactersService:
         sanitized = self._get_characters_schema().sanitize_read(raw_fashions, FASHIONS_SCHEMA_PATH)
         return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
 
+    def _build_fashions_update(self, fashions: list[dict[str, Any]]) -> dict[str, Any]:
+        materialized_update = self._get_characters_schema().materialize_update_fields({
+            "fashions": self._sanitize_fashions(fashions),
+        })
+        if "fashions" not in materialized_update:
+            raise RuntimeError("Failed to materialize fashions update")
+        return materialized_update
+
+    def _build_fashion_document(self, fashion_id: int) -> dict[str, Any]:
+        fashion_document = self._get_characters_schema().materialize_write({
+            "_id": fashion_id,
+            "IsLock": False,
+        }, FASHION_ITEM_SCHEMA_PATH)
+
+        if not isinstance(fashion_document, dict):
+            raise RuntimeError("Failed to materialize fashion schema")
+
+        return fashion_document
+
+    def _build_character_document(self, character_id: int, *, quality: int, fashion_id: int) -> dict[str, Any]:
+        now = int(time.time())
+        character_document = self._get_characters_schema().materialize_write({
+            "_id": character_id,
+            "Quality": quality,
+            "InitQuality": quality,
+            "CreateTime": Int64(now),
+            "FashionId": fashion_id,
+            "LiberateLv": 1,
+            "CharacterHeadInfo": {
+                "HeadFashionId": fashion_id,
+                "HeadFashionType": 0,
+            },
+        }, "characters.0")
+
+        if not isinstance(character_document, dict):
+            raise RuntimeError("Failed to materialize character schema")
+
+        if "CreateTime" in character_document:
+            character_document["CreateTime"] = Int64(now)
+
+        return character_document
+
     def _sanitize_equips(self, raw_equips: Any) -> list[dict[str, Any]]:
         sanitized = self._get_characters_schema().sanitize_read(raw_equips, EQUIPS_SCHEMA_PATH)
         return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def _build_equips_update(self, equips: list[dict[str, Any]]) -> dict[str, Any]:
+        materialized_update = self._get_characters_schema().materialize_update_fields({
+            "equips": self._sanitize_equips(equips),
+        })
+        if "equips" not in materialized_update:
+            raise RuntimeError("Failed to materialize equips update")
+        return materialized_update
+
+    def _build_players_update(self, gather_rewards: set[int] | list[int]) -> dict[str, Any]:
+        normalized_gather_rewards = sorted(gather_rewards) if isinstance(gather_rewards, set) else list(gather_rewards)
+        materialized_update = self._get_players_schema().materialize_update_fields({
+            "gather_rewards": sorted(self._sanitize_gather_rewards(normalized_gather_rewards)),
+        })
+        if "gather_rewards" not in materialized_update:
+            raise RuntimeError("Failed to materialize players update")
+        return materialized_update
+
+    def _build_gather_rewards_from_characters(self, characters: list[dict[str, Any]]) -> set[int]:
+        character_exhibitions_map = get_character_exhibitions_map()
+        gather_rewards: set[int] = set()
+
+        for raw_character in characters:
+            if not isinstance(raw_character, dict):
+                continue
+
+            character_id = parse_optional_int(raw_character.get("_id"))
+            liberate_lv = max(0, parse_optional_int(raw_character.get("LiberateLv")) or 0)
+            if character_id is None or liberate_lv <= 0:
+                continue
+
+            awaken_path = [
+                exhibition_id
+                for raw_exhibition_id in character_exhibitions_map.get(character_id, [])
+                for exhibition_id in [parse_optional_int(raw_exhibition_id)]
+                if exhibition_id is not None
+            ]
+            gather_rewards.update(awaken_path[:liberate_lv])
+
+        return gather_rewards
+
+    def _get_lowest_quality_fashion_id(self, character_id: int) -> int:
+        lowest_quality_fashion = min(
+            (
+                fashion
+                for fashion in get_character_fashions_map().get(character_id, [])
+                if isinstance(fashion, dict)
+                and parse_optional_int(fashion.get("Id")) is not None
+                and parse_optional_int(fashion.get("Quality")) is not None
+            ),
+            key=lambda fashion: (
+                parse_optional_int(fashion.get("Quality")) or 0,
+                parse_optional_int(fashion.get("Id")) or 0,
+            ),
+            default=None,
+        )
+        if not isinstance(lowest_quality_fashion, dict):
+            raise ValueError("character.add_invalid")
+
+        fashion_id = parse_optional_int(lowest_quality_fashion.get("Id"))
+        if fashion_id is None or fashion_id <= 0:
+            raise ValueError("character.add_invalid")
+
+        return fashion_id
+
+    async def add_character(self, uid: int, character_id: int) -> AddCharacterResponse:
+        if character_id <= 0:
+            raise ValueError("character.add_invalid")
+
+        character_name_map = get_character_log_name_map()
+        if character_id not in character_name_map:
+            raise ValueError("character.add_invalid")
+
+        quality_bound = get_character_quality_bound_map().get(character_id)
+        if not isinstance(quality_bound, list) or len(quality_bound) != 2:
+            raise ValueError("character.add_invalid")
+
+        min_quality = parse_optional_int(quality_bound[0])
+        if min_quality is None:
+            raise ValueError("character.add_invalid")
+
+        fashion_id = self._get_lowest_quality_fashion_id(character_id)
+
+        weapon_template_id = parse_optional_int(get_character_default_weapon_map().get(character_id))
+        if weapon_template_id is None or not _is_weapon_template_id(weapon_template_id):
+            raise ValueError("character.add_invalid")
+
+        client = create_mongo_client(self._settings)
+
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            players_collection = database[PLAYER_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
+
+            normalized_characters_document = self._sanitize_characters_document(characters_document)
+            normalized_players_document = self._sanitize_players_document(players_document)
+            characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
+            fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
+            equips = self._sanitize_equips(normalized_characters_document.get("equips"))
+            gather_rewards = self._sanitize_gather_rewards(normalized_players_document.get("gather_rewards"))
+
+            if any(parse_optional_int(character.get("_id")) == character_id for character in characters):
+                raise ValueError("character.add_already_owned")
+
+            characters.append(self._build_character_document(character_id, quality=min_quality, fashion_id=fashion_id))
+
+            fashion_index = next(
+                (
+                    index
+                    for index, fashion in enumerate(fashions)
+                    if parse_optional_int(fashion.get("_id")) == fashion_id
+                ),
+                None,
+            )
+            if fashion_index is None:
+                fashions.append(self._build_fashion_document(fashion_id))
+            else:
+                fashions[fashion_index]["IsLock"] = False
+
+            equips.append(self._build_equip_document(equips, {
+                "TemplateId": weapon_template_id,
+                "CharacterId": character_id,
+                "Level": 1,
+                "Exp": 0,
+                "Breakthrough": 0,
+                "ResonanceInfo": [],
+                "AwakeSlotList": [],
+                "WeaponOverrunData": {},
+            }))
+
+            awaken_path = [
+                exhibition_id
+                for raw_exhibition_id in get_character_exhibitions_map().get(character_id, [])
+                for exhibition_id in [parse_optional_int(raw_exhibition_id)]
+                if exhibition_id is not None
+            ]
+            updated_gather_rewards = set(gather_rewards)
+            updated_gather_rewards.update(awaken_path[:1])
+
+            characters_result = await characters_collection.update_one(
+                matching_uid_query(uid),
+                {
+                    "$set": {
+                        "characters": characters,
+                        **self._build_fashions_update(fashions),
+                        **self._build_equips_update(equips),
+                    },
+                },
+            )
+            players_result = await players_collection.update_one(
+                _matching_player_uid_query(uid),
+                {"$set": self._build_players_update(updated_gather_rewards)},
+            )
+            if characters_result.matched_count <= 0 or players_result.matched_count <= 0:
+                raise ValueError("character.add_failed")
+
+            return AddCharacterResponse(
+                record_id=character_id,
+                CharacterId=character_id,
+                added=True,
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    def _build_equip_document(self, raw_equips: list[dict[str, Any]], equip_template: dict[str, Any]) -> dict[str, Any]:
+        now = int(time.time())
+        payload = {
+            "_id": _get_next_equip_record_id(raw_equips),
+            "TemplateId": equip_template.get("TemplateId"),
+            "CharacterId": equip_template.get("CharacterId", 0),
+            "Level": equip_template.get("Level", 1),
+            "Exp": equip_template.get("Exp", 0),
+            "Breakthrough": equip_template.get("Breakthrough", 0),
+            "ResonanceInfo": equip_template.get("ResonanceInfo", []),
+            "UnconfirmedResonanceInfo": [],
+            "AwakeSlotList": _serialize_awake_slot_list(list(equip_template.get("AwakeSlotList", []))),
+            "IsLock": False,
+            "CreateTime": Int64(now),
+            "IsRecycle": False,
+        }
+        if _is_weapon_template_id(parse_optional_int(equip_template.get("TemplateId"))):
+            payload["WeaponOverrunData"] = equip_template.get("WeaponOverrunData", {})
+
+        equip_document = self._get_characters_schema().materialize_write(payload, "equips.0")
+        if not isinstance(equip_document, dict):
+            raise RuntimeError("Failed to materialize equip schema")
+        if "CreateTime" in equip_document:
+            equip_document["CreateTime"] = Int64(now)
+        return equip_document
+
+    def _apply_max_character_template(
+        self,
+        *,
+        target_character: dict[str, Any],
+        characters: list[dict[str, Any]],
+        fashions: list[dict[str, Any]],
+        equips: list[dict[str, Any]],
+        gather_rewards: set[int],
+        template: dict[str, Any],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[int]]:
+        character_id = parse_optional_int(target_character.get("_id"))
+        if character_id is None:
+            raise ValueError("character.not_found")
+
+        equips = [
+            raw_equip
+            for raw_equip in equips
+            if not isinstance(raw_equip, dict)
+            or (parse_optional_int(raw_equip.get("CharacterId")) or 0) != character_id
+        ]
+
+        character_patch = copy.deepcopy(template.get("character", {})) if isinstance(template.get("character"), dict) else {}
+        for field_name, field_value in character_patch.items():
+            target_character[field_name] = field_value
+
+        fashion_template = template.get("fashion") if isinstance(template.get("fashion"), dict) else {}
+        selected_fashion_id = parse_optional_int(fashion_template.get("SelectedFashionId"))
+        unlock_fashion_ids = {
+            fashion_id
+            for raw_fashion_id in fashion_template.get("UnlockFashionIds", []) if isinstance(fashion_template.get("UnlockFashionIds"), list)
+            for fashion_id in [parse_optional_int(raw_fashion_id)]
+            if fashion_id is not None
+        }
+        existing_fashion_ids = {
+            fashion_id
+            for fashion in fashions
+            if isinstance(fashion, dict)
+            for fashion_id in [parse_optional_int(fashion.get("_id"))]
+            if fashion_id is not None
+        }
+        for fashion_id in sorted(unlock_fashion_ids):
+            if fashion_id in existing_fashion_ids:
+                for fashion in fashions:
+                    if parse_optional_int(fashion.get("_id")) == fashion_id:
+                        fashion["IsLock"] = False
+                        break
+                continue
+            fashion_document = self._build_fashion_document(fashion_id)
+            fashion_document["IsLock"] = False
+            fashions.append(fashion_document)
+            existing_fashion_ids.add(fashion_id)
+
+        if selected_fashion_id is not None:
+            target_character["FashionId"] = selected_fashion_id
+            normalized_head_info = target_character.get("CharacterHeadInfo") if isinstance(target_character.get("CharacterHeadInfo"), dict) else {}
+            normalized_head_info["HeadFashionId"] = selected_fashion_id
+            current_head_fashion_type = parse_optional_int(normalized_head_info.get("HeadFashionType"))
+            normalized_head_info["HeadFashionType"] = current_head_fashion_type if current_head_fashion_type is not None else 0
+            target_character["CharacterHeadInfo"] = normalized_head_info
+
+        memory_templates = template.get("memories") if isinstance(template.get("memories"), list) else []
+        for memory_template in memory_templates:
+            if not isinstance(memory_template, dict):
+                continue
+            if not _is_memory_template_id(parse_optional_int(memory_template.get("TemplateId"))):
+                continue
+            equip_document = self._build_equip_document(equips, memory_template)
+            equips.append(equip_document)
+
+        weapon_template = template.get("weapon") if isinstance(template.get("weapon"), dict) else None
+        if isinstance(weapon_template, dict) and _is_weapon_template_id(parse_optional_int(weapon_template.get("TemplateId"))):
+            equip_document = self._build_equip_document(equips, weapon_template)
+            equips.append(equip_document)
+
+        awaken_template = template.get("awaken") if isinstance(template.get("awaken"), dict) else {}
+        awaken_rewards = {
+            reward_id
+            for raw_reward_id in awaken_template.get("GatherRewards", []) if isinstance(awaken_template.get("GatherRewards"), list)
+            for reward_id in [parse_optional_int(raw_reward_id)]
+            if reward_id is not None
+        }
+        character_exhibitions_map = get_character_exhibitions_map()
+        awaken_path = {
+            exhibition_id
+            for raw_exhibition_id in character_exhibitions_map.get(character_id, [])
+            for exhibition_id in [parse_optional_int(raw_exhibition_id)]
+            if exhibition_id is not None
+        }
+        updated_gather_rewards = set(gather_rewards)
+        updated_gather_rewards.difference_update(awaken_path)
+        updated_gather_rewards.update(awaken_rewards)
+
+        return characters, fashions, equips, sorted(updated_gather_rewards)
 
     def _supports_weapon_overrun_data(self) -> bool:
         return self._get_characters_schema().allows_field("equips.0.WeaponOverrunData")
@@ -649,7 +1017,8 @@ class PlayerCharactersService:
                 None,
             )
             if fashion_index is None:
-                raise ValueError("character.update_invalid_fashion")
+                fashions.append(self._build_fashion_document(fashion_id))
+                fashion_index = len(fashions) - 1
 
             target_fashion = fashions[fashion_index]
             target_fashion["IsLock"] = False
@@ -662,9 +1031,10 @@ class PlayerCharactersService:
             normalized_head_info["HeadFashionType"] = current_head_fashion_type if current_head_fashion_type is not None else 0
             target_character["CharacterHeadInfo"] = normalized_head_info
 
+            normalized_fashions_update = self._build_fashions_update(fashions)
             result = await characters_collection.update_one(
                 matching_uid_query(uid),
-                {"$set": {"characters": characters, "fashions": fashions}},
+                {"$set": {"characters": characters, **normalized_fashions_update}},
             )
             if result.matched_count <= 0:
                 raise ValueError("character.update_fashion_failed")
@@ -675,6 +1045,182 @@ class PlayerCharactersService:
                 CurrentFahionId=fashion_id,
                 HeadFashionId=fashion_id,
                 HeadFashionType=parse_optional_int(normalized_head_info.get("HeadFashionType")),
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def max_character(self, uid: int, record_id: int) -> MaxCharacterResponse:
+        client = create_mongo_client(self._settings)
+
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            players_collection = database[PLAYER_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
+
+            normalized_characters_document = self._sanitize_characters_document(characters_document)
+            normalized_players_document = self._sanitize_players_document(players_document)
+            characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
+            fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
+            equips = self._sanitize_equips(normalized_characters_document.get("equips"))
+            gather_rewards = self._sanitize_gather_rewards(normalized_players_document.get("gather_rewards"))
+
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
+            if target_index is None:
+                raise ValueError("character.not_found")
+
+            target_character = characters[target_index]
+            character_id = parse_optional_int(target_character.get("_id"))
+            if character_id is None:
+                raise ValueError("character.not_found")
+
+            template = get_character_max_template_map().get(character_id)
+            if not isinstance(template, dict):
+                raise ValueError("character.max_template_not_found")
+
+            updated_characters, updated_fashions, updated_equips, updated_gather_rewards = self._apply_max_character_template(
+                target_character=target_character,
+                characters=characters,
+                fashions=fashions,
+                equips=equips,
+                gather_rewards=gather_rewards,
+                template=template,
+            )
+
+            characters_update_payload = {
+                "characters": updated_characters,
+                **self._build_fashions_update(updated_fashions),
+                **self._build_equips_update(updated_equips),
+            }
+            players_update_payload = self._build_players_update(updated_gather_rewards)
+
+            characters_result = await characters_collection.update_one(
+                matching_uid_query(uid),
+                {"$set": characters_update_payload},
+            )
+            players_result = await players_collection.update_one(
+                _matching_player_uid_query(uid),
+                {"$set": players_update_payload},
+            )
+            if characters_result.matched_count <= 0 or players_result.matched_count <= 0:
+                raise ValueError("character.max_failed")
+
+            return MaxCharacterResponse(
+                record_id=record_id,
+                CharacterId=character_id,
+                updated=True,
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def max_all_characters(self, uid: int) -> MaxAllCharactersResponse:
+        client = create_mongo_client(self._settings)
+
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            players_collection = database[PLAYER_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
+
+            normalized_characters_document = self._sanitize_characters_document(characters_document)
+            normalized_players_document = self._sanitize_players_document(players_document)
+            if not isinstance(normalized_characters_document, dict) or not isinstance(normalized_players_document, dict):
+                raise ValueError("character.max_all_failed")
+
+            characters: list[dict[str, Any]] = []
+            fashions: list[dict[str, Any]] = []
+            equips: list[dict[str, Any]] = []
+            gather_rewards: set[int] = set()
+
+            quality_bound_map = get_character_quality_bound_map()
+            max_template_map = get_character_max_template_map()
+            available_character_ids = sorted(
+                character_id
+                for character_id, template in max_template_map.items()
+                if isinstance(character_id, int)
+                and character_id > 0
+                and isinstance(template, dict)
+            )
+
+            for character_id in available_character_ids:
+                template = max_template_map.get(character_id)
+                if not isinstance(template, dict):
+                    continue
+
+                quality_bound = quality_bound_map.get(character_id)
+                if not isinstance(quality_bound, list) or len(quality_bound) != 2:
+                    continue
+
+                min_quality = parse_optional_int(quality_bound[0])
+                if min_quality is None:
+                    continue
+
+                try:
+                    fashion_id = self._get_lowest_quality_fashion_id(character_id)
+                except ValueError:
+                    continue
+
+                target_character = self._build_character_document(character_id, quality=min_quality, fashion_id=fashion_id)
+                characters.append(target_character)
+
+                fashion_index = next(
+                    (
+                        index
+                        for index, fashion in enumerate(fashions)
+                        if parse_optional_int(fashion.get("_id")) == fashion_id
+                    ),
+                    None,
+                )
+                if fashion_index is None:
+                    fashions.append(self._build_fashion_document(fashion_id))
+                else:
+                    fashions[fashion_index]["IsLock"] = False
+
+                characters, fashions, equips, updated_gather_rewards = self._apply_max_character_template(
+                    target_character=target_character,
+                    characters=characters,
+                    fashions=fashions,
+                    equips=equips,
+                    gather_rewards=gather_rewards,
+                    template=template,
+                )
+                gather_rewards = set(updated_gather_rewards)
+
+            gather_rewards = self._build_gather_rewards_from_characters(characters)
+
+            characters_result = await characters_collection.update_one(
+                matching_uid_query(uid),
+                {
+                    "$set": {
+                        "characters": characters,
+                        **self._build_fashions_update(fashions),
+                        **self._build_equips_update(equips),
+                    },
+                },
+            )
+            players_result = await players_collection.update_one(
+                _matching_player_uid_query(uid),
+                {"$set": {"gather_rewards": sorted(gather_rewards)}},
+            )
+            if characters_result.matched_count <= 0 or players_result.matched_count <= 0:
+                raise ValueError("character.max_all_failed")
+
+            return MaxAllCharactersResponse(
+                updated=True,
+                character_count=len(characters),
+                equip_count=len(equips),
+                gather_reward_count=len(gather_rewards),
             )
         finally:
             with contextlib.suppress(Exception):
@@ -911,6 +1457,35 @@ class PlayerCharactersService:
             total=total,
             total_pages=total_pages,
         )
+
+    async def list_available_characters(self, uid: int) -> CharacterAvailableListResponse:
+        client = create_mongo_client(self._settings)
+
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        normalized_characters_document = self._sanitize_characters_document(characters_document)
+        raw_characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
+        owned_character_ids = {
+            character_id
+            for raw_character in raw_characters
+            for character_id in [parse_optional_int(raw_character.get("_id"))]
+            if character_id is not None and character_id > 0
+        }
+
+        all_character_ids = sorted(
+            character_id
+            for character_id in get_character_log_name_map()
+            if isinstance(character_id, int) and character_id > 0
+        )
+        available_character_ids = [character_id for character_id in all_character_ids if character_id not in owned_character_ids]
+
+        return CharacterAvailableListResponse(character_ids=available_character_ids)
 
     async def get_character_extra_info(self, uid: int, record_id: int) -> CharacterExtraInfoRecord:
         client = create_mongo_client(self._settings)

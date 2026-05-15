@@ -27,6 +27,7 @@ const rerenderLocaleSensitiveViews = () => {
   app.updateWeaponManagementAccess();
   app.updateMemoryManagementAccess();
   app.rerenderCharacterManagementLocale?.();
+  app.rerenderCharacterAddLocale?.();
   app.rerenderCharacterWeaponSwitchLocale?.();
   app.rerenderCharacterMemorySwitchLocale?.();
   app.rerenderItemManagementLocale?.();
@@ -65,6 +66,7 @@ const initGlobalKeyboardShortcuts = () => {
       app.closeAccountPasswordModal();
       app.closeLogoutConfirmModal();
       app.closePlayerPortraitPicker();
+      app.closeCharacterAddModal?.();
       app.closeWeaponDetailModal?.();
       app.closeCharacterDetailModal?.();
       app.closeCharacterWeaponSwitchModal?.();
