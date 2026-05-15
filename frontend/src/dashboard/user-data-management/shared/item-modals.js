@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const { dom, state } = app;
 const {
@@ -252,7 +252,7 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingDeleteWeapon) {
       const { recordId, weaponName, templateId } = state.pendingDeleteWeapon;
-      await app.apiFetch(`/api/database-weapons/selected/${recordId}/enhance`, {
+      await app.apiFetch(`/api/database-weapons/selected/${recordId}`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
@@ -263,7 +263,7 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingDeleteMemory) {
       const { recordId, memoryName, templateId } = state.pendingDeleteMemory;
-      await app.apiFetch(`/api/database-memories/selected/${recordId}/enhance`, {
+      await app.apiFetch(`/api/database-memories/selected/${recordId}`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();

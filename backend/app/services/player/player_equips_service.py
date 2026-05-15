@@ -10,7 +10,7 @@ from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddEquipResponse, AddEquipResponse, ClearEquipsResponse, MemoryExtraInfoRecord, EquipListResponse, UpdateEquipRequest, WeaponExtraInfoRecord, WeaponItemRecord, EquipListResponse, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
+from backend.app.db.models import AddEquipResponse, CharacterMemoryCandidatesRecord, CharacterWeaponCandidatesRecord, ClearEquipsResponse, MemoryExtraInfoRecord, EquipListResponse, SwitchCharacterMemoryRequest, SwitchCharacterMemoryResponse, SwitchCharacterWeaponRequest, SwitchCharacterWeaponResponse, UpdateEquipRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.equips import (
@@ -26,6 +26,7 @@ from backend.app.services.player.equips import (
 )
 from backend.app.services.player.player_characters import (
     get_attrib_pool_entries_map,
+    get_character_equip_type_map,
     get_character_skill_pool_entries_map,
     get_character_log_name_map,
 )
@@ -39,6 +40,7 @@ from backend.app.services.player.equips.weapon import (
     get_weapon_overrun_suit_entries_map,
     get_weapon_skill_pool_entries_map,
     get_weapon_overrun_max_level_map,
+    get_weapon_type_id_map,
     get_weapon_type_name_map,
 )
 CHARACTERS_COLLECTION_NAME = "characters"
@@ -118,6 +120,17 @@ def _is_memory_template_id(template_id: int | None) -> bool:
 
     site_value = str(get_equip_site_map().get(template_id, "")).strip()
     return bool(site_value) and site_value != "0"
+
+
+def _get_memory_slot_id(template_id: int | None) -> int | None:
+    if template_id is None:
+        return None
+
+    site_value = str(get_equip_site_map().get(template_id, "")).strip()
+    if not site_value or site_value == "0":
+        return None
+
+    return parse_optional_int(site_value)
 
 
 
@@ -405,6 +418,13 @@ def _build_memory_item_record(raw_equip: dict[str, Any]) -> WeaponItemRecord | N
     return normalized_item
 
 
+def _get_weapon_type_id(template_id: int | None) -> int | None:
+    if template_id is None:
+        return None
+
+    return parse_optional_int(get_weapon_type_id_map().get(template_id))
+
+
 def _get_next_weapon_record_id(raw_equips: list[Any]) -> int:
     existing_ids = sorted({
         current_id
@@ -468,7 +488,348 @@ class PlayerEquipsService:
             serialized["ActiveSuits"] = active_suits
         if chose_suit is not None:
             serialized["ChoseSuit"] = chose_suit
+
         return serialized
+
+    async def _get_uid_equips_document(self, uid: int) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        client = create_mongo_client(self._settings)
+
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(
+                matching_uid_query(uid),
+                {"equips": 1, "characters": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_equips = self._sanitize_equips(normalized_document.get("equips"))
+        return normalized_document, raw_equips
+
+    async def get_character_weapon_candidates(self, uid: int, character_record_id: int) -> CharacterWeaponCandidatesRecord:
+        normalized_record_id = int(character_record_id)
+        normalized_document, raw_equips = await self._get_uid_equips_document(uid)
+
+        raw_characters = self._sanitize_character_list(normalized_document.get("characters"))
+        target_character = next(
+            (
+                raw_character
+                for raw_character in raw_characters
+                if parse_optional_int(raw_character.get("_id")) == normalized_record_id
+            ),
+            None,
+        )
+
+        if target_character is None:
+            raise ValueError("character.not_found")
+
+        character_id = parse_optional_int(target_character.get("_id"))
+        if character_id is None:
+            raise ValueError("character.not_found")
+
+        equip_type = get_character_equip_type_map().get(character_id)
+        current_weapon: WeaponItemRecord | None = None
+        items: list[WeaponItemRecord] = []
+
+        for raw_equip in raw_equips:
+            if not isinstance(raw_equip, dict):
+                continue
+
+            normalized_item = _build_weapon_item_record(raw_equip)
+            if normalized_item is None:
+                continue
+
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
+            if equip_type is not None and _get_weapon_type_id(template_id) != equip_type:
+                continue
+
+            items.append(normalized_item)
+            if int(normalized_item.CharacterId or 0) == character_id and current_weapon is None:
+                current_weapon = normalized_item
+
+        return CharacterWeaponCandidatesRecord(
+            character_record_id=normalized_record_id,
+            character_id=character_id,
+            current_weapon=current_weapon,
+            items=items,
+        )
+
+    async def switch_character_weapon(self, uid: int, character_record_id: int, payload: SwitchCharacterWeaponRequest) -> SwitchCharacterWeaponResponse:
+        normalized_record_id = int(character_record_id)
+        target_weapon_record_id = int(payload.WeaponRecordId)
+        normalized_document, raw_equips = await self._get_uid_equips_document(uid)
+
+        raw_characters = self._sanitize_character_list(normalized_document.get("characters"))
+        target_character = next(
+            (
+                raw_character
+                for raw_character in raw_characters
+                if parse_optional_int(raw_character.get("_id")) == normalized_record_id
+            ),
+            None,
+        )
+
+        if target_character is None:
+            raise ValueError("character.not_found")
+
+        character_id = parse_optional_int(target_character.get("_id"))
+        if character_id is None:
+            raise ValueError("character.not_found")
+
+        equip_type = get_character_equip_type_map().get(character_id)
+        if equip_type is None:
+            raise ValueError("character.equip_type_invalid")
+
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+        current_weapon_indices: list[int] = []
+
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
+            if not _is_weapon_template_id(template_id):
+                continue
+
+            if int(parse_optional_int(raw_equip.get("CharacterId")) or 0) == character_id:
+                current_weapon_indices.append(index)
+
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
+            if current_record_id == target_weapon_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        target_template_id = parse_optional_int(target_equip.get("TemplateId"))
+        if not _is_weapon_template_id(target_template_id):
+            raise ValueError("equips.template_invalid")
+        if _get_weapon_type_id(target_template_id) != equip_type:
+            raise ValueError("character.weapon_type_mismatch")
+
+        target_original_character_id = int(parse_optional_int(target_equip.get("CharacterId")) or 0)
+        swap_source_index: int | None = None
+        if target_original_character_id > 0 and target_original_character_id != character_id:
+            for index in current_weapon_indices:
+                if index != target_index:
+                    swap_source_index = index
+                    break
+
+        for index in current_weapon_indices:
+            if index == target_index:
+                continue
+            raw_equips[index] = dict(raw_equips[index])
+            raw_equips[index]["CharacterId"] = 0
+
+        if swap_source_index is not None:
+            raw_equips[swap_source_index]["CharacterId"] = target_original_character_id
+
+        updated_target = dict(target_equip)
+        updated_target["CharacterId"] = character_id
+        raw_equips[target_index] = updated_target
+
+        if self._sanitize_equips(normalized_document.get("equips")) == self._sanitize_equips(raw_equips):
+            current_weapon = _build_weapon_item_record(updated_target)
+            return SwitchCharacterWeaponResponse(updated=True, current_weapon=current_weapon)
+
+        normalized_update = self._build_equips_update(raw_equips)
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": normalized_document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        current_weapon = _build_weapon_item_record(updated_target)
+        return SwitchCharacterWeaponResponse(updated=True, current_weapon=current_weapon)
+
+    async def get_character_memory_candidates(self, uid: int, character_record_id: int, slot: int) -> CharacterMemoryCandidatesRecord:
+        normalized_record_id = int(character_record_id)
+        normalized_slot = int(slot)
+        if normalized_slot <= 0:
+            raise ValueError("character.memory_slot_invalid")
+
+        normalized_document, raw_equips = await self._get_uid_equips_document(uid)
+        raw_characters = self._sanitize_character_list(normalized_document.get("characters"))
+        target_character = next(
+            (
+                raw_character
+                for raw_character in raw_characters
+                if parse_optional_int(raw_character.get("_id")) == normalized_record_id
+            ),
+            None,
+        )
+
+        if target_character is None:
+            raise ValueError("character.not_found")
+
+        character_id = parse_optional_int(target_character.get("_id"))
+        if character_id is None:
+            raise ValueError("character.not_found")
+
+        current_memory: WeaponItemRecord | None = None
+        items: list[WeaponItemRecord] = []
+
+        for raw_equip in raw_equips:
+            if not isinstance(raw_equip, dict):
+                continue
+
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
+            if not _is_memory_template_id(template_id):
+                continue
+            if _get_memory_slot_id(template_id) != normalized_slot:
+                continue
+
+            normalized_item = _build_memory_item_record(raw_equip)
+            if normalized_item is None:
+                continue
+
+            items.append(normalized_item)
+            if int(normalized_item.CharacterId or 0) == character_id and current_memory is None:
+                current_memory = normalized_item
+
+        return CharacterMemoryCandidatesRecord(
+            character_record_id=normalized_record_id,
+            character_id=character_id,
+            slot=normalized_slot,
+            current_memory=current_memory,
+            items=items,
+        )
+
+    async def switch_character_memory(self, uid: int, character_record_id: int, payload: SwitchCharacterMemoryRequest) -> SwitchCharacterMemoryResponse:
+        normalized_record_id = int(character_record_id)
+        target_memory_record_id = parse_optional_int(payload.MemoryRecordId)
+        normalized_slot = int(payload.Slot)
+        if normalized_slot <= 0:
+            raise ValueError("character.memory_slot_invalid")
+
+        normalized_document, raw_equips = await self._get_uid_equips_document(uid)
+        raw_characters = self._sanitize_character_list(normalized_document.get("characters"))
+        target_character = next(
+            (
+                raw_character
+                for raw_character in raw_characters
+                if parse_optional_int(raw_character.get("_id")) == normalized_record_id
+            ),
+            None,
+        )
+
+        if target_character is None:
+            raise ValueError("character.not_found")
+
+        character_id = parse_optional_int(target_character.get("_id"))
+        if character_id is None:
+            raise ValueError("character.not_found")
+
+        current_memory_indices: list[int] = []
+        target_index: int | None = None
+        target_equip: dict[str, Any] | None = None
+
+        for index, raw_equip in enumerate(raw_equips):
+            if not isinstance(raw_equip, dict):
+                continue
+
+            template_id = parse_optional_int(raw_equip.get("TemplateId"))
+            if not _is_memory_template_id(template_id):
+                continue
+            if _get_memory_slot_id(template_id) != normalized_slot:
+                continue
+
+            if int(parse_optional_int(raw_equip.get("CharacterId")) or 0) == character_id:
+                current_memory_indices.append(index)
+
+            current_record_id = parse_optional_int(raw_equip.get("_id"))
+            if target_memory_record_id is not None and current_record_id == target_memory_record_id:
+                target_index = index
+                target_equip = dict(raw_equip)
+
+        if target_memory_record_id is None:
+            for index in current_memory_indices:
+                raw_equips[index] = dict(raw_equips[index])
+                raw_equips[index]["CharacterId"] = 0
+
+            if self._sanitize_equips(normalized_document.get("equips")) == self._sanitize_equips(raw_equips):
+                return SwitchCharacterMemoryResponse(updated=True, current_memory=None)
+
+            normalized_update = self._build_equips_update(raw_equips)
+            client = create_mongo_client(self._settings)
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            try:
+                result = await collection.update_one(
+                    {"_id": normalized_document.get("_id")},
+                    {"$set": {"equips": normalized_update["equips"]}},
+                )
+            finally:
+                with contextlib.suppress(Exception):
+                    client.close()
+
+            if result.modified_count <= 0:
+                raise ValueError("equips.update_failed")
+
+            return SwitchCharacterMemoryResponse(updated=True, current_memory=None)
+
+        if target_index is None or target_equip is None:
+            raise ValueError("equips.not_found")
+
+        target_template_id = parse_optional_int(target_equip.get("TemplateId"))
+        if not _is_memory_template_id(target_template_id):
+            raise ValueError("equips.template_invalid")
+        if _get_memory_slot_id(target_template_id) != normalized_slot:
+            raise ValueError("character.memory_slot_mismatch")
+
+        target_original_character_id = int(parse_optional_int(target_equip.get("CharacterId")) or 0)
+        swap_source_index: int | None = None
+        if target_original_character_id > 0 and target_original_character_id != character_id:
+            for index in current_memory_indices:
+                if index != target_index:
+                    swap_source_index = index
+                    break
+
+        for index in current_memory_indices:
+            if index == target_index:
+                continue
+            raw_equips[index] = dict(raw_equips[index])
+            raw_equips[index]["CharacterId"] = 0
+
+        if swap_source_index is not None:
+            raw_equips[swap_source_index]["CharacterId"] = target_original_character_id
+
+        updated_target = dict(target_equip)
+        updated_target["CharacterId"] = character_id
+        raw_equips[target_index] = updated_target
+
+        if self._sanitize_equips(normalized_document.get("equips")) == self._sanitize_equips(raw_equips):
+            current_memory = _build_memory_item_record(updated_target)
+            return SwitchCharacterMemoryResponse(updated=True, current_memory=current_memory)
+
+        normalized_update = self._build_equips_update(raw_equips)
+        client = create_mongo_client(self._settings)
+        collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+        try:
+            result = await collection.update_one(
+                {"_id": normalized_document.get("_id")},
+                {"$set": {"equips": normalized_update["equips"]}},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if result.modified_count <= 0:
+            raise ValueError("equips.update_failed")
+
+        current_memory = _build_memory_item_record(updated_target)
+        return SwitchCharacterMemoryResponse(updated=True, current_memory=current_memory)
 
     def _sanitize_characters_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_characters_schema().sanitize_document(document)

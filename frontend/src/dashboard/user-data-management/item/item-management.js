@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const { dom, state } = app;
 const ITEM_QUANTITY_MIN = 1;

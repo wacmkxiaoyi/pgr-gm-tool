@@ -14,6 +14,8 @@ from backend.app.apis.schemas import (
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
     AppInfoResponse,
+    CharacterMemoryCandidatesResponse,
+    CharacterWeaponCandidatesResponse,
     CharacterExtraInfoResponse,
     CharacterManagementListResponse,
     ClearInventoryItemsRequest,
@@ -38,6 +40,10 @@ from backend.app.apis.schemas import (
     SaveServerConfigRequest,
     SelectedAccountResponse,
     SetCharacterSupportResponse,
+    SwitchCharacterMemoryRequest,
+    SwitchCharacterMemoryResponse,
+    SwitchCharacterWeaponRequest,
+    SwitchCharacterWeaponResponse,
     SessionResponse,
     ServerConfigResponse,
     UpdateCharacterEvolutionRequest,
@@ -686,6 +692,135 @@ async def get_selected_database_character_extra_info(
         raise
 
     return CharacterExtraInfoResponse.model_validate(extra_info.model_dump())
+
+
+@router.get("/database-characters/selected/{record_id}/weapon-candidates", response_model=CharacterWeaponCandidatesResponse, response_model_exclude_none=True)
+async def get_selected_database_character_weapon_candidates(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> CharacterWeaponCandidatesResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.get_character_weapon_candidates(selected_uid, record_id)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        raise
+
+    return CharacterWeaponCandidatesResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/weapon", response_model=SwitchCharacterWeaponResponse, response_model_exclude_none=True)
+async def switch_selected_database_character_weapon(
+    record_id: int,
+    payload: SwitchCharacterWeaponRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> SwitchCharacterWeaponResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.switch_character_weapon(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": payload.WeaponRecordId})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": payload.WeaponRecordId})
+        if error_message == "character.equip_type_invalid":
+            raise_http_error(422, "character.equip_type_invalid", {"record_id": record_id})
+        if error_message == "character.weapon_type_mismatch":
+            raise_http_error(422, "character.weapon_type_mismatch", {"record_id": record_id, "weapon_record_id": payload.WeaponRecordId})
+        if error_message == "equips.update_failed":
+            raise_http_error(500, "equips.update_failed", {"record_id": payload.WeaponRecordId})
+        raise
+
+    return SwitchCharacterWeaponResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.get("/database-characters/selected/{record_id}/memory-candidates", response_model=CharacterMemoryCandidatesResponse, response_model_exclude_none=True)
+async def get_selected_database_character_memory_candidates(
+    record_id: int,
+    request: Request,
+    slot: int = Query(..., ge=1),
+    login_session_token: str | None = Cookie(default=None),
+) -> CharacterMemoryCandidatesResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.get_character_memory_candidates(selected_uid, record_id, slot)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.memory_slot_invalid":
+            raise_http_error(422, "character.memory_slot_invalid", {"record_id": record_id, "slot": slot})
+        raise
+
+    return CharacterMemoryCandidatesResponse.model_validate(result.model_dump(by_alias=True))
+
+
+@router.put("/database-characters/selected/{record_id}/memory", response_model=SwitchCharacterMemoryResponse, response_model_exclude_none=True)
+async def switch_selected_database_character_memory(
+    record_id: int,
+    payload: SwitchCharacterMemoryRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> SwitchCharacterMemoryResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    equips_service = request.app.state.player_equips_service
+
+    try:
+        result = await equips_service.switch_character_memory(selected_uid, record_id, payload)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "equips.not_found":
+            raise_http_error(404, "equips.not_found", {"record_id": payload.MemoryRecordId})
+        if error_message == "equips.template_invalid":
+            raise_http_error(422, "equips.template_invalid", {"record_id": payload.MemoryRecordId})
+        if error_message == "character.memory_slot_invalid":
+            raise_http_error(422, "character.memory_slot_invalid", {"record_id": record_id, "slot": payload.Slot})
+        if error_message == "character.memory_slot_mismatch":
+            raise_http_error(422, "character.memory_slot_mismatch", {"record_id": record_id, "memory_record_id": payload.MemoryRecordId, "slot": payload.Slot})
+        if error_message == "equips.update_failed":
+            raise_http_error(500, "equips.update_failed", {"record_id": payload.MemoryRecordId})
+        raise
+
+    return SwitchCharacterMemoryResponse.model_validate(result.model_dump(by_alias=True))
 
 
 @router.put("/database-characters/selected/{record_id}/evolution", response_model=UpdateCharacterEvolutionResponse, response_model_exclude_none=True)

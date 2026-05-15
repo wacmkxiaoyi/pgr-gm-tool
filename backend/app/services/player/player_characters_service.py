@@ -91,9 +91,6 @@ def _get_search_priority(keyword: str, name: str, grade_name: str) -> int | None
 
     return None
 
-
-
-
 def _resolve_grade_name(character_id: int, grade: int, character_grade_name_map: dict[int, list[str]]) -> str:
     if grade <= 0:
         return ""
@@ -123,31 +120,6 @@ def _resolve_awaken_level(character_id: int, gather_rewards: set[int], character
         awaken_level += 1
 
     return awaken_level
-
-
-def _get_character_record_id(raw_character: dict[str, Any]) -> int | None:
-    record_id = parse_optional_int(raw_character.get("_id"))
-    if record_id is not None:
-        return record_id
-    return parse_optional_int(raw_character.get("CharacterId"))
-
-
-def _get_character_id(raw_character: dict[str, Any]) -> int | None:
-    character_id = parse_optional_int(raw_character.get("CharacterId"))
-    if character_id is not None:
-        return character_id
-    return parse_optional_int(raw_character.get("_id"))
-
-
-def _find_character_index(characters: list[dict[str, Any]], record_id: int) -> int | None:
-    return next(
-        (
-            index
-            for index, character in enumerate(characters)
-            if _get_character_record_id(character) == record_id
-        ),
-        None,
-    )
 
 
 def _normalize_character_skill_level_map(value: Any) -> dict[int, int]:
@@ -322,12 +294,19 @@ class PlayerCharactersService:
             normalized_players_document = self._sanitize_players_document(players_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -386,12 +365,19 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -434,12 +420,19 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -484,12 +477,19 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -564,12 +564,19 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -607,12 +614,19 @@ class PlayerCharactersService:
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
             fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -691,12 +705,19 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 raise ValueError("character.not_found")
 
             target_character = characters[target_index]
-            character_id = _get_character_id(target_character)
+            character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
 
@@ -781,7 +802,14 @@ class PlayerCharactersService:
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
-            target_index = _find_character_index(characters, record_id)
+            target_index = next(
+                (
+                    index
+                    for index, character in enumerate(characters)
+                    if parse_optional_int(character.get("_id")) == record_id
+                ),
+                None,
+            )
             if target_index is None:
                 return False
 
@@ -844,9 +872,8 @@ class PlayerCharactersService:
             if search_priority is None:
                 continue
 
-            record_id = _get_character_record_id(raw_character) or character_id
             normalized_item = CharacterManagementItemRecord(
-                record_id=record_id,
+                record_id=character_id,
                 CharacterId=character_id,
                 Sequence=index + 1,
                 Level=parse_optional_int(raw_character.get("Level")),
@@ -904,16 +931,16 @@ class PlayerCharactersService:
             (
                 character
                 for character in characters
-                if _get_character_record_id(character) == record_id
+                if parse_optional_int(character.get("_id")) == record_id
             ),
             None,
         )
         if target_character is None:
             raise ValueError("character.not_found")
 
-        character_id = parse_optional_int(target_character.get("CharacterId"))
+        character_id = parse_optional_int(target_character.get("_id"))
         if character_id is None:
-            character_id = parse_optional_int(target_character.get("_id"))
+            raise ValueError("character.not_found")
         character_intro_map = get_character_Intro_map()
         character_fashions_map = get_character_fashions_map()
         character_levelup_template_map = get_character_levelup_template_map()

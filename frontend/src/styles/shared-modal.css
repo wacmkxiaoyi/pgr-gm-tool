@@ -23,9 +23,20 @@
 #item-add-modal,
 #weapon-add-modal,
 #memory-add-modal,
+#character-memory-switch-modal,
+#character-weapon-switch-modal,
 #server-log-modal,
 #server-config-modal {
   z-index: 120;
+}
+
+#equip-detail-modal {
+  z-index: 130;
+}
+
+#weapon-resonance-character-picker-modal,
+#weapon-overrun-picker-modal {
+  z-index: 230;
 }
 
 .shared-modal[hidden] {

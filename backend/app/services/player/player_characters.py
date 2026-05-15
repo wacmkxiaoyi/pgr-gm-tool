@@ -121,6 +121,23 @@ def get_character_levelup_template_map() -> dict[int, int]:
     return normalized_map
 
 @lru_cache(maxsize=1)
+def get_character_equip_type_map() -> dict[int, int]:
+    reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
+    raw_map = reader.get_maps("Id", "EquipType")[0]
+    normalized_map: dict[int, int] = {}
+
+    for character_id_raw, equip_type_raw in raw_map.items():
+        character_id = parse_int(character_id_raw)
+        equip_type = parse_int(equip_type_raw)
+
+        if character_id is None or equip_type is None:
+            continue
+
+        normalized_map[character_id] = equip_type
+
+    return normalized_map
+
+@lru_cache(maxsize=1)
 def get_attrib_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
     reader = TSVReader(ATTRIB_POOL_TSV_PATH, typed=True)
     normalized_map: dict[int, list[dict[str, Any]]] = {}

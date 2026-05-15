@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const { dom, state } = app;
 const {
@@ -114,28 +114,28 @@ app.renderMemoryRows = (items) => {
   databaseMemoryManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
     const recordId = item?._id ?? item?.record_id ?? null;
     const templateId = item?.TemplateId ?? null;
-    const memoryName = app.getWeaponNameByTemplateId(templateId);
-    const iconUrl = app.getWeaponIconByTemplateId(templateId);
+    const memoryName = app.getEquipNameByTemplateId(templateId);
+    const iconUrl = app.getEquipIconByTemplateId(templateId);
     const positionLabel = app.getMemoryPositionByTemplateId(templateId);
     const characterId = item?.CharacterId ?? null;
     const characterName = app.getCharacterNameByCharacterId(characterId);
     const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
     const isEquipped = Number(characterId) !== 0;
     const rowNumber = ((state.memoryManagementCurrentPage - 1) * 10) + index + 1;
-    const star = app.getWeaponStarByTemplateId(templateId);
-    const iconExtraClass = (Number.isFinite(star) && star >= 4) ? `weapon-icon-tier-${star}` : '';
+    const star = app.getEquipStarByTemplateId(templateId);
+    const iconExtraClass = (Number.isFinite(star) && star >= 4) ? `equip-icon-tier-${star}` : '';
     return `
       <tr>
         <td>${rowNumber}</td>
-        <td>${app.renderWeaponMediaCell(iconUrl, memoryName, true, iconExtraClass)}</td>
+        <td>${app.renderEquipMediaCell(iconUrl, memoryName, true, iconExtraClass)}</td>
         <td>${app.escapeHtml(positionLabel)}</td>
-        <td>${app.renderWeaponStar(templateId)}</td>
-        <td>${app.renderWeaponMediaCell(characterIconUrl, characterName, false)}</td>
-        <td>${app.renderWeaponEnhancementLevel(item)}</td>
+        <td>${app.renderEquipStar(templateId)}</td>
+        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
+        <td>${app.renderEquipEnhancementLevel(item)}</td>
         <td>
           <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-log" type="button" data-memory-management-action="detail" data-memory-record-id="${recordId ?? ''}">${app.translate('dashboard.weaponManagementDetail')}</button>
-            <button class="status-action-button status-action-button-stop" type="button" data-memory-management-action="delete" data-memory-record-id="${recordId ?? ''}" data-memory-template-id="${templateId ?? ''}" data-memory-name="${memoryName}" data-memory-character-id="${characterId ?? ''}" data-memory-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.weaponManagementDelete')}</button>
+            <button class="status-action-button status-action-button-log" type="button" data-memory-management-action="detail" data-memory-record-id="${recordId ?? ''}">${app.translate('dashboard.equipManagementDetail')}</button>
+            <button class="status-action-button status-action-button-stop" type="button" data-memory-management-action="delete" data-memory-record-id="${recordId ?? ''}" data-memory-template-id="${templateId ?? ''}" data-memory-name="${memoryName}" data-memory-character-id="${characterId ?? ''}" data-memory-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.equipManagementDelete')}</button>
           </div>
         </td>
       </tr>
@@ -154,7 +154,7 @@ app.reloadMemoryManagementCurrentPage = async () => {
 app._memoryManagementSortFields = ['name', 'character', 'position', 'star', 'enhancement'];
 
 app._syncMemoryManagementSortArrows = () => {
-  const table = document.querySelector('#database-memory-management-section .weapon-management-table');
+  const table = document.querySelector('#database-memory-management-section .equip-management-table');
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -265,7 +265,7 @@ app.loadSelectedAccountMemories = async (page = 1) => {
     if (databaseMemoryManagementBody instanceof HTMLElement) {
       databaseMemoryManagementBody.innerHTML = '';
     }
-    app.setMemoryManagementState(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'), 'is-error');
+    app.setMemoryManagementState(app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'), 'is-error');
   } finally {
     state.memoryManagementLoading = false;
     app.updateMemoryManagementPagination();
@@ -336,29 +336,33 @@ app.updateMemoryManagementAccess = (payload = state.databaseHealthSnapshot) => {
 };
 
 app.openMemoryDetailModal = (recordId, triggerButton) => {
-  const item = state.memoryManagementItems?.find((i) => (i?._id ?? i?.record_id) === recordId);
-  if (!item) {
+  const opened = app.openEquipDetailModal({
+    recordId,
+    equipType: 'memory',
+    source: 'memory-management',
+    trigger: triggerButton,
+  });
+  if (!opened) {
     return;
   }
 
-  state.currentEquipDetailMode = 'memory';
-  state.lastWeaponDetailTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
-  state.currentWeaponDetailItem = item;
-  state.currentWeaponDetailExtraInfo = null;
-  app.populateWeaponDetailCard(item);
-  dom.weaponDetailModal.hidden = false;
+  dom.equipDetailModal.hidden = false;
   app.setBodyModalOpen(true);
   void app.loadMemoryDetailExtraInfo(recordId).catch((error) => {
-    if (state.currentWeaponDetailItem) {
-      app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+    if (state.currentEquipDetailItem) {
+      app.populateEquipDetailCard(state.currentEquipDetailItem, {
+        viewKey: 'shared',
+        detailMode: 'editable',
+        source: 'memory-management',
+      });
     }
-    if (dom.weaponDetailModal instanceof HTMLElement && !dom.weaponDetailModal.hidden) {
-      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.weaponManagementLoadFailed'));
+    if (dom.equipDetailModal instanceof HTMLElement && !dom.equipDetailModal.hidden) {
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'));
     }
   });
 
-  if (dom.weaponDetailCard instanceof HTMLElement) {
-    dom.weaponDetailCard.focus();
+  if (dom.equipDetailCard instanceof HTMLElement) {
+    dom.equipDetailCard.focus();
   }
 };
 
@@ -368,15 +372,19 @@ app.getMemoryDetailExtraInfo = async (recordId) => {
 };
 
 app.loadMemoryDetailExtraInfo = async (recordId) => {
-  state.weaponDetailLoading = true;
+  state.equipDetailLoading = true;
   try {
     const extraInfo = await app.getMemoryDetailExtraInfo(recordId);
-    state.currentWeaponDetailExtraInfo = extraInfo;
-    if (state.currentWeaponDetailItem) {
-      app.populateWeaponDetailCard(state.currentWeaponDetailItem);
+    state.currentEquipDetailExtraInfo = extraInfo;
+    if (state.currentEquipDetailItem) {
+      app.populateEquipDetailCard(state.currentEquipDetailItem, {
+        viewKey: 'shared',
+        detailMode: 'editable',
+        source: state.currentEquipDetailSource,
+      });
     }
   } finally {
-    state.weaponDetailLoading = false;
+    state.equipDetailLoading = false;
   }
 };
 
@@ -457,7 +465,7 @@ export const initDatabaseMemoryManagementFeature = () => {
     });
   }
 
-  const memoryManagementTable = document.querySelector('#database-memory-management-section .weapon-management-table');
+  const memoryManagementTable = document.querySelector('#database-memory-management-section .equip-management-table');
   if (memoryManagementTable instanceof HTMLElement) {
     memoryManagementTable.addEventListener('click', (event) => {
       const target = event.target;

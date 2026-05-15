@@ -29,11 +29,12 @@
           "type": "object",
           "schema": {
             "_id": {
-              "type": "number"
+              "type": "number",
+              "description": "account's UID"
             },
             "Name": {
               "type": "string",
-              "default": "XiaoyiBabi"
+              "default": ""
             },
             "Level": {
               "type": "number",
@@ -117,7 +118,8 @@
               "default": [],
               "schema": {
                 "_id": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Mark's Id"
                 }
               }
             },
@@ -203,7 +205,8 @@
           "default": [],
           "schema": {
             "_id": {
-              "type": "number"
+              "type": "number",
+              "description": "HeadPortrait Id"
             },
             "LeftCount": {
               "type": "number",
@@ -217,11 +220,16 @@
         },
         "gather_rewards": {
           "type": "array",
-          "default": []
+          "default": [],
+          "schema": {
+            "_id": "number",
+            "description": "Reward's Id, including exhibition rewards (Exhibition ID)"
+          }
         },
         "use_background_id": {
           "type": "number",
-          "default": 14000001
+          "default": 14000001,
+          "description": "background Id"
         },
         "team_groups": {
           "type": "array",
@@ -300,14 +308,16 @@
           "type": "ObjectId"
         },
         "uid": {
-          "type": "number"
+          "type": "number",
+          "description": "account's UID"
         },
         "characters": {
           "type": "array",
           "default": [],
           "schema": {
             "_id": {
-              "type": "number"
+              "type": "number",
+              "description": "character Id"
             },
             "Level": {
               "type": "number",
@@ -397,7 +407,8 @@
           "default": [],
           "schema": {
             "_id": {
-              "type": "number"
+              "type": "number",
+              "description": "fashion Id"
             },
             "IsLock": {
               "type": "boolean",
@@ -410,7 +421,8 @@
           "default": [],
           "schema": {
             "_id": {
-              "type": "number"
+              "type": "number",
+              "description": "equip Id"
             },
             "TemplateId": {
               "type": "number"
@@ -472,7 +484,8 @@
               "default": [],
               "schema": {
                 "_id": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "resonance slot"
                 }
               }
             },

@@ -101,7 +101,7 @@
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
                 <button class="subnav-link" type="button" data-database-tab="database-character-management-section" id="database-character-management-subnav" aria-controls="database-character-management-section" aria-selected="false" disabled data-i18n="dashboard.characterManagementTab">角色管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-weapon-management-section" id="database-weapon-management-subnav" aria-controls="database-weapon-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
+                <button class="subnav-link" type="button" data-database-tab="database-equip-management-section" id="database-equip-management-subnav" aria-controls="database-equip-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
@@ -319,25 +319,25 @@
 
                   <div class="accounts-table-shell">
                     <div class="accounts-table-scroll" id="database-memory-management-table-shell">
-                      <table class="accounts-table weapon-management-table" aria-describedby="database-memory-management-summary">
+                      <table class="accounts-table equip-management-table" aria-describedby="database-memory-management-summary">
                         <colgroup>
-                          <col class="weapon-management-col-row">
-                          <col class="weapon-management-col-name">
-                          <col class="weapon-management-col-type">
-                          <col class="weapon-management-col-star">
-                          <col class="weapon-management-col-character">
-                          <col class="weapon-management-col-enhance">
-                          <col class="weapon-management-col-actions">
+                          <col class="equip-management-col-row">
+                          <col class="equip-management-col-name">
+                          <col class="equip-management-col-type">
+                          <col class="equip-management-col-star">
+                          <col class="equip-management-col-character">
+                          <col class="equip-management-col-enhance">
+                          <col class="equip-management-col-actions">
                         </colgroup>
                         <thead>
                           <tr>
-                            <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.equipManagementRowNumber">行号</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                             <th scope="col"><button class="column-sort-btn" data-sort-field="position" type="button"><span data-i18n="dashboard.memoryManagementPosition">位置</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.weaponManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.equipManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.equipManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.equipManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.equipManagementAction">操作</th>
                           </tr>
                         </thead>
                         <tbody id="database-memory-management-body"></tbody>
@@ -411,62 +411,62 @@
                 </div>
               </section>
 
-              <section class="database-panel database-item-panel database-tab-panel" id="database-weapon-management-section" data-database-tab-panel="database-weapon-management-section" aria-labelledby="database-weapon-management-title" hidden>
+              <section class="database-panel database-item-panel database-tab-panel" id="database-equip-management-section" data-database-tab-panel="database-equip-management-section" aria-labelledby="database-equip-management-title" hidden>
                 <div class="database-panel-header database-panel-header-compact database-item-panel-header">
                   <div>
                     <span class="section-tag">Weapons</span>
-                    <h2 id="database-weapon-management-title" data-i18n="dashboard.weaponManagementTitle">武器管理</h2>
+                    <h2 id="database-equip-management-title" data-i18n="dashboard.weaponManagementTitle">武器管理</h2>
                   </div>
-                  <small class="database-weapon-management-summary" id="database-weapon-management-summary" data-i18n="dashboard.weaponManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                  <small class="database-equip-management-summary" id="database-equip-management-summary" data-i18n="dashboard.weaponManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
                 </div>
 
-                <div class="database-player-empty" id="database-weapon-management-state" data-i18n="dashboard.weaponManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+                <div class="database-player-empty" id="database-equip-management-state" data-i18n="dashboard.weaponManagementChooseAccount">请先在账号管理中选定一个用户。</div>
 
-                <div class="database-item-management-shell" id="database-weapon-management-shell" hidden>
+                <div class="database-item-management-shell" id="database-equip-management-shell" hidden>
                   <div class="database-item-actions" id="database-weapon-actions">
-                    <button class="status-action-button status-action-button-stop" type="button" id="database-weapon-clear" data-weapon-management-action="clear" data-i18n="dashboard.weaponManagementClear">清空未穿戴武器</button>
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-weapon-clear" data-equip-management-action="clear" data-i18n="dashboard.equipManagementClear">清空未穿戴武器</button>
                     <div class="database-item-toolbar">
                       <div class="database-item-search-shell" id="database-weapon-search-shell">
-                        <input class="database-item-search-input" type="search" id="database-weapon-search-input" data-i18n-placeholder="dashboard.weaponManagementSearchPlaceholder" placeholder="输入装备名后回车搜索">
+                        <input class="database-item-search-input" type="search" id="database-weapon-search-input" data-i18n-placeholder="dashboard.equipManagementSearchPlaceholder" placeholder="输入装备名后回车搜索">
                       </div>
                     </div>
-                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-weapon-add" data-weapon-management-action="add-weapon" data-i18n="dashboard.weaponManagementAdd">新增武器</button>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-weapon-add" data-equip-management-action="add-weapon" data-i18n="dashboard.equipManagementAdd">新增武器</button>
                   </div>
 
                   <div class="accounts-table-shell">
-                    <div class="accounts-table-scroll" id="database-weapon-management-table-shell">
-                      <table class="accounts-table weapon-management-table" aria-describedby="database-weapon-management-summary">
+                    <div class="accounts-table-scroll" id="database-equip-management-table-shell">
+                      <table class="accounts-table equip-management-table" aria-describedby="database-equip-management-summary">
                         <colgroup>
-                          <col class="weapon-management-col-row">
-                          <col class="weapon-management-col-name">
-                          <col class="weapon-management-col-type">
-                          <col class="weapon-management-col-star">
-                          <col class="weapon-management-col-character">
-                          <col class="weapon-management-col-enhance">
-                          <col class="weapon-management-col-actions">
+                          <col class="equip-management-col-row">
+                          <col class="equip-management-col-name">
+                          <col class="equip-management-col-type">
+                          <col class="equip-management-col-star">
+                          <col class="equip-management-col-character">
+                          <col class="equip-management-col-enhance">
+                          <col class="equip-management-col-actions">
                         </colgroup>
                         <thead>
                           <tr>
-                            <th scope="col" data-i18n="dashboard.weaponManagementRowNumber">行号</th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.weaponManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.weaponManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.weaponManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                            <th scope="col" data-i18n="dashboard.weaponManagementAction">操作</th>
+                            <th scope="col" data-i18n="dashboard.equipManagementRowNumber">行号</th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.equipManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.equipManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.equipManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.equipManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.equipManagementAction">操作</th>
                           </tr>
                         </thead>
-                        <tbody id="database-weapon-management-body"></tbody>
+                        <tbody id="database-equip-management-body"></tbody>
                       </table>
                     </div>
                     <div class="accounts-pagination database-item-pagination">
-                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
-                      <span id="database-weapon-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
-                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-next" data-i18n="dashboard.accountsNext">下一页</button>
-                      <label class="accounts-pagination-jump" for="database-weapon-management-jump-input">
-                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-weapon-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-equip-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-equip-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-equip-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-equip-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-equip-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
                       </label>
-                      <button class="status-action-button status-action-button-log" type="button" id="database-weapon-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-equip-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
                     </div>
                   </div>
                 </div>
@@ -674,15 +674,15 @@
           <table class="accounts-table item-add-table weapon-add-table">
             <colgroup>
               <col>
-              <col class="weapon-management-col-type">
-              <col class="weapon-management-col-star">
+              <col class="equip-management-col-type">
+              <col class="equip-management-col-star">
               <col class="weapon-add-col-select">
             </colgroup>
             <thead>
               <tr>
-                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.weaponManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.equipManagementType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.equipManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                 <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
               </tr>
             </thead>
@@ -718,11 +718,11 @@
           <table class="accounts-table item-add-table">
             <colgroup>
               <col>
-              <col class="weapon-management-col-star">
+              <col class="equip-management-col-star">
             </colgroup>
             <thead>
               <tr>
-                <th scope="col"><button class="resonance-effect-sort-btn" id="resonance-effect-sort-name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="resonance-effect-sort-arrow" id="resonance-effect-sort-arrow">&#x25B2;</span></button></th>
+                <th scope="col"><button class="resonance-effect-sort-btn" id="resonance-effect-sort-name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="resonance-effect-sort-arrow" id="resonance-effect-sort-arrow">&#x25B2;</span></button></th>
                 <th scope="col" data-i18n="dashboard.resonanceEffectDescriptionColumn">简介</th>
                 <th scope="col" data-i18n="dashboard.resonanceEffectSelectColumn">选择</th>
               </tr>
@@ -735,75 +735,75 @@
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-resonance-effect-modal-close data-i18n="common.cancel">取消</button>
           <button type="button" class="shared-modal-button" id="resonance-effect-confirm" data-i18n="common.confirm">确认</button>
         </div>
-        <div class="weapon-detail-tooltip" id="resonance-effect-tooltip" role="tooltip" hidden></div>
+        <div class="equip-detail-tooltip" id="resonance-effect-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
 
-    <!-- Weapon detail card -->
-    <div class="shared-modal" hidden id="weapon-detail-modal">
-      <div class="shared-modal-backdrop" data-weapon-detail-modal-close></div>
-      <section class="weapon-detail-card" role="dialog" aria-modal="true" aria-labelledby="weapon-detail-name" tabindex="-1">
-        <div class="weapon-detail-header">
-          <img class="weapon-detail-icon" id="weapon-detail-icon" src="" alt="">
-          <div class="weapon-detail-title">
-            <h3 class="weapon-detail-name" id="weapon-detail-name"></h3>
-            <span class="weapon-detail-type" id="weapon-detail-type">--</span>
-            <span class="weapon-detail-star" id="weapon-detail-star"></span>
+    <!-- Equipment detail card -->
+    <div class="shared-modal" hidden id="equip-detail-modal">
+      <div class="shared-modal-backdrop" data-equip-detail-modal-close></div>
+      <section class="equip-detail-card" role="dialog" aria-modal="true" aria-labelledby="equip-detail-name" tabindex="-1">
+        <div class="equip-detail-header">
+          <img class="equip-detail-icon" id="equip-detail-icon" src="" alt="">
+          <div class="equip-detail-title">
+            <h3 class="equip-detail-name" id="equip-detail-name"></h3>
+            <span class="equip-detail-type" id="equip-detail-type">--</span>
+            <span class="equip-detail-star" id="equip-detail-star"></span>
           </div>
         </div>
 
-        <div class="weapon-detail-description-section" id="weapon-detail-description-section" hidden>
-          <div class="weapon-detail-description" id="weapon-detail-description"></div>
+        <div class="equip-detail-description-section" id="equip-detail-description-section" hidden>
+          <div class="equip-detail-description" id="equip-detail-description"></div>
         </div>
 
-        <div class="weapon-detail-section" id="weapon-detail-skill-section" hidden>
-          <div class="weapon-detail-section-title"><span>Skill</span></div>
+        <div class="equip-detail-section" id="weapon-detail-skill-section" hidden>
+          <div class="equip-detail-section-title"><span>Skill</span></div>
           <div class="weapon-detail-skill-panel">
             <div class="weapon-detail-skill-name" id="weapon-detail-skill-name">--</div>
             <div class="weapon-detail-skill-description" id="weapon-detail-skill-description">--</div>
           </div>
         </div>
 
-        <div class="weapon-detail-section">
-          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailEnhancementLabel">强化</span></div>
-          <div class="weapon-detail-enhancement">
-            <div class="weapon-detail-stat">
-              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailBreakthrough">突破</span>
-              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-breakthrough" data-weapon-edit-field="Breakthrough" tabindex="0" role="button">--</span>
+        <div class="equip-detail-section">
+          <div class="equip-detail-section-title"><span data-i18n="dashboard.equipDetailEnhancementLabel">强化</span></div>
+          <div class="equip-detail-enhancement">
+            <div class="equip-detail-stat">
+              <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailBreakthrough">突破</span>
+              <span class="equip-detail-stat-value is-editable" id="equip-detail-breakthrough" data-equip-edit-field="Breakthrough" tabindex="0" role="button">--</span>
             </div>
-            <div class="weapon-detail-stat">
-              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailLevel">等级</span>
-              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-level" data-weapon-edit-field="Level" tabindex="0" role="button">--</span>
+            <div class="equip-detail-stat">
+              <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailLevel">等级</span>
+              <span class="equip-detail-stat-value is-editable" id="equip-detail-level" data-equip-edit-field="Level" tabindex="0" role="button">--</span>
             </div>
-            <div class="weapon-detail-stat">
-              <span class="weapon-detail-stat-label" data-i18n="dashboard.weaponDetailExp">经验</span>
-              <span class="weapon-detail-stat-value is-editable" id="weapon-detail-exp" data-weapon-edit-field="Exp" tabindex="0" role="button">--</span>
+            <div class="equip-detail-stat">
+              <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailExp">经验</span>
+              <span class="equip-detail-stat-value is-editable" id="equip-detail-exp" data-equip-edit-field="Exp" tabindex="0" role="button">--</span>
             </div>
           </div>
         </div>
 
-        <div class="weapon-detail-section" id="weapon-detail-resonance-section" hidden>
-          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailResonancesLabel">共鸣</span></div>
-          <table class="weapon-detail-resonance-table">
+        <div class="equip-detail-section" id="equip-detail-resonance-section" hidden>
+          <div class="equip-detail-section-title"><span data-i18n="dashboard.equipDetailResonancesLabel">共鸣</span></div>
+          <table class="equip-detail-resonance-table">
             <thead>
               <tr>
-                <th data-i18n="dashboard.weaponDetailSlot">槽位</th>
-                <th data-i18n="dashboard.weaponDetailEffect">效果</th>
-                <th data-i18n="dashboard.weaponDetailBoundCharacter">绑定角色</th>
-                <th id="weapon-detail-awake-header" data-i18n="dashboard.weaponDetailHypertune" hidden>超调</th>
-                <th data-i18n="dashboard.weaponDetailResonanceAction">操作</th>
+                <th data-i18n="dashboard.equipDetailSlot">槽位</th>
+                <th data-i18n="dashboard.equipDetailEffect">效果</th>
+                <th data-i18n="dashboard.equipDetailBoundCharacter">绑定角色</th>
+                <th id="equip-detail-awake-header" data-i18n="dashboard.equipDetailHypertune" hidden>超调</th>
+                <th data-i18n="dashboard.equipDetailResonanceAction">操作</th>
               </tr>
             </thead>
-            <tbody id="weapon-detail-resonance-body"></tbody>
+            <tbody id="equip-detail-resonance-body"></tbody>
           </table>
         </div>
 
-        <div class="weapon-detail-section" id="weapon-detail-overrun-section" hidden>
-          <div class="weapon-detail-section-title"><span data-i18n="dashboard.weaponDetailOverrunLabel">超限</span></div>
+        <div class="equip-detail-section" id="weapon-detail-overrun-section" hidden>
+          <div class="equip-detail-section-title"><span data-i18n="dashboard.weaponDetailOverrunLabel">超限</span></div>
           <div class="weapon-detail-overrun" id="weapon-detail-overrun-content"></div>
         </div>
 
-        <div class="weapon-detail-tooltip" id="weapon-detail-tooltip" role="tooltip" hidden></div>
+        <div class="equip-detail-tooltip" id="equip-detail-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
 
@@ -921,6 +921,102 @@
               </table>
             </div>
           </section>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-weapon-switch-modal">
+      <div class="shared-modal-backdrop" data-character-weapon-switch-modal-close></div>
+      <section class="shared-modal-card character-weapon-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-weapon-switch-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">W</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterWeaponSwitchEyebrow">角色装备</p>
+            <h3 id="character-weapon-switch-title" data-i18n="dashboard.characterWeaponSwitchTitle">切换武器</h3>
+          </div>
+        </div>
+        <div class="character-equip-switch-topbar">
+          <div class="character-equip-switch-current-panel">
+            <div class="character-equip-switch-current-label" data-i18n="dashboard.characterEquipSwitchCurrent">当前穿戴</div>
+            <div class="character-equip-switch-current" id="character-weapon-switch-current"></div>
+          </div>
+          <label class="database-item-control character-equip-switch-search" for="character-weapon-switch-search-input">
+            <input class="database-item-search-input item-add-search-input" type="search" id="character-weapon-switch-search-input" data-i18n-placeholder="dashboard.characterWeaponSwitchSearchPlaceholder" placeholder="输入武器名或角色名进行搜索">
+          </label>
+        </div>
+        <div class="item-add-table-shell character-equip-switch-table-shell">
+          <table class="accounts-table item-add-table character-equip-switch-table">
+            <colgroup>
+              <col>
+              <col>
+              <col class="equip-management-col-star">
+              <col class="equip-management-col-enhancement">
+              <col class="equip-management-col-action">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col"><button class="column-sort-btn" data-character-weapon-switch-sort-field="name" type="button"><span data-i18n="dashboard.characterWeaponSwitchName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-weapon-switch-sort-field="character" type="button"><span data-i18n="dashboard.characterWeaponSwitchCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-weapon-switch-sort-field="star" type="button"><span data-i18n="dashboard.characterWeaponSwitchStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-weapon-switch-sort-field="enhancement" type="button"><span data-i18n="dashboard.characterWeaponSwitchEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="dashboard.characterWeaponSwitchAction">操作</th>
+              </tr>
+            </thead>
+            <tbody id="character-equip-switch-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="character-weapon-switch-empty-state" data-i18n="dashboard.characterWeaponSwitchEmpty">当前没有可切换的武器。</div>
+        </div>
+        <div class="shared-modal-actions character-equip-switch-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-weapon-switch-modal-close data-i18n="dashboard.characterWeaponSwitchCancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-weapon-switch-save" data-i18n="dashboard.characterWeaponSwitchSave">保存</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-memory-switch-modal">
+      <div class="shared-modal-backdrop" data-character-memory-switch-modal-close></div>
+      <section class="shared-modal-card character-weapon-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-memory-switch-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">M</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterMemorySwitchEyebrow">角色装备</p>
+            <h3 id="character-memory-switch-title" data-i18n="dashboard.characterMemorySwitchTitle">切换意识</h3>
+          </div>
+        </div>
+        <div class="character-equip-switch-topbar">
+          <div class="character-equip-switch-current-panel">
+            <div class="character-equip-switch-current-label" data-i18n="dashboard.characterMemorySwitchCurrent">当前穿戴</div>
+            <div class="character-equip-switch-current" id="character-memory-switch-current"></div>
+          </div>
+          <label class="database-item-control character-equip-switch-search" for="character-memory-switch-search-input">
+            <input class="database-item-search-input item-add-search-input" type="search" id="character-memory-switch-search-input" data-i18n-placeholder="dashboard.characterMemorySwitchSearchPlaceholder" placeholder="输入意识名或角色名进行搜索">
+          </label>
+        </div>
+        <div class="item-add-table-shell character-equip-switch-table-shell">
+          <table class="accounts-table item-add-table character-equip-switch-table character-memory-switch-table">
+            <colgroup>
+              <col>
+              <col>
+              <col class="equip-management-col-star">
+              <col class="equip-management-col-enhancement">
+              <col class="equip-management-col-action">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col"><button class="column-sort-btn" data-character-memory-switch-sort-field="name" type="button"><span data-i18n="dashboard.characterMemorySwitchName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-memory-switch-sort-field="character" type="button"><span data-i18n="dashboard.characterMemorySwitchCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-memory-switch-sort-field="star" type="button"><span data-i18n="dashboard.characterMemorySwitchStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-character-memory-switch-sort-field="enhancement" type="button"><span data-i18n="dashboard.characterMemorySwitchEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="dashboard.characterMemorySwitchAction">操作</th>
+              </tr>
+            </thead>
+            <tbody id="character-memory-switch-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="character-memory-switch-empty-state" data-i18n="dashboard.characterMemorySwitchEmpty">当前没有可切换的意识。</div>
+        </div>
+        <div class="shared-modal-actions character-equip-switch-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-memory-switch-modal-close data-i18n="dashboard.characterMemorySwitchCancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-memory-switch-save" data-i18n="dashboard.characterMemorySwitchSave">保存</button>
         </div>
       </section>
     </div>
@@ -1093,15 +1189,15 @@
           <table class="accounts-table item-add-table weapon-add-table">
             <colgroup>
               <col>
-              <col class="weapon-management-col-type">
-              <col class="weapon-management-col-star">
+              <col class="equip-management-col-type">
+              <col class="equip-management-col-star">
               <col class="weapon-add-col-select">
             </colgroup>
             <thead>
               <tr>
-                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.weaponManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                 <th scope="col"><button class="column-sort-btn" data-sort-field="position" type="button"><span data-i18n="dashboard.memoryManagementPosition">位置</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
-                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.weaponManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="star" type="button"><span data-i18n="dashboard.equipManagementStar">星级</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
                 <th scope="col" data-i18n="runtime.memoryAddSelect">选择</th>
               </tr>
             </thead>
@@ -1118,21 +1214,21 @@
 
     <!-- Weapon resonance character picker -->
     <div class="shared-modal character-picker-modal" hidden id="weapon-resonance-character-picker-modal">
-      <div class="shared-modal-backdrop" data-weapon-resonance-character-picker-modal-close></div>
+      <div class="shared-modal-backdrop" data-equip-resonance-character-picker-modal-close></div>
       <section class="shared-modal-card character-picker-card" role="dialog" aria-modal="true" aria-labelledby="weapon-resonance-character-picker-title">
         <div class="shared-modal-header">
           <span class="shared-modal-icon" aria-hidden="true">&#x25C8;</span>
           <div>
-            <p class="shared-modal-eyebrow" data-i18n="dashboard.weaponDetailCharPickerEyebrow">绑定角色</p>
-            <h3 id="weapon-resonance-character-picker-title" data-i18n="dashboard.weaponDetailCharPickerTitle">选择绑定角色</h3>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.equipDetailCharPickerEyebrow">绑定角色</p>
+            <h3 id="weapon-resonance-character-picker-title" data-i18n="dashboard.equipDetailCharPickerTitle">选择绑定角色</h3>
           </div>
         </div>
-        <p class="shared-modal-message" data-i18n="dashboard.weaponDetailCharPickerDesc">请为此共鸣槽位选择绑定的角色。</p>
+        <p class="shared-modal-message" data-i18n="dashboard.equipDetailCharPickerDesc">请为此共鸣槽位选择绑定的角色。</p>
         <div class="character-picker-summary" id="weapon-resonance-character-picker-summary" hidden></div>
         <div class="character-picker-grid" id="weapon-resonance-character-picker-grid"></div>
         <div class="shared-modal-actions character-picker-actions">
-          <button type="button" class="shared-modal-button shared-modal-button-secondary character-picker-cancel" data-weapon-resonance-character-picker-modal-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="shared-modal-button" id="weapon-resonance-character-picker-confirm" disabled data-i18n="dashboard.weaponDetailCharPickerConfirm">确认</button>
+          <button type="button" class="shared-modal-button shared-modal-button-secondary character-picker-cancel" data-equip-resonance-character-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="equip-resonance-character-picker-confirm" disabled data-i18n="dashboard.equipDetailCharPickerConfirm">确认</button>
         </div>
       </section>
     </div>
@@ -1152,7 +1248,7 @@
         <div class="overrun-picker-grid" id="weapon-overrun-picker-grid"></div>
         <div class="shared-modal-actions overrun-picker-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary overrun-picker-clear" id="weapon-overrun-picker-clear" data-i18n="common.clear">清空</button>
-          <button type="button" class="shared-modal-button" id="weapon-overrun-picker-confirm" data-i18n="dashboard.weaponDetailResonanceSave">保存</button>
+          <button type="button" class="shared-modal-button" id="weapon-overrun-picker-confirm" data-i18n="dashboard.equipDetailResonanceSave">保存</button>
         </div>
       </section>
     </div>

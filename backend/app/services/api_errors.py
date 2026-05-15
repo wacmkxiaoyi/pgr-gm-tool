@@ -162,6 +162,14 @@ ERROR_MESSAGES = {
         'zh-CN': '新增武器失败。',
         'en-US': 'Failed to add weapons.',
     },
+    'character.equip_type_invalid': {
+        'zh-CN': '当前角色缺少有效的武器类型，无法切换武器。',
+        'en-US': 'The current character has no valid weapon type, so weapon switching is unavailable.',
+    },
+    'character.weapon_type_mismatch': {
+        'zh-CN': '所选武器与当前角色的武器类型不匹配。',
+        'en-US': 'The selected weapon type does not match the current character.',
+    },
     'equips.resonance_not_found': {
         'zh-CN': '未找到对应共鸣槽位数据。',
         'en-US': 'The requested resonance slot data was not found.',

@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const { dom, state } = app;
 const {
@@ -34,8 +34,8 @@ app.getAddableMemoryCatalog = () => {
         templateId: normalizedTemplateId,
         memoryName: String(memoryName ?? '').trim(),
         memoryPositionLabel: positionLabel,
-        memoryStar: app.getWeaponStarByTemplateId(normalizedTemplateId) ?? 0,
-        memoryIconUrl: app.getWeaponIconByTemplateId(normalizedTemplateId),
+        memoryStar: app.getEquipStarByTemplateId(normalizedTemplateId) ?? 0,
+        memoryIconUrl: app.getEquipIconByTemplateId(normalizedTemplateId),
       };
     })
     .filter((item) => Number.isFinite(item.templateId) && item.memoryName && item.memoryPositionLabel !== '--');
@@ -129,9 +129,9 @@ app.renderMemoryAddModalRows = () => {
     const selected = selectedTemplateIds.has(item.templateId);
     return `
       <tr class="weapon-add-row${selected ? ' is-selected' : ''}" data-memory-add-row="true" data-template-id="${item.templateId}">
-        <td>${app.renderWeaponMediaCell(item.memoryIconUrl, item.memoryName)}</td>
+        <td>${app.renderEquipMediaCell(item.memoryIconUrl, item.memoryName)}</td>
         <td>${app.escapeHtml(item.memoryPositionLabel)}</td>
-        <td>${app.renderWeaponStar(item.templateId)}</td>
+        <td>${app.renderEquipStar(item.templateId)}</td>
         <td>
           <input
             class="weapon-add-checkbox"

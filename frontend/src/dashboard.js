@@ -3,8 +3,8 @@ import { app } from './dashboard/shared.js';
 import './dashboard/navigation.js';
 import './dashboard/modals.js';
 
-import { initStatusFeature } from './dashboard/status/index.js';
-import { initDatabaseFeature } from './dashboard/database/index.js';
+import { initStatusFeature } from './dashboard/game-server-management/index.js';
+import { initDatabaseFeature } from './dashboard/user-data-management/index.js';
 
 const { state } = app;
 
@@ -27,6 +27,8 @@ const rerenderLocaleSensitiveViews = () => {
   app.updateWeaponManagementAccess();
   app.updateMemoryManagementAccess();
   app.rerenderCharacterManagementLocale?.();
+  app.rerenderCharacterWeaponSwitchLocale?.();
+  app.rerenderCharacterMemorySwitchLocale?.();
   app.rerenderItemManagementLocale?.();
   app.rerenderWeaponManagementLocale?.();
   app.rerenderMemoryManagementLocale?.();
@@ -65,6 +67,7 @@ const initGlobalKeyboardShortcuts = () => {
       app.closePlayerPortraitPicker();
       app.closeWeaponDetailModal?.();
       app.closeCharacterDetailModal?.();
+      app.closeCharacterWeaponSwitchModal?.();
       app.closeCharacterQualityEditModal?.();
       app.closeCharacterTrustEditModal?.();
     }

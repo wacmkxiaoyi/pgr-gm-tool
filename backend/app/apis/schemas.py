@@ -244,6 +244,40 @@ class CharacterExtraInfoResponse(BaseModel):
     EnhanceSkillList: list[CharacterSkillInfoResponse] = Field(default_factory=list)
 
 
+class CharacterWeaponCandidatesResponse(BaseModel):
+    character_record_id: int
+    character_id: int
+    current_weapon: EquipItemResponse | None = None
+    items: list[EquipItemResponse] = Field(default_factory=list)
+
+
+class CharacterMemoryCandidatesResponse(BaseModel):
+    character_record_id: int
+    character_id: int
+    slot: int
+    current_memory: EquipItemResponse | None = None
+    items: list[EquipItemResponse] = Field(default_factory=list)
+
+
+class SwitchCharacterWeaponRequest(BaseModel):
+    WeaponRecordId: int
+
+
+class SwitchCharacterMemoryRequest(BaseModel):
+    MemoryRecordId: int | None = None
+    Slot: int
+
+
+class SwitchCharacterWeaponResponse(BaseModel):
+    updated: bool
+    current_weapon: EquipItemResponse | None = None
+
+
+class SwitchCharacterMemoryResponse(BaseModel):
+    updated: bool
+    current_memory: EquipItemResponse | None = None
+
+
 class InventoryItemResponse(BaseModel):
     item_id: int
     quantity: int

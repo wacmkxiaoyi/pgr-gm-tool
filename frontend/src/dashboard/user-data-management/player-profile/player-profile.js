@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const PLAYER_NAME_PATTERN = /^[\u4e00-\u9fa5A-Za-z0-9 _-]+$/;
 const PLAYER_FIELD_LABELS = {

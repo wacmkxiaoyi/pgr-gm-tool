@@ -37,6 +37,24 @@ def get_weapon_type_name_map() -> dict[int, str]:
 
 
 @lru_cache(maxsize=1)
+def get_weapon_type_id_map() -> dict[int, int]:
+    equip_reader = TSVReader(EQUIP_TSV_PATH, typed=True)
+    raw_equip_type_map = equip_reader.get_maps("Id", "Type")[0]
+
+    normalized_map: dict[int, int] = {}
+    for equip_id_raw, equip_type_raw in raw_equip_type_map.items():
+        try:
+            equip_id = int(equip_id_raw)
+            equip_type = int(equip_type_raw)
+        except (TypeError, ValueError):
+            continue
+
+        normalized_map[equip_id] = equip_type
+
+    return normalized_map
+
+
+@lru_cache(maxsize=1)
 def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(WEAPON_SKILL_TSV_PATH, typed=True)
     skill_table = reader.get_sub_table("Id", ["Name", "Description"])

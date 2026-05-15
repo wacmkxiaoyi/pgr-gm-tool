@@ -81,6 +81,40 @@ class UpdateEquipRequest(BaseModel):
     value: int
 
 
+class SwitchCharacterWeaponRequest(BaseModel):
+    WeaponRecordId: int
+
+
+class CharacterWeaponCandidatesRecord(BaseModel):
+    character_record_id: int
+    character_id: int
+    current_weapon: WeaponItemRecord | None = None
+    items: list[WeaponItemRecord] = Field(default_factory=list)
+
+
+class SwitchCharacterMemoryRequest(BaseModel):
+    MemoryRecordId: int | None = None
+    Slot: int
+
+
+class CharacterMemoryCandidatesRecord(BaseModel):
+    character_record_id: int
+    character_id: int
+    slot: int
+    current_memory: WeaponItemRecord | None = None
+    items: list[WeaponItemRecord] = Field(default_factory=list)
+
+
+class SwitchCharacterWeaponResponse(BaseModel):
+    updated: bool
+    current_weapon: WeaponItemRecord | None = None
+
+
+class SwitchCharacterMemoryResponse(BaseModel):
+    updated: bool
+    current_memory: WeaponItemRecord | None = None
+
+
 class UpdateWeaponOverrunRequest(BaseModel):
     chose_suit: int | None = None
     level: int | None = None

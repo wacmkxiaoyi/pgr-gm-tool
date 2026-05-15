@@ -148,7 +148,7 @@ app.initNavigation = () => {
         return;
       }
 
-      if (tabId === 'database-weapon-management-section' && app.canAccessWeaponManagement()) {
+      if (tabId === 'database-equip-management-section' && app.canAccessWeaponManagement()) {
         app.updateWeaponManagementAccess();
         void app.loadSelectedAccountWeapons(app.state.weaponManagementCurrentPage);
         return;

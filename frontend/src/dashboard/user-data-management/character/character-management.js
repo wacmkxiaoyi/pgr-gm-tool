@@ -1,4 +1,4 @@
-import { app } from '../shared.js';
+import { app } from '../../shared.js';
 
 const { dom, state } = app;
 const {
@@ -1876,8 +1876,8 @@ app.normalizeCharacterDetailEquip = (equip) => {
 };
 
 app.getCharacterDetailEquipIconClass = (templateId) => {
-  const star = app.getWeaponStarByTemplateId(templateId);
-  return Number.isFinite(star) && star >= 4 ? `weapon-icon-tier-${star}` : '';
+  const star = app.getEquipStarByTemplateId(templateId);
+  return Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
 };
 
 app.getCharacterDetailMemorySlotCount = () => {
@@ -1898,13 +1898,13 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
     return '';
   }
 
-  const name = app.getWeaponNameByTemplateId(normalizedEquip.TemplateId);
-  const star = app.getWeaponStarByTemplateId(normalizedEquip.TemplateId);
+  const name = app.getEquipNameByTemplateId(normalizedEquip.TemplateId);
+  const star = app.getEquipStarByTemplateId(normalizedEquip.TemplateId);
   const breakthrough = Number.isFinite(Number(normalizedEquip.Breakthrough)) ? Number(normalizedEquip.Breakthrough) : 0;
   const level = Number.isFinite(Number(normalizedEquip.Level)) ? Number(normalizedEquip.Level) : null;
   const supportsWeaponOverrun = Object.prototype.hasOwnProperty.call(equip || {}, 'weapon_overrun_data');
   const isMemory = typeof isMemoryOverride === 'boolean' ? isMemoryOverride : !supportsWeaponOverrun;
-  const supportsResonance = app.hasWeaponResonanceConfig(normalizedEquip.TemplateId);
+  const supportsResonance = app.hasEquipResonanceConfig(normalizedEquip.TemplateId);
 
   return JSON.stringify({
     name,
@@ -1939,8 +1939,8 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
   const star = Number.isFinite(Number(payload?.star)) ? Math.max(0, Number(payload.star)) : 0;
   const breakthrough = Number.isFinite(Number(payload?.breakthrough)) ? Math.max(0, Number(payload.breakthrough)) : 0;
   const level = Number.isFinite(Number(payload?.level)) ? Math.max(0, Number(payload.level)) : null;
-  const starClass = `weapon-star-tier-${Math.max(1, star)}`;
-  const breakthroughClass = `weapon-detail-bt-tier-${Math.min(Math.max(breakthrough, 0), 4)}`;
+  const starClass = `equip-star-tier-${Math.max(1, star)}`;
+  const breakthroughClass = `equip-detail-bt-tier-${Math.min(Math.max(breakthrough, 0), 4)}`;
   const starDisplay = '★'.repeat(Math.max(1, star || 1));
   const resonanceInfo = Array.isArray(payload?.resonanceInfo) ? payload.resonanceInfo : [];
   const isMemory = Boolean(payload?.isMemory);
@@ -1958,7 +1958,7 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
       const entry = resonanceInfo.find((item) => Number(item?.slot) === slot) ?? null;
       const effectInfo = entry ? app.resolveResonanceEffectInfo(entry) : null;
       const effectName = effectInfo?.Name ? effectInfo.Name : '--';
-      const slotLabel = app.getResonanceSlotLabel(slot, isMemory);
+      const slotLabel = app.getEquipResonanceSlotLabel(slot, isMemory);
       lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipResonanceSlot', { slot: slotLabel }))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(effectName)}</span></div>`);
     });
   }
@@ -1983,8 +1983,8 @@ app.renderCharacterDetailEquipSlot = (equip, sizeClass, site = null, isMemory = 
     return `<div class="character-detail-slot ${sizeClass} is-empty"></div>`;
   }
 
-  const iconUrl = app.getWeaponIconByTemplateId(normalizedEquip.TemplateId);
-  const equipName = app.getWeaponNameByTemplateId(normalizedEquip.TemplateId);
+  const iconUrl = app.getEquipIconByTemplateId(normalizedEquip.TemplateId);
+  const equipName = app.getEquipNameByTemplateId(normalizedEquip.TemplateId);
   const iconClass = app.getCharacterDetailEquipIconClass(normalizedEquip.TemplateId);
   const tooltipText = app.escapeHtml(app.getCharacterDetailEquipTooltipText(equip, isMemory));
   const siteAttr = Number.isFinite(Number(site)) ? ` data-memory-site="${Number(site)}"` : '';
@@ -1998,12 +1998,26 @@ app.renderCharacterDetailEquipSlot = (equip, sizeClass, site = null, isMemory = 
   `;
 };
 
+app.renderCharacterDetailMemorySlot = (memory, site) => {
+  const actionText = app.translate('dashboard.characterDetailMemorySwitchAction', { slot: site });
+  return `
+    <button class="character-detail-memory-trigger" type="button" data-character-detail-memory-trigger data-memory-slot="${Number(site)}" aria-label="${app.escapeHtml(actionText)}">
+      ${app.renderCharacterDetailEquipSlot(memory, 'character-detail-slot-small', site, true)}
+    </button>
+  `;
+};
+
 app.renderCharacterDetailWeaponSlot = (weapon) => {
   if (!(characterDetailWeapon instanceof HTMLElement)) {
     return;
   }
 
-  characterDetailWeapon.innerHTML = app.renderCharacterDetailEquipSlot(weapon, 'character-detail-slot-medium', null, false);
+  const actionText = app.translate('dashboard.characterDetailWeaponSwitchAction');
+  characterDetailWeapon.innerHTML = `
+    <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-trigger aria-label="${app.escapeHtml(actionText)}">
+      ${app.renderCharacterDetailEquipSlot(weapon, 'character-detail-slot-medium', null, false)}
+    </button>
+  `;
 };
 
 app.renderCharacterDetailMemorySlots = (memories) => {
@@ -2029,7 +2043,7 @@ app.renderCharacterDetailMemorySlots = (memories) => {
   characterDetailMemories.style.gridTemplateColumns = `repeat(${columnCount}, minmax(96px, 1fr))`;
   characterDetailMemories.innerHTML = Array.from({ length: slotCount }, (_, index) => {
     const site = index + 1;
-    return app.renderCharacterDetailEquipSlot(siteToMemoryMap.get(site) ?? null, 'character-detail-slot-small', site, true);
+    return app.renderCharacterDetailMemorySlot(siteToMemoryMap.get(site) ?? null, site);
   }).join('');
 };
 
@@ -2369,7 +2383,7 @@ app.renderCharacterRows = (items) => {
     return `
       <tr>
         <td>${sequence ?? '--'}</td>
-        <td>${app.renderWeaponMediaCell(characterIconUrl, characterName, true, iconExtraClass)}</td>
+        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, true, iconExtraClass)}</td>
         <td><span class="character-quality ${app.getCharacterQualityClass(quality)}">${app.escapeHtml(app.getCharacterQualityDisplayLabel(quality, star))}</span></td>
         <td>${level ?? '--'}</td>
         <td><span class="character-grade ${app.getCharacterGradeClass(grade)}">${app.escapeHtml(gradeName)}</span></td>
@@ -2790,6 +2804,8 @@ app.closeCharacterDetailModal = () => {
     return;
   }
 
+  app.closeWeaponDetailModal?.();
+  app.closeCharacterWeaponSwitchModal?.();
   app.closeCharacterQualityEditModal();
   app.closeCharacterLevelEditModal();
   app.closeCharacterTrustEditModal();
