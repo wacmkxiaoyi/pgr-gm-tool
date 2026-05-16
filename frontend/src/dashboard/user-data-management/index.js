@@ -6,6 +6,8 @@ import './character/character-add-modal.js';
 import './shared/equip-detail-shared.js';
 import './shared/equip-resonance-shared.js';
 import './item/item-management.js';
+import './stage/stage-management.js';
+import './stage/stage-skip-modal.js';
 import './memory/memory-management.js';
 import './weapon/weapon-management.js';
 import './character/character-weapon-switch.js';
@@ -23,6 +25,8 @@ import { initDatabaseCharacterManagementFeature } from './character/character-ma
 import { initDatabaseCharacterAddModalFeature } from './character/character-add-modal.js';
 import { initDatabaseEquipResonanceSharedFeature } from './shared/equip-resonance-shared.js';
 import { initDatabaseItemManagementFeature } from './item/item-management.js';
+import { initDatabaseStageManagementFeature } from './stage/stage-management.js';
+import { initDatabaseStageSkipModalFeature } from './stage/stage-skip-modal.js';
 import { initDatabaseMemoryManagementFeature } from './memory/memory-management.js';
 import { initDatabaseWeaponManagementFeature } from './weapon/weapon-management.js';
 import { initDatabaseCharacterWeaponSwitchFeature } from './character/character-weapon-switch.js';
@@ -41,6 +45,8 @@ export const initDatabaseFeature = () => {
   initDatabaseCharacterAddModalFeature();
   initDatabaseEquipResonanceSharedFeature();
   initDatabaseItemManagementFeature();
+  initDatabaseStageManagementFeature();
+  initDatabaseStageSkipModalFeature();
   initDatabaseMemoryManagementFeature();
   initDatabaseWeaponManagementFeature();
   initDatabaseCharacterWeaponSwitchFeature();

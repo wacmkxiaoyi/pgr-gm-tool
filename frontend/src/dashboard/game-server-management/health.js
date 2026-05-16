@@ -1,7 +1,7 @@
 import { app } from '../shared.js';
 
 const { dom, state, constants } = app;
-const { sdkGrid, gameGrid, databaseGrid, serverVersionLabel, intervalLabel, databaseIntervalLabel, statusControls } = dom;
+const { sdkGrid, gameGrid, databaseGrid, serverVersionLabel, intervalLabel, databaseRepairButton, statusControls } = dom;
 
 app.shouldHideHistoryGrid = (grid) => {
   if (!grid) {
@@ -53,18 +53,33 @@ app.updateNextHealthCheckLabel = () => {
   intervalLabel.textContent = app.translate('dashboard.nextHealthCheck', { seconds: remainingSeconds });
 };
 
+app.getDatabaseHealthCheckLabelText = () => {
+  if (typeof state.nextDatabaseHealthCheckAtMs !== 'number') {
+    return app.translate('dashboard.databaseStatusIntervalIdle');
+  }
+
+  const remainingSeconds = Math.max(0, Math.ceil((state.nextDatabaseHealthCheckAtMs - Date.now()) / 1000));
+  return app.translate('dashboard.databaseStatusInterval', { seconds: remainingSeconds });
+};
+
 app.updateDatabaseHealthCheckLabel = () => {
+  const databaseIntervalLabel = document.querySelector('[data-database-status-interval]');
   if (!databaseIntervalLabel) {
     return;
   }
 
-  if (typeof state.nextDatabaseHealthCheckAtMs !== 'number') {
-    databaseIntervalLabel.textContent = app.translate('dashboard.databaseStatusIntervalIdle');
+  databaseIntervalLabel.textContent = app.getDatabaseHealthCheckLabelText();
+};
+
+app.updateDatabaseRepairButton = () => {
+  if (!(databaseRepairButton instanceof HTMLButtonElement)) {
     return;
   }
 
-  const remainingSeconds = Math.max(0, Math.ceil((state.nextDatabaseHealthCheckAtMs - Date.now()) / 1000));
-  databaseIntervalLabel.textContent = app.translate('dashboard.databaseStatusInterval', { seconds: remainingSeconds });
+  databaseRepairButton.disabled = state.databaseRepairPending || !app.isDatabaseHealthy();
+  databaseRepairButton.textContent = state.databaseRepairPending
+    ? app.translate('dashboard.databaseRepairPending')
+    : app.translate('dashboard.databaseRepair');
 };
 
 app.renderCard = (item) => {
@@ -106,13 +121,53 @@ app.renderCard = (item) => {
   `;
 };
 
-app.renderGrid = (grid, section) => {
+app.renderDatabaseCard = (item) => {
+  const meta = constants.stateMeta[item.latest?.state] ?? constants.stateMeta.unknown;
+  const badgeLabel = app.getStatusLabel(item.latest?.state);
+  const checkedAt = item.latest?.checked_at ?? null;
+  const latency = typeof item.latest?.latency_ms === 'number' ? `${item.latest.latency_ms} ms` : app.translate('dashboard.statusUnknownLatency');
+  const statusCode = typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
+  const history = Array.isArray(item.history) ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse() : [];
+  const emptySlots = Math.max(0, constants.HISTORY_SLOT_COUNT - history.length);
+
+  return `
+    <article class="status-card status-card-${meta.className === 'status-ok' ? 'healthy' : meta.className === 'status-down' ? 'unhealthy' : 'muted'}">
+      <div class="status-card-details">
+        <div class="status-card-details-header database-status-card-header">
+          <strong>${item.url}</strong>
+          <small class="database-status-card-interval" data-database-status-interval>${app.getDatabaseHealthCheckLabelText()}</small>
+          <span class="status-badge ${meta.className}">${badgeLabel}</span>
+        </div>
+        <span>${item.latest?.message ? app.resolveUiTextToken(item.latest.message) : app.translate('dashboard.statusFirstCheckPending')}</span>
+        <span>${app.translate('dashboard.statusLastChecked', { time: app.formatTime(checkedAt) })}</span>
+        <span>${app.translate('dashboard.statusLatency', { latency: `${latency}${statusCode ? ` · ${statusCode}` : ''}` })}</span>
+      </div>
+      <div class="status-history-grid" aria-label="${app.translate('dashboard.statusHistoryAria', { title: item.title })}">
+        ${Array.from({ length: emptySlots })
+          .map(() => '<div class="status-history-item is-empty" aria-hidden="true"></div>')
+          .join('')}
+        ${history
+          .map(
+            (entry) => `
+              <div class="status-history-item ${app.historyStateClass(entry.state)}" title="${app.formatTime(entry.checked_at)} · ${app.resolveUiTextToken(entry.message)}">
+                <span>${app.getStatusLabel(entry.state)}</span>
+                <small>${app.formatTime(entry.checked_at)}</small>
+              </div>
+            `,
+          )
+          .join('')}
+      </div>
+    </article>
+  `;
+};
+
+app.renderGrid = (grid, section, renderItem = app.renderCard) => {
   if (!grid) {
     return;
   }
 
   const services = Array.isArray(section?.services) ? section.services : [];
-  grid.innerHTML = services.length > 0 ? services.map(app.renderCard).join('') : '';
+  grid.innerHTML = services.length > 0 ? services.map(renderItem).join('') : '';
   app.updateHistoryGridVisibility(grid);
 };
 
@@ -173,7 +228,9 @@ app.renderDatabaseSnapshot = (payload) => {
     app.updateDatabaseHealthCheckLabel();
   }
 
-  app.renderGrid(databaseGrid, databaseSection);
+  app.updateDatabaseRepairButton();
+  app.renderGrid(databaseGrid, databaseSection, app.renderDatabaseCard);
+  app.updateDatabaseHealthCheckLabel();
   app.updateDatabaseAccountsAccess(payload);
   if (!wasHealthy && app.isDatabaseHealthy(payload) && app.isDatabaseAccountsSectionActive()) {
     void app.loadDatabaseAccounts(state.accountsCurrentPage);
@@ -197,6 +254,12 @@ app.renderDatabaseSnapshot = (payload) => {
     app.updateItemManagementAccess(payload);
     if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
       void app.loadSelectedAccountItems(state.itemManagementCurrentPage);
+    }
+  }
+  if (app.isDatabaseStageManagementSectionActive()) {
+    app.updateStageManagementAccess(payload);
+    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
+      void app.loadSelectedAccountStages(state.stageManagementCurrentPage);
     }
   }
   window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
@@ -248,6 +311,7 @@ app.loadAppInfo = async () => {
     state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
     state.characterGradeNameMap = payload?.character_grade_name_map && typeof payload.character_grade_name_map === 'object' ? payload.character_grade_name_map : {};
     state.characterTrustExpMap = payload?.character_trust_exp_map && typeof payload.character_trust_exp_map === 'object' ? payload.character_trust_exp_map : {};
+    state.stageEntriesMap = payload?.stage_entries_map && typeof payload.stage_entries_map === 'object' ? payload.stage_entries_map : {};
     state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
     state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
     state.weaponSkillPoolEntriesMap = payload?.weapon_skill_pool_entries_map && typeof payload.weapon_skill_pool_entries_map === 'object' ? payload.weapon_skill_pool_entries_map : {};
@@ -279,6 +343,7 @@ app.loadAppInfo = async () => {
     state.characterHeadIconUrlMap = {};
     state.characterGradeNameMap = {};
     state.characterTrustExpMap = {};
+    state.stageEntriesMap = {};
     state.weaponSkillEntriesMap = {};
     state.weaponOverrunSuitEntriesMap = {};
     state.weaponSkillPoolEntriesMap = {};
@@ -300,10 +365,41 @@ app.loadDatabaseStatus = async () => {
     state.databaseHealthSnapshot = null;
     state.nextDatabaseHealthCheckAtMs = null;
     app.updateDatabaseHealthCheckLabel();
+    app.updateDatabaseRepairButton();
     app.renderGrid(databaseGrid, { services: [] });
     app.updateDatabaseAccountsAccess(null);
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
     return 60;
+  }
+};
+
+app.submitDatabaseRepair = async () => {
+  if (state.databaseRepairPending || !app.isDatabaseHealthy()) {
+    return;
+  }
+
+  state.databaseRepairPending = true;
+  app.updateDatabaseRepairButton();
+
+  try {
+    const payload = await app.apiFetch('/api/database-repair', {
+      method: 'POST',
+    });
+    app.openSuccessModal(
+      app.translate('dashboard.databaseRepairSuccess', {
+        collections: Number(payload?.collections ?? 0),
+        scanned: Number(payload?.documents_scanned ?? 0),
+        updated: Number(payload?.documents_updated ?? 0),
+      }),
+    );
+    await app.loadDatabaseStatus();
+  } catch (error) {
+    if (!app.isMutationRiskCancelled(error)) {
+      app.openNoticeModal(app.apiErrorMessage(error, 'dashboard.databaseRepairFailed'));
+    }
+  } finally {
+    state.databaseRepairPending = false;
+    app.updateDatabaseRepairButton();
   }
 };
 
@@ -325,4 +421,11 @@ export const initStatusHealthFeature = () => {
   window.addEventListener('resize', () => {
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
   });
+
+  if (databaseRepairButton instanceof HTMLButtonElement) {
+    databaseRepairButton.addEventListener('click', () => {
+      void app.submitDatabaseRepair();
+    });
+    app.updateDatabaseRepairButton();
+  }
 };

@@ -53,6 +53,7 @@ class AppInfoResponse(BaseModel):
     equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
     character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
     character_trust_exp_map: dict[int, int] = Field(default_factory=dict)
+    stage_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
 
 
 class CharacterManagementItemResponse(BaseModel):
@@ -322,6 +323,41 @@ class InventoryListResponse(BaseModel):
     total_pages: int = 0
 
 
+class StageItemResponse(BaseModel):
+    stage_id: int
+    k: int | None = None
+    v: dict[str, object] = Field(default_factory=dict)
+
+
+class StageListResponse(BaseModel):
+    items: list[StageItemResponse] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
+class StageClearedIdsResponse(BaseModel):
+    stage_ids: list[int] = Field(default_factory=list)
+
+
+class AddStagesRequest(BaseModel):
+    stage_ids: list[int] = Field(default_factory=list)
+
+
+class AddStagesResponse(BaseModel):
+    added_count: int
+
+
+class DeleteStageResponse(BaseModel):
+    stage_id: int
+    deleted: bool
+
+
+class ClearStagesResponse(BaseModel):
+    deleted_count: int
+
+
 class WeaponOverrunExtraInfoResponse(BaseModel):
     level: int | None = None
     max_level: int | None = None
@@ -493,6 +529,12 @@ class ResetAccountPasswordResponse(BaseModel):
 class DeleteAccountResponse(BaseModel):
     uid: int
     deleted: bool
+
+
+class DatabaseRepairResponse(BaseModel):
+    collections: int
+    documents_scanned: int
+    documents_updated: int
 
 
 class PlayerProfileResponse(BaseModel):

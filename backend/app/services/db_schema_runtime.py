@@ -70,8 +70,13 @@ class CompiledCollectionSchema:
             return None
         return _sanitize_value(value, schema_node, fill_defaults=True)
 
-    def materialize_document(self, value: Any) -> Any:
-        return _sanitize_value(value, self._schema, fill_defaults=True)
+    def materialize_document(self, value: Any, *, fill_missing_scalars_with_null: bool = False) -> Any:
+        return _sanitize_value(
+            value,
+            self._schema,
+            fill_defaults=True,
+            fill_missing_scalars_with_null=fill_missing_scalars_with_null,
+        )
 
     def materialize_subpath(self, path: str, value: Any) -> Any:
         schema_node = self.resolve(path)
@@ -165,6 +170,9 @@ class DatabaseSchemaRuntime:
 
     def has_collection(self, collection_name: str) -> bool:
         return self.get_collection_schema(collection_name) is not None
+
+    def get_collection_names(self) -> tuple[str, ...]:
+        return tuple(sorted(self._collections.keys()))
 
 
 def init_database_schema_runtime(server_version: str) -> DatabaseSchemaRuntime:
@@ -337,7 +345,7 @@ def _resolve_child_node(node: dict[str, Any], segment: str) -> dict[str, Any] | 
     return None
 
 
-def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: bool) -> Any:
+def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: bool, fill_missing_scalars_with_null: bool = False) -> Any:
     node_type = schema_node.get("type")
 
     if node_type == "array":
@@ -351,14 +359,24 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
 
         sanitized_items: list[Any] = []
         for item in source:
-            sanitized_item = _sanitize_value(item, item_schema, fill_defaults=fill_defaults)
+            sanitized_item = _sanitize_value(
+                item,
+                item_schema,
+                fill_defaults=fill_defaults,
+                fill_missing_scalars_with_null=fill_missing_scalars_with_null,
+            )
             if sanitized_item is not None:
                 sanitized_items.append(sanitized_item)
         return sanitized_items
 
     if node_type == "object" or "schema" in schema_node or _is_object_schema_definition(schema_node):
         object_schema = schema_node.get("schema") if "schema" in schema_node else schema_node
-        source = value if isinstance(value, dict) else {}
+        if not isinstance(value, dict):
+            if fill_defaults and "default" in schema_node:
+                return copy.deepcopy(schema_node.get("default"))
+            source = {}
+        else:
+            source = value
         if not isinstance(object_schema, dict):
             if isinstance(value, dict):
                 return copy.deepcopy(value)
@@ -374,9 +392,14 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
             field_name = _actual_field_name(schema_field_name)
 
             if field_name in source:
-                sanitized_value = _sanitize_value(source.get(field_name), field_schema, fill_defaults=fill_defaults)
+                sanitized_value = _sanitize_value(
+                    source.get(field_name),
+                    field_schema,
+                    fill_defaults=fill_defaults,
+                    fill_missing_scalars_with_null=fill_missing_scalars_with_null,
+                )
             elif fill_defaults:
-                sanitized_value = _build_default_value(field_schema)
+                sanitized_value = _build_default_value(field_schema, fill_missing_scalars_with_null=fill_missing_scalars_with_null)
             else:
                 continue
 
@@ -393,7 +416,7 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
     return copy.deepcopy(value)
 
 
-def _build_default_value(schema_node: dict[str, Any]) -> Any:
+def _build_default_value(schema_node: dict[str, Any], *, fill_missing_scalars_with_null: bool = False) -> Any:
     if "default" in schema_node:
         return copy.deepcopy(schema_node.get("default"))
 
@@ -407,10 +430,19 @@ def _build_default_value(schema_node: dict[str, Any]) -> Any:
             return {}
 
         return {
-            _actual_field_name(field_name): _build_default_value(field_schema)
+            _actual_field_name(field_name): _build_default_value(field_schema, fill_missing_scalars_with_null=fill_missing_scalars_with_null)
             for field_name, field_schema in object_schema.items()
-            if isinstance(field_schema, dict) and ("default" in field_schema or field_schema.get("type") in {"object", "array"} or "schema" in field_schema)
+            if isinstance(field_schema, dict)
+            and (
+                "default" in field_schema
+                or field_schema.get("type") in {"object", "array"}
+                or "schema" in field_schema
+                or fill_missing_scalars_with_null
+            )
         }
+
+    if fill_missing_scalars_with_null:
+        return None
 
     return None
 

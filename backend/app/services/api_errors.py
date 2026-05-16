@@ -142,6 +142,18 @@ ERROR_MESSAGES = {
         'zh-CN': '未找到对应物品，或该物品不属于当前选定用户。',
         'en-US': 'The item was not found or does not belong to the selected user.',
     },
+    'stage.not_found': {
+        'zh-CN': '未找到对应战场，或该战场不属于当前选定用户。',
+        'en-US': 'The stage was not found or does not belong to the selected user.',
+    },
+    'stage.add_empty': {
+        'zh-CN': '请至少选择一个要跳过的战场。',
+        'en-US': 'Choose at least one stage before submitting.',
+    },
+    'stage.add_stage_not_found': {
+        'zh-CN': '存在未识别的战场 ID。',
+        'en-US': 'One or more stage IDs are not recognized.',
+    },
     'weapon.not_found': {
         'zh-CN': '未找到对应武器，或该武器不属于当前选定用户。',
         'en-US': 'The weapon was not found or does not belong to the selected user.',

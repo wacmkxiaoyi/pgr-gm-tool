@@ -11,14 +11,19 @@ const {
 
 app.closeItemDeleteModal = () => {
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
+  if (typeof app.hideStageDescriptionTooltip === 'function') {
+    app.hideStageDescriptionTooltip();
+  }
   if (!(itemDeleteModal instanceof HTMLElement) || itemDeleteModal.hidden) {
     return;
   }
@@ -37,12 +42,14 @@ app.openItemDeleteModal = (item, trigger) => {
   }
 
   state.pendingDeleteItem = item;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -63,18 +70,53 @@ app.openItemDeleteModal = (item, trigger) => {
   }
 };
 
-app.openWeaponResonanceDeleteModal = (payload, trigger) => {
+app.openStageDeleteModal = (stage, trigger) => {
   if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
     return;
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = stage;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
+  state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  itemDeleteTitle.textContent = app.translate('runtime.stageDeleteTitle');
+  itemDeleteMessage.textContent = app.translate('runtime.stageDeleteConfirm', {
+    stageName: stage?.stageName ?? app.translate('common.notAvailable'),
+    stageId: stage?.stageId ?? app.translate('common.notAvailable'),
+  });
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.textContent = app.translate('runtime.stageDeleteSubmit');
+  }
+  itemDeleteModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.focus();
+  }
+};
+
+app.openWeaponResonanceDeleteModal = (payload, trigger) => {
+  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+    return;
+  }
+
+  state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
+  state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
+  state.pendingCharacterMaxAll = null;
+  state.pendingCharacterManagementMaxAll = false;
+  state.pendingDeleteWeaponResonance = null;
+  state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -100,12 +142,14 @@ app.openWeaponDeleteModal = (weapon, trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = weapon;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -132,12 +176,14 @@ app.openClearItemsModal = (keyword, trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = keyword;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -156,18 +202,50 @@ app.openClearItemsModal = (keyword, trigger) => {
   }
 };
 
-app.openClearWeaponsModal = (keyword, trigger) => {
+app.openClearStagesModal = (trigger) => {
   if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
     return;
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = true;
+  state.pendingClearWeaponsKeyword = null;
+  state.pendingClearMemoriesKeyword = null;
+  state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  itemDeleteTitle.textContent = app.translate('runtime.stageClearTitle');
+  itemDeleteMessage.textContent = app.translate('runtime.stageClearConfirm');
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.textContent = app.translate('runtime.stageClearSubmit');
+  }
+  itemDeleteModal.hidden = false;
+  app.setBodyModalOpen(true);
+
+  if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
+    itemDeleteConfirmButton.focus();
+  }
+};
+
+app.openClearWeaponsModal = (keyword, trigger) => {
+  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+    return;
+  }
+
+  state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
+  state.pendingDeleteWeapon = null;
+  state.pendingDeleteMemory = null;
+  state.pendingCharacterMaxAll = null;
+  state.pendingCharacterManagementMaxAll = false;
+  state.pendingDeleteWeaponResonance = null;
+  state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = keyword;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -192,12 +270,14 @@ app.openMemoryDeleteModal = (memory, trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = memory;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -224,12 +304,14 @@ app.openClearMemoriesModal = (keyword, trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = keyword;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -254,12 +336,14 @@ app.openCharacterMaxAllModal = (character, trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = character;
   state.pendingCharacterManagementMaxAll = false;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -284,12 +368,14 @@ app.openCharacterManagementMaxAllModal = (trigger) => {
   }
 
   state.pendingDeleteItem = null;
+  state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
   state.pendingDeleteMemory = null;
   state.pendingCharacterMaxAll = null;
   state.pendingCharacterManagementMaxAll = true;
   state.pendingDeleteWeaponResonance = null;
   state.pendingClearItemsKeyword = null;
+  state.pendingClearStages = false;
   state.pendingClearWeaponsKeyword = null;
   state.pendingClearMemoriesKeyword = null;
   state.lastItemDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
@@ -322,6 +408,17 @@ app.confirmDeleteOrClearItems = async () => {
       app.closeItemDeleteModal();
       app.openSuccessModal(app.translate('runtime.itemDeleteSuccess', { itemName, itemId }), app.translate('runtime.itemDeleteSuccessTitle'));
       await app.reloadItemManagementCurrentPage();
+      return;
+    }
+
+    if (state.pendingDeleteStage) {
+      const { stageId, stageName } = state.pendingDeleteStage;
+      await app.apiFetch(`/api/database-stages/selected/${stageId}`, {
+        method: 'DELETE',
+      });
+      app.closeItemDeleteModal();
+      app.openSuccessModal(app.translate('runtime.stageDeleteSuccess', { stageName, stageId }), app.translate('runtime.stageDeleteSuccessTitle'));
+      await app.reloadStageManagementCurrentPage();
       return;
     }
 
@@ -416,6 +513,20 @@ app.confirmDeleteOrClearItems = async () => {
       return;
     }
 
+    if (state.pendingClearStages) {
+      const payload = await app.apiFetch('/api/database-stages/selected', {
+        method: 'DELETE',
+      });
+      app.closeItemDeleteModal();
+      app.openSuccessModal(
+        app.translate('runtime.stageClearSuccess', { count: payload?.deleted_count ?? 0 }),
+        app.translate('runtime.stageClearSuccessTitle'),
+      );
+      state.stageManagementCurrentPage = 1;
+      await app.loadSelectedAccountStages(1);
+      return;
+    }
+
     if (state.pendingClearWeaponsKeyword !== null) {
       const keyword = state.pendingClearWeaponsKeyword;
       const payload = await app.apiFetch('/api/database-weapons/selected', {
@@ -462,6 +573,8 @@ app.confirmDeleteOrClearItems = async () => {
 
     const fallbackKey = state.pendingDeleteItem
       ? 'runtime.itemDeleteFailed'
+      : state.pendingDeleteStage
+        ? 'runtime.stageDeleteFailed'
       : state.pendingDeleteWeapon
         ? 'runtime.weaponDeleteFailed'
         : state.pendingDeleteMemory
@@ -472,6 +585,8 @@ app.confirmDeleteOrClearItems = async () => {
               ? 'runtime.characterManagementMaxAllFailed'
             : state.pendingDeleteWeaponResonance
               ? 'runtime.weaponResonanceDeleteFailed'
+              : state.pendingClearStages
+                ? 'runtime.stageClearFailed'
               : state.pendingClearWeaponsKeyword !== null
                 ? 'runtime.weaponClearFailed'
                 : state.pendingClearMemoriesKeyword !== null

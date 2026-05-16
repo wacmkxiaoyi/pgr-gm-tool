@@ -15,10 +15,12 @@ from fastapi.staticfiles import StaticFiles
 from backend.app.services.db_schema_runtime import init_database_schema_runtime
 from backend.app.services.database_accounts import DatabaseAccountsService
 from backend.app.services.database_control import database_health_check_loop
+from backend.app.services.database_repair import DatabaseRepairService
 from backend.app.services.player.player_equips_service import PlayerEquipsService
 from backend.app.services.player.player_characters_service import PlayerCharactersService
 from backend.app.services.player.player_items_service import PlayerItemsService
 from backend.app.services.player.player_profile_service import PlayerProfileService
+from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.server_control import ServerController, health_check_loop
 from backend.app.services.auth import get_session
 from backend.app.services.api_errors import AppError, convert_http_exception, get_error_message, normalize_locale
@@ -49,10 +51,12 @@ def init_app(app, settings):
     app.state.db_schema_runtime = init_database_schema_runtime(settings.server_version)
     app.state.pgr_server_controller = ServerController(settings)
     app.state.database_accounts_service = DatabaseAccountsService(settings, app.state.db_schema_runtime)
+    app.state.database_repair_service = DatabaseRepairService(settings, app.state.db_schema_runtime)
     app.state.player_items_service = PlayerItemsService(settings, app.state.db_schema_runtime)
     app.state.player_profile_service = PlayerProfileService(settings, app.state.player_items_service, app.state.db_schema_runtime)
     app.state.player_characters_service = PlayerCharactersService(settings, app.state.db_schema_runtime)
     app.state.player_equips_service = PlayerEquipsService(settings, app.state.db_schema_runtime)
+    app.state.player_stages_service = PlayerStagesService(settings, app.state.db_schema_runtime)
     app.state.stages_schema_available = app.state.db_schema_runtime.has_collection("stages")
     app.add_middleware(
         CORSMiddleware,

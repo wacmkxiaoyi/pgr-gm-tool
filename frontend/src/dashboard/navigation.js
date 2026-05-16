@@ -163,6 +163,12 @@ app.initNavigation = () => {
       if (tabId === 'database-item-management-section' && app.canAccessItemManagement()) {
         app.updateItemManagementAccess();
         void app.loadSelectedAccountItems(app.state.itemManagementCurrentPage);
+        return;
+      }
+
+      if (tabId === 'database-stage-management-section' && app.canAccessStageManagement()) {
+        app.updateStageManagementAccess();
+        void app.loadSelectedAccountStages(app.state.stageManagementCurrentPage);
       }
     });
   });

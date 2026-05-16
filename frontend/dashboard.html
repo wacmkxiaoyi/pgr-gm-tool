@@ -104,6 +104,7 @@
                 <button class="subnav-link" type="button" data-database-tab="database-equip-management-section" id="database-equip-management-subnav" aria-controls="database-equip-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
                 <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
+                <button class="subnav-link" type="button" data-database-tab="database-stage-management-section" id="database-stage-management-subnav" aria-controls="database-stage-management-section" aria-selected="false" disabled data-i18n="dashboard.stageManagementTab">通关战斗</button>
                 <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
               </nav>
 
@@ -113,7 +114,9 @@
                     <span class="section-tag">Database</span>
                     <h2 id="database-service-status-title" data-i18n="dashboard.databaseStatusTitle">数据库状态</h2>
                   </div>
-                  <small id="database-status-interval">距离下次健康检查: --</small>
+                  <div class="status-meta-list">
+                    <button class="status-action-button status-action-button-config" type="button" id="database-repair-button" data-i18n="dashboard.databaseRepair">修复数据</button>
+                  </div>
                 </div>
 
                 <div class="status-grid database-status-grid" id="database-status-grid"></div>
@@ -411,6 +414,61 @@
                 </div>
               </section>
 
+              <section class="database-panel database-item-panel database-tab-panel" id="database-stage-management-section" data-database-tab-panel="database-stage-management-section" aria-labelledby="database-stage-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div>
+                    <span class="section-tag">Stages</span>
+                    <h2 id="database-stage-management-title" data-i18n="dashboard.stageManagementTitle">通关战斗</h2>
+                  </div>
+                  <small class="database-stage-management-summary" id="database-stage-management-summary" data-i18n="dashboard.stageManagementUnavailable">仅在数据库服务正常且已选定用户时可查看</small>
+                </div>
+
+                <div class="database-player-empty" id="database-stage-management-state" data-i18n="dashboard.stageManagementChooseAccount">请先在账号管理中选定一个用户。</div>
+
+                <div class="database-item-management-shell" id="database-stage-management-shell" hidden>
+                  <div class="database-item-actions" id="database-stage-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="database-stage-clear" data-stage-management-action="clear" data-i18n="dashboard.stageManagementClear">清空战场</button>
+                    <div class="database-item-toolbar">
+                      <div class="database-item-search-shell" id="database-stage-search-shell">
+                        <input class="database-item-search-input" type="search" id="database-stage-search-input" data-i18n-placeholder="dashboard.stageManagementSearchPlaceholder" placeholder="输入战场 ID、名称或介绍后回车搜索">
+                      </div>
+                    </div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-stage-skip" data-stage-management-action="skip" data-i18n="dashboard.stageManagementSkip">跳过战斗</button>
+                  </div>
+
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll" id="database-stage-management-table-shell">
+                      <table class="accounts-table stage-management-table" aria-describedby="database-stage-management-summary">
+                        <colgroup>
+                          <col class="stage-management-col-id">
+                          <col class="stage-management-col-name">
+                          <col class="stage-management-col-description">
+                          <col class="stage-management-col-actions">
+                        </colgroup>
+                        <thead>
+                          <tr>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="stage_id" type="button"><span data-i18n="dashboard.stageManagementStageId">战场 ID</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.stageManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                            <th scope="col" data-i18n="dashboard.stageManagementDescription">介绍</th>
+                            <th scope="col" data-i18n="dashboard.stageManagementAction">操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="database-stage-management-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="database-stage-management-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="database-stage-management-pagination" data-i18n="dashboard.accountsPagination" data-i18n-params='{"page":0,"totalPages":0}'>第 0 / 0 页</span>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-stage-management-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="database-stage-management-jump-input">
+                        <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-stage-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
+                      </label>
+                      <button class="status-action-button status-action-button-log" type="button" id="database-stage-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               <section class="database-panel database-item-panel database-tab-panel" id="database-equip-management-section" data-database-tab-panel="database-equip-management-section" aria-labelledby="database-equip-management-title" hidden>
                 <div class="database-panel-header database-panel-header-compact database-item-panel-header">
                   <div>
@@ -697,6 +755,47 @@
       </section>
     </div>
 
+    <div class="shared-modal" hidden id="stage-skip-modal">
+      <div class="shared-modal-backdrop" data-stage-skip-modal-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="stage-skip-title" aria-describedby="stage-skip-description">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">+</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.stageSkipEyebrow">跳过战斗</p>
+            <h3 id="stage-skip-title" data-i18n="runtime.stageSkipTitle">选择要跳过的战场</h3>
+          </div>
+        </div>
+        <p id="stage-skip-description" class="shared-modal-message" data-i18n="runtime.stageSkipDescription">通过搜索和勾选选择未通关战场，可批量提交。</p>
+        <div class="database-item-controls item-add-search-shell">
+          <input class="database-item-search-input item-add-search-input" type="search" id="stage-skip-search-input" data-i18n-placeholder="runtime.stageSkipSearchPlaceholder" placeholder="输入战场 ID、名称或介绍进行搜索">
+        </div>
+        <div class="item-add-table-shell stage-skip-table-shell">
+          <table class="accounts-table item-add-table stage-skip-table">
+            <colgroup>
+              <col class="item-management-col-id">
+              <col class="stage-management-col-name">
+              <col class="stage-management-col-description">
+              <col class="weapon-add-col-select">
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="stage_id" type="button"><span data-i18n="dashboard.stageManagementStageId">战场 ID</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.stageManagementName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="dashboard.stageManagementDescription">介绍</th>
+                <th scope="col" data-i18n="runtime.stageSkipSelect">选择</th>
+              </tr>
+            </thead>
+            <tbody id="stage-skip-table-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="stage-skip-empty-state" data-i18n="dashboard.stageSkipEmpty">当前没有可跳过的战场。</div>
+        </div>
+        <div class="shared-modal-actions shared-modal-actions-split item-add-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-stage-skip-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="stage-skip-submit" data-i18n="runtime.stageSkipSubmit">确认跳过</button>
+        </div>
+      </section>
+    </div>
+
     <!-- Resonance effect selection modal -->
     <div class="shared-modal" hidden id="resonance-effect-modal">
       <div class="shared-modal-backdrop" data-resonance-effect-modal-close></div>
@@ -738,6 +837,8 @@
         <div class="equip-detail-tooltip" id="resonance-effect-tooltip" role="tooltip" hidden></div>
       </section>
     </div>
+
+    <div class="equip-detail-tooltip stage-description-tooltip" id="stage-description-tooltip" role="tooltip" hidden></div>
 
     <!-- Equipment detail card -->
     <div class="shared-modal" hidden id="equip-detail-modal">

@@ -14,12 +14,16 @@ from backend.app.apis.schemas import (
     AddEquipResponse,
     AddInventoryItemsRequest,
     AddInventoryItemsResponse,
+    AddStagesRequest,
+    AddStagesResponse,
     AppInfoResponse,
     CharacterAvailableListResponse,
     CharacterMemoryCandidatesResponse,
     CharacterWeaponCandidatesResponse,
     CharacterExtraInfoResponse,
     CharacterManagementListResponse,
+    DatabaseRepairResponse,
+    ClearStagesResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
     ClearEquipsRequest,
@@ -31,6 +35,7 @@ from backend.app.apis.schemas import (
     DeleteEquipResonanceResponse,
     DeleteEquipResponse,
     DeleteInventoryItemResponse,
+    DeleteStageResponse,
     HealthStatusResponse,
     InventoryListResponse,
     LoginRequest,
@@ -48,6 +53,8 @@ from backend.app.apis.schemas import (
     SwitchCharacterWeaponResponse,
     SessionResponse,
     ServerConfigResponse,
+    StageClearedIdsResponse,
+    StageListResponse,
     UpdateCharacterEvolutionRequest,
     UpdateCharacterEvolutionResponse,
     UpdateCharacterAwakenRequest,
@@ -111,6 +118,7 @@ from backend.app.services.player.player_profile import (
     get_player_portrait_name_map,
     get_player_portrait_url_map,
 )
+from backend.app.services.player.player_stages import get_stage_entries_map
 from backend.app.services.database_control import (
     get_database_health_snapshot,
     is_database_snapshot_healthy,
@@ -177,6 +185,7 @@ async def app_info(request: Request) -> AppInfoResponse:
         "character_skill_pool_entries_map": get_character_skill_pool_entries_map(),
         "character_grade_name_map": get_character_grade_name_map(),
         "character_trust_exp_map": get_character_trust_exp_map(),
+        "stage_entries_map": get_stage_entries_map(),
         "equip_resonance_map": get_equip_resonance_map(),
     })
 
@@ -201,6 +210,26 @@ async def database_status(request: Request) -> DatabaseHealthStatusResponse:
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     return DatabaseHealthStatusResponse.model_validate(snapshot)
+
+
+@router.post("/database-repair", response_model=DatabaseRepairResponse)
+async def repair_database(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DatabaseRepairResponse:
+    _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_accounts_access")
+
+    repair_service = request.app.state.database_repair_service
+    summary = await repair_service.repair_all_collections()
+    return DatabaseRepairResponse(
+        collections=summary.collections,
+        documents_scanned=summary.documents_scanned,
+        documents_updated=summary.documents_updated,
+    )
 
 
 @router.get("/database-accounts", response_model=AccountListResponse)
@@ -536,6 +565,81 @@ async def get_selected_database_items(
         sort_by=sort_by,
         sort_order=sort_order,
     )
+
+
+@router.get("/database-stages/selected", response_model=StageListResponse)
+async def get_selected_database_stages(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    sort_by: Literal["stage_id", "name"] = Query(default="stage_id"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
+    login_session_token: str | None = Cookie(default=None),
+) -> StageListResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    stages_service = request.app.state.player_stages_service
+
+    return await stages_service.list_stages(
+        selected_uid,
+        page=page,
+        page_size=page_size,
+        keyword=keyword,
+        sort_by=sort_by,
+        sort_order=sort_order,
+    )
+
+
+@router.get("/database-stages/selected/cleared-ids", response_model=StageClearedIdsResponse)
+async def get_selected_database_stage_cleared_ids(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> StageClearedIdsResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    stages_service = request.app.state.player_stages_service
+    return StageClearedIdsResponse(stage_ids=await stages_service.get_cleared_stage_ids(selected_uid))
+
+
+@router.post("/database-stages/selected", response_model=AddStagesResponse)
+async def add_selected_database_stages(
+    request: Request,
+    payload: AddStagesRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddStagesResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    stages_service = request.app.state.player_stages_service
+
+    requested_stage_ids = payload.stage_ids if isinstance(payload.stage_ids, list) else []
+    if not requested_stage_ids:
+        raise_http_error(422, "stage.add_empty")
+
+    stage_entries_map = get_stage_entries_map()
+    normalized_stage_ids: list[int] = []
+    for stage_id in requested_stage_ids:
+        normalized_stage_id = int(stage_id)
+        if normalized_stage_id not in stage_entries_map:
+            raise_http_error(422, "stage.add_stage_not_found", {"stage_id": normalized_stage_id})
+        normalized_stage_ids.append(normalized_stage_id)
+
+    return await stages_service.add_stages(selected_uid, normalized_stage_ids)
 
 
 @router.post("/database-items/selected", response_model=AddInventoryItemsResponse)
@@ -1795,6 +1899,45 @@ async def clear_selected_database_items(
 
     deleted_count = await items_service.clear_inventory_items_by_keyword(selected_uid, keyword)
     return ClearInventoryItemsResponse(keyword=keyword, deleted_count=deleted_count)
+
+
+@router.delete("/database-stages/selected/{stage_id}", response_model=DeleteStageResponse)
+async def delete_selected_database_stage(
+    stage_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteStageResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    stages_service = request.app.state.player_stages_service
+
+    result = await stages_service.delete_stage(selected_uid, stage_id)
+    if not result.deleted:
+        raise_http_error(404, "stage.not_found", {"stage_id": stage_id})
+
+    return result
+
+
+@router.api_route("/database-stages/selected", methods=["DELETE"], response_model=ClearStagesResponse)
+async def clear_selected_database_stages(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> ClearStagesResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_item_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    stages_service = request.app.state.player_stages_service
+
+    return await stages_service.clear_stages(selected_uid)
 
 
 @router.post("/server-control/start")

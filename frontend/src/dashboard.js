@@ -19,11 +19,13 @@ const rerenderLocaleSensitiveViews = () => {
   renderDashboardStaticState();
   app.updateNextHealthCheckLabel();
   app.updateDatabaseHealthCheckLabel();
+  app.updateDatabaseRepairButton?.();
   app.renderSelectedAccountBadge();
   app.updateDatabaseAccountsAccess();
   app.updatePlayerProfileAccess();
   app.updateCharacterManagementAccess();
   app.updateItemManagementAccess();
+  app.updateStageManagementAccess();
   app.updateWeaponManagementAccess();
   app.updateMemoryManagementAccess();
   app.rerenderCharacterManagementLocale?.();
@@ -31,6 +33,7 @@ const rerenderLocaleSensitiveViews = () => {
   app.rerenderCharacterWeaponSwitchLocale?.();
   app.rerenderCharacterMemorySwitchLocale?.();
   app.rerenderItemManagementLocale?.();
+  app.rerenderStageManagementLocale?.();
   app.rerenderWeaponManagementLocale?.();
   app.rerenderMemoryManagementLocale?.();
   app.updateStatusActionButtons({ controls: app.getControlState(state.serverControlState), sections: state.latestStatusSnapshot?.sections ?? [] });

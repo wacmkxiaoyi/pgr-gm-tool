@@ -119,6 +119,45 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+.database-status-card-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.database-status-card-header strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.database-status-card-header .status-badge {
+  margin-left: 0;
+  justify-self: end;
+}
+
+.database-status-card-interval {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .database-status-card-header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .database-status-card-header strong,
+  .database-status-card-header .status-badge,
+  .database-status-card-interval {
+    justify-self: center;
+    text-align: center;
+  }
+}
+
 .database-accounts-panel {
   scroll-margin-top: 184px;
 }
@@ -273,6 +312,11 @@
 
 .item-management-table {
   min-width: 640px;
+  table-layout: fixed;
+}
+
+.stage-management-table {
+  min-width: 860px;
   table-layout: fixed;
 }
 
@@ -590,6 +634,34 @@
   width: 140px;
 }
 
+.stage-management-col-id {
+  width: 120px;
+}
+
+.stage-management-col-name {
+  width: 220px;
+}
+
+.stage-management-col-description {
+  width: 100%;
+}
+
+.stage-management-col-actions {
+  width: 140px;
+}
+
+.stage-management-description {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-management-description[data-stage-tooltip-text] {
+  cursor: help;
+}
+
 .database-item-pagination {
   justify-content: flex-end;
 }
@@ -778,6 +850,47 @@ button.character-equip-switch-current-card:focus-visible {
 
 .item-add-table {
   min-width: 100%;
+}
+
+.stage-skip-table-shell {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.stage-skip-table {
+  min-width: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.stage-skip-table col.item-management-col-id {
+  width: 108px;
+}
+
+.stage-skip-table col.stage-management-col-name {
+  width: 200px;
+}
+
+.stage-skip-table col.weapon-add-col-select {
+  width: 80px;
+}
+
+.stage-skip-table td {
+  vertical-align: top;
+}
+
+.stage-skip-table th:last-child,
+.stage-skip-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.stage-skip-description {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.5;
 }
 
 .item-add-table tbody td:last-child {
@@ -2719,6 +2832,10 @@ button.character-equip-switch-current-card:focus-visible {
   overflow-wrap: break-word;
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.32);
   pointer-events: none;
+}
+
+.stage-description-tooltip {
+  z-index: 1201;
 }
 
 /* ── Star tier effects ── */

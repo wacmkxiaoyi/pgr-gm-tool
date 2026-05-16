@@ -56,12 +56,15 @@ app.setSelectedAccountUid = (uid) => {
     app.resetMemoryManagementView();
     app.clearItemManagementKeyword();
     app.resetItemManagementView();
+    app.clearStageManagementKeyword();
+    app.resetStageManagementView();
   }
   app.updatePlayerProfileAccess();
   app.updateCharacterManagementAccess();
   app.updateWeaponManagementAccess();
   app.updateMemoryManagementAccess();
   app.updateItemManagementAccess();
+  app.updateStageManagementAccess();
   if (app.isDatabasePlayerProfileSectionActive() && app.canAccessPlayerProfile()) {
     void app.loadSelectedPlayerProfile();
   }
@@ -76,6 +79,9 @@ app.setSelectedAccountUid = (uid) => {
   }
   if (app.isDatabaseItemManagementSectionActive() && app.canAccessItemManagement()) {
     void app.loadSelectedAccountItems(1);
+  }
+  if (app.isDatabaseStageManagementSectionActive() && app.canAccessStageManagement()) {
+    void app.loadSelectedAccountStages(1);
   }
 };
 
