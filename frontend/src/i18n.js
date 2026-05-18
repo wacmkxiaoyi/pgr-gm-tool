@@ -36,7 +36,7 @@ const messages = {
       switcherLabel: '语言',
     },
     dashboard: {
-      title: '游戏服务器管理',
+      title: 'WACMK 战双帕弥什 GM 工具',
       sidebarAria: '后台导航',
       sidebarSubtitle: '管理后台',
       sidebarServerManagement: '游戏服务器管理',
@@ -791,7 +791,7 @@ const messages = {
       dontShowAgain: "Don't show again",
     },
     login: {
-      title: 'Sign In',
+      title: 'WACMK PGR GM Tool',
       username: 'Username',
       usernamePlaceholder: 'Enter username',
       password: 'Password',

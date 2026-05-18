@@ -302,6 +302,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
     app.updateWeaponManagementAccess(payload);
     app.updateMemoryManagementAccess(payload);
     app.updateItemManagementAccess(payload);
+    app.updateStageManagementAccess(payload);
     return;
   }
 
@@ -311,6 +312,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
   app.updateWeaponManagementAccess(payload);
   app.updateMemoryManagementAccess(payload);
   app.updateItemManagementAccess(payload);
+  app.updateStageManagementAccess(payload);
 };
 
 app.handleAccountActionClick = (event) => {

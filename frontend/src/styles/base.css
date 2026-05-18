@@ -41,6 +41,17 @@ body {
   position: relative;
 }
 
+body.auth-page {
+  background:
+    linear-gradient(145deg, rgba(246, 248, 255, 0.36), rgba(233, 237, 255, 0.46)),
+    radial-gradient(circle at 12% 18%, rgba(255, 79, 160, 0.16), transparent 0 24%),
+    radial-gradient(circle at 84% 16%, rgba(56, 189, 248, 0.18), transparent 0 20%),
+    radial-gradient(circle at 78% 84%, rgba(124, 92, 246, 0.16), transparent 0 22%),
+    radial-gradient(circle at 48% 48%, rgba(245, 158, 11, 0.1), transparent 0 18%),
+    url("../../assets/loginbg.jpg") center / cover no-repeat;
+  background-attachment: fixed;
+}
+
 .dashboard-shell,
 .status-shell {
   position: relative;

@@ -12,6 +12,10 @@
   animation: drift 18s ease-in-out infinite;
 }
 
+body.auth-page .bg-aurora {
+  opacity: 0.78;
+}
+
 .bg-aurora::before,
 .bg-aurora::after {
   content: "";
@@ -66,4 +70,8 @@
   background-size: 84px 84px;
   mask-image: radial-gradient(circle at center, black 36%, transparent 84%);
   animation: gridMove 22s linear infinite;
+}
+
+body.auth-page .bg-grid {
+  opacity: 0.18;
 }
