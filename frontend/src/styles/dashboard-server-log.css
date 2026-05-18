@@ -84,6 +84,150 @@
   word-break: break-word;
 }
 
+.server-log-line {
+  display: block;
+}
+
+.server-log-line + .server-log-line {
+  margin-top: 2px;
+}
+
+.server-log-line.is-blank {
+  min-height: calc(13px * 1.65);
+}
+
+.server-log-time,
+.server-log-level,
+.server-log-source,
+.server-log-separator {
+  margin-right: 0.08em;
+}
+
+.server-log-time {
+  color: rgba(148, 163, 184, 0.84);
+}
+
+.server-log-level,
+.server-log-source {
+  font-weight: 700;
+}
+
+.server-log-separator {
+  color: rgba(203, 213, 225, 0.72);
+}
+
+.server-log-message {
+  color: #dbe7ff;
+}
+
+.server-log-line.severity-debug {
+  opacity: 0.82;
+}
+
+.server-log-line.severity-debug .server-log-message {
+  color: #a8bdd8;
+}
+
+.server-log-line.severity-info .server-log-message {
+  color: #dbeafe;
+}
+
+.server-log-line.severity-warn .server-log-level,
+.server-log-line.severity-warn .server-log-source,
+.server-log-line.severity-warn .server-log-message {
+  font-weight: 600;
+}
+
+.server-log-line.severity-error .server-log-level,
+.server-log-line.severity-error .server-log-source,
+.server-log-line.severity-error .server-log-message {
+  font-weight: 700;
+}
+
+.server-log-line.severity-error .server-log-message {
+  text-shadow: 0 0 16px rgba(239, 68, 68, 0.14);
+}
+
+.server-log-line.severity-generic .server-log-level,
+.server-log-line.severity-generic .server-log-source {
+  color: #cbd5f5;
+}
+
+.server-log-line.severity-generic .server-log-message {
+  color: #dbe7ff;
+}
+
+.server-log-line.severity-info.source-server .server-log-level,
+.server-log-line.severity-info.source-server .server-log-source,
+.server-log-line.severity-info.source-server .server-log-message {
+  color: #67e8f9;
+}
+
+.server-log-line.severity-info.source-sdkserver .server-log-level,
+.server-log-line.severity-info.source-sdkserver .server-log-source,
+.server-log-line.severity-info.source-sdkserver .server-log-message {
+  color: #38bdf8;
+}
+
+.server-log-line.severity-warn.source-server .server-log-level,
+.server-log-line.severity-warn.source-server .server-log-source,
+.server-log-line.severity-warn.source-server .server-log-message {
+  color: #facc15;
+}
+
+.server-log-line.severity-warn.source-sdkserver .server-log-level,
+.server-log-line.severity-warn.source-sdkserver .server-log-source,
+.server-log-line.severity-warn.source-sdkserver .server-log-message {
+  color: #eab308;
+}
+
+.server-log-line.severity-error.source-server .server-log-level,
+.server-log-line.severity-error.source-server .server-log-source,
+.server-log-line.severity-error.source-server .server-log-message {
+  color: #ef4444;
+}
+
+.server-log-line.severity-error.source-sdkserver .server-log-level,
+.server-log-line.severity-error.source-sdkserver .server-log-source,
+.server-log-line.severity-error.source-sdkserver .server-log-message {
+  color: #f43f5e;
+}
+
+.server-log-line.severity-debug.source-server .server-log-level,
+.server-log-line.severity-debug.source-server .server-log-source,
+.server-log-line.severity-debug.source-server .server-log-message {
+  color: #94a3b8;
+}
+
+.server-log-line.severity-debug.source-sdkserver .server-log-level,
+.server-log-line.severity-debug.source-sdkserver .server-log-source,
+.server-log-line.severity-debug.source-sdkserver .server-log-message {
+  color: #93c5fd;
+}
+
+.server-log-line.source-generic .server-log-source {
+  color: #c4b5fd;
+}
+
+.server-log-line.source-generic .server-log-level {
+  color: #f8fafc;
+}
+
+.server-log-line.severity-warn.source-generic .server-log-level,
+.server-log-line.severity-warn.source-generic .server-log-message {
+  color: #fbbf24;
+}
+
+.server-log-line.severity-error.source-generic .server-log-level,
+.server-log-line.severity-error.source-generic .server-log-message {
+  color: #fb7185;
+}
+
+.server-log-line.severity-debug.source-generic .server-log-level,
+.server-log-line.severity-debug.source-generic .server-log-message {
+  color: #a5b4fc;
+}
+
 .server-log-actions {
   justify-content: space-between;
 }

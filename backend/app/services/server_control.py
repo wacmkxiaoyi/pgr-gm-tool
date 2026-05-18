@@ -34,6 +34,35 @@ LOG_POLL_INTERVAL_SECONDS = 0.2
 LOG_KEEPALIVE_INTERVAL_SECONDS = 1
 LOG_SNAPSHOT_MAX_BYTES = 64 * 1024
 LOG_RETRY_INTERVAL_MS = 3000
+WINDOWS_EXECUTABLE_SUFFIXES = {'.exe'}
+
+
+def _is_windows() -> bool:
+    return os.name == 'nt'
+
+
+def _is_supported_server_binary(path: Path) -> bool:
+    if not path.exists() or not path.is_file():
+        return False
+
+    if _is_windows():
+        return path.suffix.casefold() in WINDOWS_EXECUTABLE_SUFFIXES
+
+    return os.access(path, os.X_OK)
+
+
+def _build_popen_kwargs() -> dict[str, object]:
+    if _is_windows():
+        return {'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP}
+
+    return {'start_new_session': True}
+
+
+def _safe_resolve(path: Path) -> Path:
+    try:
+        return path.resolve(strict=False)
+    except OSError:
+        return path
 
 
 def _ui_text_token(key: str, details: dict[str, object] | None = None) -> str:
@@ -301,7 +330,7 @@ class ServerController:
 
     def controls_visible(self) -> bool:
         path = self.server_binary_path
-        return path.exists() and path.is_file() and os.access(path, os.X_OK)
+        return _is_supported_server_binary(path)
 
     def executable_exists(self) -> bool:
         path = self.server_binary_path
@@ -315,22 +344,24 @@ class ServerController:
         return any(True for _ in self.iter_matching_processes())
 
     def iter_matching_processes(self) -> list[psutil.Process]:
+        current_pid = os.getpid()
         target_name = self.process_name.casefold()
+        target_path = _safe_resolve(self.server_binary_path)
         matched_processes: list[psutil.Process] = []
-        for process in psutil.process_iter(["name", "exe", "cmdline"]):
+        for process in psutil.process_iter(["pid", "name", "exe"]):
             with contextlib.suppress(psutil.Error, OSError, ValueError):
-                process_name = (process.info.get("name") or "").casefold()
-                if process_name == target_name:
-                    matched_processes.append(process)
+                if process.pid == current_pid:
                     continue
 
                 exe_path = process.info.get("exe")
-                if isinstance(exe_path, str) and Path(exe_path).name.casefold() == target_name:
-                    matched_processes.append(process)
-                    continue
+                if isinstance(exe_path, str) and exe_path:
+                    process_binary_path = _safe_resolve(Path(exe_path))
+                    if process_binary_path == target_path:
+                        matched_processes.append(process)
+                        continue
 
-                cmdline = process.info.get("cmdline") or []
-                if any(Path(part).name.casefold() == target_name for part in cmdline if isinstance(part, str) and part):
+                process_name = (process.info.get("name") or "").casefold()
+                if process_name == target_name:
                     matched_processes.append(process)
 
         return matched_processes
@@ -404,7 +435,7 @@ class ServerController:
             stdout=runtime_log_handle,
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
-            start_new_session=True,
+            **_build_popen_kwargs(),
         )
 
     def _prepare_runtime_log_file(self) -> TextIOWrapper:

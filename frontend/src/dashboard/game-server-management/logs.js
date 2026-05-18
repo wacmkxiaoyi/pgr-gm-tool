@@ -2,6 +2,7 @@ import { app } from '../shared.js';
 
 const { dom, state } = app;
 const { logButton, logModal, logModalContent, logModalStatus, logModalPath, logModalCloseTargets, logModalClearButton } = dom;
+const logLinePattern = /^\[(.*?)\]\[(.*?)\]\[(.*?)\]:\s?(.*)$/;
 
 app.setLogConnectionState = (label, stateClass = '') => {
   if (!(logModalStatus instanceof HTMLElement)) {
@@ -34,12 +35,100 @@ app.scrollLogToBottom = () => {
   logModalContent.scrollTop = logModalContent.scrollHeight;
 };
 
+app.classifyLogSeverity = (level) => {
+  const normalizedLevel = typeof level === 'string' ? level.toUpperCase() : '';
+
+  if (normalizedLevel === 'ERROR' || normalizedLevel === 'FATAL') {
+    return 'severity-error';
+  }
+
+  if (normalizedLevel === 'WARN' || normalizedLevel === 'WARNING') {
+    return 'severity-warn';
+  }
+
+  if (normalizedLevel === 'INFO') {
+    return 'severity-info';
+  }
+
+  if (normalizedLevel === 'DEBUG' || normalizedLevel === 'TRACE') {
+    return 'severity-debug';
+  }
+
+  return 'severity-generic';
+};
+
+app.classifyLogSource = (source) => {
+  const normalizedSource = typeof source === 'string' ? source.trim() : '';
+
+  if (normalizedSource === 'Server') {
+    return 'source-server';
+  }
+
+  if (normalizedSource === 'SDKServer') {
+    return 'source-sdkserver';
+  }
+
+  return 'source-generic';
+};
+
+app.createLogPart = (className, text) => {
+  const part = document.createElement('span');
+  part.className = className;
+  part.textContent = text;
+  return part;
+};
+
+app.renderLogLine = (line) => {
+  const row = document.createElement('span');
+  row.className = 'server-log-line severity-generic source-generic';
+
+  if (typeof line !== 'string' || line.length === 0) {
+    row.classList.add('is-blank');
+    row.textContent = ' ';
+    return row;
+  }
+
+  const match = line.match(logLinePattern);
+  if (!match) {
+    row.classList.add('is-plain');
+    row.appendChild(app.createLogPart('server-log-message', line));
+    return row;
+  }
+
+  const [, timestamp, level, source, message] = match;
+  row.className = `server-log-line ${app.classifyLogSeverity(level)} ${app.classifyLogSource(source)}`;
+  row.appendChild(app.createLogPart('server-log-time', `[${timestamp}]`));
+  row.appendChild(app.createLogPart('server-log-level', `[${level}]`));
+  row.appendChild(app.createLogPart('server-log-source', `[${source}]`));
+  row.appendChild(app.createLogPart('server-log-separator', ': '));
+  row.appendChild(app.createLogPart('server-log-message', message));
+  return row;
+};
+
+app.renderLogContent = (text) => {
+  if (!(logModalContent instanceof HTMLElement)) {
+    return;
+  }
+
+  const content = typeof text === 'string' && text ? text : app.translate('runtime.serverLogEmpty');
+  state.logText = content;
+
+  const fragment = document.createDocumentFragment();
+  const lines = content.split(/\r?\n/);
+
+  lines.forEach((line) => {
+    fragment.appendChild(app.renderLogLine(line));
+  });
+
+  logModalContent.replaceChildren(fragment);
+};
+
 app.replaceLogContent = (text) => {
   if (!(logModalContent instanceof HTMLElement)) {
     return;
   }
 
-  logModalContent.textContent = typeof text === 'string' && text ? text : app.translate('runtime.serverLogEmpty');
+  app.renderLogContent(text);
   window.requestAnimationFrame(app.scrollLogToBottom);
 };
 
@@ -49,8 +138,11 @@ app.appendLogContent = (text) => {
   }
 
   const shouldStick = app.isLogPinnedToBottom();
-  const hadPlaceholder = logModalContent.textContent === app.translate('runtime.serverLogInitialContent') || logModalContent.textContent === app.translate('runtime.serverLogEmpty');
-  logModalContent.textContent = hadPlaceholder ? text : `${logModalContent.textContent}${text}`;
+  const currentContent = typeof state.logText === 'string' ? state.logText : '';
+  const initialPlaceholder = app.translate('runtime.serverLogInitialContent');
+  const emptyPlaceholder = app.translate('runtime.serverLogEmpty');
+  const hadPlaceholder = currentContent === initialPlaceholder || currentContent === emptyPlaceholder || !currentContent;
+  app.renderLogContent(hadPlaceholder ? text : `${currentContent}${text}`);
 
   if (shouldStick) {
     window.requestAnimationFrame(app.scrollLogToBottom);
@@ -68,6 +160,7 @@ app.closeLogStream = () => {
 app.closeLogModal = () => {
   app.closeLogStream();
   state.logStreamEnded = false;
+  state.logText = '';
 
   if (!app.isLogModalOpen()) {
     return;

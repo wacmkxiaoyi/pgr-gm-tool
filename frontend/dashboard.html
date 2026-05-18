@@ -586,7 +586,10 @@
           <span class="server-config-status" id="server-config-status" data-i18n="runtime.configModalIdle">未加载</span>
         </div>
         <p class="server-config-path" id="server-config-path">配置文件: --</p>
-        <p class="server-config-description" id="server-config-description" data-i18n="runtime.configModalDescription">仅在服务器未启动时允许保存，保存前会校验 JSON 语法。</p>
+        <div class="server-config-toolbar">
+          <p class="server-config-description" id="server-config-description" data-i18n="runtime.configModalDescription">仅在服务器未启动时允许保存，保存前会校验 JSON 语法。</p>
+          <button type="button" class="shared-modal-button server-config-reload-button" data-server-config-reload data-i18n="runtime.configReload">重新加载</button>
+        </div>
         <div class="server-config-editor-shell">
           <div class="server-config-editor-gutter" id="server-config-editor-gutter" aria-hidden="true"></div>
           <div class="server-config-editor-surface">
@@ -606,7 +609,6 @@
         </div>
         <p class="server-config-feedback" id="server-config-feedback" data-i18n="dashboard.configEditorEmptyHint">点击“修改配置”后加载 config.json。</p>
         <div class="shared-modal-actions server-config-actions">
-          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-server-config-reload data-i18n="runtime.configReload">重新加载</button>
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-server-config-modal-close data-i18n="common.close">关闭</button>
           <button type="button" class="shared-modal-button" data-server-config-save data-i18n="runtime.configSave">保存</button>
         </div>

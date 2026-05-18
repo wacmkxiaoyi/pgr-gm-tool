@@ -72,12 +72,49 @@
 }
 
 .server-config-path,
-.server-config-description,
 .server-config-feedback {
   margin: 16px 0 0;
   color: #66758f;
   font-size: 13px;
   line-height: 1.65;
+}
+
+.server-config-path {
+  margin-top: 20px;
+}
+
+.server-config-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.server-config-description {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: #66758f;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.server-config-reload-button {
+  min-width: 108px;
+  margin-left: auto;
+  flex: none;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.98), rgba(6, 182, 212, 0.96));
+  box-shadow: 0 14px 28px rgba(6, 182, 212, 0.24);
+}
+
+.server-config-reload-button:hover {
+  box-shadow: 0 18px 34px rgba(6, 182, 212, 0.3);
+}
+
+.server-config-reload-button:focus-visible {
+  box-shadow:
+    0 0 0 4px rgba(34, 211, 238, 0.2),
+    0 18px 34px rgba(6, 182, 212, 0.3);
 }
 
 .server-config-editor-shell {
