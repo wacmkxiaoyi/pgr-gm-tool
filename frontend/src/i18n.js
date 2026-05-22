@@ -41,7 +41,7 @@ const messages = {
       sidebarSubtitle: '管理后台',
       sidebarServerManagement: '游戏服务器管理',
       sidebarDatabaseManagement: '用户数据管理',
-      sidebarHealthy: 'Power by XiaoYi@Wacmk',
+      sidebarHealthy: 'Power by XiaoYi@WACMK',
       logout: '退出登录',
       logoutPending: '正在退出...',
       serverStop: '停止',
@@ -811,7 +811,7 @@ const messages = {
       sidebarSubtitle: 'Admin dashboard',
       sidebarServerManagement: 'Game Server Management',
       sidebarDatabaseManagement: 'User Data Management',
-      sidebarHealthy: 'Power by XiaoYi@Wacmk',
+      sidebarHealthy: 'Power by XiaoYi@WACMK',
       logout: 'Sign Out',
       logoutPending: 'Signing out...',
       serverStop: 'Stop',
@@ -1645,23 +1645,63 @@ export const applyI18n = (root = document, locale = getLocale()) => {
   switchers.forEach((switcher) => {
     if (switcher instanceof HTMLSelectElement) {
       switcher.value = normalizeLocale(locale);
+      return;
     }
+
+    const normalizedLocale = normalizeLocale(locale);
+    switcher.querySelectorAll('[data-locale-option]').forEach((option) => {
+      if (!(option instanceof HTMLElement)) {
+        return;
+      }
+
+      const isActive = normalizeLocale(option.dataset.localeOption) === normalizedLocale;
+      option.classList.toggle('is-active', isActive);
+      option.setAttribute('aria-pressed', String(isActive));
+    });
   });
 };
 
 export const initLocaleControls = (root = document, onChange) => {
   root.querySelectorAll('[data-locale-switcher]').forEach((switcher) => {
-    switcher.addEventListener('change', (event) => {
-      const target = event.currentTarget;
-      if (!(target instanceof HTMLSelectElement)) {
-        return;
-      }
+    if (!(switcher instanceof HTMLElement)) {
+      return;
+    }
 
-      const locale = setLocale(target.value);
-      applyI18n(document, locale);
-      if (typeof onChange === 'function') {
-        onChange(locale);
-      }
+    if (switcher instanceof HTMLSelectElement) {
+      switcher.addEventListener('change', (event) => {
+        const target = event.currentTarget;
+        if (!(target instanceof HTMLSelectElement)) {
+          return;
+        }
+
+        const locale = setLocale(target.value);
+        applyI18n(document, locale);
+        if (typeof onChange === 'function') {
+          onChange(locale);
+        }
+      });
+
+      return;
+    }
+
+    switcher.querySelectorAll('[data-locale-option]').forEach((option) => {
+      option.addEventListener('click', (event) => {
+        const target = event.currentTarget;
+        if (!(target instanceof HTMLElement)) {
+          return;
+        }
+
+        const nextLocale = target.dataset.localeOption;
+        if (!nextLocale) {
+          return;
+        }
+
+        const locale = setLocale(nextLocale);
+        applyI18n(document, locale);
+        if (typeof onChange === 'function') {
+          onChange(locale);
+        }
+      });
     });
   });
 };

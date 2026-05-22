@@ -13,6 +13,13 @@
     <div class="bg-grid" aria-hidden="true"></div>
 
     <main class="auth-shell">
+      <div class="auth-toolbar">
+        <div class="language-switcher" data-locale-switcher data-i18n-aria-label="login.switcherLabel" aria-label="Language switcher" role="group">
+          <button type="button" class="language-option" data-locale-option="zh-CN">中文</button>
+          <span class="language-divider" aria-hidden="true">|</span>
+          <button type="button" class="language-option" data-locale-option="en-US">EN</button>
+        </div>
+      </div>
       <section class="login-panel" aria-labelledby="login-title">
         <div class="login-card">
           <div class="login-header">
@@ -34,14 +41,6 @@
             <button type="submit" data-i18n="login.submit">登录</button>
             <p class="hint" aria-live="polite"></p>
           </form>
-
-          <div class="locale-switcher-shell">
-            <label class="locale-switcher-label" for="login-locale-switcher" data-i18n="login.switcherLabel">语言</label>
-            <select class="locale-switcher" id="login-locale-switcher" data-locale-switcher data-i18n-aria-label="login.switcherLabel" aria-label="Language switcher">
-              <option value="zh-CN" data-i18n="common.localeZh">中文</option>
-              <option value="en-US" data-i18n="common.localeEn">English</option>
-            </select>
-          </div>
         </div>
       </section>
     </main>
