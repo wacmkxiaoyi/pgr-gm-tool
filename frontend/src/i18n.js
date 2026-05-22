@@ -791,7 +791,7 @@ const messages = {
       dontShowAgain: "Don't show again",
     },
     login: {
-      title: 'WACMK PGR GM Tool',
+      title: 'Login',
       username: 'Username',
       usernamePlaceholder: 'Enter username',
       password: 'Password',
