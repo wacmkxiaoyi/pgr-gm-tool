@@ -7,14 +7,13 @@ from typing import Any, Literal
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AddStagesResponse, ClearStagesResponse, DeleteStageResponse, StageListResponse, StageRecord
+from backend.app.db.models.player_stages import STAGES_COLLECTION_NAME, STAGES_SCHEMA_PATH
 from backend.app.services.db_schema_runtime import CompiledCollectionSchema, DatabaseSchemaRuntime
+from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.player_stages import get_stage_entries_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, normalize_sort_text, parse_optional_int
 
 
-STAGES_COLLECTION_NAME = 'stages'
-STAGES_PAGE_SIZE = 10
-STAGES_SCHEMA_PATH = 'stages'
 StagesSortField = Literal['stage_id', 'name']
 StagesSortOrder = Literal['asc', 'desc']
 
@@ -75,13 +74,13 @@ class PlayerStagesService:
         self,
         uid: int,
         page: int = 1,
-        page_size: int = STAGES_PAGE_SIZE,
+        page_size: int = DEFAULT_LIST_PAGE_SIZE,
         keyword: str | None = None,
         sort_by: StagesSortField = 'stage_id',
         sort_order: StagesSortOrder = 'asc',
     ) -> StageListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = STAGES_PAGE_SIZE if page_size <= 0 else min(int(page_size), STAGES_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
         document = await self._load_stage_document(uid)
         raw_stages = self._sanitize_raw_stages(document.get('stages') if isinstance(document, dict) else [])

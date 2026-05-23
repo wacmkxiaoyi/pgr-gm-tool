@@ -11,7 +11,10 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AddEquipResponse, CharacterMemoryCandidatesRecord, CharacterWeaponCandidatesRecord, ClearEquipsResponse, MemoryExtraInfoRecord, EquipListResponse, SwitchCharacterMemoryRequest, SwitchCharacterMemoryResponse, SwitchCharacterWeaponRequest, SwitchCharacterWeaponResponse, UpdateEquipRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
+from backend.app.db.models.player_characters import CHARACTER_LIST_SCHEMA_PATH, CHARACTERS_COLLECTION_NAME, EQUIPS_SCHEMA_PATH, FASHIONS_SCHEMA_PATH
+from backend.app.db.models.player_equips import EQUIP_ITEM_SCHEMA_PATH
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
+from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.equips import (
     get_breakthrough_levelup_template_map,
@@ -41,15 +44,9 @@ from backend.app.services.player.equips.weapon import (
     get_weapon_type_id_map,
     get_weapon_type_name_map,
 )
-CHARACTERS_COLLECTION_NAME = "characters"
-ITEM_PAGE_SIZE = 10
 WeaponSortField = Literal["name", "character", "type", "star", "enhancement"]
 MemorySortField = Literal["name", "character", "position", "star", "enhancement"]
 WeaponSortOrder = Literal["asc", "desc"]
-CHARACTER_LIST_SCHEMA_PATH = "characters"
-FASHIONS_SCHEMA_PATH = "fashions"
-EQUIPS_SCHEMA_PATH = "equips"
-EQUIP_ITEM_SCHEMA_PATH = "equips.0"
 
 
 def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]) -> list[int]:
@@ -2026,13 +2023,13 @@ class PlayerEquipsService:
         self,
         uid: int,
         page: int = 1,
-        page_size: int = ITEM_PAGE_SIZE,
+        page_size: int = DEFAULT_LIST_PAGE_SIZE,
         keyword: str | None = None,
         sort_by: WeaponSortField = "character",
         sort_order: WeaponSortOrder = "asc",
     ) -> EquipListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 
@@ -2190,13 +2187,13 @@ class PlayerEquipsService:
         self,
         uid: int,
         page: int = 1,
-        page_size: int = ITEM_PAGE_SIZE,
+        page_size: int = DEFAULT_LIST_PAGE_SIZE,
         keyword: str | None = None,
         sort_by: MemorySortField = "character",
         sort_order: WeaponSortOrder = "asc",
     ) -> EquipListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 

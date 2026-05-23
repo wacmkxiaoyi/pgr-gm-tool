@@ -11,19 +11,17 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import InventoryItemRecord, InventoryListResponse
+from backend.app.db.models.player_items import INVENTORY_COLLECTION_NAME, INVENTORY_ITEMS_SCHEMA_PATH, INVENTORY_ITEM_SCHEMA_PATH
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
+from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.player_items import get_item_name_map
 from backend.app.services.player.utils import normalize_search_keyword, parse_optional_int
 
 
-INVENTORY_COLLECTION_NAME = "inventory"
-ITEM_PAGE_SIZE = 10
 EXCLUDED_ITEM_ID_MIN = 1
 EXCLUDED_ITEM_ID_MAX = 18
 InventorySortField = Literal["item_id", "name", "quantity"]
 InventorySortOrder = Literal["asc", "desc"]
-INVENTORY_ITEMS_SCHEMA_PATH = "items"
-INVENTORY_ITEM_SCHEMA_PATH = "items.0"
 
 
 def _is_item_id_protected(item_id: int) -> bool:
@@ -93,13 +91,13 @@ class PlayerItemsService:
         self,
         uid: int,
         page: int = 1,
-        page_size: int = ITEM_PAGE_SIZE,
+        page_size: int = DEFAULT_LIST_PAGE_SIZE,
         keyword: str | None = None,
         sort_by: InventorySortField = "item_id",
         sort_order: InventorySortOrder = "asc",
     ) -> InventoryListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 

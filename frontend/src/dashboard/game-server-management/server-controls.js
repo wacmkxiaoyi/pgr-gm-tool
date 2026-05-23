@@ -44,7 +44,7 @@ app.startServer = async () => {
 
   startButton.disabled = true;
   startButton.textContent = app.translate('runtime.serverStarting');
-  stopButton.disabled = true;
+  stopButton.disabled = false;
   if (logButton instanceof HTMLButtonElement) {
     logButton.disabled = true;
   }

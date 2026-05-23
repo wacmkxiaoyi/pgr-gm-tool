@@ -11,9 +11,12 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AddCharacterResponse, CharacterAvailableListResponse, CharacterDetailMemoryRecord, CharacterDetailWeaponRecord, CharacterEquipRecord, CharacterEquipResonanceRecord, CharacterExtraInfoRecord, CharacterFashionRecord, CharacterManagementItemRecord, CharacterManagementListResponse, CharacterSkillInfoRecord, CharacterWeaponOverrunRecord, MaxAllCharactersResponse, MaxCharacterResponse, UpdateCharacterAwakenResponse, UpdateCharacterFashionResponse, UpdateCharacterGradeResponse, UpdateCharacterLevelupResponse, UpdateCharacterResponse, UpdateCharacterSkillResponse, UpdateCharacterTrustResponse
+from backend.app.db.models.player_characters import CHARACTER_LIST_SCHEMA_PATH, CHARACTERS_COLLECTION_NAME, EQUIPS_SCHEMA_PATH, FASHION_ITEM_SCHEMA_PATH, FASHIONS_SCHEMA_PATH
+from backend.app.db.models.player_profile import PLAYER_COLLECTION_NAME
 from backend.app.services.db_schema_runtime import CompiledCollectionSchema, DatabaseSchemaRuntime
 from backend.app.services.player.equips import get_equip_descriptions_map, get_equip_site_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map
+from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.levelup_template import get_level_exp_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.player_characters import (
@@ -33,15 +36,6 @@ from backend.app.services.player.player_characters import (
     get_character_trust_exp_map,
     get_character_default_weapon_map
 )
-
-
-CHARACTERS_COLLECTION_NAME = "characters"
-PLAYER_COLLECTION_NAME = "players"
-ITEM_PAGE_SIZE = 10
-CHARACTER_LIST_SCHEMA_PATH = "characters"
-FASHIONS_SCHEMA_PATH = "fashions"
-FASHION_ITEM_SCHEMA_PATH = "fashions.0"
-EQUIPS_SCHEMA_PATH = "equips"
 CharacterSortField = Literal["sequence", "name", "quality", "level", "grade", "awaken_level"]
 CharacterSortOrder = Literal["asc", "desc"]
 
@@ -1377,13 +1371,13 @@ class PlayerCharactersService:
         self,
         uid: int,
         page: int = 1,
-        page_size: int = ITEM_PAGE_SIZE,
+        page_size: int = DEFAULT_LIST_PAGE_SIZE,
         keyword: str | None = None,
         sort_by: CharacterSortField = "sequence",
         sort_order: CharacterSortOrder = "asc",
     ) -> CharacterManagementListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = ITEM_PAGE_SIZE if page_size <= 0 else min(int(page_size), ITEM_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         normalized_keyword = normalize_search_keyword(keyword)
         client = create_mongo_client(self._settings)
 

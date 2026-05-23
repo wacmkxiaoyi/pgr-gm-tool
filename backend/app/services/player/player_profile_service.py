@@ -8,38 +8,11 @@ from bson.int64 import Int64
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import PlayerProfileRecord, UpdatePlayerProfilePayload
+from backend.app.db.models.player_items import INVENTORY_COLLECTION_NAME
+from backend.app.db.models.player_profile import PLAYER_BACKGROUND_ID_FIELD, PLAYER_DATA_SCHEMA_PATH, PLAYER_DOCUMENT_FIELD_PATHS, PLAYER_HEAD_FRAME_ID_FIELD, PLAYER_PROFILE_ITEM_FIELD_MAP, PLAYER_COLLECTION_NAME
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.player.player_items_service import PlayerItemsService
 from backend.app.services.player.utils import parse_optional_int, parse_optional_string
-
-
-PLAYER_COLLECTION_NAME = "players"
-INVENTORY_COLLECTION_NAME = "inventory"
-PLAYER_HEAD_FRAME_ID_FIELD = "CurrHeadFrameId"
-PLAYER_BACKGROUND_ID_FIELD = "use_background_id"
-PLAYER_EDITABLE_FIELDS = {
-    "name": "Name",
-    "gender": "Gender",
-    "level": "Level",
-    "likes": "Likes",
-}
-PLAYER_PROFILE_ITEM_FIELD_MAP = {
-    "exp": 7,
-    "money": 1,
-    "serum": 4,
-    "black_card": 3,
-    "rainbow_card": 5,
-}
-PLAYER_DOCUMENT_FIELD_PATHS = {
-    "name": "player_data.Name",
-    "gender": "player_data.Gender",
-    "level": "player_data.Level",
-    "likes": "player_data.Likes",
-    "head_portrait_id": "player_data.CurrHeadPortraitId",
-    "head_frame_id": f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}",
-    "use_background_id": PLAYER_BACKGROUND_ID_FIELD,
-}
-PLAYER_DATA_SCHEMA_PATH = "player_data"
 
 
 class PlayerProfileService:

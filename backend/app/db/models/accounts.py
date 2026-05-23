@@ -3,6 +3,9 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+ACCOUNT_COLLECTION_NAME = "accounts"
+
+
 class AccountRecord(BaseModel):
     id: str
     uid: int

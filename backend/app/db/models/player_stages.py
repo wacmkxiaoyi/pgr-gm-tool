@@ -3,6 +3,10 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+STAGES_COLLECTION_NAME = "stages"
+STAGES_SCHEMA_PATH = "stages"
+
+
 class StageRecord(BaseModel):
     stage_id: int
     k: int | None = None

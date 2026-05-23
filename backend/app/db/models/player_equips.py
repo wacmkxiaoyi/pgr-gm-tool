@@ -3,6 +3,9 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict, Field
 
 
+EQUIP_ITEM_SCHEMA_PATH = "equips.0"
+
+
 class WeaponResonanceRecord(BaseModel):
     Slot: int | None = None
     Type: int | None = None

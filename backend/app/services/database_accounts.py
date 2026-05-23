@@ -6,11 +6,13 @@ import math
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
 from backend.app.db.models import AccountListResponse, AccountRecord
+from backend.app.db.models.accounts import ACCOUNT_COLLECTION_NAME
+from backend.app.db.models.player_characters import CHARACTERS_COLLECTION_NAME
+from backend.app.db.models.player_items import INVENTORY_COLLECTION_NAME
+from backend.app.db.models.player_profile import PLAYER_COLLECTION_NAME
+from backend.app.db.models.player_stages import STAGES_COLLECTION_NAME
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
-
-
-ACCOUNT_COLLECTION_NAME = "accounts"
-ACCOUNT_PAGE_SIZE = 10
+from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 
 
 def _parse_account_uid(value: object) -> int:
@@ -66,17 +68,30 @@ class DatabaseAccountsService:
         client = create_mongo_client(self._settings)
 
         try:
-            collection = client[self._settings.mongo_db][ACCOUNT_COLLECTION_NAME]
-            result = await collection.delete_one({"uid": uid})
+            database = client[self._settings.mongo_db]
+            accounts_collection = database[ACCOUNT_COLLECTION_NAME]
+            players_collection = database[PLAYER_COLLECTION_NAME]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            inventory_collection = database[INVENTORY_COLLECTION_NAME]
+            stages_collection = database[STAGES_COLLECTION_NAME]
+
+            accounts_result = await accounts_collection.delete_many({"uid": uid})
+            if accounts_result.deleted_count <= 0:
+                return False
+
+            await players_collection.delete_many({"player_data._id": uid})
+            await characters_collection.delete_many({"uid": uid})
+            await inventory_collection.delete_many({"uid": uid})
+            await stages_collection.delete_many({"uid": uid})
         finally:
             with contextlib.suppress(Exception):
                 client.close()
 
-        return result.deleted_count > 0
+        return True
 
-    async def list_accounts(self, page: int = 1, page_size: int = ACCOUNT_PAGE_SIZE, sort_by: str = "uid", sort_order: str = "asc", keyword: str = "") -> AccountListResponse:
+    async def list_accounts(self, page: int = 1, page_size: int = DEFAULT_LIST_PAGE_SIZE, sort_by: str = "uid", sort_order: str = "asc", keyword: str = "") -> AccountListResponse:
         current_page = max(1, int(page))
-        normalized_page_size = ACCOUNT_PAGE_SIZE if page_size <= 0 else min(int(page_size), ACCOUNT_PAGE_SIZE)
+        normalized_page_size = DEFAULT_LIST_PAGE_SIZE if page_size <= 0 else min(int(page_size), DEFAULT_LIST_PAGE_SIZE)
         skip = (current_page - 1) * normalized_page_size
 
         mongo_filter = {}

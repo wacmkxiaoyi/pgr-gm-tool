@@ -4,6 +4,13 @@ from pydantic import Field
 from pydantic import BaseModel
 
 
+CHARACTERS_COLLECTION_NAME = "characters"
+CHARACTER_LIST_SCHEMA_PATH = "characters"
+FASHIONS_SCHEMA_PATH = "fashions"
+FASHION_ITEM_SCHEMA_PATH = "fashions.0"
+EQUIPS_SCHEMA_PATH = "equips"
+
+
 class CharacterManagementItemRecord(BaseModel):
     record_id: int
     CharacterId: int

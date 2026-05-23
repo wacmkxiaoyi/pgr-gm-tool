@@ -603,7 +603,7 @@ class ServerController:
                 visible=visible,
                 start_label_key="runtime.serverStarting",
                 start_disabled=True,
-                stop_disabled=True,
+                stop_disabled=False,
                 log_disabled=False,
                 startup_state=startup_state,
                 startup_error=startup_error,

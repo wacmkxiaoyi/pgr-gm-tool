@@ -3,6 +3,11 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
+INVENTORY_COLLECTION_NAME = "inventory"
+INVENTORY_ITEMS_SCHEMA_PATH = "items"
+INVENTORY_ITEM_SCHEMA_PATH = "items.0"
+
+
 class InventoryItemRecord(BaseModel):
     item_id: int
     quantity: int
