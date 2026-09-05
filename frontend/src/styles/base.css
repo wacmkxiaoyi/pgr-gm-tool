@@ -48,7 +48,7 @@ body.auth-page {
     radial-gradient(circle at 84% 16%, rgba(56, 189, 248, 0.18), transparent 0 20%),
     radial-gradient(circle at 78% 84%, rgba(124, 92, 246, 0.16), transparent 0 22%),
     radial-gradient(circle at 48% 48%, rgba(245, 158, 11, 0.1), transparent 0 18%),
-    url("../../assets/loginbg.jpg") center / cover no-repeat;
+    url("../../assets/loginbg.png") center / cover no-repeat;
   background-attachment: fixed;
 }
 

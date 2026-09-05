@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import contextlib
+import copy
 from dataclasses import dataclass
+from typing import Any
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
@@ -13,6 +15,55 @@ class DatabaseRepairSummary:
     collections: int
     documents_scanned: int
     documents_updated: int
+
+
+def _repair_weapon_overrun_active_suits(document: dict[str, Any]) -> dict[str, Any]:
+    repaired_document = copy.deepcopy(document)
+    equips = repaired_document.get("equips")
+    if not isinstance(equips, list):
+        return repaired_document
+
+    for equip in equips:
+        if not isinstance(equip, dict):
+            continue
+
+        overrun_data = equip.get("WeaponOverrunData")
+        if not isinstance(overrun_data, dict):
+            continue
+
+        active_suits = overrun_data.get("ActiveSuits")
+        if not isinstance(active_suits, list):
+            continue
+
+        repaired_suits: list[int] = []
+        valid = True
+        for suit in active_suits:
+            if isinstance(suit, int) and not isinstance(suit, bool):
+                repaired_suits.append(suit)
+                continue
+            if (
+                isinstance(suit, dict)
+                and set(suit) == {"_id"}
+                and isinstance(suit["_id"], int)
+                and not isinstance(suit["_id"], bool)
+            ):
+                repaired_suits.append(suit["_id"])
+                continue
+            valid = False
+            break
+
+        if valid:
+            chose_suit = overrun_data.get("ChoseSuit")
+            if (
+                repaired_suits == [0]
+                and isinstance(chose_suit, int)
+                and not isinstance(chose_suit, bool)
+                and chose_suit > 0
+            ):
+                repaired_suits = [chose_suit]
+            overrun_data["ActiveSuits"] = repaired_suits
+
+    return repaired_document
 
 
 class DatabaseRepairService:
@@ -41,7 +92,8 @@ class DatabaseRepairService:
 
                 async for document in cursor:
                     documents_scanned += 1
-                    materialized = collection_schema.materialize_document(document, fill_missing_scalars_with_null=True)
+                    repair_source = _repair_weapon_overrun_active_suits(document)
+                    materialized = collection_schema.materialize_document(repair_source, fill_missing_scalars_with_null=True)
                     if not isinstance(materialized, dict):
                         continue
 

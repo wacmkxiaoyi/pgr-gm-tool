@@ -28,9 +28,28 @@ def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[st
     }
 
 
+def _get_container_columns(reader: TSVReader, base_column: str, legacy_indexes: range) -> list[str]:
+    columns = list(reader.data[0]) if reader.data else []
+    if base_column in columns:
+        return [base_column]
+    return [f"{base_column}[{index}]" for index in legacy_indexes]
+
+
+def _parse_skill_level_id(value: Any) -> tuple[int, int] | None:
+    text = str(value or "").strip()
+    if len(text) < 3 or not text.isdigit():
+        return None
+
+    skill_id = parse_int(text[:-2])
+    level = parse_int(text[-2:])
+    if skill_id is None or level is None:
+        return None
+    return skill_id, level
+
+
 def _build_character_skill_ids_map(character_skill_tsv_path: Any, skill_group_tsv_path: Any) -> dict[int, list[int]]:
     character_skill_reader = TSVReader(character_skill_tsv_path, typed=True)
-    skill_group_columns = [f"SkillGroupId[{idx}]" for idx in range(1, 17)]
+    skill_group_columns = _get_container_columns(character_skill_reader, "SkillGroupId", range(1, 17))
     character_skill_group_table = character_skill_reader.get_sub_table("CharacterId", skill_group_columns)
     character_skill_group_ids_map: dict[int, list[int]] = {}
 
@@ -42,7 +61,7 @@ def _build_character_skill_ids_map(character_skill_tsv_path: Any, skill_group_ts
         character_skill_group_ids_map[character_id] = extract_int_list(row, skill_group_columns, dedupe=True)
 
     skill_group_reader = TSVReader(skill_group_tsv_path, typed=True)
-    skill_columns = [f"SkillId[{idx}]" for idx in range(3)]
+    skill_columns = _get_container_columns(skill_group_reader, "SkillId", range(3))
     skill_group_table = skill_group_reader.get_sub_table("Id", skill_columns)
     skill_group_skill_ids_map: dict[int, list[int]] = {}
 
@@ -81,6 +100,10 @@ def _build_skill_entries_map(level_effect_tsv_path: Any, upgrade_des_tsv_path: A
 
         skill_id = parse_int(row.get("SkillId"))
         level = parse_int(row.get("Level"))
+        if skill_id is None or level is None:
+            skill_level = _parse_skill_level_id(row.get("SkillLevelId"))
+            if skill_level is not None:
+                skill_id, level = skill_level
         if skill_id is None or level is None:
             continue
 
@@ -167,7 +190,7 @@ def get_attrib_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
 @lru_cache(maxsize=1)
 def get_character_skill_group_ids_map() -> dict[int, list[int]]:
     reader = TSVReader(CHARACTER_SKILL_TSV_PATH, typed=True)
-    skill_group_columns = [f"SkillGroupId[{idx}]" for idx in range(1, 17)]
+    skill_group_columns = _get_container_columns(reader, "SkillGroupId", range(1, 17))
     skill_group_table = reader.get_sub_table("CharacterId", skill_group_columns)
     normalized_map: dict[int, list[int]] = {}
 
@@ -184,7 +207,7 @@ def get_character_skill_group_ids_map() -> dict[int, list[int]]:
 @lru_cache(maxsize=1)
 def get_character_skill_group_skill_ids_map() -> dict[int, list[int]]:
     reader = TSVReader(CHARACTER_SKILL_GROUP_TSV_PATH, typed=True)
-    skill_columns = [f"SkillId[{idx}]" for idx in range(3)]
+    skill_columns = _get_container_columns(reader, "SkillId", range(3))
     skill_group_table = reader.get_sub_table("Id", skill_columns)
     normalized_map: dict[int, list[int]] = {}
 

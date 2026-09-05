@@ -12,7 +12,7 @@ def test_object_node_prefers_its_own_default_when_missing() -> None:
                     "ActiveSuits": {
                         "type": "array",
                         "default": [],
-                        "schema": {"_id": {"type": "number", "default": 0}},
+                        "schema": {"type": "number", "default": 0},
                     },
                     "ChoseSuit": {"type": "number", "default": 0},
                 },
@@ -75,7 +75,7 @@ def test_array_node_keeps_using_its_own_default_when_missing() -> None:
             "ActiveSuits": {
                 "type": "array",
                 "default": [],
-                "schema": {"_id": {"type": "number", "default": 0}},
+                "schema": {"type": "number", "default": 0},
             }
         }
     )
@@ -83,3 +83,28 @@ def test_array_node_keeps_using_its_own_default_when_missing() -> None:
     sanitized = schema.materialize_write({}, "")
 
     assert sanitized == {"ActiveSuits": []}
+
+
+def test_scalar_array_keeps_integer_items_when_materialized() -> None:
+    schema = CompiledCollectionSchema(
+        {
+            "WeaponOverrunData": {
+                "type": "object",
+                "default": {},
+                "schema": {
+                    "ActiveSuits": {
+                        "type": "array",
+                        "default": [],
+                        "schema": {"type": "number", "default": 0},
+                    },
+                },
+            }
+        }
+    )
+
+    sanitized = schema.materialize_write(
+        {"WeaponOverrunData": {"ActiveSuits": [100101]}},
+        "",
+    )
+
+    assert sanitized == {"WeaponOverrunData": {"ActiveSuits": [100101]}}

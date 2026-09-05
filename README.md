@@ -369,7 +369,7 @@ python -m backend.app.main --ADMIN_USERNAME admin --ADMIN_PASSWORD password --MO
 | `APP_NAME` | 应用名称 | `WACMK PGR Management` | 环境变量 / CLI | 页面标题和应用信息使用 |
 | `APP_HOST` | Web 服务监听地址 | `0.0.0.0` | 环境变量 / CLI | FastAPI/uvicorn 监听地址 |
 | `APP_PORT` | Web 服务监听端口 | `8000` | 环境变量 / CLI | FastAPI/uvicorn 监听端口 |
-| `GAME_VERSION` | 游戏版本号 | `2.3` | 环境变量 / CLI | 影响部分业务数据装载 |
+| `GAME_VERSION` | 游戏版本号 | `4.0` | 环境变量 / CLI | 影响部分业务数据装载 |
 | `ADMIN_USERNAME` | 后台管理员账号 | 空 | 环境变量 / CLI | 必须配置，否则无法正常登录 |
 | `ADMIN_PASSWORD` | 后台管理员密码 | 空 | 环境变量 / CLI | 必须配置，否则无法正常登录 |
 | `HEALTHY_CHECK_INTERVAL` | 健康检查间隔，单位秒 | `60` | 环境变量 / CLI | 同时影响服务状态和数据库状态轮询 |
@@ -390,6 +390,15 @@ python -m backend.app.main --ADMIN_USERNAME admin --ADMIN_PASSWORD password --MO
 | `MONGO_AUTH_SOURCE` | MongoDB 认证库 | `admin` | 环境变量 / CLI | 若存在服务器配置文件可能被覆盖 |
 | `MONGO_TLS` | MongoDB 是否启用 TLS | `false` | 环境变量 / CLI | 仅在非 `MONGO_URI` 模式下参与拼接 |
 | `MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE` | 一键全满时是否使用固定意识共鸣策略 | `true` | 环境变量 / CLI | 高级业务开关，`.env.example` 中未列出 |
+
+## 4.0 TSV 已知数据限制
+
+当前工具已兼容 4.0 TSV 的数组、槽位字典及空突破阶段格式。下列项目是数据源缺行，而非代码可推导的默认值；相关装备会按无图标、无共鸣或不可觉醒降级显示。
+
+- `EquipRes.tsv` 尚缺少 `3025050`、`3035050`、`3045050`、`3055050`、`3065050`、`3916001` 至 `3966001` 的图标记录。若补入新的 `BigIconPath`，还需在 `frontend/assets/icontools/` 提供对应图片。
+- `EquipResonance.tsv` 尚缺少 `3015501` 至 `3045501`、`3915001` 至 `3965001`、`3916001` 至 `3966001` 的共鸣池配置。工具不会自行推导属性、角色技能或武器技能共鸣池。
+- `EquipAwake.tsv` 是否需要补充 `3916001` 至 `3966001`，取决于 Memory Enhancer 六星意识是否按游戏设计支持觉醒；没有记录的装备会被视为不支持觉醒。
+- `EquipRes.tsv` 仍有未关联 `Equip.tsv` 主记录的资源行：`2015002`、`2035002`、`2045002`、`2055002`、`2065002`、`3011001`、`3024005`、`3034005`、`3041001`、`3054005`、`3064005`、`3099999`。应由数据源确认后补主记录或清理资源行。
 
 ## 服务器配置文件覆盖说明
 

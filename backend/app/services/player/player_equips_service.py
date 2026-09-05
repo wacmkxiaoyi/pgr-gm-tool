@@ -1822,15 +1822,6 @@ class PlayerEquipsService:
         existing_level = parse_optional_int(existing_overrun_data.Level) if existing_overrun_data is not None else None
         existing_chose_suit = parse_optional_int(existing_overrun_data.ChoseSuit) if existing_overrun_data is not None else None
 
-        resolved_level = requested_level if requested_level is not None else existing_level
-        if resolved_level is None:
-            resolved_level = self._get_default_weapon_overrun_level()
-
-        if resolved_level <= 0:
-            raise ValueError("equips.overrun_level_below_min")
-        if resolved_level > max_overrun_level:
-            raise ValueError("equips.overrun_level_above_limit")
-
         if chose_suit is not None and chose_suit > 0 and chose_suit not in get_weapon_overrun_suit_entries_map():
             raise ValueError("equips.overrun_invalid")
 
@@ -1839,6 +1830,13 @@ class PlayerEquipsService:
         if resolved_chose_suit is None or resolved_chose_suit <= 0:
             weapon_overrun_data = {}
         else:
+            resolved_level = requested_level if requested_level is not None else existing_level
+            if resolved_level is None or resolved_level <= 0:
+                # Selecting a Harmony suit enables it at its first valid level.
+                resolved_level = 1
+            if resolved_level > max_overrun_level:
+                raise ValueError("equips.overrun_level_above_limit")
+
             weapon_overrun_data = {
                 "Level": resolved_level,
                 "ActiveSuits": [resolved_chose_suit],

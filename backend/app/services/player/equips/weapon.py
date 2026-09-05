@@ -77,11 +77,12 @@ def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
 @lru_cache(maxsize=1)
 def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
     reader = TSVReader(WEAPON_SKILL_POOL_TSV_PATH, typed=True)
-    skill_columns = [
+    columns = list(reader.data[0]) if reader.data else []
+    skill_columns = ["SkillId"] if "SkillId" in columns else [
         column
-        for column in reader.data[0].keys()
+        for column in columns
         if str(column).startswith("SkillId[")
-    ] if reader.data else []
+    ]
     rows = reader.select(["PoolId", "CharacterId", *skill_columns])
     normalized_map: dict[int, dict[int, list[int]]] = {}
 
@@ -104,7 +105,9 @@ def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
 @lru_cache(maxsize=1)
 def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
-    suit_table = reader.get_sub_table("Id", ["Name", "SkillDescription", "WaferBagPath"])
+    columns = list(reader.data[0]) if reader.data else []
+    icon_column = "BigIconPath" if "BigIconPath" in columns else "WaferBagPath"
+    suit_table = reader.get_sub_table("Id", ["Name", "SkillDescription", icon_column])
     normalized_map: dict[int, dict[str, str]] = {}
 
     for suit_id_raw, row in suit_table.items():
@@ -116,7 +119,7 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
         normalized_map[suit_id] = {
             "Name": str(row.get("Name") or "").strip(),
             "SkillDescription": str(row.get("SkillDescription") or "").strip(),
-            "WaferBagPath": normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
+            "WaferBagPath": normalize_asset_path(str(row.get(icon_column) or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
         }
 
     return normalized_map

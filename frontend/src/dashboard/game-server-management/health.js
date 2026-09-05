@@ -294,6 +294,8 @@ app.loadAppInfo = async () => {
     state.serverControlsVisible = Boolean(payload?.server_controls_visible);
     state.playerLevelMax = Number.isFinite(Number(payload?.player_level_max)) ? Math.max(0, Number(payload.player_level_max)) : 0;
     state.playerLevelMaxExpMap = payload?.player_level_max_exp_map && typeof payload.player_level_max_exp_map === 'object' ? payload.player_level_max_exp_map : {};
+    state.playerHonorLevelMax = Number.isFinite(Number(payload?.player_honor_level_max)) ? Math.max(0, Number(payload.player_honor_level_max)) : 0;
+    state.playerHonorLevelMaxExpMap = payload?.player_honor_level_max_exp_map && typeof payload.player_honor_level_max_exp_map === 'object' ? payload.player_honor_level_max_exp_map : {};
     state.playerPortraitUrlMap = payload?.player_portrait_url_map && typeof payload.player_portrait_url_map === 'object' ? payload.player_portrait_url_map : {};
     state.playerPortraitFrameUrlMap = payload?.player_portrait_frame_url_map && typeof payload.player_portrait_frame_url_map === 'object' ? payload.player_portrait_frame_url_map : {};
     state.playerPortraitNameMap = payload?.player_portrait_name_map && typeof payload.player_portrait_name_map === 'object' ? payload.player_portrait_name_map : {};
@@ -332,6 +334,8 @@ app.loadAppInfo = async () => {
     state.serverControlsVisible = false;
     state.playerLevelMax = 0;
     state.playerLevelMaxExpMap = {};
+    state.playerHonorLevelMax = 0;
+    state.playerHonorLevelMaxExpMap = {};
     state.itemNameMap = {};
     state.equipNameMap = {};
     state.weaponTypeNameMap = {};

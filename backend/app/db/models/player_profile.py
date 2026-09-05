@@ -23,6 +23,7 @@ PLAYER_DOCUMENT_FIELD_PATHS = {
     "name": "player_data.Name",
     "gender": "player_data.Gender",
     "level": "player_data.Level",
+    "honor_level": "player_data.HonorLevel",
     "likes": "player_data.Likes",
     "head_portrait_id": "player_data.CurrHeadPortraitId",
     "head_frame_id": f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}",
@@ -36,6 +37,7 @@ class PlayerProfileRecord(BaseModel):
     name: str | None = None
     gender: int | None = None
     level: int | None = None
+    honor_level: int | None = None
     likes: int | None = None
     exp: int = 0
     money: int = 0
@@ -51,6 +53,7 @@ class UpdatePlayerProfilePayload(BaseModel):
     name: str | None = None
     gender: int | None = None
     level: int | None = None
+    honor_level: int | None = None
     likes: int | None = None
     exp: int | None = None
     money: int | None = None

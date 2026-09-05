@@ -109,6 +109,9 @@ from backend.app.services.player.player_items import get_item_name_map
 from backend.app.services.player.player_profile import (
     get_player_background_name_map,
     get_player_background_url_map,
+    get_player_honor_level_max,
+    get_player_honor_level_allowed_exp_max,
+    get_player_honor_level_max_exp_map,
     get_player_level_allowed_exp_max,
     get_player_level_max,
     get_player_level_max_exp,
@@ -141,7 +144,7 @@ PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
 PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_FIELDS = {"likes", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_MAX = 2147483647
-PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}
+PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "honor_level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}
 WEAPON_MUTABLE_FIELDS = {"breakthrough", "level", "exp"}
 
 
@@ -163,6 +166,8 @@ async def app_info(request: Request) -> AppInfoResponse:
         "server_controls_visible": controller.controls_visible(),
         "player_level_max": get_player_level_max(),
         "player_level_max_exp_map": get_player_level_max_exp_map(),
+        "player_honor_level_max": get_player_honor_level_max(),
+        "player_honor_level_max_exp_map": get_player_honor_level_max_exp_map(),
         "player_portrait_url_map": get_player_portrait_url_map(),
         "player_portrait_frame_url_map": get_player_portrait_frame_url_map(),
         "player_portrait_name_map": get_player_portrait_name_map(),
@@ -425,7 +430,7 @@ async def update_selected_database_player_profile(
             raise_http_error(422, "player.gender_invalid", {"field": field_name})
 
         update_payload = UpdatePlayerProfilePayload(gender=normalized_gender)
-    elif field_name in {"level", "likes"} | PLAYER_PROFILE_INVENTORY_FIELDS:
+    elif field_name in {"level", "honor_level", "likes"} | PLAYER_PROFILE_INVENTORY_FIELDS:
         try:
             normalized_number = int(payload.value)
         except (TypeError, ValueError):
@@ -436,6 +441,27 @@ async def update_selected_database_player_profile(
 
         if field_name == "level" and normalized_number > player_level_max:
             raise_http_error(422, "player.level_above_max", {"field": field_name, "max": player_level_max})
+
+        if field_name == "honor_level":
+            honor_level_max_exp_map = get_player_honor_level_max_exp_map()
+            if normalized_number not in honor_level_max_exp_map:
+                raise_http_error(422, "player.honor_level_not_defined", {"field": field_name, "level": normalized_number})
+
+            current_profile = await profile_service.get_player_profile(selected_uid)
+            if current_profile is None:
+                raise_http_error(404, "player.not_found", {"uid": selected_uid})
+
+            if current_profile.level != player_level_max:
+                raise_http_error(422, "player.honor_level_unavailable", {"field": field_name})
+
+            allowed_exp_max = get_player_honor_level_allowed_exp_max(normalized_number)
+            if allowed_exp_max is None:
+                raise_http_error(422, "player.honor_level_not_defined", {"field": field_name, "level": normalized_number})
+
+            update_data = {field_name: normalized_number}
+            if current_profile.exp > allowed_exp_max:
+                update_data["exp"] = allowed_exp_max
+            update_payload = UpdatePlayerProfilePayload(**update_data)
 
         if field_name in PLAYER_PROFILE_INT32_FIELDS and normalized_number > PLAYER_PROFILE_INT32_MAX:
             raise_http_error(422, "player.value_above_int32_max", {
@@ -452,7 +478,11 @@ async def update_selected_database_player_profile(
             if current_level is None:
                 raise_http_error(422, "player.level_missing", {"field": "level"})
 
-            allowed_exp_max = get_player_level_allowed_exp_max(current_level)
+            if current_level == player_level_max:
+                current_honor_level = current_profile.honor_level or 1
+                allowed_exp_max = get_player_honor_level_allowed_exp_max(current_honor_level)
+            else:
+                allowed_exp_max = get_player_level_allowed_exp_max(current_level)
             if allowed_exp_max is None:
                 raise_http_error(422, "player.level_not_defined", {"field": "level", "level": current_level})
 
@@ -476,7 +506,12 @@ async def update_selected_database_player_profile(
             if get_player_level_max_exp(normalized_number) is None:
                 raise_http_error(422, "player.level_not_defined", {"field": field_name, "level": normalized_number})
 
-            allowed_exp_max = get_player_level_allowed_exp_max(normalized_number)
+            if normalized_number == player_level_max:
+                update_data["honor_level"] = 1
+                allowed_exp_max = get_player_honor_level_allowed_exp_max(1)
+            else:
+                update_data["honor_level"] = 1
+                allowed_exp_max = get_player_level_allowed_exp_max(normalized_number)
             if allowed_exp_max is None:
                 raise_http_error(422, "player.level_not_defined", {"field": field_name, "level": normalized_number})
 
@@ -484,7 +519,9 @@ async def update_selected_database_player_profile(
                 update_data["exp"] = allowed_exp_max
 
             update_payload = UpdatePlayerProfilePayload(**update_data)
-        else:
+        elif field_name == "exp":
+            update_payload = UpdatePlayerProfilePayload(exp=normalized_number)
+        elif field_name != "honor_level":
             update_payload = UpdatePlayerProfilePayload(**{field_name: normalized_number})
     elif field_name == "head_portrait_id":
         try:

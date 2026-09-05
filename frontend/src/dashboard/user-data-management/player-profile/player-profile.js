@@ -6,6 +6,7 @@ const PLAYER_FIELD_LABELS = {
   gender: 'runtime.playerFieldGender',
   likes: 'runtime.playerFieldLikes',
   level: 'runtime.playerFieldLevel',
+  honor_level: 'runtime.playerFieldHonorLevel',
   exp: 'runtime.playerFieldExp',
   money: 'runtime.playerFieldMoney',
   serum: 'runtime.playerFieldSerum',
@@ -32,6 +33,9 @@ const {
   playerCardGender,
   playerCardLikes,
   playerCardLevel,
+  playerCardLevelLabel,
+  playerCardHonorBar,
+  playerCardHonorLevel,
   playerCardExp,
   playerCardMoney,
   playerCardSerum,
@@ -62,9 +66,35 @@ const getConfiguredPlayerLevelExpMax = (levelValue) => {
 
 const getPlayerLevelInputMax = () => getConfiguredPlayerLevelMax();
 
-const getPlayerExpInputMax = (levelValue) => {
+const getConfiguredPlayerHonorLevelMax = () => {
+  const parsedMax = Number.parseInt(String(state.playerHonorLevelMax ?? ''), 10);
+  return Number.isFinite(parsedMax) && parsedMax >= 0 ? parsedMax : 0;
+};
+
+const isPlayerAtLevelMax = (profile) => {
+  const level = Number.parseInt(String(profile?.level ?? ''), 10);
+  return level === getConfiguredPlayerLevelMax();
+};
+
+const getConfiguredPlayerHonorLevelExpMax = (honorLevelValue) => {
+  const honorLevel = Number.parseInt(String(honorLevelValue ?? ''), 10);
+  const rawMaxExp = state.playerHonorLevelMaxExpMap?.[honorLevel];
+  const parsedMaxExp = Number.parseInt(String(rawMaxExp ?? ''), 10);
+  return Number.isFinite(parsedMaxExp) && parsedMaxExp >= 0 ? parsedMaxExp : null;
+};
+
+const getPlayerExpInputMax = (profile) => {
+  if (isPlayerAtLevelMax(profile)) {
+    const honorLevel = Number.parseInt(String(profile?.honor_level ?? ''), 10) || 1;
+    const maxExp = getConfiguredPlayerHonorLevelExpMax(honorLevel);
+    if (maxExp === null) {
+      return null;
+    }
+    return honorLevel >= getConfiguredPlayerHonorLevelMax() ? maxExp : Math.max(0, maxExp - 1);
+  }
+
   const levelMax = getConfiguredPlayerLevelMax();
-  const currentLevel = Number.parseInt(String(levelValue ?? ''), 10);
+  const currentLevel = Number.parseInt(String(profile?.level ?? ''), 10);
   if (!Number.isFinite(currentLevel) || currentLevel < 0) {
     return null;
   }
@@ -80,6 +110,10 @@ const getPlayerExpInputMax = (levelValue) => {
 
   return Math.max(0, configuredMaxExp - 1);
 };
+
+const getPlayerExpDisplayMax = (profile) => (isPlayerAtLevelMax(profile)
+  ? getConfiguredPlayerHonorLevelExpMax(Number.parseInt(String(profile?.honor_level ?? ''), 10) || 1)
+  : getConfiguredPlayerLevelExpMax(profile?.level));
 
 const validateNonNegativeInteger = (value, invalidKey) => (/^\d+$/.test(value) ? '' : app.translate(invalidKey));
 
@@ -98,10 +132,9 @@ const validateInt32Field = (value, invalidKey) => {
 };
 
 const getPlayerExpProgress = (profile) => {
-  const level = Number.parseInt(String(profile?.level ?? ''), 10);
   const exp = Number.parseInt(String(profile?.exp ?? ''), 10);
-  const maxExp = getConfiguredPlayerLevelExpMax(level);
-  if (!Number.isFinite(level) || level < 0 || !Number.isFinite(exp) || exp < 0 || !Number.isFinite(maxExp) || maxExp <= 0) {
+  const maxExp = getPlayerExpDisplayMax(profile);
+  if (!Number.isFinite(exp) || exp < 0 || !Number.isFinite(maxExp) || maxExp <= 0) {
     return 0;
   }
 
@@ -110,8 +143,18 @@ const getPlayerExpProgress = (profile) => {
 
 const getPlayerExpDisplayValue = (profile) => {
   const expLabel = app.formatPlayerFieldValue(profile?.exp ?? 0);
-  const maxExpLabel = app.formatPlayerFieldValue(getConfiguredPlayerLevelExpMax(profile?.level));
+  const maxExpLabel = app.formatPlayerFieldValue(getPlayerExpDisplayMax(profile));
   return `${expLabel} / ${maxExpLabel}`;
+};
+
+const getPlayerLevelProgress = (profile) => {
+  const level = Number.parseInt(String(profile?.level ?? ''), 10);
+  const levelMax = getConfiguredPlayerLevelMax();
+  if (!Number.isFinite(level) || level < 0 || levelMax <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(1, level / levelMax));
 };
 
 const PLAYER_PROFILE_EDITABLE_FIELDS = {
@@ -130,6 +173,18 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       return PLAYER_NAME_PATTERN.test(value) ? '' : app.translate('runtime.playerNameInvalid');
     },
   },
+  gender: {
+    displayValue: (profile) => app.getPlayerGenderLabel(profile?.gender),
+    getRawValue: (profile) => profile?.gender ?? null,
+    element: () => playerCardGender,
+    editorType: 'select',
+    options: [
+      { value: 1, labelKey: 'dashboard.playerGenderFemale' },
+      { value: 2, labelKey: 'dashboard.playerGenderMale' },
+    ],
+    normalize: (value) => String(value).trim(),
+    validate: (value) => (value === '1' || value === '2' ? '' : app.translate('runtime.playerGenderInvalid')),
+  },
   likes: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.likes),
     getRawValue: (profile) => profile?.likes ?? null,
@@ -142,7 +197,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
   level: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.level),
     getRawValue: (profile) => profile?.level ?? null,
-    element: () => playerCardLevel,
+    element: () => (isPlayerAtLevelMax(state.playerProfileData) ? playerCardHonorLevel : playerCardLevel),
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
@@ -155,6 +210,27 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       const maxLevel = getPlayerLevelInputMax();
       if (parsedValue > maxLevel) {
         return app.translate('runtime.playerLevelAboveMax', { max: maxLevel });
+      }
+
+      return '';
+    },
+  },
+  honor_level: {
+    displayValue: (profile) => app.formatPlayerFieldValue(profile?.honor_level),
+    getRawValue: (profile) => (isPlayerAtLevelMax(profile) ? profile?.honor_level ?? null : null),
+    element: () => (isPlayerAtLevelMax(state.playerProfileData) ? playerCardLevel : playerCardHonorLevel),
+    editorType: 'input',
+    inputMode: 'numeric',
+    normalize: (value) => String(value).trim(),
+    validate: (value) => {
+      if (!/^\d+$/.test(value)) {
+        return app.translate('runtime.playerHonorLevelInvalid');
+      }
+
+      const parsedValue = Number.parseInt(value, 10);
+      const maxLevel = getConfiguredPlayerHonorLevelMax();
+      if (parsedValue > maxLevel) {
+        return app.translate('runtime.playerHonorLevelAboveMax', { max: maxLevel });
       }
 
       return '';
@@ -173,8 +249,7 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       }
 
       const parsedValue = Number.parseInt(value, 10);
-      const currentLevel = state.playerProfileData?.level;
-      const maxExp = getPlayerExpInputMax(currentLevel);
+      const maxExp = getPlayerExpInputMax(state.playerProfileData);
       if (maxExp !== null && parsedValue > maxExp) {
         return app.translate('runtime.playerExpAboveMax', { max: maxExp });
       }
@@ -351,6 +426,19 @@ app.syncPlayerCardExpProgress = (profile) => {
   playerCard.style.setProperty('--player-exp-progress', progress.toFixed(3));
 };
 
+app.syncPlayerCardHonorLevel = (profile) => {
+  const available = isPlayerAtLevelMax(profile);
+  if (playerCardHonorBar instanceof HTMLElement) {
+    playerCardHonorBar.hidden = !available;
+  }
+  if (playerCardHonorLevel instanceof HTMLElement) {
+    playerCardHonorLevel.textContent = available ? app.formatPlayerFieldValue(profile?.level) : '--';
+  }
+  if (playerCard instanceof HTMLElement) {
+    playerCard.style.setProperty('--player-honor-progress', getPlayerLevelProgress(profile).toFixed(3));
+  }
+};
+
 app.syncPlayerEditableStates = () => {
   Object.entries(PLAYER_PROFILE_EDITABLE_FIELDS).forEach(([field, config]) => {
     const rawValue = config.getRawValue(state.playerProfileData);
@@ -443,6 +531,10 @@ app.beginPlayerProfileEdit = (field) => {
         event.preventDefault();
         app.stopPlayerProfileEdit(field);
       }
+    });
+
+    select.addEventListener('change', () => {
+      void app.submitPlayerProfileEdit(field, select.value);
     });
 
     select.addEventListener('blur', () => {
@@ -811,6 +903,13 @@ app.resetPlayerProfileView = () => {
   }
   if (playerCardLevel instanceof HTMLElement) {
     playerCardLevel.textContent = '--';
+    playerCardLevel.dataset.playerEditField = 'level';
+  }
+  if (playerCardLevelLabel instanceof HTMLElement) {
+    playerCardLevelLabel.textContent = app.translate('dashboard.playerLevel');
+  }
+  if (playerCardHonorLevel instanceof HTMLElement) {
+    playerCardHonorLevel.textContent = '--';
   }
   if (playerCardLikes instanceof HTMLElement) {
     playerCardLikes.textContent = '--';
@@ -836,6 +935,7 @@ app.resetPlayerProfileView = () => {
   app.resetPlayerCardBackground();
   app.syncPlayerCardLevelTheme(0);
   app.syncPlayerCardExpProgress(null);
+  app.syncPlayerCardHonorLevel(null);
   app.syncPlayerEditableStates();
 };
 
@@ -856,7 +956,14 @@ app.renderPlayerProfile = (profile) => {
     playerCardGender.textContent = genderLabel;
   }
   if (playerCardLevel instanceof HTMLElement) {
-    playerCardLevel.textContent = levelLabel;
+    playerCardLevel.textContent = isPlayerAtLevelMax(profile) ? app.formatPlayerFieldValue(profile?.honor_level) : levelLabel;
+    playerCardLevel.dataset.playerEditField = isPlayerAtLevelMax(profile) ? 'honor_level' : 'level';
+  }
+  if (playerCardLevelLabel instanceof HTMLElement) {
+    playerCardLevelLabel.textContent = app.translate(isPlayerAtLevelMax(profile) ? 'dashboard.playerHonorLevel' : 'dashboard.playerLevel');
+  }
+  if (playerCardHonorLevel instanceof HTMLElement) {
+    playerCardHonorLevel.dataset.playerEditField = 'level';
   }
   if (playerCardLikes instanceof HTMLElement) {
     playerCardLikes.textContent = likesLabel;
@@ -882,6 +989,7 @@ app.renderPlayerProfile = (profile) => {
   app.setPlayerCardBackground(app.getPlayerResourceUrlByField('use_background_id', profile?.use_background_id ?? null));
   app.syncPlayerCardLevelTheme(profile?.level);
   app.syncPlayerCardExpProgress(profile);
+  app.syncPlayerCardHonorLevel(profile);
   app.syncPlayerEditableStates();
   app.showPlayerProfile();
 };

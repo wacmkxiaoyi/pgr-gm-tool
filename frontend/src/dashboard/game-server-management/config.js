@@ -204,6 +204,52 @@ app.setConfigEditorValue = (text) => {
   app.updateConfigEditorState();
 };
 
+app.resetConfigEditorHistory = () => {
+  state.configEditorUndoStack = [];
+  state.configEditorRedoStack = [];
+  state.configEditorHistoryValue = state.configEditorValue;
+};
+
+app.getConfigEditorSnapshot = () => ({
+  value: configEditorInput?.value ?? state.configEditorValue,
+  selectionStart: configEditorInput?.selectionStart ?? 0,
+  selectionEnd: configEditorInput?.selectionEnd ?? 0,
+});
+
+app.restoreConfigEditorSnapshot = (snapshot) => {
+  if (!(configEditorInput instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  configEditorInput.value = snapshot.value;
+  configEditorInput.setSelectionRange(snapshot.selectionStart, snapshot.selectionEnd);
+  state.configEditorValue = snapshot.value;
+  state.configEditorHistoryValue = snapshot.value;
+  app.updateConfigEditorState();
+};
+
+app.recordConfigEditorHistory = () => {
+  if (!(configEditorInput instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  state.configEditorUndoStack.push(app.getConfigEditorSnapshot());
+  state.configEditorRedoStack = [];
+};
+
+app.applyConfigEditorEdit = (value, selectionStart, selectionEnd) => {
+  if (!(configEditorInput instanceof HTMLTextAreaElement)) {
+    return;
+  }
+
+  app.recordConfigEditorHistory();
+  configEditorInput.value = value;
+  configEditorInput.setSelectionRange(selectionStart, selectionEnd);
+  state.configEditorValue = value;
+  state.configEditorHistoryValue = value;
+  app.updateConfigEditorState();
+};
+
 app.isConfigModalOpen = () => configModal instanceof HTMLElement && !configModal.hidden;
 
 app.closeConfigModal = () => {
@@ -251,6 +297,7 @@ app.loadServerConfig = async () => {
     state.configLoadedOnce = true;
     state.configLastSavedValue = typeof payload?.text === 'string' ? payload.text : '';
     app.setConfigEditorValue(state.configLastSavedValue);
+    app.resetConfigEditorHistory();
     app.setConfigStatus(app.translate('dashboard.configStatusLoaded'), 'is-valid');
     app.setConfigFeedback(app.translate('dashboard.configFeedbackLoaded'), 'is-valid');
   } catch (error) {
@@ -261,6 +308,7 @@ app.loadServerConfig = async () => {
     state.configLoadedOnce = false;
     state.configLastSavedValue = '';
     app.setConfigEditorValue('');
+    app.resetConfigEditorHistory();
     app.setConfigStatus(app.translate('dashboard.configStatusLoadFailed'), 'is-error');
     app.setConfigFeedback(message, 'is-error');
   } finally {
@@ -299,6 +347,7 @@ app.saveServerConfig = async () => {
       configModalPath.textContent = app.translate('dashboard.configPath', { path: payload?.path ?? app.translate('common.notAvailable') });
     }
     app.setConfigEditorValue(state.configLastSavedValue);
+    app.resetConfigEditorHistory();
     app.setConfigStatus(app.translate('dashboard.configStatusSaved'), 'is-valid');
     app.setConfigFeedback(app.translate('dashboard.configFeedbackSaved'), 'is-valid');
     await app.loadStatus();
@@ -343,9 +392,97 @@ export const initStatusConfigFeature = () => {
   }
 
   if (configEditorInput instanceof HTMLTextAreaElement) {
+    configEditorInput.addEventListener('keydown', (event) => {
+      if (configEditorInput.readOnly) {
+        return;
+      }
+
+      const primaryModifier = event.ctrlKey || event.metaKey;
+      const isUndo = primaryModifier && !event.altKey && event.key.toLowerCase() === 'z' && !event.shiftKey;
+      const isRedo = primaryModifier && !event.altKey && (event.key.toLowerCase() === 'y' || (event.key.toLowerCase() === 'z' && event.shiftKey));
+
+      if (isUndo || isRedo) {
+        event.preventDefault();
+
+        const sourceStack = isUndo ? state.configEditorUndoStack : state.configEditorRedoStack;
+        const destinationStack = isUndo ? state.configEditorRedoStack : state.configEditorUndoStack;
+        const snapshot = sourceStack.pop();
+        if (!snapshot) {
+          return;
+        }
+
+        destinationStack.push(app.getConfigEditorSnapshot());
+        app.restoreConfigEditorSnapshot(snapshot);
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      event.preventDefault();
+
+      const { value, selectionStart, selectionEnd } = configEditorInput;
+      if (!event.shiftKey && selectionStart === selectionEnd) {
+        const updatedValue = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`;
+        app.applyConfigEditorEdit(updatedValue, selectionStart + 2, selectionStart + 2);
+        return;
+      }
+
+      const firstLineStart = value.lastIndexOf('\n', selectionStart - 1) + 1;
+      const selectionLastCharacter = selectionEnd > selectionStart && value[selectionEnd - 1] === '\n' ? selectionEnd - 1 : selectionEnd;
+      const lastLineEndIndex = value.indexOf('\n', selectionLastCharacter);
+      const lastLineEnd = lastLineEndIndex === -1 ? value.length : lastLineEndIndex;
+      const selectedLines = value.slice(firstLineStart, lastLineEnd).split('\n');
+      const lineStarts = [];
+      let lineStart = firstLineStart;
+      selectedLines.forEach((line) => {
+        lineStarts.push(lineStart);
+        lineStart += line.length + 1;
+      });
+
+      if (event.shiftKey && selectionStart === selectionEnd && !selectedLines[0].match(/^ {1,2}/)) {
+        return;
+      }
+
+      const indentLengths = event.shiftKey
+        ? selectedLines.map((line) => line.match(/^ {1,2}/)?.[0].length ?? 0)
+        : selectedLines.map(() => 2);
+      const changedLines = indentLengths.some((length) => length > 0);
+      if (!changedLines) {
+        return;
+      }
+
+      const replacement = event.shiftKey
+        ? selectedLines.map((line) => line.replace(/^ {1,2}/, '')).join('\n')
+        : selectedLines.map((line) => `  ${line}`).join('\n');
+      const updatedValue = `${value.slice(0, firstLineStart)}${replacement}${value.slice(lastLineEnd)}`;
+      const adjustPosition = (position) => lineStarts.reduce((offset, currentLineStart, index) => {
+        const length = indentLengths[index];
+        if (event.shiftKey) {
+          if (position <= currentLineStart) {
+            return offset;
+          }
+          return offset - Math.min(length, position - currentLineStart);
+        }
+        return position >= currentLineStart ? offset + length : offset;
+      }, position);
+
+      const updatedSelectionStart = adjustPosition(selectionStart);
+      const updatedSelectionEnd = selectionStart === selectionEnd
+        ? updatedSelectionStart
+        : adjustPosition(selectionEnd);
+      app.applyConfigEditorEdit(updatedValue, updatedSelectionStart, updatedSelectionEnd);
+    });
+
+    configEditorInput.addEventListener('beforeinput', () => {
+      app.recordConfigEditorHistory();
+    });
+
     configEditorInput.addEventListener('input', (event) => {
       const target = event.currentTarget;
       state.configEditorValue = target instanceof HTMLTextAreaElement ? target.value : '';
+      state.configEditorHistoryValue = state.configEditorValue;
       app.updateConfigEditorState();
     });
 

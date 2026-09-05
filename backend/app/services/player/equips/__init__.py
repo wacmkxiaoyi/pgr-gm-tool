@@ -4,7 +4,7 @@ from functools import lru_cache
 
 from backend.app.services.player.constants import ICON_TOOLS_ASSET_PREFIX
 from backend.app.services.player.equips.constants import EQUIP_AWAKE_TSV_PATH, EQUIP_BREAK_THROUGH_TSV_PATH, EQUIP_RESONANCE_TSV_PATH, EQUIP_RES_TSV_PATH, EQUIP_TSV_PATH
-from backend.app.services.player.utils import extract_int_list, normalize_asset_path
+from backend.app.services.player.utils import extract_int_list, normalize_asset_path, parse_int
 from backend.app.utils.tsv_reader import TSVReader
 
 
@@ -110,9 +110,15 @@ def get_equip_breakthrough_level_limit_map() -> dict[int, dict[int, int]]:
     for row in rows:
         try:
             equip_id = int(row.get("EquipId"))
-            breakthrough_times = int(row.get("Times"))
             level_limit = int(row.get("LevelLimit"))
         except (TypeError, ValueError):
+            continue
+
+        raw_breakthrough_times = row.get("Times")
+        breakthrough_times = parse_int(raw_breakthrough_times)
+        if raw_breakthrough_times in (None, ""):
+            breakthrough_times = 0
+        elif breakthrough_times is None:
             continue
 
         if equip_id not in normalized_map:
@@ -144,9 +150,10 @@ def get_equip_breakthrough_max_map() -> dict[int, dict[str, int]]:
 @lru_cache(maxsize=1)
 def get_equip_resonance_map() -> dict[int, list[list[int]]]:
     reader = TSVReader(EQUIP_RESONANCE_TSV_PATH, typed=True)
-    attrib_columns = [f"AttribPoolId[{idx}]" for idx in (1, 2, 3)]
-    character_skill_columns = [f"CharacterSkillPoolId[{idx}]" for idx in (1, 2, 3)]
-    weapon_skill_columns = [f"WeaponSkillPoolId[{idx}]" for idx in (1, 2, 3)]
+    columns = list(reader.data[0]) if reader.data else []
+    attrib_columns = ["AttribPoolId"] if "AttribPoolId" in columns else [f"AttribPoolId[{idx}]" for idx in (1, 2, 3)]
+    character_skill_columns = ["CharacterSkillPoolId"] if "CharacterSkillPoolId" in columns else [f"CharacterSkillPoolId[{idx}]" for idx in (1, 2, 3)]
+    weapon_skill_columns = ["WeaponSkillPoolId"] if "WeaponSkillPoolId" in columns else [f"WeaponSkillPoolId[{idx}]" for idx in (1, 2, 3)]
     resonance_table = reader.get_sub_table(
         "Id",
         [*attrib_columns, *character_skill_columns, *weapon_skill_columns],
@@ -191,9 +198,15 @@ def get_breakthrough_levelup_template_map() -> dict[int, dict[int, int]]:
     for row in rows:
         try:
             equip_id = int(row.get("EquipId"))
-            breakthrough_times = int(row.get("Times"))
             levelup_template_id = int(row.get("LevelUpTemplateId"))
         except (TypeError, ValueError):
+            continue
+
+        raw_breakthrough_times = row.get("Times")
+        breakthrough_times = parse_int(raw_breakthrough_times)
+        if raw_breakthrough_times in (None, ""):
+            breakthrough_times = 0
+        elif breakthrough_times is None:
             continue
 
         if equip_id not in normalized_map:

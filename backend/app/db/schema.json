@@ -681,10 +681,8 @@
                     "type": "array",
                     "default": [],
                     "schema": {
-                      "_id": {
-                        "type": "number",
-                        "default": 0
-                      }
+                      "type": "number",
+                      "default": 0
                     }
                   },
                   "ChoseSuit": {

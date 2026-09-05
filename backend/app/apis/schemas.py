@@ -30,6 +30,8 @@ class AppInfoResponse(BaseModel):
     server_controls_visible: bool
     player_level_max: int
     player_level_max_exp_map: dict[int, int]
+    player_honor_level_max: int
+    player_honor_level_max_exp_map: dict[int, int]
     player_portrait_url_map: dict[int, str]
     player_portrait_frame_url_map: dict[int, str]
     player_portrait_name_map: dict[int, str]
@@ -542,6 +544,7 @@ class PlayerProfileResponse(BaseModel):
     name: str | None = None
     gender: int | None = None
     level: int | None = None
+    honor_level: int | None = None
     likes: int | None = None
     exp: int = 0
     money: int = 0

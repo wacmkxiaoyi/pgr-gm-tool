@@ -56,6 +56,8 @@ class PlayerProfileService:
             update_fields[PLAYER_DOCUMENT_FIELD_PATHS["gender"]] = payload.gender
         if payload.level is not None:
             update_fields[PLAYER_DOCUMENT_FIELD_PATHS["level"]] = payload.level
+        if payload.honor_level is not None:
+            update_fields[PLAYER_DOCUMENT_FIELD_PATHS["honor_level"]] = payload.honor_level
         if payload.likes is not None:
             update_fields[PLAYER_DOCUMENT_FIELD_PATHS["likes"]] = payload.likes
         if payload.exp is not None:
@@ -159,6 +161,7 @@ class PlayerProfileService:
                     "player_data.Name": 1,
                     "player_data.Gender": 1,
                     "player_data.Level": 1,
+                    "player_data.HonorLevel": 1,
                     "player_data.Likes": 1,
                     "player_data.CurrHeadPortraitId": 1,
                     f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}": 1,
@@ -191,6 +194,7 @@ class PlayerProfileService:
             name=parse_optional_string(player_data.get("Name")),
             gender=parse_optional_int(player_data.get("Gender")),
             level=parse_optional_int(player_data.get("Level")),
+            honor_level=parse_optional_int(player_data.get("HonorLevel")),
             likes=parse_optional_int(player_data.get("Likes")),
             exp=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["exp"], 0),
             money=inventory_quantities.get(PLAYER_PROFILE_ITEM_FIELD_MAP["money"], 0),

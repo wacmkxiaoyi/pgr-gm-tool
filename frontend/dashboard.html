@@ -192,7 +192,7 @@
                       <div class="database-player-card-meta-row">
                         <span class="database-player-card-tag">
                           <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">性别</span>
-                          <strong id="player-card-gender">--</strong>
+                          <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
                         </span>
                         <span class="database-player-card-tag database-player-card-tag-likes">
                           <span class="database-player-card-tag-label" aria-label="点赞" data-i18n-aria-label="dashboard.playerLikes">👍</span>
@@ -222,10 +222,14 @@
                         </div>
                       </div>
                     </div>
+                    <div class="database-player-card-honor-bar" id="player-card-honor-bar" aria-label="等级" data-i18n-aria-label="dashboard.playerLevel" hidden>
+                      <strong class="database-player-card-honor-value" id="player-card-honor-level">--</strong>
+                      <span class="database-player-card-honor-label" data-i18n="dashboard.playerLevel">等级</span>
+                    </div>
                     <div class="database-player-card-stats" aria-label="玩家等级与经验" data-i18n-aria-label="dashboard.playerStatsAria">
                       <div class="database-player-card-level-hud">
                         <div class="database-player-card-level-orb">
-                          <span class="database-player-card-level-label" data-i18n="dashboard.playerLevel">等级</span>
+                          <span class="database-player-card-level-label" id="player-card-level-label" data-i18n="dashboard.playerLevel">等级</span>
                           <strong class="database-player-card-level-value" id="player-card-level" data-player-edit-field="level">--</strong>
                         </div>
                         <div class="database-player-card-exp-bar">

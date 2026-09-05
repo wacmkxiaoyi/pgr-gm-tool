@@ -22,6 +22,7 @@ FASHION_TSV_PATH = Path("assets/Fashion.tsv")
 HEAD_PORTRAIT_TSV_PATH = Path("assets/HeadPortrait.tsv")
 BACKGROUND_TSV_PATH = Path("assets/Background.tsv")
 PLAYER_LEVEL_TSV_PATH = Path("assets/Player.tsv")
+HONOR_LEVEL_TSV_PATH = Path("assets/HonorLevel.tsv")
 
 ITEM_TSV_PATH = Path("assets/Item.tsv")
 STAGE_TSV_PATH = Path("assets/Stage.tsv")

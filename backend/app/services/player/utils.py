@@ -55,15 +55,30 @@ def normalize_int_asset_map(raw_map: dict[object, object], prefix: str) -> dict[
 def extract_int_list(sub_row: dict[str, object], columns: list[str], dedupe: bool = False) -> list[int]:
     values: list[int] = []
     seen_values: set[int] = set()
+
+    def append_value(raw_value: object) -> None:
+        normalized_value = parse_int(raw_value)
+        if normalized_value is None:
+            return
+        if dedupe and normalized_value in seen_values:
+            return
+        seen_values.add(normalized_value)
+        values.append(normalized_value)
+
     for column in columns:
-        value = parse_int(sub_row.get(column))
-        if value is None:
+        raw_value = sub_row.get(column)
+        if isinstance(raw_value, list):
+            for item in raw_value:
+                append_value(item)
             continue
-        if dedupe:
-            if value in seen_values:
-                continue
-            seen_values.add(value)
-        values.append(value)
+        if isinstance(raw_value, dict):
+            for _, item in sorted(
+                raw_value.items(),
+                key=lambda pair: parse_int(pair[0]) if parse_int(pair[0]) is not None else float("inf"),
+            ):
+                append_value(item)
+            continue
+        append_value(raw_value)
     return values
 
 
