@@ -56,13 +56,7 @@ def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]
     normalized_slots: list[int] = []
     seen_slots: set[int] = set()
     for raw_entry in raw_awake_slot_list:
-        slot: int | None = None
-        if isinstance(raw_entry, dict):
-            slot = parse_optional_int(raw_entry.get("_id"))
-            if slot is None:
-                slot = parse_optional_int(raw_entry.get("Slot"))
-        else:
-            slot = parse_optional_int(raw_entry)
+        slot = parse_optional_int(raw_entry)
 
         if slot is None or slot not in allowed_slots or slot in seen_slots:
             continue
@@ -71,10 +65,6 @@ def _normalize_awake_slot_list(raw_awake_slot_list: Any, allowed_slots: set[int]
         normalized_slots.append(slot)
 
     return normalized_slots
-
-
-def _serialize_awake_slot_list(awake_slot_list: list[int]) -> list[dict[str, int]]:
-    return [{"_id": int(slot)} for slot in awake_slot_list if isinstance(slot, int)]
 
 
 def _get_weapon_search_priority(
@@ -1645,7 +1635,7 @@ class PlayerEquipsService:
         target_equip["ResonanceInfo"] = [
             entry.model_dump() for entry in existing_resonance
         ]
-        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        target_equip["AwakeSlotList"] = awake_slot_list
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 
@@ -1748,7 +1738,7 @@ class PlayerEquipsService:
             awake_slot_list = []
 
         target_equip["ResonanceInfo"] = [entry.model_dump() for entry in filtered_resonance]
-        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        target_equip["AwakeSlotList"] = awake_slot_list
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 
@@ -1918,7 +1908,7 @@ class PlayerEquipsService:
         target_equip["ResonanceInfo"] = [
             entry.model_dump() for entry in filtered_resonance
         ]
-        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        target_equip["AwakeSlotList"] = awake_slot_list
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 
@@ -1997,7 +1987,7 @@ class PlayerEquipsService:
         awake_slot_list = [slot for slot in awake_slot_list if slot != normalized_slot]
 
         target_equip["ResonanceInfo"] = [entry.model_dump() for entry in filtered_resonance]
-        target_equip["AwakeSlotList"] = _serialize_awake_slot_list(awake_slot_list)
+        target_equip["AwakeSlotList"] = awake_slot_list
         raw_equips[target_index] = target_equip
         normalized_update = self._build_equips_update(raw_equips)
 

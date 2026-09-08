@@ -40,10 +40,6 @@ CharacterSortField = Literal["sequence", "name", "quality", "level", "grade", "a
 CharacterSortOrder = Literal["asc", "desc"]
 
 
-def _serialize_awake_slot_list(awake_slot_list: list[int]) -> list[dict[str, int]]:
-    return [{"_id": int(slot)} for slot in awake_slot_list if isinstance(slot, int)]
-
-
 def _is_memory_template_id(template_id: int | None) -> bool:
     if template_id is None:
         return False
@@ -510,7 +506,7 @@ class PlayerCharactersService:
             "Breakthrough": equip_template.get("Breakthrough", 0),
             "ResonanceInfo": equip_template.get("ResonanceInfo", []),
             "UnconfirmedResonanceInfo": [],
-            "AwakeSlotList": _serialize_awake_slot_list(list(equip_template.get("AwakeSlotList", []))),
+            "AwakeSlotList": list(equip_template.get("AwakeSlotList", [])),
             "IsLock": False,
             "CreateTime": Int64(now),
             "IsRecycle": False,

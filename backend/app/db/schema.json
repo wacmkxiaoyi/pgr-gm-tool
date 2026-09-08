@@ -117,28 +117,22 @@
               "type": "array",
               "default": [],
               "schema": {
-                "_id": {
-                  "type": "number",
-                  "description": "Mark's Id"
-                }
+                "type": "number",
+                "description": "Mark's Id"
               }
             },
             "GuideData": {
               "type": "array",
               "default": [],
               "schema": {
-                "_id": {
-                  "type": "number"
-                }
+                "type": "number"
               }
             },
             "Communications": {
               "type": "array",
               "default": [102],
               "schema": {
-                "_id": {
-                  "type": "number"
-                }
+                "type": "number"
               }
             },
             "ShowCharacters": {
@@ -487,10 +481,8 @@
               "type": "array",
               "default": [],
               "schema": {
-                "_id": {
-                  "type": "number",
-                  "description": "resonance slot"
-                }
+                "type": "number",
+                "description": "resonance slot"
               }
             },
             "IsLock": {
@@ -612,20 +604,16 @@
                 },
                 "BestCardIds": {
                   "type": "array",
-                  "default": [1021001],
+                  "default": [],
                   "schema": {
-                    "_id": {
-                      "type": "number"
-                    }
+                    "type": "number"
                   }
                 },
                 "LastCardIds": {
                   "type": "array",
-                  "default": [1021001],
+                  "default": [],
                   "schema": {
-                    "_id": {
-                      "type": "number"
-                    }
+                    "type": "number"
                   }
                 }
               }

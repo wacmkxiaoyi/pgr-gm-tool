@@ -1,4 +1,5 @@
-from backend.app.services.db_schema_runtime import CompiledCollectionSchema
+from backend.app.services.db_schema_runtime import CompiledCollectionSchema, DatabaseSchemaRuntime
+from backend.app.services.player.player_equips_service import _normalize_awake_slot_list
 
 
 def test_object_node_prefers_its_own_default_when_missing() -> None:
@@ -108,3 +109,41 @@ def test_scalar_array_keeps_integer_items_when_materialized() -> None:
     )
 
     assert sanitized == {"WeaponOverrunData": {"ActiveSuits": [100101]}}
+
+
+def test_player_data_scalar_arrays_materialize_as_numbers() -> None:
+    runtime = DatabaseSchemaRuntime("4.0")
+    player_schema = runtime.get_collection_schema("players")
+
+    assert player_schema is not None
+    materialized = player_schema.materialize_write(
+        {
+            "Marks": [1, 2],
+            "GuideData": [3, 4],
+            "Communications": [102, 103],
+        },
+        "player_data",
+    )
+    assert {
+        field: materialized[field]
+        for field in ("Marks", "GuideData", "Communications")
+    } == {
+        "Marks": [1, 2],
+        "GuideData": [3, 4],
+        "Communications": [102, 103],
+    }
+
+
+def test_equip_awake_slot_list_materializes_as_numbers() -> None:
+    runtime = DatabaseSchemaRuntime("4.0")
+    characters_schema = runtime.get_collection_schema("characters")
+
+    assert characters_schema is not None
+    assert characters_schema.materialize_write(
+        {"AwakeSlotList": [1, 2]},
+        "equips.0",
+    )["AwakeSlotList"] == [1, 2]
+
+
+def test_awake_slot_list_normalization_rejects_legacy_objects() -> None:
+    assert _normalize_awake_slot_list([1, {"_id": 2}, {"Slot": 3}], {1, 2, 3}) == [1]
