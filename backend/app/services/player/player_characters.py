@@ -12,6 +12,9 @@ from backend.app.services.player.utils import extract_int_list, normalize_asset_
 from backend.app.utils.tsv_reader import TSVReader
 
 
+REMOVED_FASHION_IDS = {6902301}
+
+
 def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[str, Any] | None:
     normalized_template_id = parse_int(template_id)
     if normalized_template_id is None:
@@ -383,7 +386,8 @@ def get_character_head_icon_url_map() -> dict[int, str]:
             continue
 
         character_id = parse_int(row.get("CharacterId"))
-        if character_id is None:
+        fashion_id = parse_int(row.get("Id"))
+        if character_id is None or fashion_id is None or fashion_id in REMOVED_FASHION_IDS:
             continue
 
         if character_id in normalized_map:
@@ -417,7 +421,7 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
         fashion_id = parse_int(row.get("Id"))
         quality = parse_int(row.get("Quality"))
 
-        if character_id is None or fashion_id is None or quality is None:
+        if character_id is None or fashion_id is None or quality is None or fashion_id in REMOVED_FASHION_IDS:
             continue
 
         big_icon = normalize_asset_path(str(row.get("BigIcon", "")), ICON_TOOLS_ASSET_PREFIX)
