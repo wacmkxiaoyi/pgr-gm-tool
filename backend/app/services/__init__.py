@@ -45,7 +45,7 @@ def _build_error_response(request: Request, status_code: int, code: str, details
     )
 
 def init_app(app, settings):
-    from backend.app.apis import router
+    from backend.app.apis import router, server_management_router
 
     app.state.settings = settings
     app.state.db_schema_runtime = init_database_schema_runtime(settings.server_version)
@@ -73,10 +73,13 @@ def init_app(app, settings):
         app.mount("/assets", StaticFiles(directory=settings.ASSETS_DIR), name="assets")
 
     app.include_router(router)
+    if settings.enable_server_management:
+        app.include_router(server_management_router)
 
     @app.on_event("startup")
     async def _startup_health_checks() -> None:
-        app.state.health_check_task = asyncio.create_task(health_check_loop(settings))
+        if settings.enable_server_management:
+            app.state.health_check_task = asyncio.create_task(health_check_loop(settings))
         app.state.database_health_check_task = asyncio.create_task(database_health_check_loop(settings))
 
     @app.on_event("shutdown")

@@ -153,6 +153,22 @@ app.getWeaponOverrunSelection = (extraInfo = state.currentEquipDetailExtraInfo) 
   };
 };
 
+app.getWeaponOverrunMatchCount = (suitId, extraInfo = state.currentEquipDetailExtraInfo) => {
+  const currentMemoryIds = Array.isArray(extraInfo?.current_character_memories)
+    ? new Set(extraInfo.current_character_memories.map(Number).filter(Number.isFinite))
+    : null;
+  const requiredMemoryIds = state.weaponOverrunSuitMemoryIdsMap?.[suitId];
+  if (!currentMemoryIds || !(requiredMemoryIds && typeof requiredMemoryIds === 'object')) {
+    return 0;
+  }
+
+  return Object.values(requiredMemoryIds)
+    .map(Number)
+    .filter(Number.isFinite)
+    .filter((memoryId) => currentMemoryIds.has(memoryId))
+    .length;
+};
+
 app.estimateWeaponOverrunPickerLineBudget = (rowCount) => {
   const normalizedRowCount = Number.isFinite(Number(rowCount)) ? Math.max(0, Number(rowCount)) : 0;
   if (normalizedRowCount <= 0) {
@@ -226,6 +242,7 @@ app.buildWeaponOverrunCardMarkup = ({
   suitEntry = null,
   level = null,
   maxLevel = null,
+  matchCount = 0,
   mode = 'detail',
   selected = false,
 } = {}) => {
@@ -260,8 +277,9 @@ app.buildWeaponOverrunCardMarkup = ({
           ? ` data-equip-tooltip-text="${app.escapeHtml(text)}" tabindex="0"`
           : '';
         const rowStyle = isPicker ? ` style="--weapon-overrun-picker-lines:${Math.max(1, lineBudgets[index] ?? 1)};"` : '';
+        const isMatched = Number.isFinite(Number(matchCount)) && Number(matchCount) >= pieces;
         return `
-          <div class="weapon-detail-overrun-line${isPicker ? ' weapon-overrun-picker-line' : ''}"${rowStyle}${tooltipAttr}>
+          <div class="weapon-detail-overrun-line${isPicker ? ' weapon-overrun-picker-line' : ''}${isMatched ? ' is-matched' : ''}"${rowStyle}${tooltipAttr}>
             <strong class="weapon-detail-overrun-label">${escapedLabel}:</strong>
             <span class="weapon-detail-overrun-text${result.truncated ? ' is-truncated' : ''}">${escapedText}</span>
           </div>
@@ -317,13 +335,18 @@ app.renderWeaponOverrunPickerGrid = () => {
 
   const selectedSuitId = Number(state._weaponOverrunPickerSelectedSuitId);
   const suitEntries = Object.entries(state.weaponOverrunSuitEntriesMap || {})
-    .map(([idRaw, entry]) => ({ id: Number(idRaw), entry }))
+    .map(([idRaw, entry]) => ({
+      id: Number(idRaw),
+      entry,
+      matchCount: app.getWeaponOverrunMatchCount(Number(idRaw)),
+    }))
     .filter(({ id, entry }) => Number.isFinite(id) && entry && typeof entry === 'object')
-    .sort((left, right) => left.id - right.id);
+    .sort((left, right) => right.matchCount - left.matchCount || left.id - right.id);
 
-  weaponOverrunPickerGrid.innerHTML = suitEntries.map(({ id, entry }) => app.buildWeaponOverrunCardMarkup({
+  weaponOverrunPickerGrid.innerHTML = suitEntries.map(({ id, entry, matchCount }) => app.buildWeaponOverrunCardMarkup({
     suitId: id,
     suitEntry: entry,
+    matchCount,
     mode: 'picker',
     selected: id === selectedSuitId,
   })).join('');
@@ -486,7 +509,13 @@ app.renderWeaponOverrunContentInto = (container, extraInfo, { editable = false }
   container.className = editable
     ? 'weapon-detail-overrun weapon-detail-overrun-host weapon-detail-overrun-editable'
     : 'weapon-detail-overrun weapon-detail-overrun-host';
-  container.innerHTML = app.buildWeaponOverrunCardMarkup({ suitEntry, level, maxLevel, mode: 'detail' });
+  container.innerHTML = app.buildWeaponOverrunCardMarkup({
+    suitEntry,
+    level,
+    maxLevel,
+    matchCount: app.getWeaponOverrunMatchCount(weaponOverrunData?.chose_suit, extraInfo),
+    mode: 'detail',
+  });
   container.removeAttribute('tabindex');
   container.removeAttribute('role');
   if (editable) {

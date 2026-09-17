@@ -52,6 +52,7 @@ class WeaponExtraInfoRecord(BaseModel):
     resonance_info: list[WeaponResonanceExtraInfoRecord] | None = None
     awake_slot_list: list[int] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoRecord | None = None
+    current_character_memories: list[int] | None = None
 
 
 class MemoryExtraInfoRecord(BaseModel):

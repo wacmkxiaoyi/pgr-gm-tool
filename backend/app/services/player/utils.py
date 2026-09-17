@@ -17,7 +17,7 @@ def normalize_asset_path(raw_path: object, prefix: str) -> str | None:
     filename = Path(str(raw_path).strip()).name.strip().lower()
     if not filename:
         return None
-    return f"{prefix}{filename}"
+    return f"{prefix}{Path(filename).stem}.webp"
 
 
 def normalize_int_text_map(raw_map: dict[object, object]) -> dict[int, str]:

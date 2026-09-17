@@ -266,6 +266,10 @@ app.renderDatabaseSnapshot = (payload) => {
 };
 
 app.loadStatus = async () => {
+  if (!state.serverManagementEnabled) {
+    return 60;
+  }
+
   try {
     const payload = await app.apiFetch('/api/server-status');
     app.renderSnapshot(payload);
@@ -291,7 +295,9 @@ app.loadStatus = async () => {
 app.loadAppInfo = async () => {
   try {
     const payload = await app.apiFetch('/api/app-info');
-    state.serverControlsVisible = Boolean(payload?.server_controls_visible);
+    state.serverManagementEnabled = Boolean(payload?.server_management_enabled);
+    state.serverControlsVisible = state.serverManagementEnabled && Boolean(payload?.server_controls_visible);
+    app.setServerManagementEnabled(state.serverManagementEnabled);
     state.playerLevelMax = Number.isFinite(Number(payload?.player_level_max)) ? Math.max(0, Number(payload.player_level_max)) : 0;
     state.playerLevelMaxExpMap = payload?.player_level_max_exp_map && typeof payload.player_level_max_exp_map === 'object' ? payload.player_level_max_exp_map : {};
     state.playerHonorLevelMax = Number.isFinite(Number(payload?.player_honor_level_max)) ? Math.max(0, Number(payload.player_honor_level_max)) : 0;
@@ -316,6 +322,7 @@ app.loadAppInfo = async () => {
     state.stageEntriesMap = payload?.stage_entries_map && typeof payload.stage_entries_map === 'object' ? payload.stage_entries_map : {};
     state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
     state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
+    state.weaponOverrunSuitMemoryIdsMap = payload?.weapon_overrun_suit_memory_ids_map && typeof payload.weapon_overrun_suit_memory_ids_map === 'object' ? payload.weapon_overrun_suit_memory_ids_map : {};
     state.weaponSkillPoolEntriesMap = payload?.weapon_skill_pool_entries_map && typeof payload.weapon_skill_pool_entries_map === 'object' ? payload.weapon_skill_pool_entries_map : {};
     state.attribPoolEntriesMap = payload?.attrib_pool_entries_map && typeof payload.attrib_pool_entries_map === 'object' ? payload.attrib_pool_entries_map : {};
     state.characterSkillPoolEntriesMap = payload?.character_skill_pool_entries_map && typeof payload.character_skill_pool_entries_map === 'object' ? payload.character_skill_pool_entries_map : {};
@@ -331,7 +338,9 @@ app.loadAppInfo = async () => {
       statusControls.hidden = !state.serverControlsVisible;
     }
   } catch {
+    state.serverManagementEnabled = false;
     state.serverControlsVisible = false;
+    app.setServerManagementEnabled(false);
     state.playerLevelMax = 0;
     state.playerLevelMaxExpMap = {};
     state.playerHonorLevelMax = 0;
@@ -350,6 +359,7 @@ app.loadAppInfo = async () => {
     state.stageEntriesMap = {};
     state.weaponSkillEntriesMap = {};
     state.weaponOverrunSuitEntriesMap = {};
+    state.weaponOverrunSuitMemoryIdsMap = {};
     state.weaponSkillPoolEntriesMap = {};
     state.attribPoolEntriesMap = {};
     state.characterSkillPoolEntriesMap = {};

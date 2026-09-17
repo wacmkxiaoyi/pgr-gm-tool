@@ -93,6 +93,7 @@ from backend.app.services.player.equips import (
 from backend.app.services.player.equips.constants import EQUIPPABLE_MEMORY_NUMS
 from backend.app.services.player.equips.weapon import (
     get_weapon_overrun_suit_entries_map,
+    get_weapon_overrun_suit_memory_ids_map,
     get_weapon_skill_entries_map,
     get_weapon_skill_pool_entries_map,
     get_weapon_type_name_map,
@@ -139,6 +140,7 @@ from backend.app.services.auth import SESSION_COOKIE_NAME, create_session, delet
 from backend.app.services.api_errors import raise_http_error
 
 router = APIRouter(prefix="/api")
+server_management_router = APIRouter(prefix="/api")
 
 PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
 PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
@@ -163,7 +165,8 @@ async def app_info(request: Request) -> AppInfoResponse:
         "name": settings.app_name,
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
-        "server_controls_visible": controller.controls_visible(),
+        "server_management_enabled": settings.enable_server_management,
+        "server_controls_visible": settings.enable_server_management and controller.controls_visible(),
         "player_level_max": get_player_level_max(),
         "player_level_max_exp_map": get_player_level_max_exp_map(),
         "player_honor_level_max": get_player_honor_level_max(),
@@ -183,6 +186,7 @@ async def app_info(request: Request) -> AppInfoResponse:
         "weapon_type_name_map": get_weapon_type_name_map(),
         "weapon_skill_entries_map": get_weapon_skill_entries_map(),
         "weapon_overrun_suit_entries_map": get_weapon_overrun_suit_entries_map() if supports_weapon_overrun else None,
+        "weapon_overrun_suit_memory_ids_map": get_weapon_overrun_suit_memory_ids_map() if supports_weapon_overrun else None,
         "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
         "attrib_pool_entries_map": get_attrib_pool_entries_map(),
         "character_log_name_map": get_character_log_name_map(),
@@ -195,7 +199,7 @@ async def app_info(request: Request) -> AppInfoResponse:
     })
 
 
-@router.get("/server-status", response_model=HealthStatusResponse)
+@server_management_router.get("/server-status", response_model=HealthStatusResponse)
 async def server_status(request: Request) -> HealthStatusResponse:
     settings = request.app.state.settings
     health_snapshot = get_health_snapshot(settings)
@@ -1977,7 +1981,7 @@ async def clear_selected_database_stages(
     return await stages_service.clear_stages(selected_uid)
 
 
-@router.post("/server-control/start")
+@server_management_router.post("/server-control/start")
 async def start_server(request: Request) -> dict[str, object]:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
@@ -1994,7 +1998,7 @@ async def start_server(request: Request) -> dict[str, object]:
     }
 
 
-@router.post("/server-control/stop")
+@server_management_router.post("/server-control/stop")
 async def stop_server(request: Request) -> dict[str, object]:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
@@ -2010,7 +2014,7 @@ async def stop_server(request: Request) -> dict[str, object]:
     }
 
 
-@router.get("/server-control/logs")
+@server_management_router.get("/server-control/logs")
 async def stream_server_logs(request: Request) -> StreamingResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
@@ -2030,7 +2034,7 @@ async def stream_server_logs(request: Request) -> StreamingResponse:
     )
 
 
-@router.get("/server-control/config", response_model=ServerConfigResponse)
+@server_management_router.get("/server-control/config", response_model=ServerConfigResponse)
 async def get_server_config(request: Request) -> ServerConfigResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
@@ -2061,7 +2065,7 @@ async def get_server_config(request: Request) -> ServerConfigResponse:
     )
 
 
-@router.put("/server-control/config", response_model=ServerConfigResponse)
+@server_management_router.put("/server-control/config", response_model=ServerConfigResponse)
 async def save_server_config(request: Request, payload: SaveServerConfigRequest) -> ServerConfigResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller

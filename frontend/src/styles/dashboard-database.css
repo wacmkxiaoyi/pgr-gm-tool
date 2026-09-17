@@ -2773,6 +2773,11 @@ button.character-equip-switch-current-card:focus-visible {
   color: rgba(30, 41, 59, 0.92);
 }
 
+.weapon-detail-overrun-line.is-matched .weapon-detail-overrun-label,
+.weapon-detail-overrun-line.is-matched .weapon-detail-overrun-text {
+  color: #dc2626;
+}
+
 .weapon-detail-overrun-editable .weapon-detail-overrun-surface {
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }

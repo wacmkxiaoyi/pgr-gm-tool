@@ -206,7 +206,7 @@ def is_database_snapshot_healthy(snapshot: dict[str, Any] | None) -> bool:
     if not services:
         return False
 
-    return all(service.get("latest", {}).get("state") == "healthy" for service in services)
+    return all((service.get("latest") or {}).get("state") == "healthy" for service in services)
 
 async def database_health_check_loop(settings: Settings) -> None:
     await run_database_health_check_once(settings)

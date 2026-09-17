@@ -450,14 +450,14 @@ app.openCharacterLevelEditModal = (trigger = null) => {
   }
 };
 
-app.getCharacterTrustBounds = (trustExpMap = state.characterTrustExpMap) => {
+app.getCharacterTrustBounds = (trustExpMap) => {
   if (!trustExpMap || typeof trustExpMap !== 'object') {
     return null;
   }
 
   const levels = Object.keys(trustExpMap)
     .map((key) => Number(key))
-    .filter((value) => Number.isFinite(value) && value > 0 && value <= 8)
+    .filter((value) => Number.isFinite(value) && value > 0)
     .sort((left, right) => left - right);
   if (levels.length === 0) {
     return null;
@@ -465,7 +465,7 @@ app.getCharacterTrustBounds = (trustExpMap = state.characterTrustExpMap) => {
 
   return {
     minTrustLv: levels[0],
-    maxTrustLv: Math.min(levels[levels.length - 1], 8),
+    maxTrustLv: levels[levels.length - 1],
   };
 };
 
@@ -487,8 +487,9 @@ app.getCharacterTrustExpLimit = (trustExpMap, trustLv) => {
 app.getCharacterTrustEditState = () => {
   const item = state.currentCharacterDetailItem;
   const extraInfo = state.currentCharacterDetailExtraInfo;
-  const trustExpMap = state.characterTrustExpMap && typeof state.characterTrustExpMap === 'object'
-    ? state.characterTrustExpMap
+  const characterId = Number.isFinite(Number(item?.CharacterId)) ? Number(item.CharacterId) : null;
+  const trustExpMap = characterId !== null && state.characterTrustExpMap && typeof state.characterTrustExpMap === 'object'
+    ? state.characterTrustExpMap[characterId]
     : null;
   if (!item || !extraInfo || typeof extraInfo !== 'object' || !trustExpMap) {
     return null;

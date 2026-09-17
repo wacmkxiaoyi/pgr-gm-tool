@@ -18,8 +18,12 @@ def get_stage_entries_map() -> dict[int, dict[str, str]]:
         if stage_id is None:
             continue
 
+        name = str(entry.get("Name", "")).strip()
+        if not name:
+            continue
+
         normalized_map[stage_id] = {
-            "Name": str(entry.get("Name", "")).strip(),
+            "Name": name,
             "Description": str(entry.get("Description", "")).strip(),
         }
 

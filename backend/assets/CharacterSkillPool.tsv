@@ -1,4 +1,4 @@
-Id	PoolId	Weight	SkillId	Icon	Name	Description
+﻿Id	PoolId	Weight	SkillId	Icon	Name	Description
 1	1	100	101201	Assets/Product/Texture/Image/IconSkill/R2lihong1.png	Precise Shots	Red Orb Level +1
 2	1	100	101206	Assets/Product/Texture/Image/IconSkill/R2lihuang1.png	Infernal Shot	Yellow Orb Level +1
 3	1	100	101211	Assets/Product/Texture/Image/IconSkill/R2lilan1.png	Magnetic Shot	Blue Orb Level +1
@@ -534,7 +534,7 @@ Id	PoolId	Weight	SkillId	Icon	Name	Description
 536	2	100	133317	Assets/Product/Texture/Image/IconSkill/R3Lilithdazhao1.png	Invitation to a Radiant Dream	Signature Move Level +1
 537	2	100	133318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Golden Blessing	QTE Level +1
 538	2	100	133321	Assets/Product/Texture/Image/IconSkill/R3Lilithhexin1.png	Unpredictable Tricks	Core Passive +1
-539	2	100	133323	Assets/Product/Texture/Image/IconSkill/R3Lilithhexin1.png	House of Cards	Class Skill Level +1
+539	2	100	133323	Assets/Product/Texture/Image/IconSkill/R3Lilithhexin1.png	Amplifier	Class Skill Level +1
 540	1	100	153501	Assets/Product/Texture/Image/IconSkill/R5Sailinnahong1.png	Flaming Chord	Red Orb Level +1
 541	1	100	153506	Assets/Product/Texture/Image/IconSkill/R5Sailinnahuang1.png	Thunderous Transposition	Yellow Orb Level +1
 542	1	100	153511	Assets/Product/Texture/Image/IconSkill/R5Sailinnalan1.png	Rhythmic Piercing	Blue Orb Level +1
@@ -557,5 +557,109 @@ Id	PoolId	Weight	SkillId	Icon	Name	Description
 559	1	100	113416	Assets/Product/Texture/Image/IconSkill/R4Weilapugong1.png	Wildfire Unbound	Basic Attack Level +1
 560	2	100	113417	Assets/Product/Texture/Image/IconSkill/R4Weiladazhao1.png	Thus Descends the Eternal Flame	Signature Move Level +1
 561	2	100	113418	Assets/Product/Texture/Image/IconSkill/QTE1.png	Infernal Silhouette	QTE Level +1
-562	2	100	113421	Assets/Product/Texture/Image/IconSkill/R4Weilahexin1.png	The Hour of Fire's Judgment	Core Passive +1
+562	2	100	113421	Assets/Product/Texture/Image/IconSkill/R4Weilahexin1.png	Cremating Judgment	Core Passive +1
 563	2	100	113423	Assets/Product/Texture/Image/IconSkill/R4Weilahexin1.png	Amplifier	Class Skill Level +1
+564	1	100	135301	Assets/Product/Texture/Image/IconSkill/R3Vergilhong1.png	Yamato	Red Orb Level +1
+565	1	100	135306	Assets/Product/Texture/Image/IconSkill/R3Vergilhuang1.png	Beowulf	Yellow Orb Level +1
+566	1	100	135311	Assets/Product/Texture/Image/IconSkill/R3Vergillan1.png	Mirage Edge	Blue Orb Level +1
+567	1	100	135316	Assets/Product/Texture/Image/IconSkill/R3Vergilpugong1.png	Trigger Heart	Basic Attack Level +1
+568	2	100	135317	Assets/Product/Texture/Image/IconSkill/R3Vergildazhao1.png	Sin Devil Trigger	Signature Move Level +1
+569	2	100	135318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Judgment Cut Fall	QTE Level +1
+570	2	100	135321	Assets/Product/Texture/Image/IconSkill/R3Vergilhexin1.png	Devil Hunter Skill	Core Passive +1
+571	2	100	135323	Assets/Product/Texture/Image/IconSkill/R3Vergilhexin1.png	Attacker	Class Skill Level +1
+572	1	100	136301	Assets/Product/Texture/Image/IconSkill/R3Dantehong1.png	Devil Sword Dante	Red Orb Level +1
+573	1	100	136306	Assets/Product/Texture/Image/IconSkill/R3Dantehuang1.png	Dr. Faust	Yellow Orb Level +1
+574	1	100	136311	Assets/Product/Texture/Image/IconSkill/R3Dantelan1.png	Balrog	Blue Orb Level +1
+575	1	100	136316	Assets/Product/Texture/Image/IconSkill/R3Dantepugong1.png	Trigger Heart	Basic Attack Level +1
+576	2	100	136317	Assets/Product/Texture/Image/IconSkill/R3Dantedazhao1.png	Sin Devil Trigger	Signature Move Level +1
+577	2	100	136318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Dance Macabre - Flash	QTE Level +1
+578	2	100	136321	Assets/Product/Texture/Image/IconSkill/R3Dantehexin1.png	Devil Hunter Skill	Core Passive +1
+579	2	100	136323	Assets/Product/Texture/Image/IconSkill/R3Dantehexin1.png	Attacker	Class Skill Level +1
+580	1	100	104501	Assets/Product/Texture/Image/IconSkill/R5Biankahong1.png	Twilight Judgment	Red Orb Level +1
+581	1	100	104506	Assets/Product/Texture/Image/IconSkill/R5Biankahuang1.png	Radiant Retribution	Yellow Orb Level +1
+582	1	100	104511	Assets/Product/Texture/Image/IconSkill/R5Biankalan1.png	Severed Sea	Blue Orb Level +1
+583	1	100	104516	Assets/Product/Texture/Image/IconSkill/R5Biankapugong1.png	Serpent Lashblade	Basic Attack Level +1
+584	2	100	104517	Assets/Product/Texture/Image/IconSkill/R5Biankadazhao1.png	Final Prayer	Signature Move Level + 1
+585	2	100	104518	Assets/Product/Texture/Image/IconSkill/QTE1.png	Chiaroscuro Concordance	QTE Level +1
+586	2	100	104521	Assets/Product/Texture/Image/IconSkill/R5Biankahexin1.png	Abyssal Rebirth	Core Passive +1
+587	2	100	104523	Assets/Product/Texture/Image/IconSkill/R5Biankahexin1.png	Attacker	Class Skill Level +1
+588	1	100	137201	Assets/Product/Texture/Image/IconSkill/R2Xiezouhong1.png	Staccato Slash	Red Orb Level +1
+589	1	100	137206	Assets/Product/Texture/Image/IconSkill/R2Xiezouhuang1.png	Spiral Bind	Yellow Orb Level +1
+590	1	100	137211	Assets/Product/Texture/Image/IconSkill/R2Xiezoulan1.png	Silk Snare	Blue Orb Level +1
+591	1	100	137216	Assets/Product/Texture/Image/IconSkill/R2Xiezoupugong1.png	Pattern Cut	Basic Attack Level +1
+592	2	100	137217	Assets/Product/Texture/Image/IconSkill/R2Xiezoudazhao1.png	Severing Finale	Signature Move Level + 1
+593	2	100	137218	Assets/Product/Texture/Image/IconSkill/QTE1.png	Needle Drop	QTE Level +1
+594	2	100	137221	Assets/Product/Texture/Image/IconSkill/R2Xiezouhexin1.png	Rending Fang	Core Passive +1
+595	2	100	137223	Assets/Product/Texture/Image/IconSkill/R2Xiezouhexin1.png	Attacker	Class Skill Level +1
+596	1	100	138301	Assets/Product/Texture/Image/IconSkill/R3Weiluonikahong1.png	Raging Thornfire	Red Orb Level +1
+597	1	100	138306	Assets/Product/Texture/Image/IconSkill/R3Weiluonikahuang1.png	Blazing Pierce	Yellow Orb Level +1
+598	1	100	138311	Assets/Product/Texture/Image/IconSkill/R3Weiluonikalan1.png	Twisted Prominence	Blue Orb Level +1
+599	1	100	138316	Assets/Product/Texture/Image/IconSkill/R3Weiluonikapugong1.png	Draconic Prelude	Basic Attack Level +1
+600	2	100	138317	Assets/Product/Texture/Image/IconSkill/R3Weiluonikadazhao1.png	Ember Renewal	Signature Move Level +1
+601	2	100	138318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Malevolent Revival	QTE Level +1
+602	2	100	138321	Assets/Product/Texture/Image/IconSkill/R3Weiluonikahexin1.png	Purging Judgment	Core Passive +1
+603	2	100	138323	Assets/Product/Texture/Image/IconSkill/R3Weiluonikahexin1.png	Amplifier	Class Skill Level +1
+604	1	100	103501	Assets/Product/Texture/Image/IconSkill/R5Lifuhong1.png	Veil Pierce	Red Orb Level +1
+605	1	100	103506	Assets/Product/Texture/Image/IconSkill/R5Lifuhuang1.png	Scattered Delusion	Yellow Orb Level +1
+606	1	100	103511	Assets/Product/Texture/Image/IconSkill/R5Lifulan1.png	Mirror of Impermanence	Blue Orb Level +1
+607	1	100	103516	Assets/Product/Texture/Image/IconSkill/R5Lifupugong1.png	Winged Captivity	Basic Attack Level +1
+608	2	100	103517	Assets/Product/Texture/Image/IconSkill/R5Lifudazhao1.png	Cosmic Rebirth	Signature Move Level + 1
+609	2	100	103518	Assets/Product/Texture/Image/IconSkill/QTE1.png	Galactic Hymn	QTE Level +1
+610	2	100	103521	Assets/Product/Texture/Image/IconSkill/R5Lifuhexin1.png	Light of Awakening	Core Passive +1
+611	2	100	103523	Assets/Product/Texture/Image/IconSkill/R5Lifuhexin1.png	Attacker	Class Skill Level +1
+612	1	100	129301	Assets/Product/Texture/Image/IconSkill/R3Buouxionghong1.png	Dual-Feed Rotor	Red Orb Level +1
+613	1	100	129306	Assets/Product/Texture/Image/IconSkill/R3Buouxionghuang1.png	Ultra Bass Reverb	Yellow Orb Level +1
+614	1	100	129311	Assets/Product/Texture/Image/IconSkill/R3Buouxionglan1.png	Mega Distortion	Blue Orb Level +1
+615	1	100	129316	Assets/Product/Texture/Image/IconSkill/R3Buouxiongpugong1.png	Fourier Expansion	Basic Attack Level +1
+616	2	100	129317	Assets/Product/Texture/Image/IconSkill/R3Buouxiongdazhao1.png	Z-Transform	Signature Move Level + 1
+617	2	100	129318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Parametric Equalizer	QTE Level +1
+618	2	100	129321	Assets/Product/Texture/Image/IconSkill/R3Buouxionghexin1.png	Integrated Neon	Core Passive +1
+619	2	100	129323	Assets/Product/Texture/Image/IconSkill/R3Buouxionghexin1.png	Amplifier	Class Skill Level +1
+620	1	100	114401	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitahong1.png	Sinful Peak	Red Orb Level +1
+621	1	100	114406	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitahuang1.png	Cursed Edge	Yellow Orb Level +1
+622	1	100	114411	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitalan1.png	Night Vanguard	Blue Orb Level +1
+623	1	100	114416	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitapugong1.png	Twin Order	Basic Attack Level +1
+624	2	100	114417	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitadazhao1.png	Omniversal Step	Signature Move Level + 1
+625	2	100	114418	Assets/Product/Texture/Image/IconSkill/QTE1.png	Sovereign Domain	QTE Level +1
+626	2	100	114421	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitahexin1.png	Battle Intent	Core Passive +1
+627	2	100	114423	Assets/Product/Texture/Image/IconSkill/R4Luosaita/R4Luosaitahexin1.png	Breaker	Class Skill Level +1
+628	1	100	139301	Assets/Product/Texture/Image/IconSkill/R3Nietiyahong1.png	Reaper's Judgment	Red Orb Level +1
+629	1	100	139306	Assets/Product/Texture/Image/IconSkill/R3Nietiyahuang1.png	Void Dirge	Yellow Orb Level +1
+630	1	100	139311	Assets/Product/Texture/Image/IconSkill/R3Nietiyalan1.png	Burial Rites	Blue Orb Level +1
+631	1	100	139316	Assets/Product/Texture/Image/IconSkill/R3Nietiyapugong1.png	Deferred Eulogy	Basic Attack Level +1
+632	2	100	139317	Assets/Product/Texture/Image/IconSkill/R3Nietiyadazhao1.png	Death's Kiss	Signature Move Level + 1
+633	2	100	139318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Ferryman's Covenant	QTE Level +1
+634	2	100	139321	Assets/Product/Texture/Image/IconSkill/R3Nietiyahexin1.png	Weary Wayfarer	Core Passive +1
+635	2	100	139323	Assets/Product/Texture/Image/IconSkill/R3Nietiyahexin1.png	Amplifier	Class Skill Level +1
+636	1	100	106401	Assets/Product/Texture/Image/IconSkill/R4Shenweihong1.png	Solar Rend	Red Orb Level +1
+637	1	100	106406	Assets/Product/Texture/Image/IconSkill/R4Shenweihuang1.png	Lightning Inferno	Yellow Orb Level +1
+638	1	100	106411	Assets/Product/Texture/Image/IconSkill/R4Shenweilan1.png	Heartfall	Blue Orb Level +1
+639	1	100	106416	Assets/Product/Texture/Image/IconSkill/R4Shenweipugong1.png	Retemper	Basic Attack Level +1
+640	2	100	106417	Assets/Product/Texture/Image/IconSkill/R4Shenweidazhao1.png	Molten Heart	Signature Move Level + 1
+641	2	100	106418	Assets/Product/Texture/Image/IconSkill/QTE1.png	Blazing Surge	QTE Level +1
+642	2	100	106421	Assets/Product/Texture/Image/IconSkill/R4Shenweixin1.png	Golden Sun	Core Passive +1
+643	2	100	106423	Assets/Product/Texture/Image/IconSkill/R4Shenweixin1.png	Breaker	Class Skill Level +1
+644	1	100	102701	Assets/Product/Texture/Image/IconSkill/R7Luxiyahong1.png	Abyssal Lament	Red Orb Level +1
+645	1	100	102706	Assets/Product/Texture/Image/IconSkill/R7Luxiyahuang1.png	Dusklit Severance	Yellow Orb Level +1
+646	1	100	102711	Assets/Product/Texture/Image/IconSkill/R7Luxiyalan1.png	Frosty Thorns	Blue Orb Level +1
+647	1	100	102716	Assets/Product/Texture/Image/IconSkill/R7Luxiyapugong1.png	Malevolent March	Basic Attack Level +1
+648	2	100	102717	Assets/Product/Texture/Image/IconSkill/R7Luxiyadazhao1.png	Silenced Abysslight	Signature Move Level + 1
+649	2	100	102718	Assets/Product/Texture/Image/IconSkill/QTE1.png	Savage Afterglow	QTE Level +1
+650	2	100	102721	Assets/Product/Texture/Image/IconSkill/R7Luxiyahexin1.png	Sequence Traversal	Core Passive +1
+651	2	100	102723	Assets/Product/Texture/Image/IconSkill/R7Luxiyahexin1.png	Attacker	Class Skill Level +1
+652	1	100	140301	Assets/Product/Texture/Image/IconSkill/R3Helentinehong1.png	Delusional Spin	Red Orb Level +1
+653	1	100	140306	Assets/Product/Texture/Image/IconSkill/R3Helentinehuang1.png	Withered Cycle	Yellow Orb Level +1
+654	1	100	140311	Assets/Product/Texture/Image/IconSkill/R3Helentinelan1.png	Withered Uprooting	Blue Orb Level +1
+655	1	100	140316	Assets/Product/Texture/Image/IconSkill/R3Helentinepugong1.png	Link Dissolution	Basic Attack Level +1
+656	2	100	140317	Assets/Product/Texture/Image/IconSkill/R3Helentinedazhao1.png	Allegory of the Wondrous Night	Signature Move Level + 1
+657	2	100	140318	Assets/Product/Texture/Image/IconSkill/QTE1.png	Fluid Emotions	QTE Level +1
+658	2	100	140321	Assets/Product/Texture/Image/IconSkill/R3Helentinehexin1.png	Seeking System	Core Passive +1
+659	2	100	140323	Assets/Product/Texture/Image/IconSkill/R3Helentinehexin1.png	Amplifier	Class Skill Level +1
+660	1	100	107501	Assets/Product/Texture/Image/IconSkill/R5Kalieninahong1.png	Helm Awakened	Red Orb Level +1
+661	1	100	107506	Assets/Product/Texture/Image/IconSkill/R5Kalieninahuang1.png	Ruinous Roar	Yellow Orb Level +1
+662	1	100	107511	Assets/Product/Texture/Image/IconSkill/R5Kalieninalan1.png	Buried Wrath	Blue Orb Level +1
+663	1	100	107516	Assets/Product/Texture/Image/IconSkill/R5Kalieninapugong1.png	Maelstrom Sunder	Basic Attack Level +1
+664	2	100	107517	Assets/Product/Texture/Image/IconSkill/R5Kalienina1.png	Boundless Deluge	Signature Move Level + 1
+665	2	100	107518	Assets/Product/Texture/Image/IconSkill/QTE1.png	Rising Tempest	QTE Level +1
+666	2	100	107521	Assets/Product/Texture/Image/IconSkill/R5Kalieninahexin1.png	Anchor of the Deep	Core Passive +1
+667	2	100	107523	Assets/Product/Texture/Image/IconSkill/R5Kalieninahexin1.png	Breaker	Class Skill Level +1

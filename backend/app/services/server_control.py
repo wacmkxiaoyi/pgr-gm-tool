@@ -115,7 +115,7 @@ def is_health_snapshot_healthy(snapshot: dict[str, Any] | None) -> bool:
     if not services:
         return False
 
-    return all(service.get("latest", {}).get("state") == "healthy" for service in services)
+    return all((service.get("latest") or {}).get("state") == "healthy" for service in services)
 
 
 def _now_iso() -> str:

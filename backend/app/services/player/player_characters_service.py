@@ -895,24 +895,6 @@ class PlayerCharactersService:
         if trust_exp < 0:
             raise ValueError("character.update_invalid_trust")
 
-        trust_exp_map = get_character_trust_exp_map()
-        if not trust_exp_map:
-            raise ValueError("character.update_invalid_trust")
-
-        trust_levels = sorted(level for level in trust_exp_map if isinstance(level, int) and level > 0 and level <= 8)
-        if not trust_levels:
-            raise ValueError("character.update_invalid_trust")
-
-        min_trust_lv = trust_levels[0]
-        max_trust_lv = min(trust_levels[-1], 8)
-        if trust_lv < min_trust_lv or trust_lv > max_trust_lv or trust_lv not in trust_exp_map:
-            raise ValueError("character.update_invalid_trust")
-
-        raw_limit = trust_exp_map[trust_lv]
-        allowed_max_exp = raw_limit if trust_lv == max_trust_lv else max(raw_limit - 1, 0)
-        if trust_exp > allowed_max_exp:
-            raise ValueError("character.update_invalid_trust")
-
         client = create_mongo_client(self._settings)
 
         try:
@@ -937,6 +919,21 @@ class PlayerCharactersService:
             character_id = parse_optional_int(target_character.get("_id"))
             if character_id is None:
                 raise ValueError("character.not_found")
+
+            trust_exp_map = get_character_trust_exp_map().get(character_id, {})
+            trust_levels = sorted(level for level in trust_exp_map if level > 0)
+            if not trust_levels:
+                raise ValueError("character.update_invalid_trust")
+
+            min_trust_lv = trust_levels[0]
+            max_trust_lv = trust_levels[-1]
+            if trust_lv < min_trust_lv or trust_lv > max_trust_lv or trust_lv not in trust_exp_map:
+                raise ValueError("character.update_invalid_trust")
+
+            raw_limit = trust_exp_map[trust_lv]
+            allowed_max_exp = raw_limit if trust_lv == max_trust_lv else max(raw_limit - 1, 0)
+            if trust_exp > allowed_max_exp:
+                raise ValueError("character.update_invalid_trust")
 
             target_character["TrustLv"] = trust_lv
             target_character["TrustExp"] = trust_exp

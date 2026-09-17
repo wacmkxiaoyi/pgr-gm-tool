@@ -95,7 +95,7 @@ const clearDatabaseStatusPollingTimer = () => {
 
 const scheduleStatusPolling = (intervalSeconds) => {
   clearStatusPollingTimer();
-  if (!state.healthPollingReady || !app.isServerManagementPageActive()) {
+  if (!state.healthPollingReady || !state.serverManagementEnabled || !app.isServerManagementPageActive()) {
     return;
   }
 
@@ -116,7 +116,7 @@ const scheduleDatabaseStatusPolling = (intervalSeconds) => {
 };
 
 const refreshStatusPolling = async () => {
-  if (!state.healthPollingReady || !app.isServerManagementPageActive()) {
+  if (!state.healthPollingReady || !state.serverManagementEnabled || !app.isServerManagementPageActive()) {
     clearStatusPollingTimer();
     return;
   }
@@ -158,7 +158,7 @@ app.refreshHealthPolling = () => {
     return;
   }
 
-  if (app.isServerManagementPageActive()) {
+  if (state.serverManagementEnabled && app.isServerManagementPageActive()) {
     if (!state.statusPollingTimerId) {
       void refreshStatusPolling();
     }
@@ -177,6 +177,7 @@ app.refreshHealthPolling = () => {
 
 const startPolling = async () => {
   await app.loadAppInfo();
+  app.setActiveDashboardPage(state.serverManagementEnabled ? 'server-management' : 'database-management');
   await app.loadSelectedAccount();
   state.healthPollingReady = true;
   app.refreshHealthPolling();
@@ -203,7 +204,7 @@ const initDashboard = () => {
   app.renderSelectedAccountBadge();
   app.resetPlayerProfileView();
   app.setConfigEditorValue('');
-  app.setActiveDashboardPage('server-management');
+  app.setActiveDashboardPage('database-management');
   app.setActiveDatabaseTab('database-service-status-section');
   app.updateDatabaseAccountsAccess(null);
   app.updateMemoryManagementAccess(null);

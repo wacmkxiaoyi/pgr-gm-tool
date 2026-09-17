@@ -338,6 +338,7 @@ export const dom = {
 };
 
 export const state = {
+  serverManagementEnabled: false,
   serverControlsVisible: false,
   serverControlState: null,
   serverControlFailureMessage: null,
@@ -396,6 +397,7 @@ export const state = {
   characterTrustExpMap: {},
   weaponSkillEntriesMap: {},
   weaponOverrunSuitEntriesMap: {},
+  weaponOverrunSuitMemoryIdsMap: {},
   weaponSkillPoolEntriesMap: {},
   attribPoolEntriesMap: {},
   characterSkillPoolEntriesMap: {},

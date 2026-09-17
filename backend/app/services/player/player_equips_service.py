@@ -1445,6 +1445,18 @@ class PlayerEquipsService:
 
         allows_overrun_data = self.supports_weapon_overrun_data()
 
+        current_character_memories = None
+        character_id = parse_optional_int(target_equip.get("CharacterId")) or 0
+        if character_id > 0:
+            current_character_memories = [
+                memory_template_id
+                for raw_equip in raw_equips
+                if isinstance(raw_equip, dict)
+                and (parse_optional_int(raw_equip.get("CharacterId")) or 0) == character_id
+                for memory_template_id in [parse_optional_int(raw_equip.get("TemplateId"))]
+                if _is_memory_template_id(memory_template_id)
+            ]
+
         weapon_overrun_data = None
         weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
         max_overrun_level = weapon_overrun_max_level_map.get(template_id)
@@ -1473,6 +1485,7 @@ class PlayerEquipsService:
             current_level_exp_limit=current_level_exp_limit,
             resonance_info=resonance_info,
             weapon_overrun_data=weapon_overrun_data,
+            current_character_memories=current_character_memories,
         )
 
     async def get_memory_extra_info(self, uid: int, record_id: int) -> MemoryExtraInfoRecord:

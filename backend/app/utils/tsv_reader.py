@@ -313,8 +313,20 @@ class TSVReader:
         with file_path.open("r", encoding="utf-8-sig", newline="") as file:
             rows = list(csv.DictReader(file, delimiter="\t"))
 
+        self.path = file_path
         self.typed = bool(typed)
         self.data = [self._coerce_row(row) for row in rows] if self.typed else rows
+
+    def _validate_columns(self, columns):
+        if not self.data:
+            return
+
+        available_columns = set(self.data[0])
+        invalid_columns = [column for column in columns if column not in available_columns]
+        if invalid_columns:
+            raise ValueError(
+                f"Unknown columns in {self.path}: {', '.join(invalid_columns)}"
+            )
 
     def _coerce_row(self, row):
         return {column: self._coerce_value(value) for column, value in row.items()}
@@ -375,9 +387,7 @@ class TSVReader:
             selected_columns = available_columns
         else:
             selected_columns = list(columns)
-            invalid_columns = [column for column in selected_columns if column not in available_column_set]
-            if invalid_columns:
-                raise ValueError(f"Unknown columns: {', '.join(invalid_columns)}")
+            self._validate_columns(selected_columns)
 
         query = query.strip()
         expression = _QueryParser(_tokenize(query)).parse() if query else None
@@ -401,6 +411,8 @@ class TSVReader:
         if len(key_columns) != len(value_columns):
             raise ValueError("key_columns and value_columns must have the same length")
 
+        self._validate_columns([*key_columns, *value_columns])
+
         query = query.strip()
         if query:
             selected_columns = []
@@ -423,6 +435,8 @@ class TSVReader:
     def get_sub_table(self, key_column, value_columns, query=""):
         if not isinstance(value_columns, list):
             value_columns = [value_columns]
+
+        self._validate_columns([key_column, *value_columns])
 
         query = query.strip()
         if query:

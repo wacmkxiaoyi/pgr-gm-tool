@@ -14,9 +14,11 @@ app.closeSidebar = () => {
 
 app.setActiveDashboardPage = (pageKey) => {
   let matched = false;
+  const serverManagementAvailable = app.state.serverManagementEnabled;
+  const isAvailablePage = (key) => key !== 'server-management' || serverManagementAvailable;
 
   sidebarLinks.forEach((link) => {
-    const isActive = link.dataset.dashboardPage === pageKey;
+    const isActive = isAvailablePage(link.dataset.dashboardPage) && link.dataset.dashboardPage === pageKey;
     link.classList.toggle('is-active', isActive);
     if (isActive) {
       matched = true;
@@ -24,13 +26,14 @@ app.setActiveDashboardPage = (pageKey) => {
   });
 
   dashboardPages.forEach((page) => {
-    const isActive = page.dataset.dashboardPanel === pageKey;
+    const isActive = isAvailablePage(page.dataset.dashboardPanel) && page.dataset.dashboardPanel === pageKey;
     page.classList.toggle('is-active', isActive);
     page.hidden = !isActive;
   });
 
-  if (!matched && sidebarLinks.length > 0) {
-    const fallbackPage = sidebarLinks[0].dataset.dashboardPage;
+  const availableLinks = sidebarLinks.filter((link) => isAvailablePage(link.dataset.dashboardPage));
+  if (!matched && availableLinks.length > 0) {
+    const fallbackPage = availableLinks[0].dataset.dashboardPage;
     if (fallbackPage && fallbackPage !== pageKey) {
       app.setActiveDashboardPage(fallbackPage);
       return;
@@ -38,6 +41,18 @@ app.setActiveDashboardPage = (pageKey) => {
   }
 
   app.refreshHealthPolling?.();
+};
+
+app.setServerManagementEnabled = (enabled) => {
+  const serverLink = sidebarLinks.find((link) => link.dataset.dashboardPage === 'server-management');
+  const serverPage = dashboardPages.find((page) => page.dataset.dashboardPanel === 'server-management');
+
+  if (serverLink) {
+    serverLink.hidden = !enabled;
+  }
+  if (serverPage) {
+    serverPage.hidden = !enabled;
+  }
 };
 
 app.focusContentStart = () => {

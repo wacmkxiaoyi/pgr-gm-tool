@@ -1,0 +1,42 @@
+﻿Id	NpcId	Name	Desc	RecommendElement	Icon	LiHuiPath	Priority	InitQuality	ChipItemId	ChipNeedCount	DecomposeItemId	DecomposeItemCount	PartnerType	RecommendCharacterId	NoCameraSwitchDuringTransformation	AvaliableTimeId
+16010000	4201	Yuan Ye	Stun	[2]	Assets/Product/Texture/Image/RolePartner/RolePartnerPet2Niu2.png	Assets/Product/Texture/Image/Pets/Pet2NiuonMd010011.png	10	2	201	30	[61]	[150]	1			
+16020000	4401	Noctua	Super Armor	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Xiao2.png	Assets/Product/Texture/Image/Pets/Pet3XiaoonMd010011.png	20	2	202	30	[61]	[150]	1			
+16030000	4203	Toniris	Pull, Charge	[4]	Assets/Product/Texture/Image/RolePartner/Pet3He2.png	Assets/Product/Texture/Image/Pets/Pet3HeonMd010011.png	30	3	203	30	[62]	[150]	1	1041003		
+16040000	4204	Frost Oath	Crowd Control, Protection	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Ma1.png	Assets/Product/Texture/Image/Pets/Pet3MaonMd010011.png	40	3	204	30	[62]	[150]	1	1141003		
+16050000	4205	Seeshell	Area, Freeze	[3]	Assets/Product/Texture/Image/RolePartner/Pet2Bei1.png	Assets/Product/Texture/Image/Pets/Pet2BeionMd010011.png	50	2	205	30	[61]	[150]	1			
+16060000	4206	Nitor	DMG	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Mao1.png	Assets/Product/Texture/Image/Pets/Pet3MaoonMd010011.png	60	3	206	30	[62]	[150]	1	1071003		
+16070000	4207	Lingya	DMG	[4]	Assets/Product/Texture/Image/RolePartner/Pet2Yang1.png	Assets/Product/Texture/Image/Pets/Pet2YangonMd010011.png	70	2	207	30	[61]	[150]	1			
+16080000	4208	Boreas	Charge	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Ying1.png	Assets/Product/Texture/Image/Pets/Pet3YingonMd010011.png	80	3	208	30	[62]	[150]	1	1121003		
+16090000	4209	Thorny	Charge	[1]	Assets/Product/Texture/Image/RolePartner/Pet2Ciwei.png	Assets/Product/Texture/Image/Pets/Pet2CiweionMd010011.png	90	2	209	30	[61]	[150]	1			
+16100000	4210	Jet Jaeger	Slash	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Hu.png	Assets/Product/Texture/Image/Pets/Pet3HuonMd010011.png	100	3	210	30	[62]	[150]	1	1051004		
+16110000	4211	Moonhopper	Control	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Tu1.png	Assets/Product/Texture/Image/Pets/Pet3TuonMd010011.png	110	3	211	30	[62]	[150]	1	1071004		
+16120000	4212	Shimmer	Pull, Charge	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Yu1.png	Assets/Product/Texture/Image/Pets/Pet3YuonMd010011.png	120	3	212	30	[62]	[150]	1	1041004		
+16130000	4213	Punchy	DMG	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Quan1.png	Assets/Product/Texture/Image/Pets/Pet3QuanonMd010011.png	130	3	213	30	[62]	[150]	1	1011004		
+16140000	4214	Rainbow	Pull, Damage	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Wuzei1.png	Assets/Product/Texture/Image/Pets/Pet3WuzeioffMd010011.png	140	3	214	30	[62]	[150]	1	1091003		
+16150000	4215	Motorbolt	Pull, Damage	[4]	Assets/Product/Texture/Image/RolePartner/Pet3Motor1.png	Assets/Product/Texture/Image/Pets/Pet3MotoroffMd010011.png	150	3	215	30	[62]	[150]	1	1021005		
+16160000	4216	Hades Fangs	Crowd Control, Damage	[4]	Assets/Product/Texture/Image/RolePartner/Pet3Wolf1.png	Assets/Product/Texture/Image/Pets/Pet3WolfoffMd010011.png	160	3	216	30	[62]	[150]	1	1221003		
+16170000	4217	Dawn Chorus	Damage, Super Armor	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Griffon1.png	Assets/Product/Texture/Image/Pets/Pet3GriffonoffMd010011.png	170	3	217	30	[62]	[150]	1	1261003		
+16180000	4218	Cetus	Damage, Crowd Control	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Dolphin1.png	Assets/Product/Texture/Image/Pets/Pet3DolphinoffMd010011.png	180	3	218	30	[62]	[150]	1	1271003		
+16190000	4219	Shadow Wing	Damage, Crowd Control	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Bat1.png	Assets/Product/Texture/Image/Pets/Pet3BatoffMd010011.png	190	3	219	30	[62]	[150]	1	1081004		
+16200000	4220	Huiyu	Damage, Crowd Control	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Peacock1.png	Assets/Product/Texture/Image/Pets/Pet3PeacockoffMd010011.png	200	3	220	30	[62]	[150]	1	1521004		
+16210000	4221	Guardrake	Crowd Control, Damage	[6]	Assets/Product/Texture/Image/RolePartner/Pet3Dragon1.png	Assets/Product/Texture/Image/Pets/Pet3DragonoffMd010011.png	210	3	221	30	[62]	[150]	1	1171004		
+16220000	4222	Dreamwing	Crowd Control, Damage	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Die1.png	Assets/Product/Texture/Image/Pets/Pet3DieoffMd010011.png	220	3	222	30	[62]	[150]	1	1241003		
+16230000	4223	Snowveil	Crowd Control, Damage	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Fox1.png	Assets/Product/Texture/Image/Pets/Pet3FoxoffMd010011.png	230	3	223	30	[62]	[150]	1	1211003		
+16240000	4224	Corvus	Crowd Control, Damage	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Raven1.png	Assets/Product/Texture/Image/Pets/Pet3RavenoffMd010011.png	240	3	224	30	[62]	[150]	1	1021006		
+16250000	4225	Bramble Angler	Pull, Damage	[4]	Assets/Product/Texture/Image/RolePartner/Pet3Anglerfish1.png	Assets/Product/Texture/Image/Pets/Pet3AnglerfishoffMd010011.png	250	3	225	30	[62]	[150]	1	1051005		
+16260000	4226	Diamaton	Pull, Damage	[6]	Assets/Product/Texture/Image/RolePartner/Pet3Pandora1.png	Assets/Product/Texture/Image/Pets/Pet3PandoraoffMd010011.png	260	3	226	30	[62]	[150]	1	1321003	true	
+16270000	4227	Billie	Pull, Damage	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Chiprobot1.png	Assets/Product/Texture/Image/Pets/Pet3ChiprobotoffMd010011.png	270	3	227	30	[62]	[150]	1	1331003		
+16280000	4228	Snow Waltz	Pull, Damage	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Speaker1.png	Assets/Product/Texture/Image/Pets/Pet3SpeakeronMd010011.png	280	3	228	30	[62]	[150]	1	1531005		
+16290000	4230	Wrathfang	Pull, Damage	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Redwolf1.png	Assets/Product/Texture/Image/Pets/Pet3RedwolfoffMd010011.png	290	3	229	30	[62]	[150]	1	1131004		
+16300000	4202	Mirage Blades	Crowd Control, Damage	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Vmirageblade1.png	Assets/Product/Texture/Image/Pets/Pet3VmiragebladeMd010011.png	300	3	230	30	[62]	[150]	2	1351003		910
+16310000	4229	Cavaliere	Pull, Damage	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Dcavaliere1.png	Assets/Product/Texture/Image/Pets/Pet3DcavaliereMd010011.png	310	3	231	30	[62]	[150]	2	1361003		910
+16320000	4231	Noctiluca	Damage	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Jellyfish1.png	Assets/Product/Texture/Image/Pets/Pet3JellyfishonMd010011.png	320	3	232	30	[62]	[150]	1	1041005		
+16330000	4233	Scaled Rampart	Pull, Damage	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Bladeshield1.png	Assets/Product/Texture/Image/Pets/Pet3BladeshieldonMd010011.png	330	3	233	30	[62]	[150]	1	1381003		
+16340000	4234	Levvi	Damage, Control	[4]	Assets/Product/Texture/Image/RolePartner/Pet3Wuya1.png	Assets/Product/Texture/Image/Pets/Pet3WuyaonMd010011.png	340	3	234	30	[62]	[150]	1	1031005		
+16350000	4235	Beep-Boop	Damage, Crowd Control	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Elecpanda1.png	Assets/Product/Texture/Image/Pets/Pet3ElecpandaonMd010011.png	350	3	235	30	[62]	[150]	1	1291003		
+16360000	4236	Buzzling	Damage, Crowd Control	[5]	Assets/Product/Texture/Image/RolePartner/Pet3Signal1.png	Assets/Product/Texture/Image/Pets/Pet3SignalonMd010011.png	360	3	236	30	[62]	[150]	1	1141004		
+16370000	4237	Morigan	Damage, Crowd Control	[6]	Assets/Product/Texture/Image/RolePartner/Pet3Duya1.png	Assets/Product/Texture/Image/Pets/Pet3CrowoffMd010011.png	370	3	237	30	[62]	[150]	1	1391003	true	
+16380000	4238	Ignis	Damage, Control	[2]	Assets/Product/Texture/Image/RolePartner/Pet3Lion1.png	Assets/Product/Texture/Image/Pets/Pet3LiononMd010011.png	380	3	238	30	[62]	[150]	1	1061004		
+16390000	4239	Allos	Damage, Control	[3]	Assets/Product/Texture/Image/RolePartner/Pet3Motordragon1.png	Assets/Product/Texture/Image/Pets/Pet3MotordragononMd010011.png	390	3	239	30	[62]	[150]	1	1021007		
+16400000	4240	Grand Duke	Pull, Damage	[4]	Assets/Product/Texture/Image/RolePartner/Pet3Chandelier1.png	Assets/Product/Texture/Image/Pets/Pet3ChandelieronMd010011.png	400	3	240	30	[62]	[150]	1	1401003	true	
+16410000	4241	Patrick	Pull, Damage	[1]	Assets/Product/Texture/Image/RolePartner/Pet3Starfish1.png	Assets/Product/Texture/Image/Pets/Pet3StarfishonMd010011.png	410	3	241	30	[62]	[150]	1	1071005		

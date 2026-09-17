@@ -1,10 +1,26 @@
 from __future__ import annotations
 
+import ast
+import json
 from functools import lru_cache
 
 from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, ROLE_WAFER_BAG_ASSET_PREFIX, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
+
+
+def _normalize_weapon_overrun_skill_description(value: object) -> str:
+    """Convert 4.7's indexed skill-description array to the legacy piece map."""
+    if not isinstance(value, list):
+        return str(value or "").strip()
+
+    descriptions = {
+        str(index + 1): text
+        for index, raw_text in enumerate(value)
+        for text in [str(raw_text or "").strip()]
+        if index % 2 == 1 and text
+    }
+    return json.dumps(descriptions, ensure_ascii=False, separators=(",", ":"))
 
 
 @lru_cache(maxsize=1)
@@ -118,7 +134,7 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
 
         normalized_map[suit_id] = {
             "Name": str(row.get("Name") or "").strip(),
-            "SkillDescription": str(row.get("SkillDescription") or "").strip(),
+            "SkillDescription": _normalize_weapon_overrun_skill_description(row.get("SkillDescription")),
             "WaferBagPath": normalize_asset_path(str(row.get(icon_column) or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
         }
 
@@ -139,7 +155,16 @@ def get_weapon_overrun_suit_memory_ids_map() -> dict[int, dict[int, int]]:
         if equip_ids_raw == "" or equip_ids_raw is None:
             continue
 
-        if isinstance(equip_ids_raw, dict):
+        if isinstance(equip_ids_raw, list):
+            parsed_map = {
+                slot: equip_id
+                for slot, raw_equip_id in enumerate(equip_ids_raw, start=1)
+                for equip_id in [parse_int(raw_equip_id)]
+                if equip_id is not None and equip_id > 0
+            }
+            if parsed_map:
+                normalized_map[suit_id] = parsed_map
+        elif isinstance(equip_ids_raw, dict):
             parsed_map: dict[int, int] = {}
             for slot_key, equip_id_val in equip_ids_raw.items():
                 try:
@@ -151,8 +176,6 @@ def get_weapon_overrun_suit_memory_ids_map() -> dict[int, dict[int, int]]:
             if parsed_map:
                 normalized_map[suit_id] = parsed_map
         elif isinstance(equip_ids_raw, str):
-            import ast
-            import json
             stripped = equip_ids_raw.strip()
             try:
                 parsed = json.loads(stripped)

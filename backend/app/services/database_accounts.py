@@ -74,6 +74,7 @@ class DatabaseAccountsService:
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             inventory_collection = database[INVENTORY_COLLECTION_NAME]
             stages_collection = database[STAGES_COLLECTION_NAME]
+            boss_inshot_rank_entries_collection = database["boss_inshot_rank_entries"]
 
             accounts_result = await accounts_collection.delete_many({"uid": uid})
             if accounts_result.deleted_count <= 0:
@@ -83,6 +84,7 @@ class DatabaseAccountsService:
             await characters_collection.delete_many({"uid": uid})
             await inventory_collection.delete_many({"uid": uid})
             await stages_collection.delete_many({"uid": uid})
+            await boss_inshot_rank_entries_collection.delete_many({"player_id": uid})
         finally:
             with contextlib.suppress(Exception):
                 client.close()

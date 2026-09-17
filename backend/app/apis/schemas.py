@@ -27,6 +27,7 @@ class AppInfoResponse(BaseModel):
     name: str
     mongo_db: str
     mongo_configured: bool
+    server_management_enabled: bool
     server_controls_visible: bool
     player_level_max: int
     player_level_max_exp_map: dict[int, int]
@@ -49,12 +50,13 @@ class AppInfoResponse(BaseModel):
     character_head_icon_url_map: dict[int, str]
     weapon_skill_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
     weapon_overrun_suit_entries_map: dict[int, dict[str, str]] | None = None
+    weapon_overrun_suit_memory_ids_map: dict[int, dict[int, int]] | None = None
     weapon_skill_pool_entries_map: dict[int, dict[int, list[int]]] = Field(default_factory=dict)
     attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
     character_skill_pool_entries_map: dict[int, dict[int, list[dict[str, object]]]] = Field(default_factory=dict)
     equip_resonance_map: dict[int, list[list[int]]] = Field(default_factory=dict)
     character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
-    character_trust_exp_map: dict[int, int] = Field(default_factory=dict)
+    character_trust_exp_map: dict[int, dict[int, int]] = Field(default_factory=dict)
     stage_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
 
 
@@ -440,6 +442,7 @@ class WeaponExtraInfoResponse(BaseModel):
     current_level_exp_limit: int | None = None
     resonance_info: list[EquipResonanceExtraInfoResponse] | None = None
     weapon_overrun_data: WeaponOverrunExtraInfoResponse | None = None
+    current_character_memories: list[int] | None = None
 
 
 class MemoryExtraInfoResponse(BaseModel):

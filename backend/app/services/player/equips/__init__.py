@@ -82,14 +82,22 @@ def get_equip_site_map() -> dict[int, str]:
 
 @lru_cache(maxsize=1)
 def get_equip_icon_url_map() -> dict[int, str]:
-    reader = TSVReader(EQUIP_RES_TSV_PATH, typed=True)
-    icon_map = reader.get_maps("Id", "BigIconPath")[0]
+    resource_reader = TSVReader(EQUIP_RES_TSV_PATH, typed=True)
+    icon_map = resource_reader.get_maps("Id", "BigIconPath")[0]
+    equip_reader = TSVReader(EQUIP_TSV_PATH, typed=True)
+    equip_ids = equip_reader.get_maps("Id", "Id")[0]
 
     normalized_map: dict[int, str] = {}
-    for equip_id_raw, asset_path_raw in icon_map.items():
+    for equip_id_raw in equip_ids:
         try:
             equip_id = int(equip_id_raw)
         except (TypeError, ValueError):
+            continue
+
+        asset_path_raw = icon_map.get(equip_id)
+        if asset_path_raw is None:
+            asset_path_raw = icon_map.get(str(equip_id), "")
+        if not str(asset_path_raw).strip():
             continue
 
         asset_path = normalize_asset_path(str(asset_path_raw), ICON_TOOLS_ASSET_PREFIX)

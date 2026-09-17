@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import ast
-import json
 from functools import lru_cache
 from typing import Any
 
 from backend.app.config import settings
-from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, ICON_TOOLS_ASSET_PREFIX, ROLE_CHARACTER_ASSET_PREFIX, FIXED_CHARACTER_MAX_MEMORY_RESONANCES
-from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map
-from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_entries_map, get_weapon_overrun_suit_memory_ids_map
+from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, ICON_TOOLS_ASSET_PREFIX, ROLE_CHARACTER_ASSET_PREFIX
+from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map, get_equip_site_map
+from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
@@ -313,19 +311,18 @@ def get_character_quality_bound_map() -> dict[int, list[int]]:
 
 
 @lru_cache(maxsize=1)
-def get_character_trust_exp_map() -> dict[int, int]:
+def get_character_trust_exp_map() -> dict[int, dict[int, int]]:
     reader = TSVReader(CHARACTER_TRUST_EXP_TSV_PATH, typed=True)
-    raw_map = reader.get_maps("Level", "Exp")[0]
-    normalized_map: dict[int, int] = {}
+    normalized_map: dict[int, dict[int, int]] = {}
 
-    for level_raw, exp_raw in raw_map.items():
-        level = parse_int(level_raw)
-        exp = parse_int(exp_raw)
-
-        if level is None or exp is None:
+    for row in reader.select(["CharacterId", "TrustLv", "Exp"]):
+        character_id = parse_int(row.get("CharacterId"))
+        trust_level = parse_int(row.get("TrustLv"))
+        exp = parse_int(row.get("Exp"))
+        if character_id is None or trust_level is None or exp is None:
             continue
 
-        normalized_map[level] = exp
+        normalized_map.setdefault(character_id, {})[trust_level] = exp
 
     return normalized_map
 
@@ -527,35 +524,8 @@ def _resolve_equip_max_level_exp(template_id: int, breakthrough: int) -> dict[st
     }
 
 
-def _parse_skill_description_thresholds(raw_value: Any) -> list[int]:
-    text = str(raw_value or "").strip()
-    if not text:
-        return []
-
-    parsed: Any = None
-    try:
-        parsed = ast.literal_eval(text)
-    except (ValueError, SyntaxError):
-        try:
-            parsed = json.loads(text)
-        except (ValueError, json.JSONDecodeError):
-            parsed = None
-
-    if not isinstance(parsed, dict):
-        return []
-
-    thresholds = [
-        threshold
-        for raw_key in parsed.keys()
-        for threshold in [parse_int(raw_key)]
-        if threshold is not None and threshold > 0
-    ]
-    return sorted(set(thresholds))
-
-
 def _choose_weapon_overrun_suit(memory_template_ids: list[int]) -> int | None:
     suit_memory_ids_map = get_weapon_overrun_suit_memory_ids_map()
-    suit_entries_map = get_weapon_overrun_suit_entries_map()
     if not memory_template_ids or not suit_memory_ids_map:
         return None
 
@@ -564,7 +534,7 @@ def _choose_weapon_overrun_suit(memory_template_ids: list[int]) -> int | None:
         equipped_memory_counts[template_id] = equipped_memory_counts.get(template_id, 0) + 1
 
     best_suit_id: int | None = None
-    best_sort_key: tuple[int, int, int] | None = None
+    best_sort_key: tuple[int, int] | None = None
     for suit_id, slot_memory_map in suit_memory_ids_map.items():
         if not isinstance(slot_memory_map, dict):
             continue
@@ -578,9 +548,7 @@ def _choose_weapon_overrun_suit(memory_template_ids: list[int]) -> int | None:
         if matched_count <= 0:
             continue
 
-        thresholds = _parse_skill_description_thresholds(suit_entries_map.get(suit_id, {}).get("SkillDescription"))
-        active_skill_count = sum(1 for threshold in thresholds if matched_count >= threshold)
-        sort_key = (active_skill_count, matched_count, -suit_id)
+        sort_key = (matched_count, -suit_id)
         if best_sort_key is None or sort_key > best_sort_key:
             best_sort_key = sort_key
             best_suit_id = suit_id
@@ -606,9 +574,6 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
     awake_supported_template_ids = get_equip_awake_template_id_set()
     weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
 
-    trust_levels = sorted(level for level in character_trust_exp_map if isinstance(level, int) and level > 0 and level <= 8)
-    max_trust_level = trust_levels[-1] if trust_levels else None
-
     normalized_map: dict[int, dict[str, Any]] = {}
     for character_id, recommend_equips in character_recommend_equips_map.items():
         quality_bound = character_quality_bound_map.get(character_id)
@@ -617,6 +582,10 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         max_liberate_level = character_max_liberate_level_map.get(character_id)
         if not isinstance(quality_bound, list) or len(quality_bound) != 2 or not grade_names or levelup_template_id is None or max_liberate_level is None:
             continue
+
+        trust_exp_map = character_trust_exp_map.get(character_id, {})
+        trust_levels = sorted(level for level in trust_exp_map if level > 0)
+        max_trust_level = trust_levels[-1] if trust_levels else None
 
         level_exp_map = get_level_exp_map(levelup_template_id)
         character_max_level = max(list(level_exp_map.keys()))
@@ -648,10 +617,19 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         memory_resonances = recommend_equips.get("MemoryResonances") if isinstance(recommend_equips.get("MemoryResonances"), list) else []
         memory_templates: list[dict[str, Any]] = []
         resolved_memory_template_ids: list[int] = []
-        for site_index, raw_memory_template_id in enumerate(memories):
+        memory_ids_by_site: dict[int, int] = {}
+        for raw_memory_template_id in memories:
             memory_template_id = parse_int(raw_memory_template_id)
             if memory_template_id is None:
                 continue
+
+            memory_site = parse_int(get_equip_site_map().get(memory_template_id))
+            if memory_site is None or memory_site < 1 or memory_site > 6:
+                continue
+            memory_ids_by_site[memory_site] = memory_template_id
+
+        for memory_site, memory_template_id in sorted(memory_ids_by_site.items()):
+            site_index = memory_site - 1
 
             max_breakthrough = equip_breakthrough_max_map.get(memory_template_id, {}).get("max_breakthrough", 0)
             memory_level_exp = _resolve_equip_max_level_exp(memory_template_id, max_breakthrough)
@@ -705,12 +683,11 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
                 overrun_suit_id = _choose_weapon_overrun_suit(resolved_memory_template_ids)
                 overrun_data: dict[str, Any] = {}
                 max_overrun_level = weapon_overrun_max_level_map.get(weapon_template_id)
-                if max_overrun_level is not None and overrun_suit_id is not None:
-                    overrun_data = {
-                        "Level": max_overrun_level,
-                        "ActiveSuits": [overrun_suit_id],
-                        "ChoseSuit": overrun_suit_id,
-                    }
+                if max_overrun_level is not None:
+                    overrun_data["Level"] = max_overrun_level
+                if overrun_suit_id is not None:
+                    overrun_data["ActiveSuits"] = [overrun_suit_id]
+                    overrun_data["ChoseSuit"] = overrun_suit_id
 
                 weapon_template = {
                     "TemplateId": weapon_template_id,
@@ -740,7 +717,7 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
                 "Star": 0 if max_quality == 6 else 9,
                 "Grade": max_grade,
                 "TrustLv": max_trust_level,
-                "TrustExp": character_trust_exp_map.get(max_trust_level, 0) if max_trust_level is not None else 0,
+                "TrustExp": trust_exp_map.get(max_trust_level, 0) if max_trust_level is not None else 0,
                 "LiberateLv": max_liberate_level,
                 "Level": character_max_level,
                 "Exp": character_max_level_exp,
