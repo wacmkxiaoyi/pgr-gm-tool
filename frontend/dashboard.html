@@ -100,13 +100,28 @@
               <nav class="dashboard-subnav page-subnav database-subnav" aria-label="用户数据管理次级导航" data-i18n-aria-label="dashboard.databaseSubnavAria">
                 <button class="subnav-link is-active" type="button" data-database-tab="database-service-status-section" aria-controls="database-service-status-section" aria-selected="true" data-i18n="dashboard.databaseStatusTab">数据库状态</button>
                 <button class="subnav-link" type="button" data-database-tab="database-accounts-section" id="database-accounts-subnav" aria-controls="database-accounts-section" aria-selected="false" disabled data-i18n="dashboard.accountsTab">账号管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">用户名片</button>
-                <button class="subnav-link" type="button" data-database-tab="database-character-management-section" id="database-character-management-subnav" aria-controls="database-character-management-section" aria-selected="false" disabled data-i18n="dashboard.characterManagementTab">角色管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-equip-management-section" id="database-equip-management-subnav" aria-controls="database-equip-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
-                <button class="subnav-link" type="button" data-database-tab="database-stage-management-section" id="database-stage-management-subnav" aria-controls="database-stage-management-section" aria-selected="false" disabled data-i18n="dashboard.stageManagementTab">通关战斗</button>
-                <div class="database-selected-account" id="database-selected-account" aria-live="polite">已选定用户识别码：--</div>
+                <div class="database-subnav-group" data-database-menu-group>
+                  <button class="subnav-link database-subnav-group-trigger" type="button" aria-controls="database-squad-management-menu" aria-expanded="false" data-i18n="dashboard.squadManagementTab">小队管理</button>
+                  <div class="database-subnav-menu" id="database-squad-management-menu" data-i18n-aria-label="dashboard.squadManagementMenuAria" aria-label="小队管理菜单">
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-player-profile-section" id="database-player-profile-subnav" aria-controls="database-player-profile-section" aria-selected="false" disabled data-i18n="dashboard.playerProfileTab">玩家管理</button>
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-character-management-section" id="database-character-management-subnav" aria-controls="database-character-management-section" aria-selected="false" disabled data-i18n="dashboard.characterManagementTab">角色管理</button>
+                  </div>
+                </div>
+                <div class="database-subnav-group" data-database-menu-group>
+                  <button class="subnav-link database-subnav-group-trigger" type="button" aria-controls="database-equipment-management-menu" aria-expanded="false" data-i18n="dashboard.equipmentManagementTab">装备管理</button>
+                  <div class="database-subnav-menu" id="database-equipment-management-menu" data-i18n-aria-label="dashboard.equipmentManagementMenuAria" aria-label="装备管理菜单">
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-equip-management-section" id="database-equip-management-subnav" aria-controls="database-equip-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
+                  </div>
+                </div>
+                <div class="database-subnav-group" data-database-menu-group>
+                  <button class="subnav-link database-subnav-group-trigger" type="button" aria-controls="database-other-information-menu" aria-expanded="false" data-i18n="dashboard.otherInformationTab">其它信息</button>
+                  <div class="database-subnav-menu" id="database-other-information-menu" data-i18n-aria-label="dashboard.otherInformationMenuAria" aria-label="其它信息菜单">
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-stage-management-section" id="database-stage-management-subnav" aria-controls="database-stage-management-section" aria-selected="false" disabled data-i18n="dashboard.stageManagementTab">通关战斗</button>
+                  </div>
+                </div>
+                <div class="database-selected-account" id="database-selected-account" aria-live="polite">UID: --</div>
               </nav>
 
               <section class="database-panel database-tab-panel is-active" id="database-service-status-section" data-database-tab-panel="database-service-status-section" aria-labelledby="database-service-status-title">
@@ -166,7 +181,7 @@
                 <div class="database-panel-header database-panel-header-compact database-player-panel-header">
                   <div>
                     <span class="section-tag">Player</span>
-                    <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">用户名片</h2>
+                    <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">玩家管理</h2>
                   </div>
                   <div class="database-player-profile-meta" hidden>
                     <small class="database-player-profile-summary" id="database-player-profile-summary" hidden></small>
@@ -176,7 +191,7 @@
                 <div class="database-player-empty" id="database-player-profile-state" data-i18n="dashboard.playerProfileChooseAccount">请先在账号管理中选定一个用户。</div>
 
                 <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
-                  <article class="database-player-card" aria-label="用户名片" data-i18n-aria-label="dashboard.playerCardAria">
+                  <article class="database-player-card" aria-label="玩家管理" data-i18n-aria-label="dashboard.playerCardAria">
                     <div class="database-player-card-background" id="player-card-background" aria-hidden="true" hidden></div>
                     <div class="database-player-card-glow" aria-hidden="true"></div>
                     <div class="database-player-card-avatar-shell">

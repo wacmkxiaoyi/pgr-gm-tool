@@ -14,7 +14,7 @@
   box-shadow: var(--shadow);
   backdrop-filter: blur(24px) saturate(175%);
   -webkit-backdrop-filter: blur(24px) saturate(175%);
-  overflow-x: auto;
+  overflow: visible;
 }
 
 .page-subnav {
@@ -56,6 +56,101 @@
   background: rgba(148, 163, 184, 0.12);
   border-color: rgba(148, 163, 184, 0.16);
   box-shadow: none;
+}
+
+.subnav-link:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 92, 246, 0.22);
+}
+
+.database-subnav-group {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.database-subnav-group-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.database-subnav-group-trigger::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.database-subnav-group:hover .database-subnav-group-trigger::after,
+.database-subnav-group.is-open .database-subnav-group-trigger::after {
+  transform: translateY(2px) rotate(225deg);
+}
+
+.database-subnav-group-trigger.is-active {
+  transform: translateY(-1px);
+  border-color: rgba(124, 92, 246, 0.22);
+  background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
+  box-shadow: 0 12px 26px rgba(99, 102, 241, 0.12);
+}
+
+.database-subnav-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 8;
+  display: grid;
+  min-width: 100%;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.database-subnav-group:hover .database-subnav-menu,
+.database-subnav-group.is-open .database-subnav-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.database-subnav-menu-item {
+  width: 100%;
+  min-width: max-content;
+  text-align: left;
+}
+
+@media (max-width: 720px), (hover: none) {
+  .dashboard-subnav {
+    overflow-x: auto;
+  }
+
+  .database-subnav-menu {
+    display: none;
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .database-subnav-group.is-open .database-subnav-menu {
+    display: grid;
+  }
 }
 
 .database-selected-account {

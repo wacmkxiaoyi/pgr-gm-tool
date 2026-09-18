@@ -5,6 +5,7 @@ __pycache__/
 node_modules/
 dist/
 build/
+dev/
 .DS_Store
 .vscode/
 *.excalidraw

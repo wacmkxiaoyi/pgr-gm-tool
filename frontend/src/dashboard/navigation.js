@@ -2,6 +2,7 @@ import { app } from './shared.js';
 
 const { dom } = app;
 const { layout, sidebarToggle, sidebar, sidebarLinks, dashboardPages, dashboardMain, logoutButton, databaseTabButtons, databaseTabPanels } = dom;
+const databaseMenuGroups = Array.from(document.querySelectorAll('[data-database-menu-group]'));
 
 app.closeSidebar = () => {
   if (!layout || !sidebarToggle || !sidebar) {
@@ -79,6 +80,12 @@ app.setActiveDatabaseTab = (tabId) => {
     }
   });
 
+  databaseMenuGroups.forEach((group) => {
+    const trigger = group.querySelector('.database-subnav-group-trigger');
+    const hasActiveTab = Boolean(group.querySelector('.database-subnav-menu-item.is-active'));
+    trigger?.classList.toggle('is-active', hasActiveTab);
+  });
+
   databaseTabPanels.forEach((panel) => {
     const isActive = panel.dataset.databaseTabPanel === tabId;
     panel.classList.toggle('is-active', isActive);
@@ -147,6 +154,10 @@ app.initNavigation = () => {
       }
 
       app.setActiveDatabaseTab(tabId);
+      databaseMenuGroups.forEach((group) => {
+        group.classList.remove('is-open');
+        group.querySelector('.database-subnav-group-trigger')?.setAttribute('aria-expanded', 'false');
+      });
       if (tabId === 'database-accounts-section' && app.isDatabaseHealthy()) {
         void app.loadDatabaseAccounts(app.state.accountsCurrentPage);
         return;
@@ -186,5 +197,50 @@ app.initNavigation = () => {
         void app.loadSelectedAccountStages(app.state.stageManagementCurrentPage);
       }
     });
+  });
+
+  databaseMenuGroups.forEach((group) => {
+    const trigger = group.querySelector('.database-subnav-group-trigger');
+    if (!(trigger instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    trigger.addEventListener('click', () => {
+      const willOpen = !group.classList.contains('is-open');
+      databaseMenuGroups.forEach((otherGroup) => {
+        otherGroup.classList.remove('is-open');
+        const otherTrigger = otherGroup.querySelector('.database-subnav-group-trigger');
+        otherTrigger?.setAttribute('aria-expanded', 'false');
+      });
+      group.classList.toggle('is-open', willOpen);
+      trigger.setAttribute('aria-expanded', String(willOpen));
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (event.target instanceof Node && databaseMenuGroups.some((group) => group.contains(event.target))) {
+      return;
+    }
+
+    databaseMenuGroups.forEach((group) => {
+      group.classList.remove('is-open');
+      group.querySelector('.database-subnav-group-trigger')?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') {
+      return;
+    }
+
+    const openGroup = databaseMenuGroups.find((group) => group.classList.contains('is-open'));
+    if (!openGroup) {
+      return;
+    }
+
+    openGroup.classList.remove('is-open');
+    const trigger = openGroup.querySelector('.database-subnav-group-trigger');
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.focus();
   });
 };
