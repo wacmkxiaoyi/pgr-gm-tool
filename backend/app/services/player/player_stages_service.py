@@ -165,6 +165,9 @@ class PlayerStagesService:
                     'k': stage_id,
                     'v': {
                         'StageId': stage_id,
+                        'StarsMark': 7,
+                        'Passed': True,
+                        'PassTimesTotal': 1,
                     },
                 }
                 for stage_id in normalized_stage_ids
