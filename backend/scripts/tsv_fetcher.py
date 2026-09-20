@@ -70,6 +70,10 @@ ASSET_MAP = {
     "RewardGoods.tsv": "en/bytes/share/reward/RewardGoods.json",
     "WeaponFashion.tsv": "en/bytes/share/weaponfashion/WeaponFashion.json",
     "WeaponFashionRes.tsv": "en/bytes/client/weaponfashion/WeaponFashionRes.json",
+    "Nameplate.tsv": "en/bytes/share/nameplate/Nameplate.json",
+    "NameplateContentMap.tsv": "en/bytes/client/nameplate/NameplateContentMap.json",
+    "ChatBoard.tsv": "en/bytes/share/chat/ChatBoard.json",
+    "Medal.tsv": "cn/bytes/share/medal/Medal.json",
     "leveluptemplate/1.tsv": "cn/bytes/share/character/leveluptemplate/1.json",
     "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
     **{

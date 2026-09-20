@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, ROLE_WAFER_BAG_ASSET_PREFIX, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
+from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
 
@@ -115,7 +115,7 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, object]]:
                 for text in [str(raw_text or "").strip()]
                 if index % 2 == 1 and text
             ] if isinstance(row.get("SkillDescription"), list) else [],
-            "WaferBagPath": normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
+            "WaferBagPath": normalize_asset_path(row.get("WaferBagPath")) or "",
         }
 
     return normalized_map

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from bson.int64 import Int64
@@ -13,11 +12,25 @@ def parse_int(value: object) -> int | None:
         return None
 
 
-def normalize_asset_path(raw_path: object, prefix: str) -> str | None:
-    filename = Path(str(raw_path).strip()).name.strip().lower()
-    if not filename:
+ASSET_TEXTURE_PATH_PREFIX = "assets/product/texture/"
+
+
+def normalize_asset_path(raw_path: object) -> str | None:
+    normalized_path = str(raw_path or "").strip().replace("\\", "/")
+    texture_path_start = normalized_path.lower().find(ASSET_TEXTURE_PATH_PREFIX)
+    if texture_path_start < 0:
         return None
-    return f"{prefix}{Path(filename).stem}.webp"
+
+    relative_path = normalized_path[texture_path_start + len(ASSET_TEXTURE_PATH_PREFIX):].strip("/")
+    if not relative_path or "/" not in relative_path:
+        return None
+
+    directory, _, filename = relative_path.rpartition("/")
+    stem, _, _ = filename.rpartition(".")
+    if not directory or not stem:
+        return None
+
+    return f"/assets/{directory.lower()}/{stem.lower()}.webp"
 
 
 def normalize_int_text_map(raw_map: dict[object, object]) -> dict[int, str]:
@@ -36,14 +49,14 @@ def normalize_int_text_map(raw_map: dict[object, object]) -> dict[int, str]:
     return normalized_map
 
 
-def normalize_int_asset_map(raw_map: dict[object, object], prefix: str) -> dict[int, str]:
+def normalize_int_asset_map(raw_map: dict[object, object]) -> dict[int, str]:
     normalized_map: dict[int, str] = {}
     for raw_key, raw_value in raw_map.items():
         normalized_key = parse_int(raw_key)
         if normalized_key is None:
             continue
 
-        asset_path = normalize_asset_path(raw_value, prefix)
+        asset_path = normalize_asset_path(raw_value)
         if asset_path is None:
             continue
 

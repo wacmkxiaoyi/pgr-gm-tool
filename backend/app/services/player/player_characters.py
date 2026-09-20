@@ -4,7 +4,7 @@ from functools import lru_cache
 from typing import Any
 
 from backend.app.config import settings
-from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, ICON_TOOLS_ASSET_PREFIX, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH, ROLE_CHARACTER_ASSET_PREFIX
+from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH
 from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map, get_equip_site_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
@@ -441,7 +441,7 @@ def get_character_head_icon_url_map() -> dict[int, str]:
         if character_id in normalized_map:
             continue
 
-        asset_path = normalize_asset_path(str(row.get("BigHeadIcon", "")), ROLE_CHARACTER_ASSET_PREFIX)
+        asset_path = normalize_asset_path(row.get("BigHeadIcon"))
         if asset_path is None:
             continue
 
@@ -472,10 +472,10 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
         if character_id is None or fashion_id is None or quality is None:
             continue
 
-        big_icon = normalize_asset_path(str(row.get("BigIcon", "")), ICON_TOOLS_ASSET_PREFIX)
-        big_head_icon = normalize_asset_path(str(row.get("BigHeadIcon", "")), ROLE_CHARACTER_ASSET_PREFIX)
-        big_head_icon_fashion = normalize_asset_path(str(row.get("BigHeadIconFashion", "")), ROLE_CHARACTER_ASSET_PREFIX)
-        big_head_icon_liberation = normalize_asset_path(str(row.get("BigHeadIconLiberation", "")), ROLE_CHARACTER_ASSET_PREFIX)
+        big_icon = normalize_asset_path(row.get("BigIcon"))
+        big_head_icon = normalize_asset_path(row.get("BigHeadIcon"))
+        big_head_icon_fashion = normalize_asset_path(row.get("BigHeadIconFashion"))
+        big_head_icon_liberation = normalize_asset_path(row.get("BigHeadIconLiberation"))
 
         if big_icon is None or big_head_icon is None or big_head_icon_fashion is None:
             continue

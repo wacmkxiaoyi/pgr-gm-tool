@@ -29,11 +29,6 @@ HONOR_LEVEL_TSV_PATH = Path("assets/HonorLevel.tsv")
 ITEM_TSV_PATH = Path("assets/Item.tsv")
 STAGE_TSV_PATH = Path("assets/Stage.tsv")
 
-ICON_TOOLS_ASSET_PREFIX = "/assets/icontools/"
-ROLE_CHARACTER_ASSET_PREFIX = "/assets/rolecharacter/"
-ROLE_PLAYER_ASSET_PREFIX = "/assets/roleplayersp/"
-UI_PHOTOGRAPH_ASSET_PREFIX = "/assets/uiphotograph/"
-
 FIXED_CHARACTER_MAX_MEMORY_RESONANCES = [
     [
         {

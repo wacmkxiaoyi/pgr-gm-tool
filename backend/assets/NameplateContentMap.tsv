@@ -1,0 +1,314 @@
+﻿Id	Text
+1	Test Nameplate {0}
+2	Nameplate {0}
+3	Repeated Replaceable - Test Nameplate
+4	Higher ranks replaces low ranks
+5	Mode Rewards
+6	Requirement Upgrade - Test Nameplate
+7	Voted on Candidate No. 1 for 30 Cheer, increases to Rank 2
+8	Voted on Candidate No. 1 for 50 Cheer, increases to Rank 3
+9	EXP Upgrade - Test Nameplate
+10	Converts to {0} EXP
+11	Item Conversion - Test Nameplate
+12	Converts to {0} Cogs
+13	Permanently Owned - Test Nameplate
+14	Permanently Owned
+15	Appointed Day - Test Nameplate
+16	Expires on April 5
+17	Time + Date - Test Nameplate
+18	Valid for 7 days and expires on April 5
+19	Plustime Replacement {0}
+20	plus
+21	Expires in {0}s
+22	Specific Time Expires
+23	Expires in {0}h
+24	Plustime EXP Upgrade {0}
+25	Unerring
+26	Thank you for your support—Lee
+27	After adding {0} Cheer Points to Lee in Eden Festival, quality ranks up to Silver.
+28	After adding {0} Cheer Points to Lee in Eden Festival, quality ranks up to Gold.
+29	Available through voting for the contestants in the Eden Festival.
+30	Well-rested
+31	Thank you for your support—Wanshi
+32	After adding {0} Cheer Points to Wanshi in Eden Festival, quality ranks up to Silver.
+33	After adding {0} Cheer Points to Wanshi in Eden Festival, quality ranks up to Gold.
+34	Paladin
+35	Thank you for your support—Roland
+36	After adding {0} Cheer Points to Roland in Eden Festival, quality ranks up to Silver.
+37	After adding {0} Cheer Points to Roland in Eden Festival, quality ranks up to Gold.
+38	Connoisseur
+39	Thank you for your support—Camu
+40	After adding {0} Cheer Points to Camu in Eden Festival, quality ranks up to Silver.
+41	After adding {0} Cheer Points to Camu in Eden Festival, quality ranks up to Gold.
+42	Forsaken
+43	Thank you for your support—Watanabe
+44	After adding {0} Cheer Points to Watanabe in Eden Festival, quality ranks up to Silver.
+45	After adding {0} Cheer Points to Watanabe in Eden Festival, quality ranks up to Gold.
+46	Flawless
+47	Thank you for your support—Chrome
+48	After adding {0} Cheer Points to Chrome in Eden Festival, quality ranks up to Silver.
+49	After adding {0} Cheer Points to Chrome in Eden Festival, quality ranks up to Gold.
+50	Merchant
+51	Thank you for your support—Changyu
+52	After adding {0} Cheer Points to Changyu in Eden Festival, quality ranks up to Silver.
+53	After adding {0} Cheer Points to Changyu in Eden Festival, quality ranks up to Gold.
+54	Praise The Sun
+55	Thank you for your support—Kamui
+56	After adding {0} Cheer Points to Kamui in Eden Festival, quality ranks up to Silver.
+57	After adding {0} Cheer Points to Kamui in Eden Festival, quality ranks up to Gold.
+58	Demolitionist
+59	Thank you for your support—Karenina
+60	After adding {0} Cheer Points to Karenina in Eden Festival, quality ranks up to Silver.
+61	After adding {0} Cheer Points to Karenina in Eden Festival, quality ranks up to Gold.
+62	Pulao Crew
+63	Thank you for your support—Pulao
+64	After adding {0} Cheer Points to Pulao in Eden Festival, quality ranks up to Silver.
+65	After adding {0} Cheer Points to Pulao in Eden Festival, quality ranks up to Gold.
+66	Snow Ranger
+67	Thank you for your support—Rosetta
+68	After adding {0} Cheer Points to Rosetta in Eden Festival, quality ranks up to Silver.
+69	After adding {0} Cheer Points to Rosetta in Eden Festival, quality ranks up to Gold.
+70	Superior
+71	Thank you for your support—Luna
+72	After adding {0} Cheer Points to Luna in Eden Festival, quality ranks up to Silver.
+73	After adding {0} Cheer Points to Luna in Eden Festival, quality ranks up to Gold.
+74	Saint
+75	Thank you for your support—Bianca
+76	After adding {0} Cheer Points to Bianca in Eden Festival, quality ranks up to Silver.
+77	After adding {0} Cheer Points to Bianca in Eden Festival, quality ranks up to Gold.
+78	Storm Dancer
+79	Thank you for your support—Selena
+80	After adding {0} Cheer Points to Selena in Eden Festival, quality ranks up to Silver.
+81	After adding {0} Cheer Points to Selena in Eden Festival, quality ranks up to Gold.
+82	Royal Consort
+83	Thank you for your support—Qu
+84	After adding {0} Cheer Points to Qu in Eden Festival, quality ranks up to Silver.
+85	After adding {0} Cheer Points to Qu in Eden Festival, quality ranks up to Gold.
+86	Envoy
+87	Thank you for your support—Sophia
+88	After adding {0} Cheer Points to Sophia in Eden Festival, quality ranks up to Silver.
+89	After adding {0} Cheer Points to Sophia in Eden Festival, quality ranks up to Gold.
+90	Raven Wings
+91	Thank you for your support—Lucia
+92	After adding {0} Cheer Points to Lucia in Eden Festival, quality ranks up to Silver.
+93	After adding {0} Cheer Points to Lucia in Eden Festival, quality ranks up to Gold.
+94	Gallerist
+95	Thank you for your support—Ayla
+96	After adding {0} Cheer Points to Ayla in Eden Festival, quality ranks up to Silver.
+97	After adding {0} Cheer Points to Ayla in Eden Festival, quality ranks up to Gold.
+98	Supporter
+99	Thank you for your support—Liv
+100	After adding {0} Cheer Points to Liv in Eden Festival, quality ranks up to Silver.
+101	After adding {0} Cheer Points to Liv in Eden Festival, quality ranks up to Gold.
+102	Eccentric
+103	Thank you for your support—Nanami
+104	After adding {0} Cheer Points to Nanami in Eden Festival, quality ranks up to Silver.
+105	After adding {0} Cheer Points to Nanami in Eden Festival, quality ranks up to Gold.
+106	Tormented
+107	Thank you for your support—Vera
+108	After adding {0} Cheer Points to Vera in Eden Festival, quality ranks up to Silver.
+109	After adding {0} Cheer Points to Vera in Eden Festival, quality ranks up to Gold.
+110	Drifter
+111	Thank you for your support—Alpha
+112	After adding {0} Cheer Points to Alpha in Eden Festival, quality ranks up to Silver.
+113	After adding {0} Cheer Points to Alpha in Eden Festival, quality ranks up to Gold.
+114	Hermit
+115	Thank you for your support—Villier
+116	After adding {0} Cheer Points to Villier in Eden Festival, quality ranks up to Silver.
+117	After adding {0} Cheer Points to Villier in Eden Festival, quality ranks up to Gold.
+118	Loyal Friend
+119	Thank you for your support—Tai'E
+120	After adding {0} Cheer Points to Tai'E in Eden Festival, quality ranks up to Silver.
+121	After adding {0} Cheer Points to Tai'E in Eden Festival, quality ranks up to Gold.
+122	Morning Star
+123	An honor that belongs to only a few people. You'll bring the daybreak and grasp the light.
+124	Its validity will be extended once obtained. Valid for {0} days.
+125	Awarded to the top {0}% players on Extremis Collaboration leaderboards
+126	Melting Snow
+127	A nameplate specially made by Babylonia to award Commandants with outstanding achievements in the Collaboration combat simulation.
+128	Obtain it repetitively to improve the quality. Valid for {0} days.
+129	Awarded to players with the required Points or ranked among top {0}% in Standard Simulation.
+130	Awarded to the top {0}% players in Extremis Collaboration - Standard Simulation
+131	Lighthouse
+132	Awarded to players with the required Points or ranked among top {0}% in Malfunction Synergy.
+133	Awarded to the top {0}% players in Extremis Collaboration - Malfunction Synergy
+134	Starry Traveler
+135	Awarded to players with the required Points or ranked among top {0}% in Danger After Danger.
+136	Awarded to the top {0}% players in Extremis Collaboration - Danger After Danger
+137	Chief's Measure
+138	An honor only awarded to a small number of people. A proof of keeping pushing beyond one's limits.
+139	Valid for {0} days
+140	Reach 1850000 Progress in Phantom Pain Cage Ultimate Zone to obtain
+141	Beast Slayer
+142	A nameplate not issued by Babylonia but made by and circulates among Commandants. Only awarded to the top players in the combat simulation.
+143	Reach 1800000 Progress in Phantom Pain Cage Ultimate Zone to obtain
+144	Cage Fighter
+145	A nameplate specially made by Babylonia to award Commandants with outstanding achievements in the combat simulation.
+146	Reach 1750000 Progress in Phantom Pain Cage Ultimate Zone to obtain
+147	Honed Domination
+148	This honor is only awarded to the commandants with the most outstanding performance in simulation battles.
+149	Awarded to the top {0}% players in Phantom Pain Cage Intensive Battle
+150	Honed Elite
+151	Awarded to commandants who provided outstanding data reference for simulation battles.
+152	Awarded to the top 1%-5% players in Phantom Pain Cage Intensive Battle
+153	Honed Veteran
+154	Awarded to commandants who actively participated in simulation battles and performed remarkably.
+155	Awarded to the top 5%-10% players in Phantom Pain Cage Intensive Battle
+156	Perfect Analysis
+157	After adding {0} Cheer Points to Lee in Eden Festival, quality ranks up to Blue.
+158	Daydreamer
+159	After adding {0} Cheer Points to Wanshi in Eden Festival, quality ranks up to Blue.
+160	Comic Relief
+161	After adding {0} Cheer Points to Roland in Eden Festival, quality ranks up to Blue.
+162	Monstrous Wolf
+163	After adding {0} Cheer Points to Camu in Eden Festival, quality ranks up to Blue.
+164	Remembrance
+165	After adding {0} Cheer Points to Watanabe in Eden Festival, quality ranks up to Blue.
+166	Chess Player
+167	After adding {0} Cheer Points to Chrome in Eden Festival, quality ranks up to Blue.
+168	Swift Dragon
+169	After adding {0} Cheer Points to Changyu in Eden Festival, quality ranks up to Blue.
+170	Alloy Shield
+171	After adding {0} Cheer Points to Kamui in Eden Festival, quality ranks up to Blue.
+172	Moonwalker
+173	After adding {0} Cheer Points to Karenina in Eden Festival, quality ranks up to Blue.
+174	Nighter Youth
+175	After adding {0} Cheer Points to Pulao in Eden Festival, quality ranks up to Blue.
+176	Forest Aurora
+177	After adding {0} Cheer Points to Rosetta in Eden Festival, quality ranks up to Blue.
+178	Crown of Thorns
+179	After adding {0} Cheer Points to Luna in Eden Festival, quality ranks up to Blue.
+180	Truth Seeker
+181	After adding {0} Cheer Points to Bianca in Eden Festival, quality ranks up to Blue.
+182	Dreaming Iris
+183	After adding {0} Cheer Points to Selena in Eden Festival, quality ranks up to Blue.
+184	Forever Empress
+185	After adding {0} Cheer Points to Qu in Eden Festival, quality ranks up to Blue.
+186	Silver Tongue
+187	After adding {0} Cheer Points to Sophia in Eden Festival, quality ranks up to Blue.
+188	Striking Wings
+189	After adding {0} Cheer Points to Lucia in Eden Festival, quality ranks up to Blue.
+190	Rainbow Colors
+191	After adding {0} Cheer Points to Ayla in Eden Festival, quality ranks up to Blue.
+192	After adding {0} Cheer Points to Ayla in Eden Festival, quality ranks up to Blue.
+193	Confession Angel
+194	After adding {0} Cheer Points to Liv in Eden Festival, quality ranks up to Blue.
+195	Star Explorer
+196	After adding {0} Cheer Points to Nanami in Eden Festival, quality ranks up to Blue.
+197	Undying Banner
+198	After adding {0} Cheer Points to Vera in Eden Festival, quality ranks up to Blue.
+199	Antiviral Rider
+200	After adding {0} Cheer Points to Alpha in Eden Festival, quality ranks up to Blue.
+201	White Pup
+202	Thank you for your support—No. {0}
+203	After adding 20000 Cheer Points to No. 21 in Eden Festival, quality ranks up to Blue
+204	After adding 45000 Cheer Points to No. 21 in Eden Festival, quality ranks up to Gold
+205	Starchaser
+206	Support Gratitude - Haicma
+207	After adding {0} Cheer Points to Haicma in Eden Festival, quality ranks up to Blue.
+208	After adding {0} Cheer Points to Haicma in Eden Festival, quality ranks up to Gold.
+209	Overlord
+210	Support Gratitude - Celica
+211	After adding {0} Cheer Points to Celica in Eden Festival, quality ranks up to Blue.
+212	After adding {0} Cheer Points to Celica in Eden Festival, quality ranks up to Gold.
+213	Happy Shark
+214	Support Gratitude - Shark-speare
+215	After adding {0} Cheer Points to Shark-speare in Eden Festival, quality ranks up to Blue.
+216	After adding {0} Cheer Points to Shark-speare in Eden Festival, quality ranks up to Gold.
+217	Crimson Hound
+218	Support Gratitude - Noctis
+219	After adding {0} Cheer Points to Noctis in Eden Festival, quality ranks up to Blue.
+220	After adding {0} Cheer Points to Noctis in Eden Festival, quality ranks up to Gold.
+221	Elite Forces
+222	An honorary title granted to Commandants who have overcome difficulties on the battlefield.
+223	B-Level License - Elite Forces
+224	Special Forces
+225	An honor specially awarded to Commandants who have executed the most dangerous missions in the most dangerous areas.
+226	A-Level License - Special Forces
+227	Warfare Expert
+228	An honor awarded as a recognition of competence and a sign of entrusting the entire war zone to the receiver.
+229	S-Level License - Warfare Expert
+230	F.O.S. Star
+231	Top secret, not viewable due to insufficient authority.
+232	X-Level License - F.O.S. Star
+233	Hornbreaker
+234	Mountains crumble; Grimhorn shatters. A testament to the glory of defeating the source of Grimhorn Data.
+235	Anchor Realm - Hornbreaker
+236	Obtained by completing the Anchor Realm mission.
+237	Light Off
+238	Clouds disperse; the gleam fades. A testament to the glory of defeating the source of Bloom Data.
+239	Anchor Realm - Light Off
+240	Back to Back
+241	Twin dragons beheaded, an unending battle. A testament to the glory of defeating the sources of Grimhorn Data and Bloom Data in succession.
+242	Anchor Realm - Back to Back
+243	Stronghold Vanguard
+244	This honor is awarded to the commandants who have fought valiantly between strongholds to bring their people home. Thanks to you, the human civilization continues to live and thrive.
+245	Obtained from Stronghold
+246	Everlasting Wings
+247	I shall become your wings and never leave.
+248	Available after purchasing {0} Rainbow Cards
+249	Crimson Weave - Lingering Storm
+250	This nameplate recognizes Commandants for achieving objectives with the Crimson Weave frame in Trial of Simulacrums.
+251	Obtained from Trial of Simulacrums
+252	Palefire - Searing Trial
+253	This nameplate recognizes Commandants for achieving objectives with the Palefire frame in Trial of Simulacrums.
+254	Garnet - Thunder Ablaze
+255	This nameplate recognizes Commandants for achieving objectives with the Garnet frame in Trial of Simulacrums.
+256	Solacetune - Ethereal Grace
+257	This nameplate recognizes Commandants for achieving objectives with the Solacetune frame in Trial of Simulacrums.
+258	Pyroath - Cocoon Breaker
+259	This nameplate recognizes Commandants for achieving objectives with the Pyroath frame in Trial of Simulacrums.
+260	Startrail - Dawnlight
+261	This nameplate recognizes Commandants for achieving objectives with the Startrail frame in Trial of Simulacrums.
+262	Pianissimo - Music Chaser
+263	This nameplate recognizes Commandants for achieving objectives with the Pianissimo frame in Trial of Simulacrums.
+264	Vergil: Sin Devil
+265	This nameplate is a badge of honor for Commandants who hit their objectives with Vergil in Trial of Simulacrums.
+266	Dante: Sin Devil
+267	This nameplate recognizes Commandants for achieving objectives with the Dante in Trial of Simulacrums.
+268	Geiravor - Ashed Demise
+269	This nameplate recognizes Commandants for achieving objectives with the Geiravor frame in Trial of Simulacrums.
+270	Infernal Knight
+271	"""I saw a white horse, and Hell followed close behind."""
+272	Participate in The Godfall Revelation - Desperado Clash and reach the specified rank to earn it.
+273	Demon Lord
+274	From the chaotic, abyssal depths of hell, scattered demons claw their way out of mountains of corpses and seas of blood. They inherit the Death Lord's sovereign, earning the title of Sovereign.
+275	Godslayer Apocalypse
+276	Unwilling to be enslaved in the Sanctuary, choosing only to reign in hell.
+277	Hellfire Rider
+278	"""I'll break through this endless corridor and shatter the chains of fate!"""
+279	Demon Sovereign
+280	All wealth and ambition will submit to my desire.
+281	Borderland Overlord
+282	Who says the laws set by the Supreme Heaven cannot be broken? I will turn that eternal daylight into a dreamless night.
+283	Ace Driver
+284	A special honor granted to Commandants who took part in the Stellar Rush racing predictions. Enjoy this adrenaline-fueled celebration of speed!
+285	Obtained by participating in Stellar Rush and exchanging items in Quick Party.
+286	Night Sovereign
+287	The gods may have fallen silent, but the Demon Lords remain.
+288	Obtained after collecting all Coatings from the [Bespoke: The Godfall Revelation] series
+289	Trivia Explorer
+290	A mark of an explorer who journeyed from the Knowledge Promenade to the bustling harbor, uncovering every hidden story along the way.
+291	Complete the [Operation Guide II] Mission Checklist in Babylonia to obtain
+292	Desire's Arbiter
+293	Now, I shall weigh and price every desire in this world.
+294	Gilded Devourer
+295	Behold, even the golden torrent freezes at this moment, then gets devoured whole.
+296	Heaven's Apocalypse
+297	Sacred bells toll through the Supreme Heaven, and the scales of judgment stand ready. But this time, it is the gods themselves who shall face the judgment.
+298	Hyperlink Envoy
+299	Amid the torrent of data, we advance side by side, undaunted.
+300	Obtained by participating in Hyperlink Array and completing missions.
+301	Dreamless Witch
+302	From now on, I'll be there in every dream you enjoy—and every nightmare you fear.
+303	Obituary Raven
+304	I proclaim the coming of death.
+305	Narcissus Heart
+306	Give me your heart, and I will place the fate of the world in your hands.
+307	Crimson Abyss - Severed Silence
+308	This nameplate recognizes Commandants for achieving objectives with the Crimson Abyss frame in Trial of Simulacrums.
+309	Inverse Crown - Fatal Night
+310	This nameplate recognizes Commandants for achieving objectives with the Inverse Crown frame in Trial of Simulacrums.
+311	Unfading Cerulean
+312	May this beautiful summer never end.
+313	Obtained after collecting all Coatings from the [Bespoke: Rippling Twilight] series

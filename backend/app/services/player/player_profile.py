@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from backend.app.services.player.constants import BACKGROUND_TSV_PATH, HEAD_PORTRAIT_TSV_PATH, HONOR_LEVEL_TSV_PATH, PLAYER_LEVEL_TSV_PATH, ROLE_PLAYER_ASSET_PREFIX, UI_PHOTOGRAPH_ASSET_PREFIX
+from backend.app.services.player.constants import BACKGROUND_TSV_PATH, HEAD_PORTRAIT_TSV_PATH, HONOR_LEVEL_TSV_PATH, PLAYER_LEVEL_TSV_PATH
 from backend.app.services.player.utils import normalize_int_asset_map, normalize_int_text_map
 from backend.app.utils.tsv_reader import TSVReader
 
@@ -14,10 +14,7 @@ PORTRAIT_FRAME_TYPE = "2"
 @lru_cache(maxsize=1)
 def _get_player_portrait_url_map_by_type(portrait_type: str) -> dict[int, str]:
     reader = TSVReader(HEAD_PORTRAIT_TSV_PATH, typed=True)
-    return normalize_int_asset_map(
-        reader.get_maps("Id", "ImgSrc", f"Type = {portrait_type}")[0],
-        ROLE_PLAYER_ASSET_PREFIX,
-    )
+    return normalize_int_asset_map(reader.get_maps("Id", "ImgSrc", f"Type = {portrait_type}")[0])
 
 
 @lru_cache(maxsize=1)
@@ -49,7 +46,7 @@ def get_player_portrait_frame_name_map() -> dict[int, str]:
 @lru_cache(maxsize=1)
 def get_player_background_url_map() -> dict[int, str]:
     reader = TSVReader(BACKGROUND_TSV_PATH, typed=True)
-    return normalize_int_asset_map(reader.get_maps("Id", "IconPath")[0], UI_PHOTOGRAPH_ASSET_PREFIX)
+    return normalize_int_asset_map(reader.get_maps("Id", "IconPath")[0])
 
 
 @lru_cache(maxsize=1)

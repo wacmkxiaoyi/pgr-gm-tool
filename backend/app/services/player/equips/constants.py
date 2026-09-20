@@ -16,6 +16,4 @@ WEAPON_FASHION_TSV_PATH = Path("assets/WeaponFashion.tsv")
 WEAPON_FASHION_RES_TSV_PATH = Path("assets/WeaponFashionRes.tsv")
 
 LEVELUP_TEMPLATE_DIR = Path("assets/leveluptemplate")
-ROLE_WAFER_BAG_ASSET_PREFIX = "/assets/rolewaferbag/"
-
 EQUIPPABLE_MEMORY_NUMS = 6

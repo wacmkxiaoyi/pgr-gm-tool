@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from backend.app.services.player.constants import ICON_TOOLS_ASSET_PREFIX
 from backend.app.services.player.equips.constants import EQUIP_AWAKE_TSV_PATH, EQUIP_BREAK_THROUGH_TSV_PATH, EQUIP_RESONANCE_TSV_PATH, EQUIP_RES_TSV_PATH, EQUIP_TSV_PATH, WEAPON_FASHION_RES_TSV_PATH, WEAPON_FASHION_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, parse_int
 from backend.app.utils.tsv_reader import TSVReader
@@ -100,7 +99,7 @@ def get_equip_icon_url_map() -> dict[int, str]:
         if not str(asset_path_raw).strip():
             continue
 
-        asset_path = normalize_asset_path(str(asset_path_raw), ICON_TOOLS_ASSET_PREFIX)
+        asset_path = normalize_asset_path(asset_path_raw)
         if asset_path is None:
             continue
 
@@ -215,7 +214,7 @@ def get_weapon_fashion_id_entries_map() -> dict[int, dict[str, int | str]]:
             "Quality": quality,
             "Name": str(row.get("Name") or "").strip(),
             "Description": str(row.get("Description") or "").strip(),
-            "BigIcon": normalize_asset_path(row.get("BigIcon"), ICON_TOOLS_ASSET_PREFIX) or "",
+            "BigIcon": normalize_asset_path(row.get("BigIcon")) or "",
         }
 
     return normalized_map
