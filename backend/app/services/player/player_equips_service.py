@@ -451,9 +451,6 @@ class PlayerEquipsService:
             raise RuntimeError(f"Missing schema for collection: {CHARACTERS_COLLECTION_NAME}")
         return self._collection_schema
 
-    def supports_weapon_overrun_data(self) -> bool:
-        return self._get_characters_schema().allows_field(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
-
     def _build_default_weapon_overrun_data(self) -> dict[str, Any]:
         default_value = self._get_characters_schema().build_default(f"{EQUIP_ITEM_SCHEMA_PATH}.WeaponOverrunData")
         return default_value if isinstance(default_value, dict) else {}
@@ -1443,8 +1440,6 @@ class PlayerEquipsService:
                     character_id=parse_optional_int(entry.CharacterId),
                 ))
 
-        allows_overrun_data = self.supports_weapon_overrun_data()
-
         current_character_memories = None
         character_id = parse_optional_int(target_equip.get("CharacterId")) or 0
         if character_id > 0:
@@ -1460,7 +1455,7 @@ class PlayerEquipsService:
         weapon_overrun_data = None
         weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
         max_overrun_level = weapon_overrun_max_level_map.get(template_id)
-        if allows_overrun_data and max_overrun_level is not None:
+        if max_overrun_level is not None:
             raw_weapon_overrun_data = original_target_equip.get("WeaponOverrunData")
             normalized_weapon_overrun_data = _normalize_weapon_overrun_data(raw_weapon_overrun_data)
             has_raw_weapon_overrun_data = isinstance(raw_weapon_overrun_data, dict) and len(raw_weapon_overrun_data) > 0
@@ -1807,9 +1802,6 @@ class PlayerEquipsService:
         template_id = parse_optional_int(target_equip.get("TemplateId"))
         if template_id is None or not _is_weapon_template_id(template_id):
             raise ValueError("equips.template_invalid")
-
-        if not self.supports_weapon_overrun_data():
-            raise ValueError("equips.overrun_not_supported")
 
         weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
         if weapon_overrun_max_level_map.get(template_id) is None:

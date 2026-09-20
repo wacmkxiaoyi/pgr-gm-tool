@@ -19,7 +19,6 @@ const rerenderLocaleSensitiveViews = () => {
   renderDashboardStaticState();
   app.updateNextHealthCheckLabel();
   app.updateDatabaseHealthCheckLabel();
-  app.updateDatabaseRepairButton?.();
   app.renderSelectedAccountBadge();
   app.updateDatabaseAccountsAccess();
   app.updatePlayerProfileAccess();

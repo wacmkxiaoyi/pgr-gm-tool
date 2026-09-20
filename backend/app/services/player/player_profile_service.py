@@ -87,7 +87,7 @@ class PlayerProfileService:
             try:
                 collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
                 result = await collection.update_one(
-                    {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
+                    {"player_data._id": Int64(uid)},
                     {"$set": update_fields},
                 )
             finally:
@@ -109,35 +109,21 @@ class PlayerProfileService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"items": 1},
             )
 
             if isinstance(document, dict):
-                raw_items = self._items_service.sanitize_inventory_items(document.get("items"))
-                item_found = False
-                for raw_item in raw_items:
-                    if not isinstance(raw_item, dict):
-                        continue
-
-                    current_item_id = parse_optional_int(raw_item.get("_id"))
-                    if current_item_id != item_id:
-                        continue
-
-                    raw_item["Count"] = Int64(quantity)
-                    item_found = True
-                    break
-
-                if not item_found:
-                    raw_items.append(self._items_service.inventory_item_template(item_id, quantity))
-
-                items_update = self._items_service._materialize_inventory_update_fields({"items": raw_items})
-                if "items" not in items_update:
-                    return False
-
+                raw_items = document.get("items") if isinstance(document.get("items"), list) else []
+                item_found = any(
+                    isinstance(raw_item, dict) and parse_optional_int(raw_item.get("_id")) == item_id
+                    for raw_item in raw_items
+                )
                 result = await collection.update_one(
-                    {"_id": document.get("_id")},
-                    {"$set": {"items": items_update["items"]}},
+                    {"_id": document.get("_id"), "items._id": item_id} if item_found else {"_id": document.get("_id")},
+                    {"$set": {"items.$.Count": Int64(quantity)}} if item_found else {
+                        "$push": {"items": self._items_service.inventory_item_template(item_id, quantity)},
+                    },
                 )
                 return result.matched_count > 0
 
@@ -155,7 +141,7 @@ class PlayerProfileService:
         try:
             collection = client[self._settings.mongo_db][PLAYER_COLLECTION_NAME]
             document = await collection.find_one(
-                {"player_data._id": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"player_data._id": Int64(uid)},
                 {
                     "player_data._id": 1,
                     "player_data.Name": 1,

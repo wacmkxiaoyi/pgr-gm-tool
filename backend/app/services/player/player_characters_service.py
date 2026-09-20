@@ -10,20 +10,22 @@ from bson.int64 import Int64
 
 from backend.app.config import Settings
 from backend.app.db import create_mongo_client
-from backend.app.db.models import AddCharacterResponse, CharacterAvailableListResponse, CharacterDetailMemoryRecord, CharacterDetailWeaponRecord, CharacterEquipRecord, CharacterEquipResonanceRecord, CharacterExtraInfoRecord, CharacterFashionRecord, CharacterManagementItemRecord, CharacterManagementListResponse, CharacterSkillInfoRecord, CharacterWeaponOverrunRecord, MaxAllCharactersResponse, MaxCharacterResponse, UpdateCharacterAwakenResponse, UpdateCharacterFashionResponse, UpdateCharacterGradeResponse, UpdateCharacterLevelupResponse, UpdateCharacterResponse, UpdateCharacterSkillResponse, UpdateCharacterTrustResponse
-from backend.app.db.models.player_characters import CHARACTER_LIST_SCHEMA_PATH, CHARACTERS_COLLECTION_NAME, EQUIPS_SCHEMA_PATH, FASHION_ITEM_SCHEMA_PATH, FASHIONS_SCHEMA_PATH
+from backend.app.db.models import AddCharacterResponse, CharacterAvailableListResponse, CharacterDetailMemoryRecord, CharacterDetailWeaponRecord, CharacterEquipRecord, CharacterEquipResonanceRecord, CharacterExtraInfoRecord, CharacterFashionRecord, CharacterManagementItemRecord, CharacterManagementListResponse, CharacterSkillInfoRecord, CharacterWeaponOverrunRecord, MaxAllCharactersResponse, MaxCharacterResponse, SetCharacterSupportResponse, UpdateCharacterAwakenResponse, UpdateCharacterFashionResponse, UpdateCharacterHeadFashionResponse, UpdateCharacterWeaponFashionResponse, UpdateCharacterGradeResponse, UpdateCharacterLevelupResponse, UpdateCharacterResponse, UpdateCharacterSkillResponse, UpdateCharacterTrustResponse, WeaponFashionRecord
+from backend.app.db.models.player_characters import CHARACTER_LIST_SCHEMA_PATH, CHARACTERS_COLLECTION_NAME, EQUIPS_SCHEMA_PATH, FASHION_ITEM_SCHEMA_PATH, FASHIONS_SCHEMA_PATH, WEAPON_FASHION_ITEM_SCHEMA_PATH, WEAPON_FASHIONS_SCHEMA_PATH
 from backend.app.db.models.player_profile import PLAYER_COLLECTION_NAME
 from backend.app.services.db_schema_runtime import CompiledCollectionSchema, DatabaseSchemaRuntime
-from backend.app.services.player.equips import get_equip_descriptions_map, get_equip_site_map
+from backend.app.services.player.equips import get_equip_descriptions_map, get_equip_site_map, get_equip_type_weapon_fashion_ids_map, get_weapon_fashion_id_entries_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map
 from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.levelup_template import get_level_exp_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.player_characters import (
     get_character_Intro_map,
+    get_character_default_fashion_id_map,
     get_character_enhance_skill_entries_map,
     get_character_enhance_skill_ids_map,
     get_character_exhibitions_map,
+    get_exhibition_fashion_id_map,
     get_character_fashions_map,
     get_character_grade_name_map,
     get_character_levelup_template_map,
@@ -34,7 +36,8 @@ from backend.app.services.player.player_characters import (
     get_character_skill_entries_map,
     get_character_skill_ids_map,
     get_character_trust_exp_map,
-    get_character_default_weapon_map
+    get_character_default_weapon_map,
+    get_character_equip_type_map,
 )
 CharacterSortField = Literal["sequence", "name", "quality", "level", "grade", "awaken_level"]
 CharacterSortOrder = Literal["asc", "desc"]
@@ -54,6 +57,19 @@ def _is_weapon_template_id(template_id: int | None) -> bool:
 
     site_value = str(get_equip_site_map().get(template_id, "")).strip()
     return not site_value or site_value == "0"
+
+
+def _get_best_weapon_fashion_id(equip_type: int | None) -> int | None:
+    fashion_entries_map = get_weapon_fashion_id_entries_map()
+    return max(
+        (
+            fashion_id
+            for fashion_id in get_equip_type_weapon_fashion_ids_map().get(equip_type, [])
+            if fashion_id in fashion_entries_map
+        ),
+        key=lambda fashion_id: (int(fashion_entries_map[fashion_id]["Quality"]), fashion_id),
+        default=None,
+    )
 
 
 def _get_next_equip_record_id(raw_equips: list[Any]) -> int:
@@ -103,9 +119,7 @@ def _normalize_weapon_overrun_data(value: Any) -> CharacterWeaponOverrunRecord |
 
 
 def _matching_player_uid_query(uid: int) -> dict[str, Any]:
-    return {
-        "player_data._id": {"$in": [uid, Int64(uid), str(uid)]},
-    }
+    return {"player_data._id": Int64(uid)}
 
 
 def _get_search_priority(keyword: str, name: str, grade_name: str) -> int | None:
@@ -283,6 +297,61 @@ class PlayerCharactersService:
         sanitized = self._get_characters_schema().sanitize_read(raw_fashions, FASHIONS_SCHEMA_PATH)
         return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
 
+    def _sanitize_weapon_fashions(self, raw_fashions: Any) -> list[dict[str, Any]]:
+        sanitized = self._get_characters_schema().sanitize_read(
+            raw_fashions,
+            WEAPON_FASHIONS_SCHEMA_PATH,
+        )
+        return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    def _build_weapon_fashion_document(self, fashion_id: int, character_id: int) -> dict[str, Any]:
+        fashion_document = self._get_characters_schema().materialize_write({
+            "_id": fashion_id,
+            "UseCharacterList": [character_id],
+        }, WEAPON_FASHION_ITEM_SCHEMA_PATH)
+        if not isinstance(fashion_document, dict):
+            raise RuntimeError("Failed to materialize weapon fashion schema")
+        return fashion_document
+
+    def _apply_best_weapon_fashion(self, weapon_fashions: list[dict[str, Any]], character_id: int) -> list[dict[str, Any]]:
+        equip_type = get_character_equip_type_map().get(character_id)
+        fashion_ids = get_equip_type_weapon_fashion_ids_map().get(equip_type, [])
+        best_fashion_id = _get_best_weapon_fashion_id(equip_type)
+        if best_fashion_id is None:
+            return weapon_fashions
+
+        existing_fashion_ids = {
+            fashion_id
+            for weapon_fashion in weapon_fashions
+            for fashion_id in [parse_optional_int(weapon_fashion.get("_id"))]
+            if fashion_id is not None
+        }
+        for fashion_id in fashion_ids:
+            if fashion_id in existing_fashion_ids:
+                continue
+            weapon_fashions.append(self._build_weapon_fashion_document(fashion_id, character_id))
+            existing_fashion_ids.add(fashion_id)
+
+        best_fashion = None
+        for weapon_fashion in weapon_fashions:
+            weapon_fashion_id = parse_optional_int(weapon_fashion.get("_id"))
+            use_character_list = [
+                listed_character_id
+                for raw_character_id in weapon_fashion.get("UseCharacterList", [])
+                for listed_character_id in [parse_optional_int(raw_character_id)]
+                if listed_character_id is not None and listed_character_id != character_id
+            ]
+            weapon_fashion["UseCharacterList"] = use_character_list
+            if weapon_fashion_id == best_fashion_id:
+                best_fashion = weapon_fashion
+
+        if best_fashion is None:
+            weapon_fashions.append(self._build_weapon_fashion_document(best_fashion_id, character_id))
+        else:
+            best_fashion["UseCharacterList"].append(character_id)
+
+        return weapon_fashions
+
     def _build_fashions_update(self, fashions: list[dict[str, Any]]) -> dict[str, Any]:
         materialized_update = self._get_characters_schema().materialize_update_fields({
             "fashions": self._sanitize_fashions(fashions),
@@ -324,6 +393,43 @@ class PlayerCharactersService:
             character_document["CreateTime"] = Int64(now)
 
         return character_document
+
+    def _unlock_exhibition_fashions(self, fashions: list[dict[str, Any]], character_id: int, awaken_level: int) -> None:
+        unlock_fashion_ids = set().union(*(
+            get_exhibition_fashion_id_map().get((character_id, level), frozenset())
+            for level in range(1, awaken_level + 1)
+        ))
+        if not unlock_fashion_ids:
+            return
+
+        fashions_by_id = {
+            fashion_id: fashion
+            for fashion in fashions
+            if (fashion_id := parse_optional_int(fashion.get("_id"))) is not None
+        }
+        for fashion_id in unlock_fashion_ids:
+            existing_fashion = fashions_by_id.get(fashion_id)
+            if existing_fashion is None:
+                fashions.append(self._build_fashion_document(fashion_id))
+            else:
+                existing_fashion["IsLock"] = False
+
+    def _normalize_character_head_info(self, character: dict[str, Any], character_id: int, awaken_level: int) -> None:
+        default_fashion_id = get_character_default_fashion_id_map().get(character_id)
+        head_info = character.get("CharacterHeadInfo")
+        normalized_head_info = head_info if isinstance(head_info, dict) else {}
+        head_fashion_id = parse_optional_int(normalized_head_info.get("HeadFashionId"))
+        if head_fashion_id is None or head_fashion_id <= 0:
+            head_fashion_id = default_fashion_id
+        if head_fashion_id is None:
+            return
+
+        normalized_head_info["HeadFashionId"] = head_fashion_id
+        if head_fashion_id == default_fashion_id:
+            normalized_head_info["HeadFashionType"] = 1 if awaken_level >= 4 else 0
+        else:
+            normalized_head_info["HeadFashionType"] = 2
+        character["CharacterHeadInfo"] = normalized_head_info
 
     def _sanitize_equips(self, raw_equips: Any) -> list[dict[str, Any]]:
         sanitized = self._get_characters_schema().sanitize_read(raw_equips, EQUIPS_SCHEMA_PATH)
@@ -369,30 +475,6 @@ class PlayerCharactersService:
 
         return gather_rewards
 
-    def _get_lowest_quality_fashion_id(self, character_id: int) -> int:
-        lowest_quality_fashion = min(
-            (
-                fashion
-                for fashion in get_character_fashions_map().get(character_id, [])
-                if isinstance(fashion, dict)
-                and parse_optional_int(fashion.get("Id")) is not None
-                and parse_optional_int(fashion.get("Quality")) is not None
-            ),
-            key=lambda fashion: (
-                parse_optional_int(fashion.get("Quality")) or 0,
-                parse_optional_int(fashion.get("Id")) or 0,
-            ),
-            default=None,
-        )
-        if not isinstance(lowest_quality_fashion, dict):
-            raise ValueError("character.add_invalid")
-
-        fashion_id = parse_optional_int(lowest_quality_fashion.get("Id"))
-        if fashion_id is None or fashion_id <= 0:
-            raise ValueError("character.add_invalid")
-
-        return fashion_id
-
     async def add_character(self, uid: int, character_id: int) -> AddCharacterResponse:
         if character_id <= 0:
             raise ValueError("character.add_invalid")
@@ -409,7 +491,9 @@ class PlayerCharactersService:
         if min_quality is None:
             raise ValueError("character.add_invalid")
 
-        fashion_id = self._get_lowest_quality_fashion_id(character_id)
+        fashion_id = get_character_default_fashion_id_map().get(character_id)
+        if fashion_id is None:
+            raise ValueError("character.add_invalid")
 
         weapon_template_id = parse_optional_int(get_character_default_weapon_map().get(character_id))
         if weapon_template_id is None or not _is_weapon_template_id(weapon_template_id):
@@ -421,7 +505,7 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
 
             normalized_characters_document = self._sanitize_characters_document(characters_document)
@@ -468,6 +552,7 @@ class PlayerCharactersService:
             ]
             updated_gather_rewards = set(gather_rewards)
             updated_gather_rewards.update(awaken_path[:1])
+            self._unlock_exhibition_fashions(fashions, character_id, 1)
 
             characters_result = await characters_collection.update_one(
                 matching_uid_query(uid),
@@ -528,9 +613,10 @@ class PlayerCharactersService:
         characters: list[dict[str, Any]],
         fashions: list[dict[str, Any]],
         equips: list[dict[str, Any]],
+        weapon_fashions: list[dict[str, Any]],
         gather_rewards: set[int],
         template: dict[str, Any],
-    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[int]]:
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[int]]:
         character_id = parse_optional_int(target_character.get("_id"))
         if character_id is None:
             raise ValueError("character.not_found")
@@ -575,11 +661,6 @@ class PlayerCharactersService:
 
         if selected_fashion_id is not None:
             target_character["FashionId"] = selected_fashion_id
-            normalized_head_info = target_character.get("CharacterHeadInfo") if isinstance(target_character.get("CharacterHeadInfo"), dict) else {}
-            normalized_head_info["HeadFashionId"] = selected_fashion_id
-            current_head_fashion_type = parse_optional_int(normalized_head_info.get("HeadFashionType"))
-            normalized_head_info["HeadFashionType"] = current_head_fashion_type if current_head_fashion_type is not None else 0
-            target_character["CharacterHeadInfo"] = normalized_head_info
 
         memory_templates = template.get("memories") if isinstance(template.get("memories"), list) else []
         for memory_template in memory_templates:
@@ -612,11 +693,14 @@ class PlayerCharactersService:
         updated_gather_rewards = set(gather_rewards)
         updated_gather_rewards.difference_update(awaken_path)
         updated_gather_rewards.update(awaken_rewards)
+        awaken_level = _resolve_awaken_level(character_id, updated_gather_rewards, character_exhibitions_map)
+        self._unlock_exhibition_fashions(fashions, character_id, awaken_level)
+        if selected_fashion_id is not None:
+            target_character["CharacterHeadInfo"] = {"HeadFashionId": selected_fashion_id}
+        self._normalize_character_head_info(target_character, character_id, awaken_level)
+        weapon_fashions = self._apply_best_weapon_fashion(weapon_fashions, character_id)
 
-        return characters, fashions, equips, sorted(updated_gather_rewards)
-
-    def _supports_weapon_overrun_data(self) -> bool:
-        return self._get_characters_schema().allows_field("equips.0.WeaponOverrunData")
+        return characters, fashions, equips, weapon_fashions, sorted(updated_gather_rewards)
 
     def _sanitize_players_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_players_schema().sanitize_document(document)
@@ -646,11 +730,12 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             normalized_players_document = self._sanitize_players_document(players_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
+            fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
 
             target_index = next(
                 (
@@ -687,10 +772,11 @@ class PlayerCharactersService:
             cleaned_gather_rewards.update(awaken_path[:awaken_level])
 
             target_character["LiberateLv"] = awaken_level
+            self._unlock_exhibition_fashions(fashions, character_id, awaken_level)
 
             characters_result = await characters_collection.update_one(
                 matching_uid_query(uid),
-                {"$set": {"characters": characters}},
+                {"$set": {"characters": characters, **self._build_fashions_update(fashions)}},
             )
             players_result = await players_collection.update_one(
                 _matching_player_uid_query(uid),
@@ -719,7 +805,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "weaponFashions": 1})
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
@@ -774,7 +860,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "weaponFashions": 1})
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
@@ -1009,19 +1095,11 @@ class PlayerCharactersService:
 
             target_fashion = fashions[fashion_index]
             target_fashion["IsLock"] = False
-            target_character["FashionId"] = fashion_id
-
-            character_head_info = target_character.get("CharacterHeadInfo")
-            normalized_head_info = character_head_info if isinstance(character_head_info, dict) else {}
-            normalized_head_info["HeadFashionId"] = fashion_id
-            current_head_fashion_type = parse_optional_int(normalized_head_info.get("HeadFashionType"))
-            normalized_head_info["HeadFashionType"] = current_head_fashion_type if current_head_fashion_type is not None else 0
-            target_character["CharacterHeadInfo"] = normalized_head_info
 
             normalized_fashions_update = self._build_fashions_update(fashions)
             result = await characters_collection.update_one(
                 matching_uid_query(uid),
-                {"$set": {"characters": characters, **normalized_fashions_update}},
+                {"$set": {f"characters.{target_index}.FashionId": fashion_id, **normalized_fashions_update}},
             )
             if result.matched_count <= 0:
                 raise ValueError("character.update_fashion_failed")
@@ -1030,8 +1108,146 @@ class PlayerCharactersService:
                 record_id=record_id,
                 CharacterId=character_id,
                 CurrentFahionId=fashion_id,
-                HeadFashionId=fashion_id,
-                HeadFashionType=parse_optional_int(normalized_head_info.get("HeadFashionType")),
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def update_character_head_fashion(self, uid: int, record_id: int, fashion_id: int) -> UpdateCharacterHeadFashionResponse:
+        if fashion_id <= 0:
+            raise ValueError("character.update_invalid_fashion")
+
+        character_fashions_map = get_character_fashions_map()
+        client = create_mongo_client(self._settings)
+
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1})
+            normalized_document = self._sanitize_characters_document(characters_document)
+            characters = self._sanitize_character_list(normalized_document.get("characters"))
+            fashions = self._sanitize_fashions(normalized_document.get("fashions"))
+
+            target_index = next((
+                index for index, character in enumerate(characters)
+                if parse_optional_int(character.get("_id")) == record_id
+            ), None)
+            if target_index is None:
+                raise ValueError("character.not_found")
+
+            target_character = characters[target_index]
+            character_id = parse_optional_int(target_character.get("_id"))
+            if character_id is None:
+                raise ValueError("character.not_found")
+
+            allowed_fashion_ids = {
+                normalized_id
+                for fashion in character_fashions_map.get(character_id, [])
+                if isinstance(fashion, dict)
+                for normalized_id in [parse_optional_int(fashion.get("Id"))]
+                if normalized_id is not None
+            }
+            if fashion_id not in allowed_fashion_ids:
+                raise ValueError("character.update_invalid_fashion")
+
+            fashion_index = next((
+                index for index, fashion in enumerate(fashions)
+                if parse_optional_int(fashion.get("_id")) == fashion_id
+            ), None)
+            if fashion_index is None:
+                fashions.append(self._build_fashion_document(fashion_id))
+            else:
+                fashions[fashion_index]["IsLock"] = False
+
+            awaken_level = parse_optional_int(target_character.get("LiberateLv")) or 1
+            target_character["CharacterHeadInfo"] = {"HeadFashionId": fashion_id}
+            self._normalize_character_head_info(target_character, character_id, awaken_level)
+            head_info = target_character["CharacterHeadInfo"]
+            result = await characters_collection.update_one(
+                matching_uid_query(uid),
+                {"$set": {
+                    f"characters.{target_index}.CharacterHeadInfo": head_info,
+                    **self._build_fashions_update(fashions),
+                }},
+            )
+            if result.matched_count <= 0:
+                raise ValueError("character.update_fashion_failed")
+
+            return UpdateCharacterHeadFashionResponse(
+                record_id=record_id,
+                CharacterId=character_id,
+                HeadFashionId=head_info["HeadFashionId"],
+                HeadFashionType=head_info["HeadFashionType"],
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def update_character_weapon_fashion(self, uid: int, record_id: int, fashion_id: int | None) -> UpdateCharacterWeaponFashionResponse:
+        if fashion_id is not None and fashion_id <= 0:
+            raise ValueError("character.update_invalid_weapon_fashion")
+
+        client = create_mongo_client(self._settings)
+        try:
+            database = client[self._settings.mongo_db]
+            characters_collection = database[CHARACTERS_COLLECTION_NAME]
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+            normalized_document = self._sanitize_characters_document(characters_document)
+            characters = self._sanitize_character_list(normalized_document.get("characters"))
+            target_index = next((
+                index for index, character in enumerate(characters)
+                if parse_optional_int(character.get("_id")) == record_id
+            ), None)
+            if target_index is None:
+                raise ValueError("character.not_found")
+
+            target_character = characters[target_index]
+            character_id = parse_optional_int(target_character.get("_id"))
+            equip_type = get_character_equip_type_map().get(character_id) if character_id is not None else None
+            allowed_fashion_ids = set(get_equip_type_weapon_fashion_ids_map().get(equip_type, []))
+            if character_id is None or (fashion_id is not None and fashion_id not in allowed_fashion_ids):
+                raise ValueError("character.update_invalid_weapon_fashion")
+
+            weapon_fashions = self._sanitize_weapon_fashions(normalized_document.get("weaponFashions"))
+            if fashion_id is not None:
+                target_fashion = next((
+                    entry for entry in weapon_fashions
+                    if parse_optional_int(entry.get("_id")) == fashion_id
+                ), None)
+                if target_fashion is None:
+                    weapon_fashions.append(self._build_weapon_fashion_document(fashion_id, character_id))
+                else:
+                    target_fashion["UseCharacterList"] = [
+                        *[
+                            listed_character_id
+                            for raw_character_id in target_fashion.get("UseCharacterList", [])
+                            for listed_character_id in [parse_optional_int(raw_character_id)]
+                            if listed_character_id is not None and listed_character_id != character_id
+                        ],
+                        character_id,
+                    ]
+
+            for entry in weapon_fashions:
+                if fashion_id is not None and parse_optional_int(entry.get("_id")) == fashion_id:
+                    continue
+                entry["UseCharacterList"] = [
+                    listed_character_id
+                    for raw_character_id in entry.get("UseCharacterList", [])
+                    for listed_character_id in [parse_optional_int(raw_character_id)]
+                    if listed_character_id is not None and listed_character_id != character_id
+                ]
+
+            result = await characters_collection.update_one(
+                matching_uid_query(uid),
+                {"$set": {"weaponFashions": weapon_fashions}},
+            )
+            if result.matched_count <= 0:
+                raise ValueError("character.update_weapon_fashion_failed")
+
+            return UpdateCharacterWeaponFashionResponse(
+                record_id=record_id,
+                CharacterId=character_id,
+                CurrentWeaponFashionId=fashion_id,
             )
         finally:
             with contextlib.suppress(Exception):
@@ -1044,7 +1260,7 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
 
             normalized_characters_document = self._sanitize_characters_document(characters_document)
@@ -1052,6 +1268,7 @@ class PlayerCharactersService:
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
             fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
             equips = self._sanitize_equips(normalized_characters_document.get("equips"))
+            weapon_fashions = self._sanitize_weapon_fashions(normalized_characters_document.get("weaponFashions"))
             gather_rewards = self._sanitize_gather_rewards(normalized_players_document.get("gather_rewards"))
 
             target_index = next(
@@ -1074,11 +1291,12 @@ class PlayerCharactersService:
             if not isinstance(template, dict):
                 raise ValueError("character.max_template_not_found")
 
-            updated_characters, updated_fashions, updated_equips, updated_gather_rewards = self._apply_max_character_template(
+            updated_characters, updated_fashions, updated_equips, updated_weapon_fashions, updated_gather_rewards = self._apply_max_character_template(
                 target_character=target_character,
                 characters=characters,
                 fashions=fashions,
                 equips=equips,
+                weapon_fashions=weapon_fashions,
                 gather_rewards=gather_rewards,
                 template=template,
             )
@@ -1087,6 +1305,7 @@ class PlayerCharactersService:
                 "characters": updated_characters,
                 **self._build_fashions_update(updated_fashions),
                 **self._build_equips_update(updated_equips),
+                "weaponFashions": updated_weapon_fashions,
             }
             players_update_payload = self._build_players_update(updated_gather_rewards)
 
@@ -1117,7 +1336,7 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
 
             normalized_characters_document = self._sanitize_characters_document(characters_document)
@@ -1128,6 +1347,7 @@ class PlayerCharactersService:
             characters: list[dict[str, Any]] = []
             fashions: list[dict[str, Any]] = []
             equips: list[dict[str, Any]] = []
+            weapon_fashions: list[dict[str, Any]] = []
             gather_rewards: set[int] = set()
 
             quality_bound_map = get_character_quality_bound_map()
@@ -1153,9 +1373,8 @@ class PlayerCharactersService:
                 if min_quality is None:
                     continue
 
-                try:
-                    fashion_id = self._get_lowest_quality_fashion_id(character_id)
-                except ValueError:
+                fashion_id = get_character_default_fashion_id_map().get(character_id)
+                if fashion_id is None:
                     continue
 
                 target_character = self._build_character_document(character_id, quality=min_quality, fashion_id=fashion_id)
@@ -1174,11 +1393,12 @@ class PlayerCharactersService:
                 else:
                     fashions[fashion_index]["IsLock"] = False
 
-                characters, fashions, equips, updated_gather_rewards = self._apply_max_character_template(
+                characters, fashions, equips, weapon_fashions, updated_gather_rewards = self._apply_max_character_template(
                     target_character=target_character,
                     characters=characters,
                     fashions=fashions,
                     equips=equips,
+                    weapon_fashions=weapon_fashions,
                     gather_rewards=gather_rewards,
                     template=template,
                 )
@@ -1193,6 +1413,7 @@ class PlayerCharactersService:
                         "characters": characters,
                         **self._build_fashions_update(fashions),
                         **self._build_equips_update(equips),
+                        "weaponFashions": weapon_fashions,
                     },
                 },
             )
@@ -1480,7 +1701,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
         finally:
             with contextlib.suppress(Exception):
                 client.close()
@@ -1489,6 +1710,7 @@ class PlayerCharactersService:
         characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
         account_fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
         account_equips = self._sanitize_equips(normalized_characters_document.get("equips"))
+        account_weapon_fashions = self._sanitize_weapon_fashions(normalized_characters_document.get("weaponFashions"))
         target_character = next(
             (
                 character
@@ -1508,6 +1730,9 @@ class PlayerCharactersService:
         character_levelup_template_map = get_character_levelup_template_map()
         character_max_liberate_level_map = get_character_max_liberate_level_map()
         character_quality_bound_map = get_character_quality_bound_map()
+        character_equip_type_map = get_character_equip_type_map()
+        weapon_fashion_ids_map = get_equip_type_weapon_fashion_ids_map()
+        weapon_fashion_entries_map = get_weapon_fashion_id_entries_map()
         equip_descriptions_map = get_equip_descriptions_map()
         equip_site_map = get_equip_site_map()
         character_skill_ids_map = get_character_skill_ids_map()
@@ -1535,10 +1760,12 @@ class PlayerCharactersService:
             fashion_id = parse_optional_int(fashion.get("Id"))
             quality = parse_optional_int(fashion.get("Quality"))
             big_icon = str(fashion.get("BigIcon") or "").strip()
+            big_head_icon = str(fashion.get("BigHeadIcon") or "").strip()
             big_head_icon_fashion = str(fashion.get("BigHeadIconFashion") or "").strip()
+            big_head_icon_liberation = str(fashion.get("BigHeadIconLiberation") or "").strip()
             name = str(fashion.get("Name") or "").strip()
             description = str(fashion.get("Description") or "").strip()
-            if fashion_id is None or quality is None or not big_icon or not big_head_icon_fashion:
+            if fashion_id is None or quality is None or not big_icon or not big_head_icon or not big_head_icon_fashion:
                 continue
 
             fashions.append(
@@ -1547,11 +1774,44 @@ class PlayerCharactersService:
                     Quality=quality,
                     IsLock=fashion_lock_map.get(fashion_id, True),
                     BigIcon=big_icon,
+                    BigHeadIcon=big_head_icon,
                     BigHeadIconFashion=big_head_icon_fashion,
+                    BigHeadIconLiberation=big_head_icon_liberation or big_head_icon,
                     Name=name,
                     Description=description
                 )
             )
+
+        equip_type = character_equip_type_map.get(character_id)
+        unlocked_weapon_fashion_ids: set[int] = set()
+        current_weapon_fashion_id: int | None = None
+        for weapon_fashion in account_weapon_fashions:
+            weapon_fashion_id = parse_optional_int(weapon_fashion.get("_id"))
+            use_character_ids = {
+                listed_character_id
+                for raw_character_id in weapon_fashion.get("UseCharacterList", [])
+                for listed_character_id in [parse_optional_int(raw_character_id)]
+                if listed_character_id is not None
+            }
+            if weapon_fashion_id is None:
+                continue
+            unlocked_weapon_fashion_ids.add(weapon_fashion_id)
+            if current_weapon_fashion_id is None and character_id in use_character_ids and weapon_fashion_id in weapon_fashion_entries_map:
+                current_weapon_fashion_id = weapon_fashion_id
+
+        weapon_fashions = [
+            WeaponFashionRecord(
+                Id=fashion_id,
+                Quality=int(entry["Quality"]),
+                IsLock=fashion_id not in unlocked_weapon_fashion_ids,
+                BigIcon=str(entry["BigIcon"]),
+                Name=str(entry["Name"]),
+                Description=str(entry["Description"]),
+            )
+            for fashion_id in weapon_fashion_ids_map.get(equip_type, [])
+            for entry in [weapon_fashion_entries_map.get(fashion_id)]
+            if entry is not None
+        ]
 
         def build_character_equip(raw_equip: dict[str, Any]) -> CharacterEquipRecord | None:
             equip_record_id = parse_optional_int(raw_equip.get("_id"))
@@ -1575,7 +1835,7 @@ class PlayerCharactersService:
             resonance_info = [entry for entry in _normalize_weapon_resonance_list(raw_equip.get("ResonanceInfo")) if entry.slot in {1, 2, 3}]
             weapon_overrun_data = None
             max_overrun_level = get_weapon_overrun_max_level_map().get(template_id)
-            if self._supports_weapon_overrun_data() and max_overrun_level is not None:
+            if max_overrun_level is not None:
                 normalized_overrun = _normalize_weapon_overrun_data(raw_equip.get("WeaponOverrunData"))
                 if normalized_overrun is None:
                     weapon_overrun_data = CharacterWeaponOverrunRecord(max_level=max_overrun_level)
@@ -1653,7 +1913,13 @@ class PlayerCharactersService:
             QualityBound=character_quality_bound_map.get(character_id, []) if character_id is not None else [],
             Intro=character_intro_map.get(character_id) if character_id is not None else None,
             CurrentFahionId=parse_optional_int(target_character.get("FashionId")),
+            DefaultFashionId=get_character_default_fashion_id_map().get(character_id),
+            HeadFashionId=parse_optional_int((target_character.get("CharacterHeadInfo") or {}).get("HeadFashionId")) if isinstance(target_character.get("CharacterHeadInfo"), dict) else get_character_default_fashion_id_map().get(character_id),
+            HeadFashionType=parse_optional_int((target_character.get("CharacterHeadInfo") or {}).get("HeadFashionType")) if isinstance(target_character.get("CharacterHeadInfo"), dict) else 0,
             Fashions=fashions,
+            EquipType=equip_type,
+            CurrentWeaponFashionId=current_weapon_fashion_id,
+            WeaponFashions=weapon_fashions,
             Weapon=character_weapon,
             Memories=character_memories,
             SkillsList=character_skills,

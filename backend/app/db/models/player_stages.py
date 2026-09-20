@@ -9,8 +9,6 @@ STAGES_SCHEMA_PATH = "stages"
 
 class StageRecord(BaseModel):
     stage_id: int
-    k: int | None = None
-    v: dict[str, object] = Field(default_factory=dict)
 
 
 class StageListResponse(BaseModel):

@@ -104,7 +104,7 @@ class PlayerItemsService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"items": 1},
             )
         finally:
@@ -159,7 +159,7 @@ class PlayerItemsService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             result = await collection.update_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}, "items._id": item_id},
+                {"uid": Int64(uid), "items._id": item_id},
                 {"$pull": {"items": {"_id": item_id}}},
             )
         finally:
@@ -175,7 +175,7 @@ class PlayerItemsService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"items": 1},
             )
 
@@ -198,7 +198,7 @@ class PlayerItemsService:
                 return 0
 
             result = await collection.update_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"$pull": {"items": {"_id": {"$in": deletable_item_ids}}}},
             )
         finally:
@@ -217,33 +217,9 @@ class PlayerItemsService:
         client = create_mongo_client(self._settings)
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
-            document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
-                {"items": 1},
-            )
-
-            raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
-            updated = False
-            for raw_item in raw_items:
-                if not isinstance(raw_item, dict):
-                    continue
-                current_item_id = parse_optional_int(raw_item.get("_id"))
-                if current_item_id != item_id:
-                    continue
-                raw_item["Count"] = Int64(quantity)
-                updated = True
-                break
-
-            if not updated or not isinstance(document, dict):
-                return False
-
-            materialized_update = self._materialize_inventory_update_fields({"items": raw_items})
-            if "items" not in materialized_update:
-                return False
-
             result = await collection.update_one(
-                {"_id": document.get("_id")},
-                {"$set": {"items": materialized_update["items"]}},
+                {"uid": Int64(uid), "items._id": item_id},
+                {"$set": {"items.$.Count": Int64(quantity)}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -256,11 +232,11 @@ class PlayerItemsService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"items": 1},
             )
 
-            raw_items = self._sanitize_raw_items(document.get("items") if isinstance(document, dict) else [])
+            raw_items = document.get("items") if isinstance(document, dict) and isinstance(document.get("items"), list) else []
             existing_item_by_id: dict[int, dict[str, Any]] = {}
             for raw_item in raw_items:
                 if not isinstance(raw_item, dict):
@@ -272,26 +248,40 @@ class PlayerItemsService:
 
             created_count = 0
             updated_count = 0
+            existing_quantity_updates: dict[int, Int64] = {}
+            new_items: list[dict[str, Any]] = []
             for item in items:
                 item_id = int(item["item_id"])
                 quantity = int(item["quantity"])
 
                 if item_id in existing_item_by_id:
                     current_quantity = parse_optional_int(existing_item_by_id[item_id].get("Count")) or 0
-                    existing_item_by_id[item_id]["Count"] = Int64(current_quantity + quantity)
+                    updated_quantity = Int64(current_quantity + quantity)
+                    existing_item_by_id[item_id]["Count"] = updated_quantity
+                    existing_quantity_updates[item_id] = updated_quantity
                     updated_count += 1
                     continue
 
                 inventory_item = self.inventory_item_template(item_id, quantity)
                 raw_items.append(inventory_item)
                 existing_item_by_id[item_id] = inventory_item
+                new_items.append(inventory_item)
                 created_count += 1
 
             if isinstance(document, dict):
-                normalized_document = self._sanitize_inventory_document(document)
+                existing_updates = {
+                    f"items.$[item_{item_id}].Count": quantity
+                    for item_id, quantity in existing_quantity_updates.items()
+                }
+                update: dict[str, Any] = {}
+                if existing_updates:
+                    update["$set"] = existing_updates
+                if new_items:
+                    update["$push"] = {"items": {"$each": new_items}}
                 result = await collection.update_one(
                     {"_id": document.get("_id")},
-                    {"$set": {"items": self._materialize_inventory_update_fields({"items": raw_items}).get("items", normalized_document.get("items", []))}},
+                    update,
+                    array_filters=[{f"item_{item_id}._id": item_id} for item_id in existing_quantity_updates] or None,
                 )
             else:
                 inventory_document = self._sanitize_inventory_document({"uid": Int64(uid), "items": raw_items})
@@ -313,7 +303,7 @@ class PlayerItemsService:
         try:
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
-                {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
+                {"uid": Int64(uid)},
                 {"items": 1},
             )
         finally:

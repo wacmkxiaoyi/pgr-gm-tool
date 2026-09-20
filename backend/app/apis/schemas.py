@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 
 class LoginRequest(BaseModel):
@@ -21,6 +21,12 @@ class ApiErrorResponse(BaseModel):
 
 class SessionResponse(BaseModel):
     authenticated: bool
+
+
+class WeaponOverrunSuitEntryResponse(BaseModel):
+    Name: str
+    SkillDescription: list[str] = Field(default_factory=list)
+    WaferBagPath: str
 
 
 class AppInfoResponse(BaseModel):
@@ -49,8 +55,8 @@ class AppInfoResponse(BaseModel):
     character_log_name_map: dict[int, str]
     character_head_icon_url_map: dict[int, str]
     weapon_skill_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
-    weapon_overrun_suit_entries_map: dict[int, dict[str, str]] | None = None
-    weapon_overrun_suit_memory_ids_map: dict[int, dict[int, int]] | None = None
+    weapon_overrun_suit_entries_map: dict[int, WeaponOverrunSuitEntryResponse] = Field(default_factory=dict)
+    weapon_overrun_suit_memory_ids_map: dict[int, dict[int, int]] = Field(default_factory=dict)
     weapon_skill_pool_entries_map: dict[int, dict[int, list[int]]] = Field(default_factory=dict)
     attrib_pool_entries_map: dict[int, list[dict[str, object]]] = Field(default_factory=dict)
     character_skill_pool_entries_map: dict[int, dict[int, list[dict[str, object]]]] = Field(default_factory=dict)
@@ -61,9 +67,7 @@ class AppInfoResponse(BaseModel):
 
 
 class CharacterManagementItemResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     Sequence: int
     Level: int | None = None
@@ -91,9 +95,7 @@ class AddCharacterRequest(BaseModel):
 
 
 class AddCharacterResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     added: bool = True
 
@@ -109,9 +111,7 @@ class UpdateCharacterEvolutionRequest(BaseModel):
 
 
 class UpdateCharacterEvolutionResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     Quality: int | None = None
     Star: int | None = None
@@ -123,9 +123,7 @@ class UpdateCharacterLevelupRequest(BaseModel):
 
 
 class UpdateCharacterLevelupResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     Level: int | None = None
     Exp: int | None = None
@@ -137,9 +135,7 @@ class UpdateCharacterTrustRequest(BaseModel):
 
 
 class UpdateCharacterTrustResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     TrustLv: int | None = None
     TrustExp: int | None = None
@@ -150,9 +146,7 @@ class UpdateCharacterGradeRequest(BaseModel):
 
 
 class UpdateCharacterGradeResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     Grade: int | None = None
 
@@ -162,9 +156,7 @@ class UpdateCharacterAwakenRequest(BaseModel):
 
 
 class UpdateCharacterAwakenResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     AwakenLevel: int = 1
     LiberateLv: int = 1
@@ -174,14 +166,27 @@ class UpdateCharacterFashionRequest(BaseModel):
     FashionId: int
 
 
-class UpdateCharacterFashionResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
+class UpdateCharacterWeaponFashionRequest(BaseModel):
+    FashionId: int | None = None
 
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+
+class UpdateCharacterFashionResponse(BaseModel):
+    record_id: int
     CharacterId: int
     CurrentFahionId: int
+
+
+class UpdateCharacterHeadFashionResponse(BaseModel):
+    record_id: int
+    CharacterId: int
     HeadFashionId: int
-    HeadFashionType: int | None = None
+    HeadFashionType: int
+
+
+class UpdateCharacterWeaponFashionResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    CurrentWeaponFashionId: int | None = None
 
 
 class UpdateCharacterSkillRequest(BaseModel):
@@ -190,9 +195,7 @@ class UpdateCharacterSkillRequest(BaseModel):
 
 
 class UpdateCharacterSkillResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     SkillId: int
     Level: int = 0
@@ -200,9 +203,7 @@ class UpdateCharacterSkillResponse(BaseModel):
 
 
 class MaxCharacterResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     CharacterId: int
     updated: bool = True
 
@@ -219,15 +220,15 @@ class CharacterFashionResponse(BaseModel):
     Quality: int
     IsLock: bool = True
     BigIcon: str
+    BigHeadIcon: str
     BigHeadIconFashion: str
+    BigHeadIconLiberation: str
     Name: str
     Description: str
 
 
 class CharacterEquipResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     TemplateId: int
     Breakthrough: int | None = None
     Level: int | None = None
@@ -264,6 +265,15 @@ class CharacterSkillInfoResponse(BaseModel):
     MaxLevel: int = 0
 
 
+class WeaponFashionResponse(BaseModel):
+    Id: int
+    Quality: int
+    IsLock: bool = True
+    BigIcon: str
+    Name: str
+    Description: str
+
+
 class CharacterExtraInfoResponse(BaseModel):
     TrustLv: int | None = None
     TrustExp: int | None = None
@@ -273,7 +283,13 @@ class CharacterExtraInfoResponse(BaseModel):
     QualityBound: list[int] = Field(default_factory=list)
     Intro: str | None = None
     CurrentFahionId: int | None = None
+    DefaultFashionId: int | None = None
+    HeadFashionId: int | None = None
+    HeadFashionType: int | None = None
     Fashions: list[CharacterFashionResponse] = Field(default_factory=list)
+    EquipType: int | None = None
+    CurrentWeaponFashionId: int | None = None
+    WeaponFashions: list[WeaponFashionResponse] = Field(default_factory=list)
     Weapon: CharacterDetailWeaponResponse | None = None
     Memories: list[CharacterDetailMemoryResponse] = Field(default_factory=list)
     SkillsList: list[CharacterSkillInfoResponse] = Field(default_factory=list)
@@ -329,8 +345,6 @@ class InventoryListResponse(BaseModel):
 
 class StageItemResponse(BaseModel):
     stage_id: int
-    k: int | None = None
-    v: dict[str, object] = Field(default_factory=dict)
 
 
 class StageListResponse(BaseModel):
@@ -369,9 +383,7 @@ class WeaponOverrunExtraInfoResponse(BaseModel):
 
 
 class EquipItemResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     TemplateId: int
     CharacterId: int | None = None
     Level: int | None = None
@@ -405,7 +417,7 @@ class AddEquipResponse(BaseModel):
     added_count: int
 
 class DeleteEquipResponse(BaseModel):
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     deleted: bool
 
 
@@ -414,9 +426,7 @@ class UpdateEquipRequest(BaseModel):
     value: int
 
 class UpdateEquipResponse(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     TemplateId: int
     CharacterId: int | None = None
     Level: int | None = None
@@ -536,12 +546,6 @@ class DeleteAccountResponse(BaseModel):
     deleted: bool
 
 
-class DatabaseRepairResponse(BaseModel):
-    collections: int
-    documents_scanned: int
-    documents_updated: int
-
-
 class PlayerProfileResponse(BaseModel):
     uid: int
     name: str | None = None
@@ -566,7 +570,6 @@ class UpdateSelectedPlayerProfileRequest(BaseModel):
 
 class HealthStatusResponse(BaseModel):
     checked_at: str | None = None
-    server_version: str | None = None
     interval_seconds: int
     sections: list[dict[str, object]]
     controls: dict[str, object]

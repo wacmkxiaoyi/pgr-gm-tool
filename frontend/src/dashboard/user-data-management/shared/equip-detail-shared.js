@@ -130,7 +130,7 @@ app.hasEquipResonanceConfig = (templateId) => {
 };
 
 app.getCurrentEquipDetailRecordId = () => {
-  const recordId = Number(state.currentEquipDetailItem?._id ?? state.currentEquipDetailItem?.record_id);
+  const recordId = Number(state.currentEquipDetailItem?.record_id);
   return Number.isFinite(recordId) && recordId > 0 ? recordId : null;
 };
 
@@ -182,7 +182,7 @@ app.replaceEquipDetailSourceItem = (recordId, nextItem, source = state.currentEq
     return false;
   }
 
-  const index = items.findIndex((item) => Number(item?._id ?? item?.record_id) === nextRecordId);
+  const index = items.findIndex((item) => Number(item?.record_id) === nextRecordId);
   if (index < 0) {
     return false;
   }
@@ -201,7 +201,7 @@ app.findEquipDetailItemBySource = (recordId, source, equipType) => {
 
   const resolvedSource = source || (equipType === 'memory' ? 'memory-management' : 'equip-management');
   const items = app.getEquipDetailSourceItems(resolvedSource);
-  return items.find((item) => Number(item?._id ?? item?.record_id) === nextRecordId) ?? null;
+  return items.find((item) => Number(item?.record_id) === nextRecordId) ?? null;
 };
 
 app.openEquipDetailModal = ({ recordId, equipType = 'weapon', source = null, trigger = null }) => {

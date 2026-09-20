@@ -69,7 +69,7 @@ app.compareCharacterWeaponSwitchItems = (left, right) => {
     return fallbackComparison;
   }
 
-  return Number(left?._id ?? left?.record_id ?? 0) - Number(right?._id ?? right?.record_id ?? 0);
+  return Number(left?.record_id ?? 0) - Number(right?.record_id ?? 0);
 };
 
 app.getFilteredCharacterWeaponSwitchItems = () => {
@@ -162,7 +162,7 @@ app.renderCharacterWeaponSwitchCurrent = () => {
   const star = app.getEquipStarByTemplateId(templateId);
   const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
   const selectedRecordId = Number(state.characterWeaponSwitchSelectedRecordId);
-  const currentRecordId = Number(currentWeapon?._id ?? currentWeapon?.record_id ?? 0);
+  const currentRecordId = Number(currentWeapon?.record_id ?? 0);
   const tagKey = selectedRecordId > 0 && currentRecordId === selectedRecordId
     ? 'dashboard.characterWeaponSwitchSelected'
     : 'dashboard.characterEquipSwitchCurrent';
@@ -183,7 +183,7 @@ app.renderCharacterWeaponSwitchRows = () => {
   const items = app.getFilteredCharacterWeaponSwitchItems();
   const selectedRecordId = Number(state.characterWeaponSwitchSelectedRecordId);
   characterWeaponSwitchTableBody.innerHTML = items.map((item) => {
-    const recordId = Number(item?._id ?? item?.record_id ?? 0);
+    const recordId = Number(item?.record_id ?? 0);
     const templateId = item?.TemplateId;
     const iconUrl = app.getEquipIconByTemplateId(templateId);
     const weaponName = app.getEquipNameByTemplateId(templateId);
@@ -242,7 +242,7 @@ app.closeCharacterWeaponSwitchModal = () => {
 };
 
 app.loadCharacterWeaponSwitchCandidates = async () => {
-  const recordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+  const recordId = Number(state.currentCharacterDetailItem?.record_id);
   if (!Number.isFinite(recordId) || recordId <= 0) {
     return;
   }
@@ -252,7 +252,7 @@ app.loadCharacterWeaponSwitchCandidates = async () => {
     const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/weapon-candidates`);
     state.characterWeaponSwitchItems = Array.isArray(payload?.items) ? payload.items : [];
     state.characterWeaponSwitchCurrentWeapon = payload?.current_weapon && typeof payload.current_weapon === 'object' ? payload.current_weapon : null;
-    state.characterWeaponSwitchSelectedRecordId = Number(payload?.current_weapon?._id ?? payload?.current_weapon?.record_id ?? 0) || null;
+    state.characterWeaponSwitchSelectedRecordId = Number(payload?.current_weapon?.record_id ?? 0) || null;
     app.renderCharacterWeaponSwitchCurrent();
     app.renderCharacterWeaponSwitchRows();
   } catch (error) {
@@ -287,7 +287,7 @@ app.submitCharacterWeaponSwitch = async () => {
     return;
   }
 
-  const characterRecordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+  const characterRecordId = Number(state.currentCharacterDetailItem?.record_id);
   const weaponRecordId = Number(state.characterWeaponSwitchSelectedRecordId);
   if (!Number.isFinite(weaponRecordId) || weaponRecordId <= 0) {
     app.openNoticeModal(app.translate('runtime.characterWeaponSwitchNeedSelection'));
@@ -397,13 +397,13 @@ app.handleCharacterWeaponSwitchRowActivate = (event) => {
 };
 
 app.handleCharacterWeaponSwitchCurrentClick = () => {
-  const currentRecordId = Number(state.characterWeaponSwitchCurrentWeapon?._id ?? state.characterWeaponSwitchCurrentWeapon?.record_id ?? 0);
+  const currentRecordId = Number(state.characterWeaponSwitchCurrentWeapon?.record_id ?? 0);
   if (!Number.isFinite(currentRecordId) || currentRecordId <= 0) {
     return;
   }
 
   const currentWeaponVisible = app.getFilteredCharacterWeaponSwitchItems().some((item) => {
-    const recordId = Number(item?._id ?? item?.record_id ?? 0);
+    const recordId = Number(item?.record_id ?? 0);
     return recordId === currentRecordId;
   });
   if (!currentWeaponVisible) {

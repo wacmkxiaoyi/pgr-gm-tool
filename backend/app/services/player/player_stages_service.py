@@ -19,15 +19,8 @@ StagesSortOrder = Literal['asc', 'desc']
 
 
 def _normalize_stage_id(raw_stage: dict[str, Any]) -> int | None:
-    stage_id = parse_optional_int(raw_stage.get('k'))
-    if stage_id is not None:
-        return stage_id
-
     payload = raw_stage.get('v')
-    if isinstance(payload, dict):
-        return parse_optional_int(payload.get('StageId'))
-
-    return None
+    return parse_optional_int(payload.get('StageId')) if isinstance(payload, dict) else None
 
 
 def _build_match_priority(stage_id: int, name: str, description: str, keyword: str) -> int | None:
@@ -103,11 +96,7 @@ class PlayerStagesService:
             matched_items.append((
                 priority,
                 normalize_sort_text(name),
-                StageRecord(
-                    stage_id=stage_id,
-                    k=parse_optional_int(raw_stage.get('k')),
-                    v=payload if isinstance(payload, dict) else {},
-                ),
+                StageRecord(stage_id=stage_id),
             ))
 
         def _sort_key(item: tuple[int, str, StageRecord]) -> tuple[object, ...]:
@@ -150,7 +139,7 @@ class PlayerStagesService:
         try:
             collection = client[self._settings.mongo_db][STAGES_COLLECTION_NAME]
             document = await collection.find_one(matching_uid_query(uid), {'stages': 1})
-            raw_stages = self._sanitize_raw_stages(document.get('stages') if isinstance(document, dict) else [])
+            raw_stages = document.get('stages') if isinstance(document, dict) and isinstance(document.get('stages'), list) else []
             if not isinstance(document, dict):
                 return AddStagesResponse(added_count=0)
 
@@ -171,7 +160,7 @@ class PlayerStagesService:
             if not normalized_stage_ids:
                 return AddStagesResponse(added_count=0)
 
-            updated_stages = raw_stages + [
+            new_stages = [
                 {
                     'k': stage_id,
                     'v': {
@@ -180,13 +169,9 @@ class PlayerStagesService:
                 }
                 for stage_id in normalized_stage_ids
             ]
-            materialized_update = self._materialize_stage_update_fields({'stages': updated_stages})
-            if 'stages' not in materialized_update:
-                return AddStagesResponse(added_count=0)
-
             result = await collection.update_one(
                 {'_id': document.get('_id')},
-                {'$set': {'stages': materialized_update['stages']}},
+                {'$push': {'stages': {'$each': new_stages}}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -201,18 +186,13 @@ class PlayerStagesService:
         try:
             collection = client[self._settings.mongo_db][STAGES_COLLECTION_NAME]
             document = await collection.find_one(matching_uid_query(uid), {'stages': 1})
-            raw_stages = self._sanitize_raw_stages(document.get('stages') if isinstance(document, dict) else [])
-            filtered_stages = [stage for stage in raw_stages if _normalize_stage_id(stage) != stage_id]
-            if len(filtered_stages) == len(raw_stages) or not isinstance(document, dict):
-                return DeleteStageResponse(stage_id=stage_id, deleted=False)
-
-            materialized_update = self._materialize_stage_update_fields({'stages': filtered_stages})
-            if 'stages' not in materialized_update:
+            raw_stages = document.get('stages') if isinstance(document, dict) and isinstance(document.get('stages'), list) else []
+            if not any(_normalize_stage_id(stage) == stage_id for stage in raw_stages if isinstance(stage, dict)):
                 return DeleteStageResponse(stage_id=stage_id, deleted=False)
 
             result = await collection.update_one(
                 {'_id': document.get('_id')},
-                {'$set': {'stages': materialized_update['stages']}},
+                {'$pull': {'stages': {'v.StageId': stage_id}}},
             )
         finally:
             with contextlib.suppress(Exception):
@@ -225,15 +205,14 @@ class PlayerStagesService:
         try:
             collection = client[self._settings.mongo_db][STAGES_COLLECTION_NAME]
             document = await collection.find_one(matching_uid_query(uid), {'stages': 1})
-            raw_stages = self._sanitize_raw_stages(document.get('stages') if isinstance(document, dict) else [])
+            raw_stages = document.get('stages') if isinstance(document, dict) and isinstance(document.get('stages'), list) else []
             deleted_count = len([stage for stage in raw_stages if _normalize_stage_id(stage) is not None])
             if not isinstance(document, dict):
                 return ClearStagesResponse(deleted_count=0)
 
-            materialized_update = self._materialize_stage_update_fields({'stages': []})
             result = await collection.update_one(
                 {'_id': document.get('_id')},
-                {'$set': {'stages': materialized_update.get('stages', [])}},
+                {'$set': {'stages': []}},
             )
         finally:
             with contextlib.suppress(Exception):

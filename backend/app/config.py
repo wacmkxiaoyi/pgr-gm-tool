@@ -128,7 +128,6 @@ class Settings:
         self.app_port = _to_int(self._resolve("APP_PORT"), 8000)
 
         self.enable_server_management = _to_bool(self._resolve("ENABLE_SERVER_MANAGEMENT"), True)
-        self.server_version = self._resolve("GAME_VERSION", "4.7")
         self.server_path = self._resolve("SERVER_PATH", "/root/wacmk-pgr-server")
         self.server_binary_file = self._resolve("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
         self.server_runtime_log_path = (self._resolve("SERVER_RUNTIME_LOG_PATH") or "").strip() or "/tmp/rpg-server.log"
@@ -220,7 +219,6 @@ class Settings:
             "app_host": self.app_host,
             "app_port": self.app_port,
             "enable_server_management": self.enable_server_management,
-            "server_version": self.server_version,
             "server_runtime_log_path": self.server_runtime_log_path,
             "healthy_check_interval": self.healthy_check_interval,
             "sdk_server_scheme": self.sdk_server_scheme,

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 
 EQUIP_ITEM_SCHEMA_PATH = "equips.0"
@@ -26,9 +26,7 @@ class WeaponOverrunExtraInfoRecord(BaseModel):
 
 
 class WeaponItemRecord(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-
-    record_id: int = Field(alias="_id", serialization_alias="_id")
+    record_id: int
     TemplateId: int
     CharacterId: int | None = None
     Level: int | None = None

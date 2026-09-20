@@ -79,56 +79,11 @@ app.resolveWeaponOverrunBackgroundPath = (value) => {
 };
 
 app.parseWeaponOverrunSkillDescription = (value) => {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return Object.entries(value)
-      .map(([piecesRaw, text]) => {
-        const pieces = Number(piecesRaw);
-        const description = app.stripMarkupText(text);
-        if (!Number.isFinite(pieces) || !description) {
-          return null;
-        }
-
-        return { pieces, text: description };
-      })
-      .filter(Boolean)
-      .sort((left, right) => left.pieces - right.pieces);
-  }
-
-  if (typeof value !== 'string') {
+  if (!Array.isArray(value)) {
     return [];
   }
-
-  const normalizedValue = value.trim();
-  if (!normalizedValue) {
-    return [];
-  }
-
-  try {
-    const parsedJson = JSON.parse(normalizedValue);
-    return app.parseWeaponOverrunSkillDescription(parsedJson);
-  } catch {
-    // Fall through to handle the TSV-style map syntax.
-  }
-
-  const rows = [];
-  const pairPattern = /([0-9]+)\s*:\s*('((?:\\'|[^'])*)'|"((?:\\"|[^"])*)")/g;
-  let match = pairPattern.exec(normalizedValue);
-
-  while (match) {
-    const pieces = Number(match[1]);
-    const rawText = typeof match[3] === 'string' && match[3] !== ''
-      ? match[3]
-      : (typeof match[4] === 'string' ? match[4] : '');
-    const description = app.stripMarkupText(rawText.replace(/\\'/g, "'").replace(/\\"/g, '"'));
-
-    if (Number.isFinite(pieces) && description) {
-      rows.push({ pieces, text: description });
-    }
-
-    match = pairPattern.exec(normalizedValue);
-  }
-
-  return rows.sort((left, right) => left.pieces - right.pieces);
+  return value.map((text, index) => ({ pieces: (index + 1) * 2, text: app.stripMarkupText(text) }))
+    .filter((entry) => entry.text);
 };
 
 app.getWeaponOverrunPieceLabel = (pieces) => {
@@ -404,7 +359,7 @@ app.closeWeaponOverrunPickerModal = () => {
 };
 
 app.submitWeaponOverrunSelection = async () => {
-  const recordId = Number(state.currentEquipDetailItem?._id ?? state.currentEquipDetailItem?.record_id);
+  const recordId = Number(state.currentEquipDetailItem?.record_id);
   if (!Number.isFinite(recordId) || recordId <= 0) {
     app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), { title: app.translate('dashboard.equipDetailError'), tone: 'error' });
     return;
@@ -649,7 +604,7 @@ app.renderWeaponRows = (items) => {
   }
 
   databaseWeaponManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
-    const recordId = item?._id ?? item?.record_id ?? null;
+    const recordId = item?.record_id ?? null;
     const templateId = item?.TemplateId ?? null;
     const weaponName = app.getEquipNameByTemplateId(templateId);
     const iconUrl = app.getEquipIconByTemplateId(templateId);
@@ -1012,7 +967,7 @@ app.refreshEquipDetailSourceViews = async (recordId, { rerenderSourceRows = true
       app.renderCharacterWeaponSwitchCurrent();
       app.renderCharacterWeaponSwitchRows();
     }
-    const characterRecordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+    const characterRecordId = Number(state.currentCharacterDetailItem?.record_id);
     if (Number.isFinite(characterRecordId) && characterRecordId > 0) {
       await app.loadCharacterDetailExtraInfo(characterRecordId);
     }
@@ -1025,7 +980,7 @@ app.refreshEquipDetailSourceViews = async (recordId, { rerenderSourceRows = true
       app.renderCharacterMemorySwitchCurrent();
       app.renderCharacterMemorySwitchRows();
     }
-    const characterRecordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+    const characterRecordId = Number(state.currentCharacterDetailItem?.record_id);
     if (Number.isFinite(characterRecordId) && characterRecordId > 0) {
       await app.loadCharacterDetailExtraInfo(characterRecordId);
     }
@@ -1153,7 +1108,7 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
 
   const parsedValue = Number.parseInt(rawValue, 10);
 
-  const recordId = item._id ?? item.record_id;
+  const recordId = item.record_id;
 
   if (field === 'Breakthrough') {
     const btMax = Number.parseInt(element.dataset.equipBtMax ?? '0', 10);

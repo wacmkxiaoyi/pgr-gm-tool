@@ -282,7 +282,6 @@ def get_health_snapshot(settings: Settings) -> dict[str, Any]:
     sections = HEALTH_CHECK_SNAPSHOT["sections"] or _build_sections()
     return {
         "checked_at": HEALTH_CHECK_SNAPSHOT["checked_at"],
-        "server_version": settings.server_version,
         "interval_seconds": HEALTH_CHECK_SNAPSHOT["interval_seconds"],
         "sections": sections,
     }

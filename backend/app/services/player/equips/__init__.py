@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 
 from backend.app.services.player.constants import ICON_TOOLS_ASSET_PREFIX
-from backend.app.services.player.equips.constants import EQUIP_AWAKE_TSV_PATH, EQUIP_BREAK_THROUGH_TSV_PATH, EQUIP_RESONANCE_TSV_PATH, EQUIP_RES_TSV_PATH, EQUIP_TSV_PATH
+from backend.app.services.player.equips.constants import EQUIP_AWAKE_TSV_PATH, EQUIP_BREAK_THROUGH_TSV_PATH, EQUIP_RESONANCE_TSV_PATH, EQUIP_RES_TSV_PATH, EQUIP_TSV_PATH, WEAPON_FASHION_RES_TSV_PATH, WEAPON_FASHION_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, parse_int
 from backend.app.utils.tsv_reader import TSVReader
 
@@ -158,10 +158,9 @@ def get_equip_breakthrough_max_map() -> dict[int, dict[str, int]]:
 @lru_cache(maxsize=1)
 def get_equip_resonance_map() -> dict[int, list[list[int]]]:
     reader = TSVReader(EQUIP_RESONANCE_TSV_PATH, typed=True)
-    columns = list(reader.data[0]) if reader.data else []
-    attrib_columns = ["AttribPoolId"] if "AttribPoolId" in columns else [f"AttribPoolId[{idx}]" for idx in (1, 2, 3)]
-    character_skill_columns = ["CharacterSkillPoolId"] if "CharacterSkillPoolId" in columns else [f"CharacterSkillPoolId[{idx}]" for idx in (1, 2, 3)]
-    weapon_skill_columns = ["WeaponSkillPoolId"] if "WeaponSkillPoolId" in columns else [f"WeaponSkillPoolId[{idx}]" for idx in (1, 2, 3)]
+    attrib_columns = ["AttribPoolId"]
+    character_skill_columns = ["CharacterSkillPoolId"]
+    weapon_skill_columns = ["WeaponSkillPoolId"]
     resonance_table = reader.get_sub_table(
         "Id",
         [*attrib_columns, *character_skill_columns, *weapon_skill_columns],
@@ -179,6 +178,45 @@ def get_equip_resonance_map() -> dict[int, list[list[int]]]:
             extract_int_list(row, character_skill_columns),
             extract_int_list(row, weapon_skill_columns),
         ]
+
+    return normalized_map
+
+
+@lru_cache(maxsize=1)
+def get_equip_type_weapon_fashion_ids_map() -> dict[int, list[int]]:
+    reader = TSVReader(WEAPON_FASHION_TSV_PATH, typed=True)
+    fashion_equip_type_map = reader.get_maps("Id", "EquipType")[0]
+    normalized_map: dict[int, list[int]] = {}
+
+    for fashion_id_raw, equip_type_raw in fashion_equip_type_map.items():
+        fashion_id = parse_int(fashion_id_raw)
+        equip_type = parse_int(equip_type_raw)
+        if fashion_id is None or equip_type is None:
+            continue
+
+        normalized_map.setdefault(equip_type, []).append(fashion_id)
+
+    return normalized_map
+
+
+@lru_cache(maxsize=1)
+def get_weapon_fashion_id_entries_map() -> dict[int, dict[str, int | str]]:
+    reader = TSVReader(WEAPON_FASHION_RES_TSV_PATH, typed=True)
+    fashion_table = reader.get_sub_table("Id", ["Quality", "Name", "Description", "BigIcon"])
+    normalized_map: dict[int, dict[str, int | str]] = {}
+
+    for fashion_id_raw, row in fashion_table.items():
+        fashion_id = parse_int(fashion_id_raw)
+        quality = parse_int(row.get("Quality"))
+        if fashion_id is None or quality is None:
+            continue
+
+        normalized_map[fashion_id] = {
+            "Quality": quality,
+            "Name": str(row.get("Name") or "").strip(),
+            "Description": str(row.get("Description") or "").strip(),
+            "BigIcon": normalize_asset_path(row.get("BigIcon"), ICON_TOOLS_ASSET_PREFIX) or "",
+        }
 
     return normalized_map
 

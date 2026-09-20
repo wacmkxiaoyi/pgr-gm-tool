@@ -12,7 +12,6 @@ def _parse_cli_args() -> dict[str, object]:
     parser.add_argument("--APP_HOST", default=None)
     parser.add_argument("--APP_PORT", type=int, default=None)
     parser.add_argument("--ENABLE_SERVER_MANAGEMENT", default=None)
-    parser.add_argument("--GAME_VERSION", default=None)
     parser.add_argument("--SERVER_PATH", default=None)
     parser.add_argument("--SERVER_BINARY_FILE", default=None)
     parser.add_argument("--SERVER_RUNTIME_LOG_PATH", default=None)

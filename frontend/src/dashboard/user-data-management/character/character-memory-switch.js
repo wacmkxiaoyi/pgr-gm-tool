@@ -69,7 +69,7 @@ app.compareCharacterMemorySwitchItems = (left, right) => {
     return fallbackComparison;
   }
 
-  return Number(left?._id ?? left?.record_id ?? 0) - Number(right?._id ?? right?.record_id ?? 0);
+  return Number(left?.record_id ?? 0) - Number(right?.record_id ?? 0);
 };
 
 app.getFilteredCharacterMemorySwitchItems = () => {
@@ -162,7 +162,7 @@ app.renderCharacterMemorySwitchCurrent = () => {
   const star = app.getEquipStarByTemplateId(templateId);
   const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
   const selectedRecordId = Number(state.characterMemorySwitchSelectedRecordId);
-  const currentRecordId = Number(currentMemory?._id ?? currentMemory?.record_id ?? 0);
+  const currentRecordId = Number(currentMemory?.record_id ?? 0);
   const tagKey = selectedRecordId > 0 && currentRecordId === selectedRecordId
     ? 'dashboard.characterMemorySwitchSelected'
     : 'dashboard.characterMemorySwitchCurrent';
@@ -183,7 +183,7 @@ app.renderCharacterMemorySwitchRows = () => {
   const items = app.getFilteredCharacterMemorySwitchItems();
   const selectedRecordId = Number(state.characterMemorySwitchSelectedRecordId);
   characterMemorySwitchTableBody.innerHTML = items.map((item) => {
-    const recordId = Number(item?._id ?? item?.record_id ?? 0);
+    const recordId = Number(item?.record_id ?? 0);
     const templateId = item?.TemplateId;
     const iconUrl = app.getEquipIconByTemplateId(templateId);
     const memoryName = app.getEquipNameByTemplateId(templateId);
@@ -243,7 +243,7 @@ app.closeCharacterMemorySwitchModal = () => {
 };
 
 app.loadCharacterMemorySwitchCandidates = async () => {
-  const recordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+  const recordId = Number(state.currentCharacterDetailItem?.record_id);
   const slot = Number(state.characterMemorySwitchSlot);
   if (!Number.isFinite(recordId) || recordId <= 0 || !Number.isFinite(slot) || slot <= 0) {
     return;
@@ -255,7 +255,7 @@ app.loadCharacterMemorySwitchCandidates = async () => {
     const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/memory-candidates?${search.toString()}`);
     state.characterMemorySwitchItems = Array.isArray(payload?.items) ? payload.items : [];
     state.characterMemorySwitchCurrentMemory = payload?.current_memory && typeof payload.current_memory === 'object' ? payload.current_memory : null;
-    state.characterMemorySwitchSelectedRecordId = Number(payload?.current_memory?._id ?? payload?.current_memory?.record_id ?? 0) || null;
+    state.characterMemorySwitchSelectedRecordId = Number(payload?.current_memory?.record_id ?? 0) || null;
     app.renderCharacterMemorySwitchCurrent();
     app.renderCharacterMemorySwitchRows();
   } catch (error) {
@@ -291,7 +291,7 @@ app.submitCharacterMemorySwitch = async () => {
     return;
   }
 
-  const characterRecordId = Number(state.currentCharacterDetailItem?._id ?? state.currentCharacterDetailItem?.record_id);
+  const characterRecordId = Number(state.currentCharacterDetailItem?.record_id);
   const memoryRecordId = Number(state.characterMemorySwitchSelectedRecordId);
   const slot = Number(state.characterMemorySwitchSlot);
   const hasSelection = Number.isFinite(memoryRecordId) && memoryRecordId > 0;
@@ -393,13 +393,13 @@ app.handleCharacterMemorySwitchRowActivate = (event) => {
 };
 
 app.handleCharacterMemorySwitchCurrentClick = () => {
-  const currentRecordId = Number(state.characterMemorySwitchCurrentMemory?._id ?? state.characterMemorySwitchCurrentMemory?.record_id ?? 0);
+  const currentRecordId = Number(state.characterMemorySwitchCurrentMemory?.record_id ?? 0);
   if (!Number.isFinite(currentRecordId) || currentRecordId <= 0) {
     return;
   }
 
   const currentMemoryVisible = app.getFilteredCharacterMemorySwitchItems().some((item) => {
-    const recordId = Number(item?._id ?? item?.record_id ?? 0);
+    const recordId = Number(item?.record_id ?? 0);
     return recordId === currentRecordId;
   });
   if (!currentMemoryVisible) {

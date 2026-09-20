@@ -112,7 +112,7 @@ app.renderMemoryRows = (items) => {
   }
 
   databaseMemoryManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
-    const recordId = item?._id ?? item?.record_id ?? null;
+    const recordId = item?.record_id ?? null;
     const templateId = item?.TemplateId ?? null;
     const memoryName = app.getEquipNameByTemplateId(templateId);
     const iconUrl = app.getEquipIconByTemplateId(templateId);

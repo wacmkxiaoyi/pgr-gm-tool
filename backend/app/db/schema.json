@@ -1,536 +1,3506 @@
 {
-  "default": {
-    "schema": {
-      "accounts[*]": {
+  "accounts[*]": {
+    "_id": {
+      "type": "ObjectId"
+    },
+    "uid": {
+      "type": "number"
+    },
+    "username": {
+      "type": "string"
+    },
+    "password": {
+      "type": "string"
+    },
+    "token": {
+      "type": "string"
+    }
+  },
+  "players[*]": {
+    "_id": {
+      "type": "ObjectId"
+    },
+    "token": {
+      "type": "string"
+    },
+    "player_data": {
+      "type": "object",
+      "schema": {
         "_id": {
-          "type": "ObjectId"
-        },
-        "uid": {
-          "type": "number"
-        },
-        "username": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "token": {
-          "type": "string"
-        }
-      },
-      "players[*]": {
-        "_id": {
-          "type": "ObjectId"
-        },
-        "token": {
-          "type": "string"
-        },
-        "player_data": {
-          "type": "object",
-          "schema": {
-            "_id": {
-              "type": "number",
-              "description": "account's UID"
-            },
-            "Name": {
-              "type": "string",
-              "default": ""
-            },
-            "Level": {
-              "type": "number",
-              "default": 1
-            },
-            "Gender": {
-              "type": "number",
-              "default": 0
-            },
-            "Sign": {
-              "type": "string",
-              "default": ""
-            },
-            "DisplayCharId": {
-              "type": "number",
-              "default": 1021001
-            },
-            "DisplayCharIdList": {
-              "type": "array",
-              "default": [
-                1021001
-              ],
-              "schema": {
-                "_id": {
-                  "type": "number"
-                }
-              }
-            },
-            "Birthday": {
-              "type": "null",
-              "default": null
-            },
-            "HonorLevel": {
-              "type": "number",
-              "default": 1
-            },
-            "ServerId": {
-              "type": "string",
-              "default": "1"
-            },
-            "Likes": {
-              "type": "number",
-              "default": 0
-            },
-            "CurrTeamId": {
-              "type": "number",
-              "default": 1
-            },
-            "ChallengeEventId": {
-              "type": "number",
-              "default": 0
-            },
-            "CurrHeadPortraitId": {
-              "type": "number",
-              "default": 9000001
-            },
-            "CurrHeadFrameId": {
-              "type": "number",
-              "default": 0
-            },
-            "CurrMedalId": {
-              "type": "number",
-              "default": 0
-            },
-            "AppearanceShowType": {
-              "type": "number",
-              "default": 0
-            },
-            "DailyReceiveGiftCount": {
-              "type": "number",
-              "default": 0
-            },
-            "DailyActivenessRewardStatus": {
-              "type": "number",
-              "default": 0
-            },
-            "WeeklyActivenessRewardStatus": {
-              "type": "number",
-              "default": 0
-            },
-            "Marks": {
-              "type": "array",
-              "default": [],
-              "schema": {
-                "type": "number",
-                "description": "Mark's Id"
-              }
-            },
-            "GuideData": {
-              "type": "array",
-              "default": [],
-              "schema": {
-                "type": "number"
-              }
-            },
-            "Communications": {
-              "type": "array",
-              "default": [
-                102
-              ],
-              "schema": {
-                "type": "number"
-              }
-            },
-            "ShowCharacters": {
-              "type": "array",
-              "default": []
-            },
-            "ShieldFuncList": {
-              "type": "array",
-              "default": []
-            },
-            "AppearanceSettingInfo": {
-              "type": "object",
-              "schema": {
-                "TitleType": {
-                  "type": "number",
-                  "default": 1
-                },
-                "CharacterType": {
-                  "type": "number",
-                  "default": 1
-                },
-                "FashionType": {
-                  "type": "number",
-                  "default": 1
-                },
-                "WeaponFashionType": {
-                  "type": "number",
-                  "default": 1
-                },
-                "DormitoryType": {
-                  "type": "number",
-                  "default": 1
-                },
-                "DormitoryId": {
-                  "type": "number",
-                  "default": 0
-                }
-              }
-            },
-            "CreateTime": {
-              "type": "number",
-              "default": 0
-            },
-            "LastLoginTime": {
-              "type": "number",
-              "default": 0
-            },
-            "ReportTime": {
-              "type": "number",
-              "default": 0
-            },
-            "ChangeNameTime": {
-              "type": "number",
-              "default": 0
-            },
-            "Flags": {
-              "type": "number",
-              "default": 1
-            }
-          }
-        },
-        "head_portraits": {
-          "type": "array",
-          "default": [],
-          "schema": {
-            "_id": {
-              "type": "number",
-              "description": "HeadPortrait Id"
-            },
-            "LeftCount": {
-              "type": "number",
-              "default": 1
-            },
-            "BeginTime": {
-              "type": "number",
-              "default": 0
-            }
-          }
-        },
-        "gather_rewards": {
-          "type": "array",
-          "default": [],
-          "schema": {
-            "_id": "number",
-            "description": "Reward's Id, including exhibition rewards (Exhibition ID)"
-          }
-        },
-        "use_background_id": {
           "type": "number",
-          "default": 14000001,
-          "description": "background Id"
+          "description": "account's UID"
         },
-        "team_groups": {
+        "Name": {
+          "type": "string",
+          "default": ""
+        },
+        "Level": {
+          "type": "number",
+          "default": 1
+        },
+        "Gender": {
+          "type": "number",
+          "default": 0
+        },
+        "Sign": {
+          "type": "string",
+          "default": ""
+        },
+        "DisplayCharId": {
+          "type": "number",
+          "default": 1021001
+        },
+        "DisplayCharIdList": {
           "type": "array",
           "default": [
-            {
-              "k": 1,
-              "v": {
-                "TeamType": 1,
-                "TeamId": 1,
-                "CaptainPos": 1,
-                "FirstFightPos": 1,
-                "TeamData": [
-                  {
-                    "k": 1,
-                    "v": 1021001
-                  }
-                ],
-                "TeamName": ""
-              }
-            }
+            1021001
           ],
           "schema": {
-            "k": {
+            "type": "number"
+          }
+        },
+        "Birthday": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "Mon": {
+              "type": "number",
+              "default": 0
+            },
+            "Day": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "HonorLevel": {
+          "type": "number",
+          "default": 1
+        },
+        "ServerId": {
+          "type": "string",
+          "default": "1"
+        },
+        "Likes": {
+          "type": "number",
+          "default": 0
+        },
+        "CurrTeamId": {
+          "type": "number",
+          "default": 1
+        },
+        "ChallengeEventId": {
+          "type": "number",
+          "default": 0
+        },
+        "CurrHeadPortraitId": {
+          "type": "number",
+          "default": 9000001
+        },
+        "CurrHeadFrameId": {
+          "type": "number",
+          "default": 0
+        },
+        "CurrMedalId": {
+          "type": "number",
+          "default": 0
+        },
+        "AppearanceShowType": {
+          "type": "number",
+          "default": 0
+        },
+        "DailyReceiveGiftCount": {
+          "type": "number",
+          "default": 0
+        },
+        "DailyActivenessRewardStatus": {
+          "type": "number",
+          "default": 0
+        },
+        "WeeklyActivenessRewardStatus": {
+          "type": "number",
+          "default": 0
+        },
+        "Marks": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number",
+            "description": "Mark's Id"
+          }
+        },
+        "GuideData": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "Communications": {
+          "type": "array",
+          "default": [
+            102
+          ],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "ShowCharacters": {
+          "type": "array",
+          "default": []
+        },
+        "ShieldFuncList": {
+          "type": "array",
+          "default": []
+        },
+        "AppearanceSettingInfo": {
+          "type": "object",
+          "schema": {
+            "TitleType": {
               "type": "number",
               "default": 1
+            },
+            "CharacterType": {
+              "type": "number",
+              "default": 1
+            },
+            "FashionType": {
+              "type": "number",
+              "default": 1
+            },
+            "WeaponFashionType": {
+              "type": "number",
+              "default": 1
+            },
+            "DormitoryType": {
+              "type": "number",
+              "default": 1
+            },
+            "DormitoryId": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "CreateTime": {
+          "type": "number",
+          "default": 0
+        },
+        "LastLoginTime": {
+          "type": "number",
+          "default": 0
+        },
+        "ReportTime": {
+          "type": "number",
+          "default": 0
+        },
+        "ChangeNameTime": {
+          "type": "number",
+          "default": 0
+        },
+        "Flags": {
+          "type": "number",
+          "default": 1
+        },
+        "CurrentChatBoardId": {
+          "type": "number",
+          "default": 25000001
+        },
+        "NewPlayerTaskActiveDay": {
+          "type": "number",
+          "default": 0
+        },
+        "ChangeGenderTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "head_portraits": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": {
+          "type": "number",
+          "description": "HeadPortrait Id"
+        },
+        "LeftCount": {
+          "type": "number",
+          "default": 1
+        },
+        "BeginTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "gather_rewards": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": "number",
+        "description": "Reward's Id, including exhibition rewards (Exhibition ID)"
+      }
+    },
+    "use_background_id": {
+      "type": "number",
+      "default": 14000001,
+      "description": "background Id"
+    },
+    "team_groups": {
+      "type": "array",
+      "default": [
+        {
+          "k": 1,
+          "v": {
+            "TeamType": 1,
+            "TeamId": 1,
+            "CaptainPos": 1,
+            "FirstFightPos": 1,
+            "TeamData": [
+              {
+                "k": 1,
+                "v": 1021001
+              }
+            ],
+            "TeamName": ""
+          }
+        }
+      ],
+      "schema": {
+        "k": {
+          "type": "number",
+          "default": 1
+        },
+        "v": {
+          "type": "object",
+          "schema": {
+            "TeamType": {
+              "type": "number",
+              "default": 1
+            },
+            "TeamId": {
+              "type": "number",
+              "default": 1
+            },
+            "CaptainPos": {
+              "type": "number",
+              "default": 1
+            },
+            "FirstFightPos": {
+              "type": "number",
+              "default": 1
+            },
+            "TeamData": {
+              "type": "array",
+              "default": [
+                {
+                  "k": 1,
+                  "v": 1021001
+                }
+              ],
+              "schema": {
+                "k": {
+                  "type": "number",
+                  "default": 1
+                },
+                "v": {
+                  "type": "number",
+                  "default": 1021001
+                }
+              }
+            },
+            "TeamName": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        }
+      }
+    },
+    "last_sign_in_time": {
+      "type": "number",
+      "default": 0
+    },
+    "sign_in_claim_count": {
+      "type": "number",
+      "default": 0
+    },
+    "sign_in_states": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "id": {
+          "type": "number",
+          "default": 0
+        },
+        "claim_count": {
+          "type": "number",
+          "default": 0
+        },
+        "last_sign_in_time": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "red_point_records": {
+      "type": "object",
+      "schema": {
+        "GameNoticeInfos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "NoticeId": {
+              "type": "string",
+              "default": ""
+            },
+            "ModifyTime": {
+              "type": "number",
+              "default": 0
+            },
+            "EndTime": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "assist_character_id": {
+      "type": "number",
+      "default": 0
+    },
+    "unlock_comics": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "archive_unlocked_cgs": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "archive_monster_kills": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "archive_partner_unlock_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "archive_partner_settings": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "life_tree_data": {
+      "type": "object",
+      "schema": {
+        "IsFinishGuide": {
+          "type": "boolean",
+          "default": false
+        },
+        "IsFinishLifeTreePv": {
+          "type": "boolean",
+          "default": false
+        },
+        "FinishedChapters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "UnlockCharacterData": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
             },
             "v": {
               "type": "object",
               "schema": {
-                "TeamType": {
+                "Id": {
                   "type": "number",
-                  "default": 1
+                  "default": 0
                 },
-                "TeamId": {
+                "UnlockStatus": {
                   "type": "number",
-                  "default": 1
-                },
-                "CaptainPos": {
-                  "type": "number",
-                  "default": 1
-                },
-                "FirstFightPos": {
-                  "type": "number",
-                  "default": 1
-                },
-                "TeamData": {
-                  "type": "array",
-                  "default": [
-                    {
-                      "k": 1,
-                      "v": 1021001
-                    }
-                  ],
-                  "schema": {
-                    "k": {
-                      "type": "number",
-                      "default": 1
-                    },
-                    "v": {
-                      "type": "number",
-                      "default": 1021001
-                    }
-                  }
-                },
-                "TeamName": {
-                  "type": "string",
-                  "default": ""
+                  "default": 0
                 }
               }
             }
           }
         }
-      },
-      "characters[*]": {
-        "_id": {
-          "type": "ObjectId"
-        },
-        "uid": {
+      }
+    },
+    "unlocked_medals": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "id": {
           "type": "number",
-          "description": "account's UID"
+          "default": 0
+        },
+        "time": {
+          "type": "number",
+          "default": 0
+        },
+        "keep_time": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "unlocked_chat_boards": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "id": {
+          "type": "number",
+          "default": 0
+        },
+        "get_time": {
+          "type": "number",
+          "default": 0
+        },
+        "end_time": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "purchase_buy_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "purchase_last_buy_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "shop_buy_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "shop_reset_periods": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "team_prefabs": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "TeamType": {
+          "type": "number",
+          "default": 0
+        },
+        "TeamId": {
+          "type": "number",
+          "default": 0
+        },
+        "CaptainPos": {
+          "type": "number",
+          "default": 0
+        },
+        "FirstFightPos": {
+          "type": "number",
+          "default": 0
+        },
+        "EnterCgIndex": {
+          "type": "number",
+          "default": 0
+        },
+        "SettleCgIndex": {
+          "type": "number",
+          "default": 0
+        },
+        "TeamData": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "TeamName": {
+          "type": "string",
+          "default": ""
+        },
+        "SelectedGeneralSkill": {
+          "type": "number",
+          "default": 0
+        },
+        "PartnerData": {
+          "type": "array",
+          "default": []
+        },
+        "EquipData": {
+          "type": "array",
+          "default": []
+        },
+        "TagsSet": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "SwitchSkills": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "equip_chip_groups": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "GroupId": {
+          "type": "number",
+          "default": 0
+        },
+        "Name": {
+          "type": "string",
+          "default": ""
+        },
+        "ChipIdList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "CharacterId": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "equip_chip_auto_recycle_site": {
+      "type": "object",
+      "schema": {
+        "RecycleStar": {
+          "type": "array",
+          "default": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "Days": {
+          "type": "number",
+          "default": 0
+        },
+        "SetRecycleTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "equip_guide_data": {
+      "type": "object",
+      "schema": {
+        "TargetId": {
+          "type": "number",
+          "default": 0
+        },
+        "CharacterId": {
+          "type": "number",
+          "default": 0
+        },
+        "PutOnPosList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "FinishedTargets": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "vote_alarm_data": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "SelectId": {
+          "type": "number",
+          "default": 0
+        },
+        "AlarmCount": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "fuben_main_line_data": {
+      "type": "object",
+      "schema": {
+        "TreasureData": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "LastPassStage": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "MainChapterEventInfos": {
+          "type": "array",
+          "default": []
+        }
+      }
+    },
+    "fuben_main_line2_data": {
+      "type": "object",
+      "schema": {
+        "LastPassStage": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "MainDatas": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Id": {
+              "type": "number",
+              "default": 0
+            },
+            "IsAchievementGet": {
+              "type": "boolean",
+              "default": false
+            },
+            "MainTreasureIdxs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "ChapterDatas": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Id": {
+              "type": "number",
+              "default": 0
+            },
+            "TreasureIdxs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "EggsTreasureDistributeData": {
+          "type": "array",
+          "default": []
+        },
+        "FirstPassTime": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "MessageState": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "LastExhibitionChapterId": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "mission_progress": {
+      "type": "object",
+      "schema": {
+        "condition_counters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "claimed_task_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "new_player_reward_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "newbie_reward_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "newbie_honor_reward": {
+          "type": "boolean",
+          "default": false
+        },
+        "daily_reset_day": {
+          "type": "number",
+          "default": -1
+        },
+        "weekly_reset_week": {
+          "type": "number",
+          "default": -1
+        }
+      }
+    },
+    "simulated_battlefield": {
+      "type": "object",
+      "schema": {
+        "arena_joined": {
+          "type": "boolean",
+          "default": false
+        },
+        "arena_activity_no": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_challenge_id": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_level": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_join_activity": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_point": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_last_point_time": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_area_max_points": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "arena_stage_max_points": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "arena_distribute_max_points": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "arena_contribute_score": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_protected_score": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_activity_no": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_rank_platform": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_old_level_type": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_level_type": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_list_options": {
+          "type": "array",
+          "default": []
+        },
+        "boss_list": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "boss_max_score": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_total_score": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_current_total_score": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_count": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_reset_day": {
+          "type": "number",
+          "default": -1
+        },
+        "boss_auto_fight_count": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_character_points": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "boss_history": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "score": {
+              "type": "number",
+              "default": 0
+            },
+            "characters": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "partners": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "boss_challenge_history": {
+          "type": "array",
+          "default": []
+        },
+        "boss_challenge_selected_section": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_selected_feature_group": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_delete_record_time": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_stage_records": {
+          "type": "array",
+          "default": []
+        },
+        "boss_reset_stage_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "boss_normal_stage_teams": {
+          "type": "array",
+          "default": []
+        },
+        "boss_trial_scores": {
+          "type": "array",
+          "default": []
+        },
+        "boss_bestiary_scores": {
+          "type": "array",
+          "default": []
+        },
+        "boss_last_score_time": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_claimed_reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "repeat_challenge_activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "repeat_challenge_level": {
+          "type": "number",
+          "default": 1
+        },
+        "repeat_challenge_exp": {
+          "type": "number",
+          "default": 0
+        },
+        "repeat_challenge_cleared": {
+          "type": "boolean",
+          "default": false
+        },
+        "repeat_challenge_claimed_reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "big_world_state": {
+      "type": "object",
+      "schema": {
+        "last_world_id": {
+          "type": "number",
+          "default": 0
+        },
+        "last_level_id": {
+          "type": "number",
+          "default": 0
+        },
+        "last_position": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "x": {
+              "type": "number",
+              "default": 0
+            },
+            "y": {
+              "type": "number",
+              "default": 0
+            },
+            "z": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "last_rotation": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "x": {
+              "type": "number",
+              "default": 0
+            },
+            "y": {
+              "type": "number",
+              "default": 0
+            },
+            "z": {
+              "type": "number",
+              "default": 0
+            },
+            "w": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "last_rotation_y": {
+          "type": "number",
+          "default": null
+        },
+        "last_self_runtime_id": {
+          "type": "number",
+          "default": 0
+        },
+        "claimed_scene_objects": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "place_id": {
+              "type": "number",
+              "default": 0
+            },
+            "uuid": {
+              "type": "number",
+              "default": 0
+            },
+            "claimed_at": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "big_world_course_read_element_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "big_world_course_task_progress": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "assign": {
+      "type": "object",
+      "schema": {
+        "chapters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "character_id": {
+              "type": "number",
+              "default": 0
+            },
+            "is_get_reward": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "group_id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            },
+            "is_perfect": {
+              "type": "boolean",
+              "default": false
+            },
+            "finish_stage_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "teams": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "group_id": {
+              "type": "number",
+              "default": 0
+            },
+            "team_info_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "array",
+                "default": [],
+                "schema": {
+                  "type": "number"
+                }
+              }
+            },
+            "captain_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "first_fight_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "awareness": {
+      "type": "object",
+      "schema": {
+        "chapters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "character_id": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "challenges": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            },
+            "finish_stage_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "teams": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "team_info_list": {
+              "type": "array",
+              "default": []
+            },
+            "captain_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "first_fight_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "bfrt": {
+      "type": "object",
+      "schema": {
+        "teams": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "id": {
+              "type": "number",
+              "default": 0
+            },
+            "fight_team_list": {
+              "type": "array",
+              "default": []
+            },
+            "logistics_team_list": {
+              "type": "array",
+              "default": []
+            },
+            "captain_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "first_fight_pos_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            },
+            "is_recv_reward": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "progress_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "progress_stage_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "course_reward_star": {
+          "type": "number",
+          "default": 0
+        },
+        "claimed_course_rewards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "bianca_theatre": {
+      "type": "object",
+      "default": {}
+    },
+    "boss_inshot": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "authorized_activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "authorized_time_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "is_pass_teach": {
+          "type": "boolean",
+          "default": false
+        },
+        "pass_stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "max_score": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "boss_unlocks": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "boss_id": {
+              "type": "number",
+              "default": 0
+            },
+            "difficulties": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
         },
         "characters": {
           "type": "array",
           "default": [],
-          "description": "player's characters",
           "schema": {
-            "_id": {
-              "type": "number",
-              "description": "character Id"
-            },
-            "Level": {
-              "type": "number",
-              "default": 1
-            },
-            "Exp": {
+            "character_id": {
               "type": "number",
               "default": 0
             },
-            "Quality": {
-              "type": "number"
-            },
-            "InitQuality": {
-              "type": "number"
-            },
-            "Star": {
-              "type": "number",
-              "default": 0
-            },
-            "Grade": {
-              "type": "number",
-              "default": 1
-            },
-            "SkillList": {
+            "selected_talents": {
               "type": "array",
               "default": [],
               "schema": {
-                "_id": {
-                  "type": "number"
-                },
-                "Level": {
-                  "type": "number",
-                  "default": 1
-                }
+                "type": "number"
               }
             },
-            "EnhanceSkillList": {
+            "total_score": {
+              "type": "number",
+              "default": 0
+            },
+            "pass_stages": {
               "type": "array",
               "default": [],
               "schema": {
-                "_id": {
-                  "type": "number"
-                },
-                "Level": {
-                  "type": "number",
-                  "default": 1
-                }
+                "type": "number"
               }
             },
-            "FashionId": {
-              "type": "number"
-            },
-            "CreateTime": {
-              "type": "number"
-            },
-            "TrustLv": {
-              "type": "number",
-              "default": 0
-            },
-            "TrustExp": {
-              "type": "number",
-              "default": 0
-            },
-            "Ability": {
-              "type": "number",
-              "default": 0
-            },
-            "LiberateLv": {
-              "type": "number",
-              "default": 1
-            },
-            "CharacterHeadInfo": {
-              "type": "object",
+            "stage_max_scores": {
+              "type": "array",
+              "default": [],
               "schema": {
-                "HeadFashionId": {
+                "k": {
                   "type": "number"
                 },
-                "HeadFashionType": {
-                  "type": "number",
-                  "default": 2
+                "v": {
+                  "type": "number"
                 }
               }
             }
           }
         },
-        "fashions": {
+        "current_tower_id": {
+          "type": "number",
+          "default": 0
+        },
+        "towers": {
           "type": "array",
           "default": [],
-          "description": "character's fashions",
           "schema": {
-            "_id": {
+            "tower_id": {
               "type": "number",
-              "description": "fashion Id"
+              "default": 0
             },
-            "IsLock": {
+            "draw_stage_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "select_stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "select_stage_after_pass": {
+              "type": "number",
+              "default": 0
+            },
+            "is_pass": {
               "type": "boolean",
-              "default": true
+              "default": false
+            },
+            "protect_count": {
+              "type": "number",
+              "default": 0
+            },
+            "scores": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "boss_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "character_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "max_score": {
+                  "type": "number",
+                  "default": 0
+                },
+                "achieved_at": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
             }
           }
         },
-        "equips": {
+        "rank_projection_version": {
+          "type": "number",
+          "default": 0
+        },
+        "pending_rank_updates": {
           "type": "array",
           "default": [],
-          "description": "character's equips",
           "schema": {
-            "_id": {
-              "type": "number",
-              "description": "equip Id"
-            },
-            "TemplateId": {
-              "type": "number"
-            },
-            "CharacterId": {
+            "activity_id": {
               "type": "number",
               "default": 0
             },
-            "Level": {
-              "type": "number",
-              "default": 1
-            },
-            "Exp": {
+            "boss_id": {
               "type": "number",
               "default": 0
             },
-            "Breakthrough": {
+            "character_id": {
               "type": "number",
               "default": 0
             },
-            "ResonanceInfo": {
-              "type": "array",
-              "default": [],
-              "schema": {
-                "Slot": {
-                  "type": "number"
-                },
-                "Type": {
-                  "type": "number"
-                },
-                "CharacterId": {
-                  "type": "number"
-                },
-                "TemplateId": {
-                  "type": "number"
-                }
-              }
-            },
-            "UnconfirmedResonanceInfo": {
-              "type": "array",
-              "default": [],
-              "schema": {
-                "Slot": {
-                  "type": "number"
-                },
-                "Type": {
-                  "type": "number"
-                },
-                "CharacterId": {
-                  "type": "number"
-                },
-                "TemplateId": {
-                  "type": "number"
-                }
-              }
-            },
-            "AwakeSlotList": {
-              "type": "array",
-              "default": [],
-              "schema": {
-                "type": "number",
-                "description": "resonance slot"
-              }
-            },
-            "IsLock": {
-              "type": "boolean",
-              "default": false
-            },
-            "CreateTime": {
+            "tower_id": {
               "type": "number",
               "default": 0
             },
-            "IsRecycle": {
-              "type": "boolean",
-              "default": false
+            "score": {
+              "type": "number",
+              "default": 0
+            },
+            "achieved_at": {
+              "type": "number",
+              "default": 0
             }
           }
         }
-      },
-      "inventory[*]": {
-        "_id": {
-          "type": "ObjectId"
-        },
-        "uid": {
-          "type": "number"
-        },
-        "items": {
+      }
+    },
+    "character_tower": {
+      "type": "object",
+      "schema": {
+        "chapters": {
           "type": "array",
           "default": [],
           "schema": {
-            "_id": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "chapter_reward_data": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "treasure_data": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "stage_reward_data": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "videoed_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "relations": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "relation_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "fight_event_ids": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "story_ids": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "string"
+                  }
+                },
+                "finish_conditions": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "trigger_conditions": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "course": {
+      "type": "object",
+      "schema": {
+        "stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "id": {
+              "type": "number",
+              "default": 0
+            },
+            "stars_flag": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "max_total_lesson_point": {
+          "type": "number",
+          "default": 0
+        },
+        "reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "pending_result": {
+          "type": "object",
+          "default": null
+        }
+      }
+    },
+    "dorm": {
+      "type": "object",
+      "default": {}
+    },
+    "draw_state": {
+      "type": "object",
+      "schema": {
+        "pity_rounds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
               "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "Misses": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Limit": {
+                  "type": "number",
+                  "default": 0
+                },
+                "HasObtainedRare": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "GuaranteedTarget": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "LowerMisses": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "member_target_calibration_target_id": {
+          "type": "number",
+          "default": 0
+        },
+        "member_target_calibration_consumed": {
+          "type": "boolean",
+          "default": false
+        },
+        "member_target_pity": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "since_a_or_s": {
+              "type": "number",
+              "default": 0
+            },
+            "since_s": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "progress_by_draw_id": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "today_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "total_count": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "pity_count_by_group": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "selected_draw_by_group": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "slots": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "switch_count_by_group": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "history_by_group": {
+          "type": "array",
+          "default": []
+        }
+      }
+    },
+    "dye_merge": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "completed_stage_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "explore": {
+      "type": "array",
+      "default": []
+    },
+    "fashion_story": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "time_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "favorite_songs": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "background_songs": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "guild_progress_recorded_id": {
+      "type": "number",
+      "default": 0
+    },
+    "guild_state": {
+      "type": "object",
+      "default": {}
+    },
+    "guild_war": {
+      "type": "object",
+      "schema": {
+        "played_action_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "hit_mouse": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "level_scores": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "claimed_reward_indices": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "pending_item_use": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "ClaimKey": {
+          "type": "string",
+          "default": ""
+        },
+        "ItemId": {
+          "type": "number",
+          "default": 0
+        },
+        "Count": {
+          "type": "number",
+          "default": 0
+        },
+        "RecycleTime": {
+          "type": "number",
+          "default": 0
+        },
+        "Goods": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Id": {
+              "type": "number",
+              "default": 0
+            },
+            "TemplateId": {
+              "type": "number",
+              "default": 0
             },
             "Count": {
               "type": "number",
               "default": 0
             },
-            "BuyTimes": {
+            "Params": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "loading_option": {
+      "type": "object",
+      "default": {}
+    },
+    "lotto": {
+      "type": "object",
+      "schema": {
+        "infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "id": {
               "type": "number",
               "default": 0
             },
-            "TotalBuyTimes": {
+            "lotto_primary_id": {
               "type": "number",
               "default": 0
             },
-            "LastBuyTime": {
+            "extra_reward_state": {
+              "type": "number",
+              "default": 0
+            },
+            "lotto_rewards": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "lotto_records": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "reward_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "lotto_time": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "ticket_purchase_count": {
+              "type": "number",
+              "default": 0
+            },
+            "pending": {
+              "type": "object",
+              "default": null
+            }
+          }
+        }
+      }
+    },
+    "mails": {
+      "type": "array",
+      "default": []
+    },
+    "mail_expire_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "string"
+      }
+    },
+    "passport": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "passport_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "id": {
+              "type": "number",
+              "default": 0
+            },
+            "got_reward_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "last_time_base_info": {
+          "type": "object",
+          "schema": {
+            "level": {
+              "type": "number",
+              "default": 0
+            },
+            "exp": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "is_get_supply_reward": {
+          "type": "boolean",
+          "default": false
+        },
+        "is_activate_regression_task": {
+          "type": "boolean",
+          "default": false
+        },
+        "is_activate_newbie_task": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "pending_purchase": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "Count": {
+          "type": "number",
+          "default": 0
+        },
+        "PreviousBuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "BuyTime": {
+          "type": "number",
+          "default": 0
+        },
+        "ConsumeId": {
+          "type": "number",
+          "default": 0
+        },
+        "ConsumeCount": {
+          "type": "number",
+          "default": 0
+        },
+        "Goods": {
+          "type": "array",
+          "default": []
+        }
+      }
+    },
+    "owned_background_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "stronghold": {
+      "type": "object",
+      "default": {}
+    },
+    "theatre": {
+      "type": "object",
+      "default": {}
+    },
+    "theatre3": {
+      "type": "object",
+      "default": {}
+    },
+    "theatre4": {
+      "type": "object",
+      "default": {}
+    },
+    "theatre5": {
+      "type": "object",
+      "default": {}
+    },
+    "theatre6": {
+      "type": "object",
+      "schema": {
+        "files": {
+          "type": "array",
+          "default": []
+        },
+        "pvp": {
+          "type": "object",
+          "schema": {
+            "authorized_season_id": {
+              "type": "number",
+              "default": 0
+            },
+            "initialized_season_id": {
+              "type": "number",
+              "default": 0
+            },
+            "authorized_time_ids": {
+              "type": "array",
+              "default": []
+            },
+            "rank_id": {
+              "type": "number",
+              "default": 0
+            },
+            "score": {
+              "type": "number",
+              "default": 0
+            },
+            "player_state": {
+              "type": "number",
+              "default": 0
+            },
+            "action_point": {
+              "type": "number",
+              "default": 0
+            },
+            "action_point_time": {
+              "type": "number",
+              "default": 0
+            },
+            "defense_files": {
+              "type": "array",
+              "default": []
+            },
+            "defense_buff_id": {
+              "type": "number",
+              "default": 0
+            },
+            "defense_update_time": {
+              "type": "number",
+              "default": 0
+            },
+            "matches": {
+              "type": "array",
+              "default": []
+            },
+            "next_match_uid": {
+              "type": "number",
+              "default": 1
+            },
+            "last_refresh_time": {
+              "type": "number",
+              "default": 0
+            },
+            "refresh_period_start": {
+              "type": "number",
+              "default": 0
+            },
+            "refresh_period_count": {
+              "type": "number",
+              "default": 0
+            },
+            "battle": {
+              "type": "object",
+              "default": null
+            },
+            "next_battle_id": {
+              "type": "number",
+              "default": 1
+            },
+            "pending_rank_reward_ids": {
+              "type": "array",
+              "default": []
+            },
+            "defense_version": {
+              "type": "number",
+              "default": 0
+            },
+            "pending_defense_outs": {
+              "type": "array",
+              "default": []
+            },
+            "applied_defense_watermarks": {
+              "type": "array",
+              "default": []
+            },
+            "current_rank_min_score": {
+              "type": "number",
+              "default": 0
+            },
+            "rewarded_ranks": {
+              "type": "array",
+              "default": []
+            },
+            "rank_records": {
+              "type": "array",
+              "default": []
+            },
+            "battle_records": {
+              "type": "array",
+              "default": []
+            },
+            "stats": {
+              "type": "object",
+              "default": {}
+            }
+          }
+        },
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "current_mode": {
+          "type": "number",
+          "default": 0
+        },
+        "next_run_id": {
+          "type": "number",
+          "default": 1
+        },
+        "next_attempt_id": {
+          "type": "number",
+          "default": 1
+        },
+        "next_mutation_id": {
+          "type": "number",
+          "default": 0
+        },
+        "epoch": {
+          "type": "number",
+          "default": 0
+        },
+        "active_runs": {
+          "type": "array",
+          "default": []
+        },
+        "settlements": {
+          "type": "array",
+          "default": []
+        },
+        "story_save": {
+          "type": "object",
+          "default": {}
+        },
+        "play_save": {
+          "type": "object",
+          "default": {}
+        },
+        "pass_stages": {
+          "type": "array",
+          "default": []
+        },
+        "pass_difficulties": {
+          "type": "array",
+          "default": []
+        },
+        "task_progress": {
+          "type": "array",
+          "default": []
+        },
+        "claimed_task_ids": {
+          "type": "array",
+          "default": []
+        },
+        "pending_mutation": {
+          "type": "object",
+          "default": null
+        },
+        "receipt_session": {
+          "type": "string",
+          "default": ""
+        },
+        "receipt_high_water": {
+          "type": "number",
+          "default": -1
+        },
+        "request_receipts": {
+          "type": "array",
+          "default": []
+        }
+      }
+    },
+    "transfinite": {
+      "type": "object",
+      "default": null
+    },
+    "trial": {
+      "type": "object",
+      "default": {}
+    },
+    "wheelchair_manual_states": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "object",
+          "schema": {
+            "IsSeniorManualUnlock": {
+              "type": "boolean",
+              "default": false
+            },
+            "ClaimedRewardIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "AcknowledgedBluePoints": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "AcknowledgedRedPoints": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "wheelchair_manual_guide_reward_receipts": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "claim_key": {
+          "type": "string",
+          "default": ""
+        },
+        "event_cause": {
+          "type": "number",
+          "default": 0
+        },
+        "granted_at": {
+          "type": "number",
+          "default": 0
+        },
+        "goods": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "template_id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "brief_story_finished_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "version47_envelope": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "last_daily_grant_business_day": {
+          "type": "number",
+          "default": 0
+        },
+        "opened_character_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "instrument_bindings": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "avg_watched_character_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "version47_pbr": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "meta_progression_unlock_nodes": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "stage_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "history_max_wave": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_pass": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "is_pass_wave": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "compendium_items": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "item_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "unlock_time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "gain_num": {
+                  "type": "number",
+                  "default": 0
+                },
+                "trigger_num": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "compendium_monsters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "monster_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "damage_total": {
+                  "type": "number",
+                  "default": 0
+                },
+                "be_kill_num": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "segment_settle": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "state": {
+              "type": "number",
+              "default": 0
+            },
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "shop_data": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "shop_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "max_choose_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "max_fresh_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "use_choose_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "use_fresh_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "sell_items": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "wave": {
+              "type": "number",
+              "default": 0
+            },
+            "character_id": {
+              "type": "number",
+              "default": 0
+            },
+            "character_level": {
+              "type": "number",
+              "default": 0
+            },
+            "character_exp": {
+              "type": "number",
+              "default": 0
+            },
+            "base_attrs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "cur_attrs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "max_attrs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "items": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "item_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "unlock_time": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "gain_num": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "trigger_num": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "wave_monsters": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "monster_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "damage_total": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "be_kill_num": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "wave_obrs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "item_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "unlock_time": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "gain_num": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "trigger_num": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "version47_concert_preheating": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "completed_stage_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "characters[*]": {
+    "_id": {
+      "type": "ObjectId"
+    },
+    "uid": {
+      "type": "number",
+      "description": "account's UID"
+    },
+    "characters": {
+      "type": "array",
+      "default": [],
+      "description": "player's characters",
+      "schema": {
+        "_id": {
+          "type": "number",
+          "description": "character Id"
+        },
+        "Level": {
+          "type": "number",
+          "default": 1
+        },
+        "Exp": {
+          "type": "number",
+          "default": 0
+        },
+        "Quality": {
+          "type": "number"
+        },
+        "InitQuality": {
+          "type": "number"
+        },
+        "Star": {
+          "type": "number",
+          "default": 0
+        },
+        "Grade": {
+          "type": "number",
+          "default": 1
+        },
+        "SkillList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "EnhanceSkillList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "FashionId": {
+          "type": "number"
+        },
+        "CreateTime": {
+          "type": "number"
+        },
+        "TrustLv": {
+          "type": "number",
+          "default": 0
+        },
+        "TrustExp": {
+          "type": "number",
+          "default": 0
+        },
+        "Ability": {
+          "type": "number",
+          "default": 0
+        },
+        "LiberateLv": {
+          "type": "number",
+          "default": 1
+        },
+        "CharacterHeadInfo": {
+          "type": "object",
+          "schema": {
+            "HeadFashionId": {
+              "type": "number"
+            },
+            "HeadFashionType": {
+              "type": "number",
+              "default": 2
+            }
+          }
+        },
+        "MagicList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number"
+            },
+            "Level": {
+              "type": "number",
+              "default": 1
+            }
+          }
+        },
+        "LiberateAureoleId": {
+          "type": "number",
+          "default": 0
+        },
+        "NewFlag": {
+          "type": "number",
+          "default": 0
+        },
+        "RandomFashion": {
+          "type": "boolean",
+          "default": false
+        },
+        "CollectState": {
+          "type": "boolean",
+          "default": false
+        },
+        "IsEnhanceSkillNotice": {
+          "type": "boolean",
+          "default": false
+        },
+        "CharacterType": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "fashions": {
+      "type": "array",
+      "default": [],
+      "description": "character's fashions",
+      "schema": {
+        "_id": {
+          "type": "number",
+          "description": "fashion Id"
+        },
+        "IsLock": {
+          "type": "boolean",
+          "default": true
+        },
+        "IsRandom": {
+          "type": "boolean",
+          "default": false
+        },
+        "WeaponFashionId": {
+          "type": "number",
+          "default": 0
+        },
+        "ColorId": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "equips": {
+      "type": "array",
+      "default": [],
+      "description": "character's equips",
+      "schema": {
+        "_id": {
+          "type": "number",
+          "description": "equip Id"
+        },
+        "TemplateId": {
+          "type": "number"
+        },
+        "CharacterId": {
+          "type": "number",
+          "default": 0
+        },
+        "Level": {
+          "type": "number",
+          "default": 1
+        },
+        "Exp": {
+          "type": "number",
+          "default": 0
+        },
+        "Breakthrough": {
+          "type": "number",
+          "default": 0
+        },
+        "ResonanceInfo": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Slot": {
+              "type": "number"
+            },
+            "Type": {
+              "type": "number"
+            },
+            "CharacterId": {
+              "type": "number"
+            },
+            "TemplateId": {
+              "type": "number"
+            },
+            "UseItemId": {
+              "type": "number",
+              "default": 0
+            },
+            "IsUseEquip": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "UnconfirmedResonanceInfo": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Slot": {
+              "type": "number"
+            },
+            "Type": {
+              "type": "number"
+            },
+            "CharacterId": {
+              "type": "number"
+            },
+            "TemplateId": {
+              "type": "number"
+            },
+            "UseItemId": {
+              "type": "number",
+              "default": 0
+            },
+            "IsUseEquip": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "AwakeSlotList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number",
+            "description": "resonance slot"
+          }
+        },
+        "IsLock": {
+          "type": "boolean",
+          "default": false
+        },
+        "CreateTime": {
+          "type": "number",
+          "default": 0
+        },
+        "IsRecycle": {
+          "type": "boolean",
+          "default": false
+        },
+        "WeaponOverrunData": {
+          "type": "object",
+          "default": {},
+          "schema": {
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "ActiveSuits": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number",
+                "default": 0
+              }
+            },
+            "ChoseSuit": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "applied_reward_claims": {
+      "type": "array",
+      "default": []
+    },
+    "fashion_colors": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "weaponFashions": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": {
+          "type": "number",
+          "default": 0
+        },
+        "ExpireTime": {
+          "type": "number",
+          "default": 0
+        },
+        "UseCharacterList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "partners": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "TemplateId": {
+          "type": "number",
+          "default": 0
+        },
+        "Name": {
+          "type": "string",
+          "default": null
+        },
+        "CharacterId": {
+          "type": "number",
+          "default": 0
+        },
+        "Level": {
+          "type": "number",
+          "default": 0
+        },
+        "Exp": {
+          "type": "number",
+          "default": 0
+        },
+        "BreakThrough": {
+          "type": "number",
+          "default": 0
+        },
+        "IsLock": {
+          "type": "boolean",
+          "default": false
+        },
+        "Quality": {
+          "type": "number",
+          "default": 0
+        },
+        "StarSchedule": {
+          "type": "number",
+          "default": 0
+        },
+        "SkillList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Id": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "IsWear": {
+              "type": "boolean",
+              "default": false
+            },
+            "Type": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "UnlockSkillGroup": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "CreateTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "score_titles": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "Quality": {
+          "type": "number",
+          "default": 0
+        },
+        "Score": {
+          "type": "number",
+          "default": 0
+        },
+        "Time": {
+          "type": "number",
+          "default": 0
+        },
+        "WallId": {
+          "type": "number",
+          "default": 0
+        },
+        "ExpandInfo": {
+          "type": "object",
+          "default": null
+        }
+      }
+    },
+    "nameplates": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "Exp": {
+          "type": "number",
+          "default": 0
+        },
+        "EndTime": {
+          "type": "number",
+          "default": 0
+        },
+        "GetTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "current_wear_nameplate": {
+      "type": "number",
+      "default": 0
+    },
+    "chat_emojis": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Id": {
+          "type": "number",
+          "default": 0
+        },
+        "EndTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    }
+  },
+  "inventory[*]": {
+    "_id": {
+      "type": "ObjectId"
+    },
+    "uid": {
+      "type": "number"
+    },
+    "items": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": {
+          "type": "number"
+        },
+        "Count": {
+          "type": "number",
+          "default": 0
+        },
+        "BuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "TotalBuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "LastBuyTime": {
+          "type": "number",
+          "default": 0
+        },
+        "RefreshTime": {
+          "type": "number",
+          "default": 0
+        },
+        "CreateTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "applied_reward_claims": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "string"
+      }
+    },
+    "reward_claim_times": {
+      "type": "object",
+      "default": {}
+    },
+    "chat_emoji_reward_plans": {
+      "type": "object",
+      "default": {}
+    },
+    "transfinite_receipts": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "rotation_id": {
+          "type": "number",
+          "default": 0
+        },
+        "region_id": {
+          "type": "number",
+          "default": 0
+        },
+        "score_reward_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "max_stage_progress_index": {
+          "type": "number",
+          "default": 0
+        },
+        "settle_score": {
+          "type": "number",
+          "default": 0
+        },
+        "unsettle_score": {
+          "type": "number",
+          "default": 0
+        },
+        "reward_goods": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "reward_type": {
+              "type": "number",
+              "default": 0
+            },
+            "template_id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            },
+            "level": {
+              "type": "number",
+              "default": 0
+            },
+            "quality": {
+              "type": "number",
+              "default": 0
+            },
+            "grade": {
+              "type": "number",
+              "default": 0
+            },
+            "breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "convert_from": {
+              "type": "number",
+              "default": 0
+            },
+            "show_quality": {
+              "type": "number",
+              "default": 0
+            },
+            "is_gift": {
+              "type": "boolean",
+              "default": false
+            },
+            "reward_multi": {
+              "type": "number",
+              "default": 0
+            },
+            "id": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "stages[*]": {
+    "uid": {
+      "type": "number"
+    },
+    "stages": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "object",
+          "schema": {
+            "StageId": {
+              "type": "number"
+            },
+            "StarsMark": {
+              "type": "number",
+              "default": 7
+            },
+            "Passed": {
+              "type": "boolean",
+              "default": true
+            },
+            "PassTimesToday": {
+              "type": "number",
+              "default": 0
+            },
+            "PassTimesTotal": {
+              "type": "number",
+              "default": 1
+            },
+            "BuyCount": {
+              "type": "number",
+              "default": 0
+            },
+            "Score": {
+              "type": "number",
+              "default": 0
+            },
+            "LastPassTime": {
               "type": "number",
               "default": 0
             },
@@ -541,15 +3511,82 @@
             "CreateTime": {
               "type": "number",
               "default": 0
+            },
+            "BestRecordTime": {
+              "type": "number",
+              "default": 0
+            },
+            "LastRecordTime": {
+              "type": "number",
+              "default": 0
+            },
+            "BestCardIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "LastCardIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "Achievement": {
+              "type": "number",
+              "default": 0
             }
           }
         }
-      },
-      "stages[*]": {
-        "uid": {
-          "type": "number"
+      }
+    },
+    "course": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "prequel_rewarded_stages": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "finished_tasks": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "unlock_events": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "stage_bookmark_data": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "StageId": {
+          "type": "number",
+          "default": 0
         },
-        "stages": {
+        "MovieId": {
+          "type": "string",
+          "default": ""
+        },
+        "ActionId": {
+          "type": "number",
+          "default": 0
+        },
+        "OptionInfos": {
           "type": "array",
           "default": [],
           "schema": {
@@ -557,3008 +3594,57 @@
               "type": "number"
             },
             "v": {
-              "type": "object",
-              "schema": {
-                "StageId": {
-                  "type": "number"
-                },
-                "StarsMark": {
-                  "type": "number",
-                  "default": 7
-                },
-                "Passed": {
-                  "type": "boolean",
-                  "default": true
-                },
-                "PassTimesToday": {
-                  "type": "number",
-                  "default": 0
-                },
-                "PassTimesTotal": {
-                  "type": "number",
-                  "default": 1
-                },
-                "BuyCount": {
-                  "type": "number",
-                  "default": 0
-                },
-                "Score": {
-                  "type": "number",
-                  "default": 0
-                },
-                "LastPassTime": {
-                  "type": "number",
-                  "default": 0
-                },
-                "RefreshTime": {
-                  "type": "number",
-                  "default": 0
-                },
-                "CreateTime": {
-                  "type": "number",
-                  "default": 0
-                },
-                "BestRecordTime": {
-                  "type": "number",
-                  "default": 0
-                },
-                "LastRecordTime": {
-                  "type": "number",
-                  "default": 0
-                },
-                "BestCardIds": {
-                  "type": "array",
-                  "default": [],
-                  "schema": {
-                    "type": "number"
-                  }
-                },
-                "LastCardIds": {
-                  "type": "array",
-                  "default": [],
-                  "schema": {
-                    "type": "number"
-                  }
-                }
-              }
+              "type": "number"
             }
           }
         }
       }
     }
   },
-  "4.0": {
-    "schema_changes": {
-      "added": {
-        "characters[*]": {
-          "characters": {
-            "schema": {
-              "MagicList": {
-                "type": "array",
-                "default": []
-              },
-              "LiberateAureoleId": {
-                "type": "number",
-                "default": 0
-              },
-              "NewFlag": {
-                "type": "number",
-                "default": 0
-              },
-              "RandomFashion": {
-                "type": "boolean",
-                "default": false
-              },
-              "CollectState": {
-                "type": "boolean",
-                "default": false
-              },
-              "IsEnhanceSkillNotice": {
-                "type": "boolean",
-                "default": false
-              }
-            }
-          },
-          "equips": {
-            "schema": {
-              "WeaponOverrunData": {
-                "type": "object",
-                "default": {},
-                "schema": {
-                  "Level": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "ActiveSuits": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number",
-                      "default": 0
-                    }
-                  },
-                  "ChoseSuit": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          },
-          "fashions": {
-            "schema": {
-              "IsRandom": {
-                "type": "boolean",
-                "default": false
-              },
-              "WeaponFashionId": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          }
-        },
-        "stages[*]": {
-          "stages": {
-            "schema": {
-              "v": {
-                "schema": {
-                  "Achievement": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          },
-          "course": {
-            "type": "array",
-            "default": []
-          }
-        }
-      },
-      "removed": {},
-      "updated": {}
-    }
-  },
-  "4.7": {
-    "schema_changes": {
-      "added": {
-        "boss_inshot_rank_entries[*]": {
-          "_id": {
-            "type": "string",
-            "default": ""
-          },
-          "activity_id": {
-            "type": "number",
-            "default": 0
-          },
-          "boss_id": {
-            "type": "number",
-            "default": 0
-          },
-          "character_id": {
-            "type": "number",
-            "default": 0
-          },
-          "player_id": {
-            "type": "number",
-            "default": 0
-          },
-          "name": {
-            "type": "string",
-            "default": ""
-          },
-          "head_portrait_id": {
-            "type": "number",
-            "default": 0
-          },
-          "head_frame_id": {
-            "type": "number",
-            "default": 0
-          },
-          "tower_id": {
-            "type": "number",
-            "default": 0
-          },
-          "score": {
-            "type": "number",
-            "default": 0
-          },
-          "achieved_at": {
-            "type": "number",
-            "default": 0
-          }
-        },
-        "players[*]": {
-          "last_sign_in_time": {
-            "type": "number",
-            "default": 0
-          },
-          "sign_in_claim_count": {
-            "type": "number",
-            "default": 0
-          },
-          "sign_in_states": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "id": {
-                "type": "number",
-                "default": 0
-              },
-              "claim_count": {
-                "type": "number",
-                "default": 0
-              },
-              "last_sign_in_time": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "red_point_records": {
-            "type": "object",
-            "schema": {
-              "GameNoticeInfos": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "NoticeId": {
-                    "type": "string",
-                    "default": ""
-                  },
-                  "ModifyTime": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "EndTime": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          },
-          "assist_character_id": {
-            "type": "number",
-            "default": 0
-          },
-          "unlock_comics": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "archive_unlocked_cgs": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "archive_monster_kills": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "number"
-              }
-            }
-          },
-          "archive_partner_unlock_ids": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "archive_partner_settings": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "life_tree_data": {
-            "type": "object",
-            "schema": {
-              "IsFinishGuide": {
-                "type": "boolean",
-                "default": false
-              },
-              "IsFinishLifeTreePv": {
-                "type": "boolean",
-                "default": false
-              },
-              "FinishedChapters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "UnlockCharacterData": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "Id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "UnlockStatus": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "unlocked_medals": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "id": {
-                "type": "number",
-                "default": 0
-              },
-              "time": {
-                "type": "number",
-                "default": 0
-              },
-              "keep_time": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "unlocked_chat_boards": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "id": {
-                "type": "number",
-                "default": 0
-              },
-              "get_time": {
-                "type": "number",
-                "default": 0
-              },
-              "end_time": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "purchase_buy_times": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "number"
-              }
-            }
-          },
-          "purchase_last_buy_times": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "number"
-              }
-            }
-          },
-          "shop_buy_times": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "number"
-              }
-            }
-          },
-          "shop_reset_periods": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "number"
-              }
-            }
-          },
-          "team_prefabs": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "TeamType": {
-                "type": "number",
-                "default": 0
-              },
-              "TeamId": {
-                "type": "number",
-                "default": 0
-              },
-              "CaptainPos": {
-                "type": "number",
-                "default": 0
-              },
-              "FirstFightPos": {
-                "type": "number",
-                "default": 0
-              },
-              "EnterCgIndex": {
-                "type": "number",
-                "default": 0
-              },
-              "SettleCgIndex": {
-                "type": "number",
-                "default": 0
-              },
-              "TeamData": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "TeamName": {
-                "type": "string",
-                "default": ""
-              },
-              "SelectedGeneralSkill": {
-                "type": "number",
-                "default": 0
-              },
-              "PartnerData": {
-                "type": "array",
-                "default": []
-              },
-              "EquipData": {
-                "type": "array",
-                "default": []
-              },
-              "TagsSet": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "SwitchSkills": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          },
-          "equip_chip_groups": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "GroupId": {
-                "type": "number",
-                "default": 0
-              },
-              "Name": {
-                "type": "string",
-                "default": ""
-              },
-              "ChipIdList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "CharacterId": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "equip_chip_auto_recycle_site": {
-            "type": "object",
-            "schema": {
-              "RecycleStar": {
-                "type": "array",
-                "default": [
-                  1,
-                  2,
-                  3,
-                  4
-                ],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "Days": {
-                "type": "number",
-                "default": 0
-              },
-              "SetRecycleTime": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "equip_guide_data": {
-            "type": "object",
-            "schema": {
-              "TargetId": {
-                "type": "number",
-                "default": 0
-              },
-              "CharacterId": {
-                "type": "number",
-                "default": 0
-              },
-              "PutOnPosList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "FinishedTargets": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "vote_alarm_data": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "SelectId": {
-                "type": "number",
-                "default": 0
-              },
-              "AlarmCount": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "fuben_main_line_data": {
-            "type": "object",
-            "schema": {
-              "TreasureData": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "LastPassStage": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "MainChapterEventInfos": {
-                "type": "array",
-                "default": []
-              }
-            }
-          },
-          "fuben_main_line2_data": {
-            "type": "object",
-            "schema": {
-              "LastPassStage": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "MainDatas": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "Id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "IsAchievementGet": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "MainTreasureIdxs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "ChapterDatas": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "Id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "TreasureIdxs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "EggsTreasureDistributeData": {
-                "type": "array",
-                "default": []
-              },
-              "FirstPassTime": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "MessageState": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "LastExhibitionChapterId": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "mission_progress": {
-            "type": "object",
-            "schema": {
-              "condition_counters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "claimed_task_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "new_player_reward_records": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "newbie_reward_records": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "newbie_honor_reward": {
-                "type": "boolean",
-                "default": false
-              },
-              "daily_reset_day": {
-                "type": "number",
-                "default": -1
-              },
-              "weekly_reset_week": {
-                "type": "number",
-                "default": -1
-              }
-            }
-          },
-          "simulated_battlefield": {
-            "type": "object",
-            "schema": {
-              "arena_joined": {
-                "type": "boolean",
-                "default": false
-              },
-              "arena_activity_no": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_challenge_id": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_level": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_join_activity": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_point": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_last_point_time": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_area_max_points": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "arena_stage_max_points": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "arena_distribute_max_points": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "arena_contribute_score": {
-                "type": "number",
-                "default": 0
-              },
-              "arena_protected_score": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_activity_no": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_rank_platform": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_old_level_type": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_level_type": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_list_options": {
-                "type": "array",
-                "default": []
-              },
-              "boss_list": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "boss_max_score": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_total_score": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_current_total_score": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_challenge_count": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_challenge_reset_day": {
-                "type": "number",
-                "default": -1
-              },
-              "boss_auto_fight_count": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_character_points": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "boss_history": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "stage_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "score": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "characters": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "partners": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "boss_challenge_history": {
-                "type": "array",
-                "default": []
-              },
-              "boss_challenge_selected_section": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_challenge_selected_feature_group": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_challenge_delete_record_time": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_stage_records": {
-                "type": "array",
-                "default": []
-              },
-              "boss_reset_stage_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "boss_normal_stage_teams": {
-                "type": "array",
-                "default": []
-              },
-              "boss_trial_scores": {
-                "type": "array",
-                "default": []
-              },
-              "boss_bestiary_scores": {
-                "type": "array",
-                "default": []
-              },
-              "boss_last_score_time": {
-                "type": "number",
-                "default": 0
-              },
-              "boss_claimed_reward_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "repeat_challenge_activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "repeat_challenge_level": {
-                "type": "number",
-                "default": 1
-              },
-              "repeat_challenge_exp": {
-                "type": "number",
-                "default": 0
-              },
-              "repeat_challenge_cleared": {
-                "type": "boolean",
-                "default": false
-              },
-              "repeat_challenge_claimed_reward_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "big_world_state": {
-            "type": "object",
-            "schema": {
-              "last_world_id": {
-                "type": "number",
-                "default": 0
-              },
-              "last_level_id": {
-                "type": "number",
-                "default": 0
-              },
-              "last_position": {
-                "type": "object",
-                "default": null,
-                "schema": {
-                  "x": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "y": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "z": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "last_rotation": {
-                "type": "object",
-                "default": null,
-                "schema": {
-                  "x": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "y": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "z": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "w": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "last_rotation_y": {
-                "type": "number",
-                "default": null
-              },
-              "last_self_runtime_id": {
-                "type": "number",
-                "default": 0
-              },
-              "claimed_scene_objects": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "level_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "place_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "uuid": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "claimed_at": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "big_world_course_read_element_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "big_world_course_task_progress": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "assign": {
-            "type": "object",
-            "schema": {
-              "chapters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "chapter_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "is_get_reward": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              },
-              "groups": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "group_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "is_perfect": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "finish_stage_ids": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "teams": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "group_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "team_info_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "array",
-                      "default": [],
-                      "schema": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "captain_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "first_fight_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "awareness": {
-            "type": "object",
-            "schema": {
-              "chapters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "chapter_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_id": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "challenges": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "chapter_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "finish_stage_ids": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "teams": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "chapter_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "team_info_list": {
-                    "type": "array",
-                    "default": []
-                  },
-                  "captain_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "first_fight_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "bfrt": {
-            "type": "object",
-            "schema": {
-              "teams": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "fight_team_list": {
-                    "type": "array",
-                    "default": []
-                  },
-                  "logistics_team_list": {
-                    "type": "array",
-                    "default": []
-                  },
-                  "captain_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "first_fight_pos_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "groups": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "is_recv_reward": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              },
-              "progress_group_id": {
-                "type": "number",
-                "default": 0
-              },
-              "progress_stage_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "course_reward_star": {
-                "type": "number",
-                "default": 0
-              },
-              "claimed_course_rewards": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "bianca_theatre": {
-            "type": "object",
-            "default": {}
-          },
-          "boss_inshot": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "authorized_activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "authorized_time_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "is_pass_teach": {
-                "type": "boolean",
-                "default": false
-              },
-              "pass_stages": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "stage_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "max_score": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "boss_unlocks": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "boss_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "difficulties": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "characters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "character_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "selected_talents": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "total_score": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "pass_stages": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "stage_max_scores": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "number"
-                      }
-                    }
-                  }
-                }
-              },
-              "current_tower_id": {
-                "type": "number",
-                "default": 0
-              },
-              "towers": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "tower_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "draw_stage_ids": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "select_stage_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "select_stage_after_pass": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "is_pass": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "protect_count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "scores": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "boss_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "character_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "max_score": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "achieved_at": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              },
-              "rank_projection_version": {
-                "type": "number",
-                "default": 0
-              },
-              "pending_rank_updates": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "activity_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "boss_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "tower_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "score": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "achieved_at": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          },
-          "character_tower": {
-            "type": "object",
-            "schema": {
-              "chapters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "chapter_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "chapter_reward_data": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "treasure_data": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "stage_reward_data": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "videoed_ids": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "relations": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "relation_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "fight_event_ids": {
-                        "type": "array",
-                        "default": [],
-                        "schema": {
-                          "type": "number"
-                        }
-                      },
-                      "story_ids": {
-                        "type": "array",
-                        "default": [],
-                        "schema": {
-                          "type": "string"
-                        }
-                      },
-                      "finish_conditions": {
-                        "type": "array",
-                        "default": [],
-                        "schema": {
-                          "type": "number"
-                        }
-                      }
-                    }
-                  },
-                  "trigger_conditions": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "course": {
-            "type": "object",
-            "schema": {
-              "stages": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "stars_flag": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "max_total_lesson_point": {
-                "type": "number",
-                "default": 0
-              },
-              "reward_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "pending_result": {
-                "type": "object",
-                "default": null
-              }
-            }
-          },
-          "dorm": {
-            "type": "object",
-            "default": {}
-          },
-          "draw_state": {
-            "type": "object",
-            "schema": {
-              "pity_rounds": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "Misses": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "Limit": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "HasObtainedRare": {
-                        "type": "boolean",
-                        "default": false
-                      },
-                      "GuaranteedTarget": {
-                        "type": "boolean",
-                        "default": false
-                      },
-                      "LowerMisses": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              },
-              "member_target_calibration_target_id": {
-                "type": "number",
-                "default": 0
-              },
-              "member_target_calibration_consumed": {
-                "type": "boolean",
-                "default": false
-              },
-              "member_target_pity": {
-                "type": "object",
-                "default": null,
-                "schema": {
-                  "since_a_or_s": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "since_s": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "progress_by_draw_id": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "today_count": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "total_count": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              },
-              "pity_count_by_group": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "selected_draw_by_group": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "slots": {
-                        "type": "array",
-                        "default": [],
-                        "schema": {
-                          "k": {
-                            "type": "number"
-                          },
-                          "v": {
-                            "type": "number"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "switch_count_by_group": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "history_by_group": {
-                "type": "array",
-                "default": []
-              }
-            }
-          },
-          "dye_merge": {
-            "type": "object",
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "completed_stage_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "explore": {
-            "type": "array",
-            "default": []
-          },
-          "fashion_story": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "time_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "favorite_songs": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "background_songs": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "guild_progress_recorded_id": {
-            "type": "number",
-            "default": 0
-          },
-          "guild_state": {
-            "type": "object",
-            "default": {}
-          },
-          "guild_war": {
-            "type": "object",
-            "schema": {
-              "played_action_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "hit_mouse": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "level_scores": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "claimed_reward_indices": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "pending_item_use": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "ClaimKey": {
-                "type": "string",
-                "default": ""
-              },
-              "ItemId": {
-                "type": "number",
-                "default": 0
-              },
-              "Count": {
-                "type": "number",
-                "default": 0
-              },
-              "RecycleTime": {
-                "type": "number",
-                "default": 0
-              },
-              "Goods": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "Id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "TemplateId": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "Count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "Params": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "loading_option": {
-            "type": "object",
-            "default": {}
-          },
-          "lotto": {
-            "type": "object",
-            "schema": {
-              "infos": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "lotto_primary_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "extra_reward_state": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "lotto_rewards": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "lotto_records": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "reward_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "lotto_time": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  },
-                  "ticket_purchase_count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "pending": {
-                    "type": "object",
-                    "default": null
-                  }
-                }
-              }
-            }
-          },
-          "mails": {
-            "type": "array",
-            "default": []
-          },
-          "mail_expire_ids": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "string"
-            }
-          },
-          "passport": {
-            "type": "object",
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "passport_infos": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "got_reward_list": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              },
-              "last_time_base_info": {
-                "type": "object",
-                "schema": {
-                  "level": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "exp": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "is_get_supply_reward": {
-                "type": "boolean",
-                "default": false
-              },
-              "is_activate_regression_task": {
-                "type": "boolean",
-                "default": false
-              },
-              "is_activate_newbie_task": {
-                "type": "boolean",
-                "default": false
-              }
-            }
-          },
-          "pending_purchase": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "Count": {
-                "type": "number",
-                "default": 0
-              },
-              "PreviousBuyTimes": {
-                "type": "number",
-                "default": 0
-              },
-              "BuyTime": {
-                "type": "number",
-                "default": 0
-              },
-              "ConsumeId": {
-                "type": "number",
-                "default": 0
-              },
-              "ConsumeCount": {
-                "type": "number",
-                "default": 0
-              },
-              "Goods": {
-                "type": "array",
-                "default": []
-              }
-            }
-          },
-          "owned_background_ids": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "stronghold": {
-            "type": "object",
-            "default": {}
-          },
-          "theatre": {
-            "type": "object",
-            "default": {}
-          },
-          "theatre3": {
-            "type": "object",
-            "default": {}
-          },
-          "theatre4": {
-            "type": "object",
-            "default": {}
-          },
-          "theatre5": {
-            "type": "object",
-            "default": {}
-          },
-          "theatre6": {
-            "type": "object",
-            "default": {}
-          },
-          "transfinite": {
-            "type": "object",
-            "default": null
-          },
-          "trial": {
-            "type": "object",
-            "default": {}
-          },
-          "wheelchair_manual_states": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "object",
-                "schema": {
-                  "IsSeniorManualUnlock": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "ClaimedRewardIds": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "AcknowledgedBluePoints": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  },
-                  "AcknowledgedRedPoints": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "type": "number"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "wheelchair_manual_guide_reward_receipts": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "claim_key": {
-                "type": "string",
-                "default": ""
-              },
-              "event_cause": {
-                "type": "number",
-                "default": 0
-              },
-              "granted_at": {
-                "type": "number",
-                "default": 0
-              },
-              "goods": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "template_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "count": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          },
-          "brief_story_finished_ids": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "version47_envelope": {
-            "type": "object",
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "last_daily_grant_business_day": {
-                "type": "number",
-                "default": 0
-              },
-              "opened_character_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "instrument_bindings": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              },
-              "avg_watched_character_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "version47_pbr": {
-            "type": "object",
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "meta_progression_unlock_nodes": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "stage_records": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "stage_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "history_max_wave": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "is_pass": {
-                        "type": "boolean",
-                        "default": false
-                      },
-                      "is_pass_wave": {
-                        "type": "boolean",
-                        "default": false
-                      }
-                    }
-                  }
-                }
-              },
-              "compendium_items": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "item_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "unlock_time": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "gain_num": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "trigger_num": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              },
-              "compendium_monsters": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "object",
-                    "schema": {
-                      "monster_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "damage_total": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "be_kill_num": {
-                        "type": "number",
-                        "default": 0
-                      }
-                    }
-                  }
-                }
-              },
-              "segment_settle": {
-                "type": "object",
-                "default": null,
-                "schema": {
-                  "state": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "stage_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "shop_data": {
-                    "type": "object",
-                    "default": null,
-                    "schema": {
-                      "shop_id": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "max_choose_count": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "max_fresh_count": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "use_choose_count": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "use_fresh_count": {
-                        "type": "number",
-                        "default": 0
-                      },
-                      "sell_items": {
-                        "type": "array",
-                        "default": [],
-                        "schema": {
-                          "type": "number"
-                        }
-                      }
-                    }
-                  },
-                  "wave": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_level": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "character_exp": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "base_attrs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "cur_attrs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "max_attrs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "items": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "object",
-                        "schema": {
-                          "item_id": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "unlock_time": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "gain_num": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "trigger_num": {
-                            "type": "number",
-                            "default": 0
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "wave_monsters": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "object",
-                        "schema": {
-                          "monster_id": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "damage_total": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "be_kill_num": {
-                            "type": "number",
-                            "default": 0
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "wave_obrs": {
-                    "type": "array",
-                    "default": [],
-                    "schema": {
-                      "k": {
-                        "type": "number"
-                      },
-                      "v": {
-                        "type": "object",
-                        "schema": {
-                          "item_id": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "unlock_time": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "gain_num": {
-                            "type": "number",
-                            "default": 0
-                          },
-                          "trigger_num": {
-                            "type": "number",
-                            "default": 0
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "version47_concert_preheating": {
-            "type": "object",
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "completed_stage_ids": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        },
-        "characters[*]": {
-          "applied_reward_claims": {
-            "type": "array",
-            "default": []
-          },
-          "fashion_colors": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "k": {
-                "type": "number"
-              },
-              "v": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "weaponFashions": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "ExpireTime": {
-                "type": "number",
-                "default": 0
-              },
-              "UseCharacterList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "partners": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "TemplateId": {
-                "type": "number",
-                "default": 0
-              },
-              "Name": {
-                "type": "string",
-                "default": null
-              },
-              "CharacterId": {
-                "type": "number",
-                "default": 0
-              },
-              "Level": {
-                "type": "number",
-                "default": 0
-              },
-              "Exp": {
-                "type": "number",
-                "default": 0
-              },
-              "BreakThrough": {
-                "type": "number",
-                "default": 0
-              },
-              "IsLock": {
-                "type": "boolean",
-                "default": false
-              },
-              "Quality": {
-                "type": "number",
-                "default": 0
-              },
-              "StarSchedule": {
-                "type": "number",
-                "default": 0
-              },
-              "SkillList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "Id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "Level": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "IsWear": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "Type": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "UnlockSkillGroup": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "CreateTime": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "score_titles": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "Quality": {
-                "type": "number",
-                "default": 0
-              },
-              "Score": {
-                "type": "number",
-                "default": 0
-              },
-              "Time": {
-                "type": "number",
-                "default": 0
-              },
-              "WallId": {
-                "type": "number",
-                "default": 0
-              },
-              "ExpandInfo": {
-                "type": "object",
-                "default": null
-              }
-            }
-          },
-          "nameplates": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "Exp": {
-                "type": "number",
-                "default": 0
-              },
-              "EndTime": {
-                "type": "number",
-                "default": 0
-              },
-              "GetTime": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "current_wear_nameplate": {
-            "type": "number",
-            "default": 0
-          },
-          "chat_emojis": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "Id": {
-                "type": "number",
-                "default": 0
-              },
-              "EndTime": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          }
-        },
-        "inventory[*]": {
-          "applied_reward_claims": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "string"
-            }
-          },
-          "reward_claim_times": {
-            "type": "object",
-            "default": {}
-          },
-          "chat_emoji_reward_plans": {
-            "type": "object",
-            "default": {}
-          },
-          "transfinite_receipts": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "activity_id": {
-                "type": "number",
-                "default": 0
-              },
-              "rotation_id": {
-                "type": "number",
-                "default": 0
-              },
-              "region_id": {
-                "type": "number",
-                "default": 0
-              },
-              "score_reward_group_id": {
-                "type": "number",
-                "default": 0
-              },
-              "max_stage_progress_index": {
-                "type": "number",
-                "default": 0
-              },
-              "settle_score": {
-                "type": "number",
-                "default": 0
-              },
-              "unsettle_score": {
-                "type": "number",
-                "default": 0
-              },
-              "reward_goods": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "reward_type": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "template_id": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "count": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "level": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "quality": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "grade": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "breakthrough": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "convert_from": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "show_quality": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "is_gift": {
-                    "type": "boolean",
-                    "default": false
-                  },
-                  "reward_multi": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "id": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              }
-            }
-          }
-        },
-        "stages[*]": {
-          "prequel_rewarded_stages": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "finished_tasks": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "unlock_events": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          },
-          "stage_bookmark_data": {
-            "type": "object",
-            "default": null,
-            "schema": {
-              "StageId": {
-                "type": "number",
-                "default": 0
-              },
-              "MovieId": {
-                "type": "string",
-                "default": ""
-              },
-              "ActionId": {
-                "type": "number",
-                "default": 0
-              },
-              "OptionInfos": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "k": {
-                    "type": "number"
-                  },
-                  "v": {
-                    "type": "number"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "removed": {},
-      "updated": {
-        "players[*]": {
-          "player_data": {
-            "schema": {
-              "DisplayCharIdList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "type": "number"
-                }
-              },
-              "Birthday": {
-                "type": "object",
-                "default": null,
-                "schema": {
-                  "Mon": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "Day": {
-                    "type": "number",
-                    "default": 0
-                  }
-                }
-              },
-              "CurrentChatBoardId": {
-                "type": "number",
-                "default": 25000001
-              },
-              "NewPlayerTaskActiveDay": {
-                "type": "number",
-                "default": 0
-              },
-              "ChangeGenderTime": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          }
-        },
-        "characters[*]": {
-          "characters": {
-            "schema": {
-              "MagicList": {
-                "type": "array",
-                "default": [],
-                "schema": {
-                  "_id": {
-                    "type": "number"
-                  },
-                  "Level": {
-                    "type": "number",
-                    "default": 1
-                  }
-                }
-              },
-              "CharacterType": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          },
-          "equips": {
-            "schema": {
-              "ResonanceInfo": {
-                "schema": {
-                  "UseItemId": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "IsUseEquip": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              },
-              "UnconfirmedResonanceInfo": {
-                "schema": {
-                  "UseItemId": {
-                    "type": "number",
-                    "default": 0
-                  },
-                  "IsUseEquip": {
-                    "type": "boolean",
-                    "default": false
-                  }
-                }
-              }
-            }
-          },
-          "fashions": {
-            "schema": {
-              "ColorId": {
-                "type": "number",
-                "default": 0
-              }
-            }
-          }
-        },
-        "stages[*]": {
-          "course": {
-            "type": "array",
-            "default": [],
-            "schema": {
-              "type": "number"
-            }
-          }
-        }
-      }
+  "boss_inshot_rank_entries[*]": {
+    "_id": {
+      "type": "string",
+      "default": ""
+    },
+    "activity_id": {
+      "type": "number",
+      "default": 0
+    },
+    "boss_id": {
+      "type": "number",
+      "default": 0
+    },
+    "character_id": {
+      "type": "number",
+      "default": 0
+    },
+    "player_id": {
+      "type": "number",
+      "default": 0
+    },
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "head_portrait_id": {
+      "type": "number",
+      "default": 0
+    },
+    "head_frame_id": {
+      "type": "number",
+      "default": 0
+    },
+    "tower_id": {
+      "type": "number",
+      "default": 0
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    },
+    "achieved_at": {
+      "type": "number",
+      "default": 0
     }
   }
 }

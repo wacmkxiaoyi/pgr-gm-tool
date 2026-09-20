@@ -1,6 +1,8 @@
 # WACMK PGR GM Tool
 
-A FastAPI-based administration tool for WACMK PGR servers and player data. The backend serves the static frontend, so only one process is required to run the application.
+A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
+
+> Current support: InfinityLoop, commit from `2897b5862260bc9f0dd6098566c7727cb0a23b9d`;
 
 ## User Guide
 

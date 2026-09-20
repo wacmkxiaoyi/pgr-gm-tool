@@ -1,26 +1,10 @@
 from __future__ import annotations
 
-import ast
-import json
 from functools import lru_cache
 
 from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, ROLE_WAFER_BAG_ASSET_PREFIX, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
-
-
-def _normalize_weapon_overrun_skill_description(value: object) -> str:
-    """Convert 4.7's indexed skill-description array to the legacy piece map."""
-    if not isinstance(value, list):
-        return str(value or "").strip()
-
-    descriptions = {
-        str(index + 1): text
-        for index, raw_text in enumerate(value)
-        for text in [str(raw_text or "").strip()]
-        if index % 2 == 1 and text
-    }
-    return json.dumps(descriptions, ensure_ascii=False, separators=(",", ":"))
 
 
 @lru_cache(maxsize=1)
@@ -93,13 +77,7 @@ def get_weapon_skill_entries_map() -> dict[int, dict[str, str]]:
 @lru_cache(maxsize=1)
 def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
     reader = TSVReader(WEAPON_SKILL_POOL_TSV_PATH, typed=True)
-    columns = list(reader.data[0]) if reader.data else []
-    skill_columns = ["SkillId"] if "SkillId" in columns else [
-        column
-        for column in columns
-        if str(column).startswith("SkillId[")
-    ]
-    rows = reader.select(["PoolId", "CharacterId", *skill_columns])
+    rows = reader.select(["PoolId", "CharacterId", "SkillId"])
     normalized_map: dict[int, dict[int, list[int]]] = {}
 
     for row in rows:
@@ -108,7 +86,7 @@ def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
         if pool_id is None or character_id is None:
             continue
 
-        skill_ids = extract_int_list(row, skill_columns)
+        skill_ids = extract_int_list(row, ["SkillId"])
 
         if not skill_ids:
             continue
@@ -119,12 +97,10 @@ def get_weapon_skill_pool_entries_map() -> dict[int, dict[int, list[int]]]:
 
 
 @lru_cache(maxsize=1)
-def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
+def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, object]]:
     reader = TSVReader(EQUIP_SUIT_TSV_PATH, typed=True)
-    columns = list(reader.data[0]) if reader.data else []
-    icon_column = "BigIconPath" if "BigIconPath" in columns else "WaferBagPath"
-    suit_table = reader.get_sub_table("Id", ["Name", "SkillDescription", icon_column])
-    normalized_map: dict[int, dict[str, str]] = {}
+    suit_table = reader.get_sub_table("Id", ["Name", "SkillDescription", "WaferBagPath"])
+    normalized_map: dict[int, dict[str, object]] = {}
 
     for suit_id_raw, row in suit_table.items():
         try:
@@ -134,8 +110,12 @@ def get_weapon_overrun_suit_entries_map() -> dict[int, dict[str, str]]:
 
         normalized_map[suit_id] = {
             "Name": str(row.get("Name") or "").strip(),
-            "SkillDescription": _normalize_weapon_overrun_skill_description(row.get("SkillDescription")),
-            "WaferBagPath": normalize_asset_path(str(row.get(icon_column) or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
+            "SkillDescription": [
+                text for index, raw_text in enumerate(row.get("SkillDescription", []))
+                for text in [str(raw_text or "").strip()]
+                if index % 2 == 1 and text
+            ] if isinstance(row.get("SkillDescription"), list) else [],
+            "WaferBagPath": normalize_asset_path(str(row.get("WaferBagPath") or ""), ROLE_WAFER_BAG_ASSET_PREFIX) or "",
         }
 
     return normalized_map
@@ -164,38 +144,6 @@ def get_weapon_overrun_suit_memory_ids_map() -> dict[int, dict[int, int]]:
             }
             if parsed_map:
                 normalized_map[suit_id] = parsed_map
-        elif isinstance(equip_ids_raw, dict):
-            parsed_map: dict[int, int] = {}
-            for slot_key, equip_id_val in equip_ids_raw.items():
-                try:
-                    slot = int(slot_key)
-                    equip_id = int(equip_id_val)
-                    parsed_map[slot] = equip_id
-                except (TypeError, ValueError):
-                    continue
-            if parsed_map:
-                normalized_map[suit_id] = parsed_map
-        elif isinstance(equip_ids_raw, str):
-            stripped = equip_ids_raw.strip()
-            try:
-                parsed = json.loads(stripped)
-            except (json.JSONDecodeError, ValueError):
-                try:
-                    parsed = ast.literal_eval(stripped)
-                except (ValueError, SyntaxError):
-                    continue
-            if isinstance(parsed, dict):
-                parsed_map: dict[int, int] = {}
-                for slot_key, equip_id_val in parsed.items():
-                    try:
-                        slot = int(slot_key)
-                        equip_id = int(equip_id_val)
-                        parsed_map[slot] = equip_id
-                    except (TypeError, ValueError):
-                        continue
-                if parsed_map:
-                    normalized_map[suit_id] = parsed_map
-
     return normalized_map
 
 

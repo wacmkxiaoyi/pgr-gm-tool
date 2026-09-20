@@ -112,7 +112,7 @@ def test_scalar_array_keeps_integer_items_when_materialized() -> None:
 
 
 def test_player_data_scalar_arrays_materialize_as_numbers() -> None:
-    runtime = DatabaseSchemaRuntime("4.0")
+    runtime = DatabaseSchemaRuntime()
     player_schema = runtime.get_collection_schema("players")
 
     assert player_schema is not None
@@ -135,7 +135,7 @@ def test_player_data_scalar_arrays_materialize_as_numbers() -> None:
 
 
 def test_equip_awake_slot_list_materializes_as_numbers() -> None:
-    runtime = DatabaseSchemaRuntime("4.0")
+    runtime = DatabaseSchemaRuntime()
     characters_schema = runtime.get_collection_schema("characters")
 
     assert characters_schema is not None
@@ -143,6 +143,30 @@ def test_equip_awake_slot_list_materializes_as_numbers() -> None:
         {"AwakeSlotList": [1, 2]},
         "equips.0",
     )["AwakeSlotList"] == [1, 2]
+
+
+def test_weapon_fashion_materializes_with_expire_time_default() -> None:
+    runtime = DatabaseSchemaRuntime()
+    characters_schema = runtime.get_collection_schema("characters")
+
+    assert characters_schema is not None
+    assert characters_schema.materialize_write(
+        {"_id": 12010001, "UseCharacterList": [1011002]},
+        "weaponFashions.0",
+    ) == {
+        "_id": 12010001,
+        "ExpireTime": 0,
+        "UseCharacterList": [1011002],
+    }
+
+    assert characters_schema.sanitize_read(
+        [{"_id": 12010001, "UseCharacterList": [1011002]}],
+        "weaponFashions",
+    ) == [{
+        "_id": 12010001,
+        "ExpireTime": 0,
+        "UseCharacterList": [1011002],
+    }]
 
 
 def test_awake_slot_list_normalization_rejects_legacy_objects() -> None:
@@ -158,8 +182,22 @@ def test_opaque_object_schema_preserves_service_owned_fields() -> None:
     ) == {"ServiceState": {"FutureField": {"Nested": [1, 2]}}}
 
 
-def test_version_47_schema_includes_new_collection_and_service_state() -> None:
-    runtime = DatabaseSchemaRuntime("4.7")
+def test_typed_object_schema_preserves_unknown_existing_fields() -> None:
+    schema = CompiledCollectionSchema({
+        "Character": {
+            "type": "object",
+            "schema": {"Level": {"type": "number", "default": 1}},
+        },
+    })
+
+    assert schema.materialize_write(
+        {"Character": {"Level": 2, "FutureField": {"Nested": [1, 2]}}},
+        "",
+    ) == {"Character": {"Level": 2, "FutureField": {"Nested": [1, 2]}}}
+
+
+def test_fixed_schema_includes_current_collection_and_service_state() -> None:
+    runtime = DatabaseSchemaRuntime()
     player_schema = runtime.get_collection_schema("players")
 
     assert runtime.has_collection("boss_inshot_rank_entries")
@@ -167,18 +205,14 @@ def test_version_47_schema_includes_new_collection_and_service_state() -> None:
     assert player_schema.allows_field("version47_envelope.instrument_bindings.0.k")
     assert player_schema.allows_field("version47_pbr.stage_records.0.v.history_max_wave")
     assert player_schema.allows_field("stage_bookmark_data") is False
-    assert player_schema.materialize_write(
-        {"theatre6": {"Data": {"FutureField": True}}},
-        "",
-    )["theatre6"] == {"Data": {"FutureField": True}}
+    theatre6 = player_schema.materialize_write({"theatre6": {}}, "")["theatre6"]
+    assert theatre6["current_mode"] == 0
+    assert theatre6["next_run_id"] == 1
+    assert theatre6["pvp"]["next_battle_id"] == 1
 
 
-def test_version_40_schema_does_not_include_version_47_collection() -> None:
-    assert not DatabaseSchemaRuntime("4.0").has_collection("boss_inshot_rank_entries")
-
-
-def test_version_47_preserves_nullable_nested_service_state() -> None:
-    runtime = DatabaseSchemaRuntime("4.7")
+def test_fixed_schema_preserves_nullable_nested_service_state() -> None:
+    runtime = DatabaseSchemaRuntime()
     player_schema = runtime.get_collection_schema("players")
 
     assert player_schema is not None
@@ -188,8 +222,8 @@ def test_version_47_preserves_nullable_nested_service_state() -> None:
     )["version47_pbr"]["segment_settle"] is None
 
 
-def test_version_47_materializes_nested_player_state() -> None:
-    runtime = DatabaseSchemaRuntime("4.7")
+def test_fixed_schema_materializes_nested_player_state() -> None:
+    runtime = DatabaseSchemaRuntime()
     player_schema = runtime.get_collection_schema("players")
 
     assert player_schema is not None
@@ -207,3 +241,11 @@ def test_version_47_materializes_nested_player_state() -> None:
     }]
     assert materialized["team_prefabs"][0]["TeamData"] == [{"k": 1, "v": 1021001}]
     assert materialized["version47_pbr"]["segment_settle"]["shop_data"]["sell_items"] == []
+
+
+def test_display_character_list_materializes_as_numbers() -> None:
+    runtime = DatabaseSchemaRuntime()
+    player_schema = runtime.get_collection_schema("players")
+
+    assert player_schema is not None
+    assert player_schema.materialize_write([1021001], "player_data.DisplayCharIdList") == [1021001]

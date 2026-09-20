@@ -60,6 +60,10 @@ ASSET_MAP = {
     "WeaponSkill.tsv": "en/bytes/share/equip/WeaponSkill.json",
     "WeaponSkillPool.tsv": "en/bytes/share/equip/WeaponSkillPool.json",
     "Partner.tsv": "en/bytes/share/partner/Partner.json",
+    "Reward.tsv": "en/bytes/share/reward/Reward.json",
+    "RewardGoods.tsv": "en/bytes/share/reward/RewardGoods.json",
+    "WeaponFashion.tsv": "en/bytes/share/weaponfashion/WeaponFashion.json",
+    "WeaponFashionRes.tsv": "en/bytes/client/weaponfashion/WeaponFashionRes.json",
     "leveluptemplate/1.tsv": "cn/bytes/share/character/leveluptemplate/1.json",
     "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
     **{
@@ -169,7 +173,7 @@ def generate_recommend_equips() -> None:
         raise RuntimeError(f"recommendation generator failed with exit code {error.returncode}") from error
 
 
-def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None, cn_assets: bool = False) -> None:
+def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None, cn_assets: bool = False, recommend_equips: bool = True) -> None:
     validate_mapping()
     temporary_dir = Path(tempfile.mkdtemp(prefix="pgr-assets-"))
     try:
@@ -177,7 +181,13 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
         prepared = []
         with ThreadPoolExecutor(max_workers=workers) as executor:
             futures = {
-                executor.submit(prepare_asset, target, source, temporary_dir, upstream_dir): (target, source)
+                executor.submit(
+                    prepare_asset,
+                    target,
+                    source.replace("en/bytes/", "cn/bytes/") if cn_assets else source,
+                    temporary_dir,
+                    upstream_dir,
+                ): (target, source.replace("en/bytes/", "cn/bytes/") if cn_assets else source)
                 for target, source in ASSET_MAP.items()
             }
             for future in as_completed(futures):
@@ -199,12 +209,11 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
 
         for target_path in ASSET_MAP:
             source = temporary_dir / target_path
-            if cn_assets:
-                source = source.replace('en/bytes/', 'cn/bytes/')
             destination = ASSETS_DIR / target_path
             destination.parent.mkdir(parents=True, exist_ok=True)
             source.replace(destination)
-        generate_recommend_equips()
+        if recommend_equips:
+            generate_recommend_equips()
         print(f"Updated {len(ASSET_MAP)} assets.")
     finally:
         shutil.rmtree(temporary_dir, ignore_errors=True)
@@ -230,6 +239,12 @@ def main() -> int:
         default=False,
         help="use cn assets (default false)",
     )
+    parser.add_argument(
+        "--recommend-equips",
+        type=bool,
+        default=False,
+        help="update CharacterRecommendEquips.tsv (default false)"
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("--workers must be a positive integer")
@@ -242,7 +257,8 @@ def main() -> int:
             dry_run=args.dry_run,
             workers=args.workers,
             upstream_dir=args.upstream_dir,
-            cn_assets=args.cn
+            cn_assets=args.cn,
+            recommend_equips=args.recommend_equips
         )
     except (RuntimeError, ValueError) as error:
         print(f"Asset update failed: {error}", file=sys.stderr)

@@ -126,7 +126,7 @@ app.renderStageRows = (items) => {
   }
 
   databaseStageManagementBody.innerHTML = Array.isArray(items) ? items.map((item) => {
-    const stageId = Number.parseInt(String(item?.stage_id ?? item?.k ?? item?.v?.StageId ?? ''), 10);
+    const stageId = Number.parseInt(String(item?.stage_id ?? ''), 10);
     const safeStageId = Number.isFinite(stageId) ? stageId : null;
     const stageName = app.getStageNameById(safeStageId);
     const stageDescription = app.getStageDescriptionById(safeStageId);

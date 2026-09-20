@@ -1,11 +1,9 @@
-import json
-
 from backend.app.services.player.equips.weapon import (
-    _normalize_weapon_overrun_skill_description,
     get_weapon_overrun_max_level_map,
     get_weapon_overrun_suit_entries_map,
     get_weapon_overrun_suit_memory_ids_map,
 )
+from backend.app.apis.schemas import AppInfoResponse
 from backend.app.services.player.player_characters import (
     _choose_weapon_overrun_suit,
     get_character_max_template_map,
@@ -25,29 +23,45 @@ def test_weapon_overrun_suit_memory_ids_are_suitable_for_frontend_matching() -> 
     }
 
 
-def test_4_7_weapon_overrun_skill_description_uses_piece_map() -> None:
-    description = _normalize_weapon_overrun_skill_description([
-        "",
-        "Two-piece effect",
-        "",
-        "Four-piece effect",
-    ])
-
-    assert json.loads(description) == {
-        "2": "Two-piece effect",
-        "4": "Four-piece effect",
-    }
-
-
-def test_weapon_overrun_suit_entries_expose_parseable_descriptions() -> None:
+def test_weapon_overrun_suit_entries_expose_structured_descriptions() -> None:
     entries = get_weapon_overrun_suit_entries_map()
 
     assert entries
-    assert any(
-        json.loads(entry["SkillDescription"])
-        for entry in entries.values()
-        if entry["SkillDescription"].startswith("{")
-    )
+    assert any(isinstance(entry["SkillDescription"], list) and entry["SkillDescription"] for entry in entries.values())
+
+
+def test_app_info_accepts_structured_weapon_overrun_descriptions() -> None:
+    entries = get_weapon_overrun_suit_entries_map()
+
+    response = AppInfoResponse.model_validate({
+        "name": "test",
+        "mongo_db": "test",
+        "mongo_configured": True,
+        "server_management_enabled": False,
+        "server_controls_visible": False,
+        "player_level_max": 1,
+        "player_level_max_exp_map": {},
+        "player_honor_level_max": 1,
+        "player_honor_level_max_exp_map": {},
+        "player_portrait_url_map": {},
+        "player_portrait_frame_url_map": {},
+        "player_portrait_name_map": {},
+        "player_portrait_frame_name_map": {},
+        "player_background_url_map": {},
+        "player_background_name_map": {},
+        "item_name_map": {},
+        "equip_name_map": {},
+        "weapon_type_name_map": {},
+        "equip_star_map": {},
+        "equip_site_map": {},
+        "equippable_memory_nums": 6,
+        "equip_icon_url_map": {},
+        "character_log_name_map": {},
+        "character_head_icon_url_map": {},
+        "weapon_overrun_suit_entries_map": entries,
+    })
+
+    assert all(isinstance(entry.SkillDescription, list) for entry in response.weapon_overrun_suit_entries_map.values())
 
 
 def test_weapon_overrun_suit_memory_ids_support_list_equip_ids() -> None:

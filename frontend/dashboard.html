@@ -54,7 +54,6 @@
               <section class="status-hero">
                 <div class="status-meta status-meta-row">
                   <div class="status-meta-list">
-                    <span id="status-server-version">服务器版本号: --</span>
                     <span id="status-interval">距离下次健康检查: --</span>
                   </div>
                   <div class="status-controls" id="status-controls" hidden>
@@ -129,9 +128,6 @@
                   <div>
                     <span class="section-tag">Database</span>
                     <h2 id="database-service-status-title" data-i18n="dashboard.databaseStatusTitle">数据库状态</h2>
-                  </div>
-                  <div class="status-meta-list">
-                    <button class="status-action-button status-action-button-config" type="button" id="database-repair-button" data-i18n="dashboard.databaseRepair">修复数据</button>
                   </div>
                 </div>
 
@@ -934,13 +930,15 @@
       <div class="shared-modal-backdrop" data-character-detail-modal-close></div>
       <section class="character-detail-card" role="dialog" aria-modal="true" aria-labelledby="character-detail-name" tabindex="-1">
         <div class="character-detail-hero">
-          <div class="character-detail-main-icon-shell">
+            <div class="character-detail-main-icon-shell">
             <div class="character-detail-main-icon-stack">
-              <img class="character-detail-main-icon" id="character-detail-main-icon" src="" alt="">
-              <span class="character-detail-main-fashion-shell" id="character-detail-main-fashion-shell" aria-hidden="true">
+              <button class="character-detail-main-icon-shell-button" id="character-detail-main-icon-shell" type="button" aria-haspopup="dialog">
+                <img class="character-detail-main-icon" id="character-detail-main-icon" src="" alt="">
+              </button>
+              <button class="character-detail-main-fashion-shell" id="character-detail-main-fashion-shell" type="button" aria-haspopup="dialog">
                 <img class="character-detail-main-fashion-icon" id="character-detail-main-fashion-icon" src="" alt="" hidden>
                 <span class="character-detail-main-fashion-placeholder" id="character-detail-main-fashion-placeholder"></span>
-              </span>
+              </button>
             </div>
           </div>
           <div class="character-detail-main-panel">
@@ -980,12 +978,7 @@
             <div class="character-detail-information-body" id="character-detail-information"></div>
           </section>
 
-          <section class="character-detail-section character-detail-section-wide">
-            <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailFashions">Fashions</span></div>
-            <div class="character-detail-fashion-grid" id="character-detail-fashions"></div>
-          </section>
-
-          <section class="character-detail-section">
+          <section class="character-detail-section character-detail-weapon-section">
             <div class="character-detail-section-title"><span data-i18n="dashboard.characterDetailWeapon">Weapon</span></div>
             <div class="character-detail-single-slot" id="character-detail-weapon">
               <div class="character-detail-slot character-detail-slot-medium is-empty"></div>
@@ -1045,6 +1038,75 @@
             </div>
           </section>
         </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-fashion-switch-modal">
+      <div class="shared-modal-backdrop" data-character-fashion-switch-modal-close></div>
+      <section class="shared-modal-card character-fashion-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-fashion-switch-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">C</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailFashions">涂装</p>
+            <h3 id="character-fashion-switch-title" data-i18n="dashboard.characterDetailFashions">涂装</h3>
+          </div>
+        </div>
+        <div class="character-fashion-picker-meta">
+          <div class="character-fashion-picker-summary" id="character-fashion-switch-current"></div>
+        </div>
+        <div class="character-fashion-switch-grid-shell">
+          <div class="character-detail-fashion-grid" id="character-detail-fashions"></div>
+        </div>
+        <div class="character-fashion-picker-toolbar">
+          <div class="shared-modal-actions character-fashion-picker-actions">
+            <button type="button" class="shared-modal-button shared-modal-button-secondary character-fashion-picker-cancel" data-character-fashion-switch-modal-close data-i18n="common.cancel">取消</button>
+            <button type="button" class="shared-modal-button" id="character-fashion-switch-confirm" disabled data-i18n="common.confirm">确认</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-head-fashion-switch-modal">
+      <div class="shared-modal-backdrop" data-character-head-fashion-switch-modal-close></div>
+      <section class="shared-modal-card character-fashion-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-head-fashion-switch-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">H</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailFashions">涂装</p>
+            <h3 id="character-head-fashion-switch-title" data-i18n="dashboard.characterDetailHeadFashions">头像涂装</h3>
+          </div>
+        </div>
+        <div class="character-fashion-picker-meta">
+          <div class="character-fashion-picker-summary" id="character-head-fashion-switch-current"></div>
+        </div>
+        <div class="character-fashion-switch-grid-shell">
+          <div class="character-detail-fashion-grid" id="character-detail-head-fashions"></div>
+        </div>
+        <div class="character-fashion-picker-toolbar">
+          <div class="shared-modal-actions character-fashion-picker-actions">
+            <button type="button" class="shared-modal-button shared-modal-button-secondary character-fashion-picker-cancel" data-character-head-fashion-switch-modal-close data-i18n="common.cancel">取消</button>
+            <button type="button" class="shared-modal-button" id="character-head-fashion-switch-confirm" disabled data-i18n="common.confirm">确认</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-weapon-fashion-switch-modal">
+      <div class="shared-modal-backdrop" data-character-weapon-fashion-switch-modal-close></div>
+      <section class="shared-modal-card character-fashion-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-weapon-fashion-switch-title" tabindex="-1">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">W</span>
+          <div>
+            <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailWeaponFashions">武器涂装</p>
+            <h3 id="character-weapon-fashion-switch-title" data-i18n="dashboard.characterDetailWeaponFashions">武器涂装</h3>
+          </div>
+        </div>
+        <div class="character-fashion-picker-meta"><div class="character-fashion-picker-summary" id="character-weapon-fashion-switch-current"></div></div>
+        <div class="character-fashion-switch-grid-shell"><div class="character-detail-fashion-grid" id="character-detail-weapon-fashions"></div></div>
+        <div class="character-fashion-picker-toolbar"><div class="shared-modal-actions character-fashion-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary character-fashion-picker-cancel" data-character-weapon-fashion-switch-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-weapon-fashion-switch-confirm" disabled data-i18n="common.confirm">确认</button>
+        </div></div>
       </section>
     </div>
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import json
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -11,12 +10,6 @@ from typing import Any
 SCHEMA_FILE_PATH = Path(__file__).resolve().parents[1] / "db" / "schema.json"
 ROOT_COLLECTION_WILDCARD_SUFFIX = "[*]"
 ARRAY_WILDCARD_SUFFIX = "[*]"
-
-
-@dataclass(frozen=True, order=True)
-class VersionKey:
-    major: int
-    minor: int
 
 
 class CompiledCollectionSchema:
@@ -116,18 +109,13 @@ class CompiledCollectionSchema:
 
 
 class DatabaseSchemaRuntime:
-    def __init__(self, server_version: str) -> None:
-        self._server_version = server_version
-        self._compiled_schema = _load_compiled_schema(server_version)
+    def __init__(self) -> None:
+        self._compiled_schema = _load_schema_file()
         self._collections = {
             _normalize_collection_key(collection_name): CompiledCollectionSchema(collection_schema)
             for collection_name, collection_schema in self._compiled_schema.items()
             if isinstance(collection_schema, dict)
         }
-
-    @property
-    def server_version(self) -> str:
-        return self._server_version
 
     def get_collection_schema(self, collection_name: str) -> CompiledCollectionSchema | None:
         return self._collections.get(_normalize_collection_key(collection_name))
@@ -175,13 +163,13 @@ class DatabaseSchemaRuntime:
         return tuple(sorted(self._collections.keys()))
 
 
-def init_database_schema_runtime(server_version: str) -> DatabaseSchemaRuntime:
-    return get_database_schema_runtime(server_version)
+def init_database_schema_runtime() -> DatabaseSchemaRuntime:
+    return get_database_schema_runtime()
 
 
-@lru_cache(maxsize=None)
-def get_database_schema_runtime(server_version: str) -> DatabaseSchemaRuntime:
-    return DatabaseSchemaRuntime(server_version)
+@lru_cache(maxsize=1)
+def get_database_schema_runtime() -> DatabaseSchemaRuntime:
+    return DatabaseSchemaRuntime()
 
 
 @lru_cache(maxsize=1)
@@ -192,100 +180,10 @@ def _load_schema_file() -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError("schema.json root must be an object")
 
+    if "default" in payload or any("schema_changes" in value for value in payload.values() if isinstance(value, dict)):
+        raise ValueError("schema.json must contain one flattened schema without version sections")
+
     return payload
-
-
-@lru_cache(maxsize=None)
-def _load_compiled_schema(server_version: str) -> dict[str, Any]:
-    raw_schema = _load_schema_file()
-    default_section = raw_schema.get("default")
-    if not isinstance(default_section, dict):
-        raise ValueError("schema.json default section must be an object")
-
-    base_schema = copy.deepcopy(default_section.get("schema") or {})
-    active_version = _parse_version_key(server_version)
-
-    for version_name, version_payload in sorted(_iter_version_sections(raw_schema), key=lambda item: item[0]):
-        if version_name > active_version:
-            continue
-
-        schema_changes = version_payload.get("schema_changes")
-        if not isinstance(schema_changes, dict):
-            continue
-
-        added = schema_changes.get("added")
-        if isinstance(added, dict):
-            _merge_schema_nodes(base_schema, added)
-
-        updated = schema_changes.get("updated")
-        if isinstance(updated, dict):
-            _merge_schema_nodes(base_schema, updated)
-
-        removed = schema_changes.get("removed")
-        if isinstance(removed, dict):
-            _remove_schema_nodes(base_schema, removed)
-
-    return base_schema
-
-
-def _iter_version_sections(raw_schema: dict[str, Any]) -> list[tuple[VersionKey, dict[str, Any]]]:
-    sections: list[tuple[VersionKey, dict[str, Any]]] = []
-    for key, value in raw_schema.items():
-        if key == "default" or not isinstance(value, dict):
-            continue
-        sections.append((_parse_version_key(key), value))
-    return sections
-
-
-def _parse_version_key(raw_version: Any) -> VersionKey:
-    parts = str(raw_version or "0.0").strip().split(".")
-    major = _safe_int(parts[0] if parts else 0)
-    minor = _safe_int(parts[1] if len(parts) > 1 else 0)
-    return VersionKey(major=major, minor=minor)
-
-
-def _safe_int(value: Any) -> int:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return 0
-
-
-def _merge_schema_nodes(target: dict[str, Any], changes: dict[str, Any]) -> None:
-    for key, value in changes.items():
-        if key not in target:
-            target[key] = copy.deepcopy(value)
-            continue
-
-        existing = target[key]
-        if isinstance(existing, dict) and isinstance(value, dict) and "schema" in existing and "schema" not in value:
-            existing_schema = existing.get("schema")
-            if isinstance(existing_schema, dict):
-                _merge_schema_nodes(existing_schema, value)
-                continue
-
-        if isinstance(existing, dict) and isinstance(value, dict):
-            _merge_schema_nodes(existing, value)
-            continue
-
-        target[key] = copy.deepcopy(value)
-
-
-def _remove_schema_nodes(target: dict[str, Any], changes: dict[str, Any]) -> None:
-    for key, value in changes.items():
-        if key not in target:
-            continue
-
-        if value in (True, None) or value == {}:
-            target.pop(key, None)
-            continue
-
-        existing = target.get(key)
-        if not isinstance(existing, dict) or not isinstance(value, dict):
-            target.pop(key, None)
-            continue
-
-        _remove_schema_nodes(existing, value)
 
 
 def _normalize_collection_key(collection_name: str) -> str:
@@ -391,7 +289,10 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
                 return copy.deepcopy(schema_node.get("default"))
             return {}
 
-        sanitized: dict[str, Any] = {}
+        # Existing MongoDB records may carry server-owned fields outside this GM tool's
+        # fixed schema. Keep them when normalizing an existing object so array rewrites
+        # cannot erase forward fields; new objects still start from an empty source.
+        sanitized: dict[str, Any] = copy.deepcopy(source) if isinstance(value, dict) else {}
         for schema_field_name, field_schema in object_schema.items():
             if not isinstance(field_schema, dict):
                 continue

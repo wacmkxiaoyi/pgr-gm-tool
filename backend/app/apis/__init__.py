@@ -22,7 +22,6 @@ from backend.app.apis.schemas import (
     CharacterWeaponCandidatesResponse,
     CharacterExtraInfoResponse,
     CharacterManagementListResponse,
-    DatabaseRepairResponse,
     ClearStagesResponse,
     ClearInventoryItemsRequest,
     ClearInventoryItemsResponse,
@@ -61,6 +60,9 @@ from backend.app.apis.schemas import (
     UpdateCharacterAwakenResponse,
     UpdateCharacterFashionRequest,
     UpdateCharacterFashionResponse,
+    UpdateCharacterHeadFashionResponse,
+    UpdateCharacterWeaponFashionRequest,
+    UpdateCharacterWeaponFashionResponse,
     UpdateCharacterGradeRequest,
     UpdateCharacterGradeResponse,
     UpdateCharacterLevelupRequest,
@@ -159,8 +161,6 @@ async def health() -> dict[str, str]:
 async def app_info(request: Request) -> AppInfoResponse:
     settings = request.app.state.settings
     controller = request.app.state.pgr_server_controller
-    player_equips_service = request.app.state.player_equips_service
-    supports_weapon_overrun = player_equips_service.supports_weapon_overrun_data()
     return AppInfoResponse.model_validate({
         "name": settings.app_name,
         "mongo_db": settings.mongo_db,
@@ -185,8 +185,8 @@ async def app_info(request: Request) -> AppInfoResponse:
         "equip_icon_url_map": get_equip_icon_url_map(),
         "weapon_type_name_map": get_weapon_type_name_map(),
         "weapon_skill_entries_map": get_weapon_skill_entries_map(),
-        "weapon_overrun_suit_entries_map": get_weapon_overrun_suit_entries_map() if supports_weapon_overrun else None,
-        "weapon_overrun_suit_memory_ids_map": get_weapon_overrun_suit_memory_ids_map() if supports_weapon_overrun else None,
+        "weapon_overrun_suit_entries_map": get_weapon_overrun_suit_entries_map(),
+        "weapon_overrun_suit_memory_ids_map": get_weapon_overrun_suit_memory_ids_map(),
         "weapon_skill_pool_entries_map": get_weapon_skill_pool_entries_map(),
         "attrib_pool_entries_map": get_attrib_pool_entries_map(),
         "character_log_name_map": get_character_log_name_map(),
@@ -219,26 +219,6 @@ async def database_status(request: Request) -> DatabaseHealthStatusResponse:
     settings = request.app.state.settings
     snapshot = get_database_health_snapshot(settings)
     return DatabaseHealthStatusResponse.model_validate(snapshot)
-
-
-@router.post("/database-repair", response_model=DatabaseRepairResponse)
-async def repair_database(
-    request: Request,
-    login_session_token: str | None = Cookie(default=None),
-) -> DatabaseRepairResponse:
-    _get_active_session(login_session_token)
-    settings = request.app.state.settings
-    snapshot = get_database_health_snapshot(settings)
-    if not is_database_snapshot_healthy(snapshot):
-        raise_http_error(409, "database.unhealthy_accounts_access")
-
-    repair_service = request.app.state.database_repair_service
-    summary = await repair_service.repair_all_collections()
-    return DatabaseRepairResponse(
-        collections=summary.collections,
-        documents_scanned=summary.documents_scanned,
-        documents_updated=summary.documents_updated,
-    )
 
 
 @router.get("/database-accounts", response_model=AccountListResponse)
@@ -792,7 +772,7 @@ async def get_selected_database_characters(
         sort_by=sort_by,
         sort_order=sort_order,
     )
-    return CharacterManagementListResponse.model_validate(characters.model_dump(by_alias=True))
+    return CharacterManagementListResponse.model_validate(characters.model_dump())
 
 
 @router.get("/database-characters/available", response_model=CharacterAvailableListResponse, response_model_exclude_none=True)
@@ -839,7 +819,7 @@ async def add_selected_database_character(
             raise_http_error(500, "character.add_failed", {"character_id": payload.CharacterId})
         raise
 
-    return AddCharacterResponse.model_validate(result.model_dump(by_alias=True))
+    return AddCharacterResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/support", response_model=SetCharacterSupportResponse)
@@ -913,7 +893,7 @@ async def get_selected_database_character_weapon_candidates(
             raise_http_error(404, "character.not_found", {"record_id": record_id})
         raise
 
-    return CharacterWeaponCandidatesResponse.model_validate(result.model_dump(by_alias=True))
+    return CharacterWeaponCandidatesResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/weapon", response_model=SwitchCharacterWeaponResponse, response_model_exclude_none=True)
@@ -950,7 +930,7 @@ async def switch_selected_database_character_weapon(
             raise_http_error(500, "equips.update_failed", {"record_id": payload.WeaponRecordId})
         raise
 
-    return SwitchCharacterWeaponResponse.model_validate(result.model_dump(by_alias=True))
+    return SwitchCharacterWeaponResponse.model_validate(result.model_dump())
 
 
 @router.get("/database-characters/selected/{record_id}/memory-candidates", response_model=CharacterMemoryCandidatesResponse, response_model_exclude_none=True)
@@ -979,7 +959,7 @@ async def get_selected_database_character_memory_candidates(
             raise_http_error(422, "character.memory_slot_invalid", {"record_id": record_id, "slot": slot})
         raise
 
-    return CharacterMemoryCandidatesResponse.model_validate(result.model_dump(by_alias=True))
+    return CharacterMemoryCandidatesResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/memory", response_model=SwitchCharacterMemoryResponse, response_model_exclude_none=True)
@@ -1016,7 +996,6 @@ async def switch_selected_database_character_memory(
             raise_http_error(500, "equips.update_failed", {"record_id": payload.MemoryRecordId})
         raise
 
-    return SwitchCharacterMemoryResponse.model_validate(result.model_dump(by_alias=True))
 
 
 @router.put("/database-characters/selected/{record_id}/evolution", response_model=UpdateCharacterEvolutionResponse, response_model_exclude_none=True)
@@ -1052,7 +1031,7 @@ async def update_selected_database_character_evolution(
             raise_http_error(500, "character.update_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterEvolutionResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterEvolutionResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/levelup", response_model=UpdateCharacterLevelupResponse, response_model_exclude_none=True)
@@ -1090,7 +1069,7 @@ async def update_selected_database_character_levelup(
             raise_http_error(500, "character.update_levelup_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterLevelupResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterLevelupResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/skill", response_model=UpdateCharacterSkillResponse, response_model_exclude_none=True)
@@ -1126,7 +1105,7 @@ async def update_selected_database_character_skill(
             raise_http_error(500, "character.update_skill_failed", {"record_id": record_id, "skill_id": payload.SkillId})
         raise
 
-    return UpdateCharacterSkillResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterSkillResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/enhance-skill", response_model=UpdateCharacterSkillResponse, response_model_exclude_none=True)
@@ -1162,7 +1141,7 @@ async def update_selected_database_character_enhance_skill(
             raise_http_error(500, "character.update_enhance_skill_failed", {"record_id": record_id, "skill_id": payload.SkillId})
         raise
 
-    return UpdateCharacterSkillResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterSkillResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/awaken", response_model=UpdateCharacterAwakenResponse, response_model_exclude_none=True)
@@ -1197,7 +1176,7 @@ async def update_selected_database_character_awaken(
             raise_http_error(500, "character.update_awaken_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterAwakenResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterAwakenResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/fashion", response_model=UpdateCharacterFashionResponse, response_model_exclude_none=True)
@@ -1232,7 +1211,67 @@ async def update_selected_database_character_fashion(
             raise_http_error(500, "character.update_fashion_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterFashionResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterFashionResponse.model_validate(result.model_dump())
+
+
+@router.put("/database-characters/selected/{record_id}/head-fashion", response_model=UpdateCharacterHeadFashionResponse, response_model_exclude_none=True)
+async def update_selected_database_character_head_fashion(
+    record_id: int,
+    payload: UpdateCharacterFashionRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterHeadFashionResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+    try:
+        result = await characters_service.update_character_head_fashion(selected_uid, record_id, payload.FashionId)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_fashion":
+            raise_http_error(422, "character.update_invalid_fashion", {"record_id": record_id})
+        if error_message == "character.update_fashion_failed":
+            raise_http_error(500, "character.update_fashion_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterHeadFashionResponse.model_validate(result.model_dump())
+
+
+@router.put("/database-characters/selected/{record_id}/weapon-fashion", response_model=UpdateCharacterWeaponFashionResponse, response_model_exclude_none=True)
+async def update_selected_database_character_weapon_fashion(
+    record_id: int,
+    payload: UpdateCharacterWeaponFashionRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> UpdateCharacterWeaponFashionResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    snapshot = get_database_health_snapshot(settings)
+    if not is_database_snapshot_healthy(snapshot):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    characters_service = request.app.state.player_characters_service
+    try:
+        result = await characters_service.update_character_weapon_fashion(selected_uid, record_id, payload.FashionId)
+    except ValueError as error:
+        error_message = str(error)
+        if error_message == "character.not_found":
+            raise_http_error(404, "character.not_found", {"record_id": record_id})
+        if error_message == "character.update_invalid_weapon_fashion":
+            raise_http_error(422, "character.update_invalid_weapon_fashion", {"record_id": record_id})
+        if error_message == "character.update_weapon_fashion_failed":
+            raise_http_error(500, "character.update_weapon_fashion_failed", {"record_id": record_id})
+        raise
+
+    return UpdateCharacterWeaponFashionResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/max-all", response_model=MaxCharacterResponse, response_model_exclude_none=True)
@@ -1262,7 +1301,7 @@ async def max_selected_database_character(
             raise_http_error(500, "character.max_failed", {"record_id": record_id})
         raise
 
-    return MaxCharacterResponse.model_validate(result.model_dump(by_alias=True))
+    return MaxCharacterResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/max-all", response_model=MaxAllCharactersResponse, response_model_exclude_none=True)
@@ -1322,7 +1361,7 @@ async def update_selected_database_character_grade(
             raise_http_error(500, "character.update_grade_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterGradeResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterGradeResponse.model_validate(result.model_dump())
 
 
 @router.put("/database-characters/selected/{record_id}/trust", response_model=UpdateCharacterTrustResponse, response_model_exclude_none=True)
@@ -1358,7 +1397,7 @@ async def update_selected_database_character_trust(
             raise_http_error(500, "character.update_trust_failed", {"record_id": record_id})
         raise
 
-    return UpdateCharacterTrustResponse.model_validate(result.model_dump(by_alias=True))
+    return UpdateCharacterTrustResponse.model_validate(result.model_dump())
 
 
 @router.get("/database-memories/selected", response_model=EquipListResponse, response_model_exclude_none=True)

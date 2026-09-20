@@ -12,6 +12,8 @@ WEAPON_SKILL_TSV_PATH = Path("assets/WeaponSkill.tsv")
 WEAPON_SKILL_POOL_TSV_PATH = Path("assets/WeaponSkillPool.tsv")
 EQUIP_SUIT_TSV_PATH = Path("assets/EquipSuit.tsv")
 WEAPON_OVERRUN_TSV_PATH = Path("assets/WeaponOverrun.tsv")
+WEAPON_FASHION_TSV_PATH = Path("assets/WeaponFashion.tsv")
+WEAPON_FASHION_RES_TSV_PATH = Path("assets/WeaponFashionRes.tsv")
 
 LEVELUP_TEMPLATE_DIR = Path("assets/leveluptemplate")
 ROLE_WAFER_BAG_ASSET_PREFIX = "/assets/rolewaferbag/"

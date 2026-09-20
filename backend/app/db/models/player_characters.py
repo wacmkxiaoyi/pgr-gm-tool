@@ -9,6 +9,8 @@ CHARACTER_LIST_SCHEMA_PATH = "characters"
 FASHIONS_SCHEMA_PATH = "fashions"
 FASHION_ITEM_SCHEMA_PATH = "fashions.0"
 EQUIPS_SCHEMA_PATH = "equips"
+WEAPON_FASHIONS_SCHEMA_PATH = "weaponFashions"
+WEAPON_FASHION_ITEM_SCHEMA_PATH = "weaponFashions.0"
 
 
 class CharacterManagementItemRecord(BaseModel):
@@ -84,8 +86,19 @@ class UpdateCharacterFashionResponse(BaseModel):
     record_id: int
     CharacterId: int
     CurrentFahionId: int
+
+
+class UpdateCharacterHeadFashionResponse(BaseModel):
+    record_id: int
+    CharacterId: int
     HeadFashionId: int
-    HeadFashionType: int | None = None
+    HeadFashionType: int
+
+
+class UpdateCharacterWeaponFashionResponse(BaseModel):
+    record_id: int
+    CharacterId: int
+    CurrentWeaponFashionId: int | None = None
 
 
 class UpdateCharacterSkillResponse(BaseModel):
@@ -114,7 +127,9 @@ class CharacterFashionRecord(BaseModel):
     Quality: int
     IsLock: bool = True
     BigIcon: str
+    BigHeadIcon: str
     BigHeadIconFashion: str
+    BigHeadIconLiberation: str
     Name: str
     Description: str
 
@@ -157,6 +172,15 @@ class CharacterSkillInfoRecord(BaseModel):
     MaxLevel: int = 0
 
 
+class WeaponFashionRecord(BaseModel):
+    Id: int
+    Quality: int
+    IsLock: bool = True
+    BigIcon: str
+    Name: str
+    Description: str
+
+
 class CharacterExtraInfoRecord(BaseModel):
     TrustLv: int | None = None
     TrustExp: int | None = None
@@ -166,7 +190,13 @@ class CharacterExtraInfoRecord(BaseModel):
     QualityBound: list[int] = Field(default_factory=list)
     Intro: str | None = None
     CurrentFahionId: int | None = None
+    DefaultFashionId: int | None = None
+    HeadFashionId: int | None = None
+    HeadFashionType: int | None = None
     Fashions: list[CharacterFashionRecord] = Field(default_factory=list)
+    EquipType: int | None = None
+    CurrentWeaponFashionId: int | None = None
+    WeaponFashions: list[WeaponFashionRecord] = Field(default_factory=list)
     Weapon: CharacterDetailWeaponRecord | None = None
     Memories: list[CharacterDetailMemoryRecord] = Field(default_factory=list)
     SkillsList: list[CharacterSkillInfoRecord] = Field(default_factory=list)

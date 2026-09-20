@@ -4,15 +4,12 @@ from functools import lru_cache
 from typing import Any
 
 from backend.app.config import settings
-from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, ICON_TOOLS_ASSET_PREFIX, ROLE_CHARACTER_ASSET_PREFIX
+from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, ICON_TOOLS_ASSET_PREFIX, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH, ROLE_CHARACTER_ASSET_PREFIX
 from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map, get_equip_site_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
-
-
-REMOVED_FASHION_IDS = {6902301}
 
 
 def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[str, Any] | None:
@@ -29,13 +26,6 @@ def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[st
     }
 
 
-def _get_container_columns(reader: TSVReader, base_column: str, legacy_indexes: range) -> list[str]:
-    columns = list(reader.data[0]) if reader.data else []
-    if base_column in columns:
-        return [base_column]
-    return [f"{base_column}[{index}]" for index in legacy_indexes]
-
-
 def _parse_skill_level_id(value: Any) -> tuple[int, int] | None:
     text = str(value or "").strip()
     if len(text) < 3 or not text.isdigit():
@@ -50,7 +40,7 @@ def _parse_skill_level_id(value: Any) -> tuple[int, int] | None:
 
 def _build_character_skill_ids_map(character_skill_tsv_path: Any, skill_group_tsv_path: Any) -> dict[int, list[int]]:
     character_skill_reader = TSVReader(character_skill_tsv_path, typed=True)
-    skill_group_columns = _get_container_columns(character_skill_reader, "SkillGroupId", range(1, 17))
+    skill_group_columns = ["SkillGroupId"]
     character_skill_group_table = character_skill_reader.get_sub_table("CharacterId", skill_group_columns)
     character_skill_group_ids_map: dict[int, list[int]] = {}
 
@@ -62,7 +52,7 @@ def _build_character_skill_ids_map(character_skill_tsv_path: Any, skill_group_ts
         character_skill_group_ids_map[character_id] = extract_int_list(row, skill_group_columns, dedupe=True)
 
     skill_group_reader = TSVReader(skill_group_tsv_path, typed=True)
-    skill_columns = _get_container_columns(skill_group_reader, "SkillId", range(3))
+    skill_columns = ["SkillId"]
     skill_group_table = skill_group_reader.get_sub_table("Id", skill_columns)
     skill_group_skill_ids_map: dict[int, list[int]] = {}
 
@@ -191,7 +181,7 @@ def get_attrib_pool_entries_map() -> dict[int, list[dict[str, Any]]]:
 @lru_cache(maxsize=1)
 def get_character_skill_group_ids_map() -> dict[int, list[int]]:
     reader = TSVReader(CHARACTER_SKILL_TSV_PATH, typed=True)
-    skill_group_columns = _get_container_columns(reader, "SkillGroupId", range(1, 17))
+    skill_group_columns = ["SkillGroupId"]
     skill_group_table = reader.get_sub_table("CharacterId", skill_group_columns)
     normalized_map: dict[int, list[int]] = {}
 
@@ -208,7 +198,7 @@ def get_character_skill_group_ids_map() -> dict[int, list[int]]:
 @lru_cache(maxsize=1)
 def get_character_skill_group_skill_ids_map() -> dict[int, list[int]]:
     reader = TSVReader(CHARACTER_SKILL_GROUP_TSV_PATH, typed=True)
-    skill_columns = _get_container_columns(reader, "SkillId", range(3))
+    skill_columns = ["SkillId"]
     skill_group_table = reader.get_sub_table("Id", skill_columns)
     normalized_map: dict[int, list[int]] = {}
 
@@ -371,9 +361,67 @@ def get_character_max_liberate_level_map() -> dict[int, int]:
 
 
 @lru_cache(maxsize=1)
+def get_exhibition_fashion_id_map() -> dict[tuple[int, int], frozenset[int]]:
+    fashion_owner_by_id: dict[int, int] = {}
+    for row in TSVReader(FASHION_TSV_PATH, typed=True).select(["Id", "CharacterId"]):
+        fashion_id = parse_int(row.get("Id"))
+        character_id = parse_int(row.get("CharacterId"))
+        if fashion_id is not None and character_id is not None:
+            fashion_owner_by_id[fashion_id] = character_id
+
+    reward_goods_by_reward_id: dict[int, set[int]] = {}
+    for row in TSVReader(REWARD_TSV_PATH, typed=True).select(["Id", "SubIds"]):
+        reward_id = parse_int(row.get("Id"))
+        sub_ids = row.get("SubIds")
+        if reward_id is None or not isinstance(sub_ids, list):
+            continue
+        reward_goods_by_reward_id.setdefault(reward_id, set()).update(
+            good_id for value in sub_ids if (good_id := parse_int(value)) is not None
+        )
+
+    template_by_reward_goods_id: dict[int, int] = {}
+    for row in TSVReader(REWARD_GOODS_TSV_PATH, typed=True).select(["Id", "TemplateId"]):
+        reward_goods_id = parse_int(row.get("Id"))
+        template_id = parse_int(row.get("TemplateId"))
+        if reward_goods_id is not None and template_id is not None:
+            template_by_reward_goods_id[reward_goods_id] = template_id
+
+    mapped: dict[tuple[int, int], set[int]] = {}
+    for row in TSVReader(EXHIBITION_REWARD_TSV_PATH, typed=True).select(["CharacterId", "LevelId", "RewardId"]):
+        character_id = parse_int(row.get("CharacterId"))
+        level_id = parse_int(row.get("LevelId"))
+        reward_id = parse_int(row.get("RewardId"))
+        if character_id is None or level_id is None or reward_id is None:
+            continue
+
+        fashion_ids = {
+            template_id
+            for reward_goods_id in reward_goods_by_reward_id.get(reward_id, ())
+            for template_id in [template_by_reward_goods_id.get(reward_goods_id)]
+            if template_id is not None and fashion_owner_by_id.get(template_id) == character_id
+        }
+        if fashion_ids:
+            mapped.setdefault((character_id, level_id), set()).update(fashion_ids)
+
+    return {key: frozenset(fashion_ids) for key, fashion_ids in mapped.items()}
+
+
+@lru_cache(maxsize=1)
 def get_character_log_name_map() -> dict[int, str]:
     reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
     return normalize_int_text_map(reader.get_maps("Id", "LogName")[0])
+
+
+@lru_cache(maxsize=1)
+def get_character_default_fashion_id_map() -> dict[int, int]:
+    reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
+    normalized_map: dict[int, int] = {}
+    for row in reader.select(["Id", "DefaultNpcFashtionId"]):
+        character_id = parse_int(row.get("Id"))
+        fashion_id = parse_int(row.get("DefaultNpcFashtionId"))
+        if character_id is not None and fashion_id is not None and fashion_id > 0:
+            normalized_map[character_id] = fashion_id
+    return normalized_map
 
 
 @lru_cache(maxsize=1)
@@ -387,7 +435,7 @@ def get_character_head_icon_url_map() -> dict[int, str]:
 
         character_id = parse_int(row.get("CharacterId"))
         fashion_id = parse_int(row.get("Id"))
-        if character_id is None or fashion_id is None or fashion_id in REMOVED_FASHION_IDS:
+        if character_id is None or fashion_id is None:
             continue
 
         if character_id in normalized_map:
@@ -421,13 +469,15 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
         fashion_id = parse_int(row.get("Id"))
         quality = parse_int(row.get("Quality"))
 
-        if character_id is None or fashion_id is None or quality is None or fashion_id in REMOVED_FASHION_IDS:
+        if character_id is None or fashion_id is None or quality is None:
             continue
 
         big_icon = normalize_asset_path(str(row.get("BigIcon", "")), ICON_TOOLS_ASSET_PREFIX)
+        big_head_icon = normalize_asset_path(str(row.get("BigHeadIcon", "")), ROLE_CHARACTER_ASSET_PREFIX)
         big_head_icon_fashion = normalize_asset_path(str(row.get("BigHeadIconFashion", "")), ROLE_CHARACTER_ASSET_PREFIX)
+        big_head_icon_liberation = normalize_asset_path(str(row.get("BigHeadIconLiberation", "")), ROLE_CHARACTER_ASSET_PREFIX)
 
-        if big_icon is None or big_head_icon_fashion is None:
+        if big_icon is None or big_head_icon is None or big_head_icon_fashion is None:
             continue
 
         normalized_map.setdefault(character_id, []).append(
@@ -435,7 +485,9 @@ def get_character_fashions_map() -> dict[int, list[dict[str, int | str]]]:
                 "Id": fashion_id,
                 "Quality": quality,
                 "BigIcon": big_icon,
+                "BigHeadIcon": big_head_icon,
                 "BigHeadIconFashion": big_head_icon_fashion,
+                "BigHeadIconLiberation": big_head_icon_liberation or big_head_icon,
                 'Name': row.get('Name', ''),
                 'Description': row.get('WorldDescription', '')
             }

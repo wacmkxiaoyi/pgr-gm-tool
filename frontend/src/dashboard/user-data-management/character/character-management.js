@@ -19,10 +19,26 @@ const {
   characterDetailCard,
   characterDetailCloseTargets,
   characterDetailMainIcon,
+  characterDetailMainIconShell,
   characterDetailMainFashionShell,
   characterDetailMainFashionIcon,
   characterDetailMainFashionPlaceholder,
+  characterFashionSwitchModal,
+  characterFashionSwitchCard,
+  characterFashionSwitchCloseTargets,
+  characterFashionSwitchCurrent,
+  characterFashionSwitchConfirmButton,
   characterDetailFashions,
+  characterHeadFashionSwitchModal,
+  characterHeadFashionSwitchCurrent,
+  characterHeadFashionSwitchConfirmButton,
+  characterHeadFashionSwitchCloseTargets,
+  characterDetailHeadFashions,
+  characterWeaponFashionSwitchModal,
+  characterWeaponFashionSwitchCurrent,
+  characterWeaponFashionSwitchConfirmButton,
+  characterWeaponFashionSwitchCloseTargets,
+  characterDetailWeaponFashions,
   characterDetailWeapon,
   characterDetailMemories,
   characterDetailMaxAllButton,
@@ -154,7 +170,7 @@ app.getCharacterQualityEditState = () => {
     return null;
   }
 
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
   const star = Number.isFinite(Number(item?.Star)) ? Math.max(0, Number(item.Star)) : 0;
   const options = app.getCharacterQualitySelectableOptions(extraInfo);
@@ -315,7 +331,7 @@ app.getCharacterLevelEditState = () => {
     return null;
   }
 
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
   const exp = Number.isFinite(Number(extraInfo?.Exp)) ? Math.max(0, Number(extraInfo.Exp)) : 0;
   const levelExpMap = extraInfo?.LevelExpMap && typeof extraInfo.LevelExpMap === 'object' ? extraInfo.LevelExpMap : null;
@@ -495,7 +511,7 @@ app.getCharacterTrustEditState = () => {
     return null;
   }
 
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const bounds = app.getCharacterTrustBounds(trustExpMap);
   if (recordId === null || !bounds) {
     return null;
@@ -686,8 +702,8 @@ app.getCharacterGradeEditState = () => {
     return null;
   }
 
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
-  const characterId = Number.isFinite(Number(item?.CharacterId ?? item?._id ?? item?.record_id)) ? Number(item.CharacterId ?? item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
+  const characterId = Number.isFinite(Number(item?.CharacterId ?? item?.record_id)) ? Number(item.CharacterId ?? item.record_id) : null;
   const grade = Number.isFinite(Number(item?.Grade)) ? Math.max(1, Math.floor(Number(item.Grade))) : 0;
   const options = app.getCharacterGradeOptions(characterId);
   if (recordId === null || characterId === null || grade <= 0 || options.length === 0 || !options.some((option) => option.value === grade)) {
@@ -815,7 +831,7 @@ app.updateCharacterGrade = async () => {
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
         if (entryRecordId !== currentRecordId) {
           return entry;
         }
@@ -867,7 +883,7 @@ app.getCharacterAwakenEditState = () => {
     return null;
   }
 
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const rawAwakenLevel = Number.isFinite(Number(item?.AwakenLevel)) ? Math.max(0, Math.floor(Number(item.AwakenLevel))) : 0;
   const awakenLevel = Math.min(Math.max(rawAwakenLevel, 1), 5);
   const options = app.getCharacterAwakenSelectableOptions(extraInfo);
@@ -998,7 +1014,7 @@ app.updateCharacterAwaken = async () => {
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
         if (entryRecordId !== currentRecordId) {
           return entry;
         }
@@ -1014,7 +1030,7 @@ app.updateCharacterAwaken = async () => {
         ...state.currentCharacterDetailItem,
         AwakenLevel: updatedAwakenLevel,
       };
-      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+      await app.loadCharacterDetailExtraInfo(currentRecordId);
     }
 
     if (state.characterManagementHasLoaded && state.characterManagementItems.length > 0) {
@@ -1172,7 +1188,7 @@ app.updateCharacterQualityStar = async () => {
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
         if (entryRecordId !== currentRecordId) {
           return entry;
         }
@@ -1266,7 +1282,7 @@ app.updateCharacterLevelExp = async () => {
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?._id ?? entry?.record_id)) ? Number(entry._id ?? entry.record_id) : null;
+        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
         if (entryRecordId !== currentRecordId) {
           return entry;
         }
@@ -1387,9 +1403,15 @@ app.normalizeCharacterFashions = (extraInfo) => {
     const bigIcon = typeof fashion?.BigIcon === 'string' && fashion.BigIcon.trim()
       ? fashion.BigIcon.trim()
       : '';
+    const bigHeadIcon = typeof fashion?.BigHeadIcon === 'string' && fashion.BigHeadIcon.trim()
+      ? fashion.BigHeadIcon.trim()
+      : '';
     const bigHeadIconFashion = typeof fashion?.BigHeadIconFashion === 'string' && fashion.BigHeadIconFashion.trim()
       ? fashion.BigHeadIconFashion.trim()
       : '';
+    const bigHeadIconLiberation = typeof fashion?.BigHeadIconLiberation === 'string' && fashion.BigHeadIconLiberation.trim()
+      ? fashion.BigHeadIconLiberation.trim()
+      : bigHeadIcon;
     const name = typeof fashion?.Name === 'string' && fashion.Name.trim()
       ? fashion.Name.trim()
       : '--';
@@ -1397,7 +1419,7 @@ app.normalizeCharacterFashions = (extraInfo) => {
       ? fashion.Description.trim()
       : '--';
 
-    if (id === null || !bigIcon || !bigHeadIconFashion) {
+    if (id === null || !bigIcon || !bigHeadIcon || !bigHeadIconFashion) {
       return null;
     }
 
@@ -1406,7 +1428,9 @@ app.normalizeCharacterFashions = (extraInfo) => {
       Quality: quality,
       IsLock: Boolean(fashion?.IsLock),
       BigIcon: bigIcon,
+      BigHeadIcon: bigHeadIcon,
       BigHeadIconFashion: bigHeadIconFashion,
+      BigHeadIconLiberation: bigHeadIconLiberation,
       Name: name,
       Description: description,
     };
@@ -1425,6 +1449,24 @@ app.getCharacterDetailFashionTooltipText = (fashion) => {
     quality: Number.isFinite(Number(fashion.Quality)) ? Math.max(0, Number(fashion.Quality)) : 0,
   });
 };
+
+app.normalizeCharacterWeaponFashions = (extraInfo) => (Array.isArray(extraInfo?.WeaponFashions) ? extraInfo.WeaponFashions : [])
+  .map((fashion) => {
+    const id = Number(fashion?.Id);
+    if (!Number.isFinite(id)) return null;
+    const bigIcon = typeof fashion?.BigIcon === 'string' ? fashion.BigIcon.trim() : '';
+    if (!bigIcon) return null;
+    return {
+      Id: id,
+      Quality: Number.isFinite(Number(fashion?.Quality)) ? Math.max(0, Number(fashion.Quality)) : 0,
+      IsLock: Boolean(fashion?.IsLock),
+      BigIcon: bigIcon,
+      Name: typeof fashion?.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--',
+      Description: typeof fashion?.Description === 'string' && fashion.Description.trim() ? fashion.Description.trim() : '--',
+    };
+  }).filter(Boolean);
+
+app.getCharacterWeaponFashionTooltipText = (fashion) => app.getCharacterDetailFashionTooltipText(fashion);
 
 app.normalizeCharacterSkillList = (value) => {
   if (!Array.isArray(value)) {
@@ -1508,7 +1550,7 @@ app.getCharacterSkillEditState = () => {
     ? app.normalizeCharacterSkillList(extraInfo?.EnhanceSkillList)
     : app.normalizeCharacterSkillList(extraInfo?.SkillsList);
   const skillId = Number.isFinite(Number(modalState.skillId)) ? Number(modalState.skillId) : null;
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   if (skillId === null || recordId === null) {
     return null;
   }
@@ -1701,18 +1743,20 @@ app.renderCharacterFashionSlots = (fashions) => {
   const currentFashionId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId))
     ? Number(state.currentCharacterDetailExtraInfo.CurrentFahionId)
     : null;
+  const selectedFashionId = Number.isFinite(Number(state.characterFashionSwitchSelectedId))
+    ? Number(state.characterFashionSwitchSelectedId)
+    : currentFashionId;
   const isPending = state.characterFashionSwitchPending;
 
   characterDetailFashions.innerHTML = Array.isArray(fashions) ? fashions.map((fashion, index) => {
     const qualityEffectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
     const lockClass = fashion.IsLock ? ' is-locked' : '';
-    const isSelected = currentFashionId !== null && fashion.Id === currentFashionId;
+    const isSelected = selectedFashionId !== null && fashion.Id === selectedFashionId;
     const selectedClass = isSelected ? ' is-selected' : '';
     const pendingClass = isPending ? ' is-pending' : '';
     const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
-    const className = [
-      'character-detail-slot',
-      'character-detail-slot-small',
+    const previewClassName = [
+      'character-fashion-picker-preview',
       'character-detail-fashion-slot',
       lockClass.trim(),
       selectedClass,
@@ -1725,30 +1769,165 @@ app.renderCharacterFashionSlots = (fashions) => {
       : app.translate('dashboard.characterDetailFashionSwitchAction', { name: fashionName });
 
     return `
-      <div class="${className}" data-fashion-index="${index}" data-fashion-id="${fashion.Id}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" role="button" tabindex="0" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${currentFashionId !== null && fashion.Id === currentFashionId ? 'true' : 'false'}" aria-busy="${isPending ? 'true' : 'false'}" aria-disabled="${isPending ? 'true' : 'false'}">
-        <div class="character-detail-fashion-slot-image"></div>
+      <button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-fashion-index="${index}" data-fashion-id="${fashion.Id}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${isSelected ? 'true' : 'false'}" aria-busy="${isPending ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}>
+        <span class="${previewClassName}">
+          <img class="character-fashion-picker-preview-image" src=".${fashion.BigIcon}" alt="">
         ${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}
         ${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
-      </div>
+        </span>
+        <strong class="character-fashion-picker-name">${app.escapeHtml(fashionName)}</strong>
+      </button>
     `;
   }).join('') : '';
+};
 
-  if (!Array.isArray(fashions) || fashions.length === 0) {
+app.getCharacterHeadFashionPreviewUrl = (fashion, headFashionType) => {
+  if (!fashion) {
+    return '';
+  }
+
+  if (headFashionType === 1) {
+    return fashion.BigHeadIconLiberation;
+  }
+
+  return headFashionType === 2 ? fashion.BigHeadIconFashion : fashion.BigHeadIcon;
+};
+
+app.getCharacterHeadFashionType = (fashionId) => {
+  const extraInfo = state.currentCharacterDetailExtraInfo;
+  const currentFashionId = Number(extraInfo?.HeadFashionId);
+  if (fashionId === currentFashionId) {
+    return Number.isFinite(Number(extraInfo?.HeadFashionType)) ? Number(extraInfo.HeadFashionType) : 0;
+  }
+
+  const defaultFashionId = Number(extraInfo?.DefaultFashionId);
+  return fashionId === defaultFashionId && Number(state.currentCharacterDetailItem?.AwakenLevel) >= 4 ? 1 : fashionId === defaultFashionId ? 0 : 2;
+};
+
+app.renderCharacterHeadFashionSlots = (fashions) => {
+  if (!(characterDetailHeadFashions instanceof HTMLElement)) {
     return;
   }
 
-  Array.from(characterDetailFashions.querySelectorAll('.character-detail-fashion-slot')).forEach((slot) => {
-    if (!(slot instanceof HTMLElement)) {
-      return;
+  const currentFashionId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.HeadFashionId))
+    ? Number(state.currentCharacterDetailExtraInfo.HeadFashionId)
+    : null;
+  const selectedFashionId = Number.isFinite(Number(state.characterHeadFashionSwitchSelectedId))
+    ? Number(state.characterHeadFashionSwitchSelectedId)
+    : currentFashionId;
+  const isPending = state.characterHeadFashionSwitchPending;
+  characterDetailHeadFashions.innerHTML = fashions.map((fashion, index) => {
+    const isSelected = fashion.Id === selectedFashionId;
+    const qualityEffectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
+    const previewUrl = app.getCharacterHeadFashionPreviewUrl(fashion, app.getCharacterHeadFashionType(fashion.Id));
+    const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
+    return `
+      <button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-head-fashion-index="${index}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-pressed="${isSelected ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}>
+        <span class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock ? ' is-locked' : ''}${isSelected ? ' is-selected' : ''}${qualityEffectClass ? ` ${qualityEffectClass}` : ''}">
+          <img class="character-fashion-picker-preview-image" src=".${previewUrl}" alt="">
+          ${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}
+          ${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
+        </span>
+        <strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong>
+      </button>
+    `;
+  }).join('');
+};
+
+app.renderCharacterHeadFashionSwitchPicker = () => {
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  const headFashionId = Number(state.currentCharacterDetailExtraInfo?.HeadFashionId);
+  const currentFashion = fashions.find((fashion) => fashion.Id === headFashionId) ?? null;
+  if (characterHeadFashionSwitchCurrent instanceof HTMLElement) {
+    const name = currentFashion?.Name || '--';
+    const previewUrl = app.getCharacterHeadFashionPreviewUrl(currentFashion, Number(state.currentCharacterDetailExtraInfo?.HeadFashionType));
+    characterHeadFashionSwitchCurrent.innerHTML = `<div class="character-fashion-picker-summary-row"><span class="character-fashion-picker-summary-key">${app.escapeHtml(app.translate('runtime.portraitPickerCurrent'))}</span><span class="character-fashion-picker-summary-value"><span class="character-fashion-picker-summary-value-media"><span class="character-fashion-picker-summary-value-label">${app.escapeHtml(name)}</span>${previewUrl ? `<img class="character-fashion-picker-summary-value-icon" src=".${previewUrl}" alt="${app.escapeHtml(name)}">` : ''}</span></span></div>`;
+  }
+  app.renderCharacterHeadFashionSlots(fashions);
+  if (characterHeadFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterHeadFashionSwitchConfirmButton.disabled = state.characterHeadFashionSwitchPending
+      || !Number.isFinite(Number(state.characterHeadFashionSwitchSelectedId))
+      || Number(state.characterHeadFashionSwitchSelectedId) === headFashionId;
+  }
+};
+
+app.closeCharacterHeadFashionSwitchModal = () => {
+  if (!(characterHeadFashionSwitchModal instanceof HTMLElement) || characterHeadFashionSwitchModal.hidden) {
+    return;
+  }
+  characterHeadFashionSwitchModal.hidden = true;
+  app.hideCharacterDetailEquipTooltip();
+  state.characterHeadFashionSwitchSelectedId = null;
+  characterDetailMainIconShell?.focus();
+};
+
+app.openCharacterHeadFashionSwitchModal = () => {
+  if (!(characterHeadFashionSwitchModal instanceof HTMLElement) || !state.currentCharacterDetailItem) {
+    return;
+  }
+  characterHeadFashionSwitchModal.hidden = false;
+  app.setBodyModalOpen(true);
+  state.characterHeadFashionSwitchSelectedId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.HeadFashionId))
+    ? Number(state.currentCharacterDetailExtraInfo.HeadFashionId)
+    : null;
+  app.renderCharacterHeadFashionSwitchPicker();
+  characterDetailHeadFashions?.querySelector('.is-selected')?.focus();
+};
+
+app.confirmCharacterHeadFashionSwitch = async () => {
+  if (state.characterHeadFashionSwitchPending) {
+    return;
+  }
+  const item = state.currentCharacterDetailItem;
+  const recordId = Number(item?.record_id);
+  const fashionId = Number(state.characterHeadFashionSwitchSelectedId);
+  if (!Number.isFinite(recordId) || !Number.isFinite(fashionId)) {
+    return;
+  }
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  const fashion = fashions.find((entry) => entry.Id === fashionId);
+  if (!fashion) {
+    return;
+  }
+  state.characterHeadFashionSwitchPending = true;
+  app.renderCharacterHeadFashionSwitchPicker();
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/head-fashion`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ FashionId: fashionId }),
+    });
+    state.currentCharacterDetailExtraInfo = {
+      ...state.currentCharacterDetailExtraInfo,
+      HeadFashionId: Number(payload?.HeadFashionId) || fashionId,
+      HeadFashionType: Number.isFinite(Number(payload?.HeadFashionType)) ? Number(payload.HeadFashionType) : 2,
+      Fashions: fashions.map((entry) => entry.Id === fashionId ? { ...entry, IsLock: false } : entry),
+    };
+    app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    app.closeCharacterHeadFashionSwitchModal();
+  } catch (error) {
+    if (!app.isMutationRiskCancelled(error)) {
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterFashionUpdateFailed'));
     }
-    const index = Number.parseInt(slot.dataset.fashionIndex ?? '', 10);
-    const fashion = Number.isInteger(index) ? fashions[index] : null;
-    const image = slot.querySelector('.character-detail-fashion-slot-image');
-    if (!fashion || !(image instanceof HTMLElement)) {
-      return;
+  } finally {
+    state.characterHeadFashionSwitchPending = false;
+    if (characterHeadFashionSwitchModal instanceof HTMLElement && !characterHeadFashionSwitchModal.hidden) {
+      app.renderCharacterHeadFashionSwitchPicker();
     }
-    image.style.backgroundImage = `url(".${fashion.BigIcon}")`;
-  });
+  }
+};
+
+app.handleCharacterHeadFashionSlotActivate = (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || event.type === 'keydown' || state.characterHeadFashionSwitchPending) {
+    return;
+  }
+  const slot = target.closest('[data-head-fashion-index]');
+  const index = Number(slot?.dataset.headFashionIndex);
+  const fashion = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo)[index];
+  if (!fashion) {
+    return;
+  }
+  state.characterHeadFashionSwitchSelectedId = fashion.Id;
+  app.renderCharacterHeadFashionSwitchPicker();
 };
 
 app.switchCharacterFashion = async (fashionIndex) => {
@@ -1758,7 +1937,7 @@ app.switchCharacterFashion = async (fashionIndex) => {
 
   const item = state.currentCharacterDetailItem;
   const extraInfo = state.currentCharacterDetailExtraInfo;
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const fashions = Array.isArray(extraInfo?.Fashions) ? extraInfo.Fashions : [];
   const targetFashion = Number.isInteger(fashionIndex) ? fashions[fashionIndex] : null;
   const currentFashionId = Number.isFinite(Number(extraInfo?.CurrentFahionId)) ? Number(extraInfo.CurrentFahionId) : null;
@@ -1770,6 +1949,7 @@ app.switchCharacterFashion = async (fashionIndex) => {
   if (state.currentCharacterDetailItem) {
     app.populateCharacterDetailCard(state.currentCharacterDetailItem);
   }
+  app.renderCharacterFashionSwitchPicker();
 
   try {
     const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/fashion`, {
@@ -1810,30 +1990,114 @@ app.switchCharacterFashion = async (fashionIndex) => {
       }),
       app.translate('runtime.characterFashionUpdateSuccessTitle'),
     );
+    return true;
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
-      return;
+      return false;
     }
 
     app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterFashionUpdateFailed'));
+    return false;
   } finally {
     state.characterFashionSwitchPending = false;
     if (state.currentCharacterDetailItem) {
       app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     }
+    app.renderCharacterFashionSwitchPicker();
+  }
+};
+
+app.confirmCharacterFashionSwitch = async () => {
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  const selectedFashionId = Number(state.characterFashionSwitchSelectedId);
+  const fashionIndex = fashions.findIndex((fashion) => fashion.Id === selectedFashionId);
+  if (fashionIndex < 0) {
+    return;
+  }
+
+  if (await app.switchCharacterFashion(fashionIndex)) {
+    app.closeCharacterFashionSwitchModal();
+  }
+};
+
+app.renderCharacterFashionSwitchCurrent = () => {
+  if (!(characterFashionSwitchCurrent instanceof HTMLElement)) {
+    return;
+  }
+
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId);
+  const currentFashion = fashions.find((fashion) => fashion.Id === currentFashionId) ?? null;
+  const currentName = currentFashion?.Name || '--';
+  characterFashionSwitchCurrent.innerHTML = `
+    <div class="character-fashion-picker-summary-row">
+      <span class="character-fashion-picker-summary-key">${app.escapeHtml(app.translate('runtime.portraitPickerCurrent'))}</span>
+      <span class="character-fashion-picker-summary-value">
+        <span class="character-fashion-picker-summary-value-media">
+          <span class="character-fashion-picker-summary-value-label">${app.escapeHtml(currentName)}</span>
+          ${currentFashion ? `<img class="character-fashion-picker-summary-value-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(currentName)}">` : ''}
+        </span>
+      </span>
+    </div>
+  `;
+};
+
+app.renderCharacterFashionSwitchPicker = () => {
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  app.renderCharacterFashionSwitchCurrent();
+  app.renderCharacterFashionSlots(fashions);
+  const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId);
+  if (characterFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterFashionSwitchConfirmButton.disabled = state.characterFashionSwitchPending
+      || !Number.isFinite(Number(state.characterFashionSwitchSelectedId))
+      || Number(state.characterFashionSwitchSelectedId) === currentFashionId;
+  }
+};
+
+app.closeCharacterFashionSwitchModal = () => {
+  if (!(characterFashionSwitchModal instanceof HTMLElement) || characterFashionSwitchModal.hidden) {
+    return;
+  }
+
+  characterFashionSwitchModal.hidden = true;
+  app.hideCharacterDetailEquipTooltip();
+  state.characterFashionSwitchSelectedId = null;
+  if (characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden) {
+    characterDetailMainFashionShell?.focus();
+  } else {
+    app.setBodyModalOpen(false);
+  }
+};
+
+app.openCharacterFashionSwitchModal = () => {
+  if (!(characterFashionSwitchModal instanceof HTMLElement) || !state.currentCharacterDetailItem) {
+    return;
+  }
+
+  characterFashionSwitchModal.hidden = false;
+  app.setBodyModalOpen(true);
+  state.characterFashionSwitchSelectedId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId))
+    ? Number(state.currentCharacterDetailExtraInfo.CurrentFahionId)
+    : null;
+  app.renderCharacterFashionSwitchPicker();
+  const selectedItem = characterDetailFashions?.querySelector('.is-selected');
+  if (selectedItem instanceof HTMLElement) {
+    selectedItem.focus();
+  } else {
+    characterFashionSwitchCard?.focus();
   }
 };
 
 app.maxCurrentCharacterDetail = async () => {
   const item = state.currentCharacterDetailItem;
-  const recordId = Number.isFinite(Number(item?._id ?? item?.record_id)) ? Number(item._id ?? item.record_id) : null;
+  const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   if (recordId === null || state.characterFashionSwitchPending) {
     return;
   }
 
   app.openCharacterMaxAllModal({
     recordId,
-    characterName: app.getCharacterNameByCharacterId(item?.CharacterId ?? item?._id ?? recordId),
+    characterName: app.getCharacterNameByCharacterId(item?.CharacterId ?? item?.record_id ?? recordId),
   });
 };
 
@@ -1856,7 +2120,7 @@ app.executeCharacterMaxAll = async (recordId) => {
     await app.loadSelectedAccountCharacters(state.characterManagementCurrentPage || 1);
 
     const updatedItem = Array.isArray(state.characterManagementItems)
-      ? state.characterManagementItems.find((entry) => Number(entry?._id ?? entry?.record_id) === normalizedRecordId) || null
+      ? state.characterManagementItems.find((entry) => Number(entry?.record_id) === normalizedRecordId) || null
       : null;
 
     if (updatedItem) {
@@ -1870,7 +2134,7 @@ app.executeCharacterMaxAll = async (recordId) => {
 
     app.openSuccessModal(
       app.translate('runtime.characterDetailMaxAllSuccess', {
-        characterName: app.getCharacterNameByCharacterId(state.currentCharacterDetailItem?.CharacterId ?? state.currentCharacterDetailItem?._id ?? normalizedRecordId),
+        characterName: app.getCharacterNameByCharacterId(state.currentCharacterDetailItem?.CharacterId ?? state.currentCharacterDetailItem?.record_id ?? normalizedRecordId),
       }),
       app.translate('runtime.characterDetailMaxAllSuccessTitle'),
     );
@@ -1894,12 +2158,12 @@ app.handleCharacterFashionSlotActivate = (event) => {
     return;
   }
 
-  const slot = target.closest('.character-detail-fashion-slot');
-  if (!(slot instanceof HTMLElement) || !characterDetailFashions.contains(slot)) {
+  const slot = target.closest('.character-fashion-picker-item');
+  if (!(slot instanceof HTMLButtonElement) || !characterDetailFashions.contains(slot)) {
     return;
   }
 
-  if (state.characterFashionSwitchPending || slot.getAttribute('aria-disabled') === 'true') {
+  if (state.characterFashionSwitchPending || slot.disabled) {
     if (event.type === 'keydown') {
       event.preventDefault();
     }
@@ -1907,10 +2171,7 @@ app.handleCharacterFashionSlotActivate = (event) => {
   }
 
   if (event.type === 'keydown') {
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
-    event.preventDefault();
+    return;
   }
 
   const index = Number.parseInt(slot.dataset.fashionIndex ?? '', 10);
@@ -1918,11 +2179,18 @@ app.handleCharacterFashionSlotActivate = (event) => {
     return;
   }
 
-  void app.switchCharacterFashion(index);
+  const fashions = app.normalizeCharacterFashions(state.currentCharacterDetailExtraInfo);
+  const fashion = fashions[index];
+  if (!fashion) {
+    return;
+  }
+
+  state.characterFashionSwitchSelectedId = fashion.Id;
+  app.renderCharacterFashionSwitchPicker();
 };
 
 app.normalizeCharacterDetailEquip = (equip) => {
-  const recordId = Number.isFinite(Number(equip?._id ?? equip?.record_id)) ? Number(equip._id ?? equip.record_id) : null;
+  const recordId = Number.isFinite(Number(equip?.record_id)) ? Number(equip.record_id) : null;
   const templateId = Number.isFinite(Number(equip?.TemplateId)) ? Number(equip.TemplateId) : null;
   if (recordId === null || templateId === null) {
     return null;
@@ -2079,11 +2347,121 @@ app.renderCharacterDetailWeaponSlot = (weapon) => {
   }
 
   const actionText = app.translate('dashboard.characterDetailWeaponSwitchAction');
+  const weaponFashions = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo);
+  const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId);
+  const currentFashion = weaponFashions.find((fashion) => fashion.Id === currentFashionId) ?? null;
+  const fashionTooltipText = currentFashion ? app.escapeHtml(app.getCharacterWeaponFashionTooltipText(currentFashion)) : '';
+  const fashionClass = currentFashion ? app.getFashionQualityEffectClass(currentFashion.Quality) : '';
+  const fashionActionText = app.translate('dashboard.characterDetailWeaponFashionSwitchAction');
   characterDetailWeapon.innerHTML = `
-    <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-trigger aria-label="${app.escapeHtml(actionText)}">
-      ${app.renderCharacterDetailEquipSlot(weapon, 'character-detail-slot-medium', null, false)}
-    </button>
+    <div class="character-detail-weapon-slots">
+      <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-trigger aria-label="${app.escapeHtml(actionText)}">
+        ${app.renderCharacterDetailEquipSlot(weapon, 'character-detail-slot-medium', null, false)}
+      </button>
+      <span class="character-detail-weapon-fashion-guide" aria-hidden="true">&gt;&gt;&gt;</span>
+      <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-fashion-trigger aria-label="${app.escapeHtml(fashionActionText)}">
+        ${currentFashion
+          ? `<div class="character-detail-slot character-detail-slot-medium character-detail-equip-slot${fashionClass ? ` ${fashionClass}` : ''}" data-character-detail-equip-slot data-equip-tooltip-text="${fashionTooltipText}"><img class="character-detail-equip-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(currentFashion.Name)}"></div>`
+          : '<div class="character-detail-slot character-detail-slot-medium is-empty"></div>'}
+      </button>
+    </div>
   `;
+};
+
+app.renderCharacterWeaponFashionSwitchPicker = () => {
+  const fashions = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo);
+  const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId);
+  const currentFashion = fashions.find((fashion) => fashion.Id === currentFashionId) ?? null;
+  const selectedFashionId = Number(state.characterWeaponFashionSwitchSelectedId);
+  const isPending = state.characterWeaponFashionSwitchPending;
+
+  if (characterWeaponFashionSwitchCurrent instanceof HTMLElement) {
+    const name = currentFashion?.Name || '--';
+    characterWeaponFashionSwitchCurrent.innerHTML = `<div class="character-fashion-picker-summary-row"><span class="character-fashion-picker-summary-key">${app.escapeHtml(app.translate('dashboard.characterDetailWeaponFashionCurrent'))}</span><span class="character-fashion-picker-summary-value"><span class="character-fashion-picker-summary-value-media"><span class="character-fashion-picker-summary-value-label">${app.escapeHtml(name)}</span>${currentFashion ? `<img class="character-fashion-picker-summary-value-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(name)}">` : ''}</span></span></div>`;
+  }
+
+  if (characterDetailWeaponFashions instanceof HTMLElement) {
+    characterDetailWeaponFashions.innerHTML = fashions.map((fashion, index) => {
+      const isSelected = fashion.Id === selectedFashionId;
+      const effectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
+      const tooltipText = app.escapeHtml(app.getCharacterWeaponFashionTooltipText(fashion));
+      const actionText = fashion.IsLock
+        ? app.translate('dashboard.characterDetailWeaponFashionUnlockAndSwitchAction', { name: fashion.Name })
+        : isSelected && fashion.Id === currentFashionId
+          ? app.translate('dashboard.characterDetailWeaponFashionUnequipAction', { name: fashion.Name })
+          : app.translate('dashboard.characterDetailWeaponFashionSwitchAction', { name: fashion.Name });
+      return `<button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-weapon-fashion-index="${index}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${isSelected ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}><span class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock ? ' is-locked' : ''}${isSelected ? ' is-selected' : ''}${effectClass ? ` ${effectClass}` : ''}"><img class="character-fashion-picker-preview-image" src=".${fashion.BigIcon}" alt="">${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}</span><strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong></button>`;
+    }).join('');
+  }
+
+  if (characterWeaponFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterWeaponFashionSwitchConfirmButton.disabled = isPending
+      || (Number.isFinite(selectedFashionId) && selectedFashionId === currentFashionId)
+      || (!Number.isFinite(selectedFashionId) && !Number.isFinite(currentFashionId));
+  }
+};
+
+app.closeCharacterWeaponFashionSwitchModal = () => {
+  if (!(characterWeaponFashionSwitchModal instanceof HTMLElement) || characterWeaponFashionSwitchModal.hidden) return;
+  characterWeaponFashionSwitchModal.hidden = true;
+  app.hideCharacterDetailEquipTooltip();
+  state.characterWeaponFashionSwitchSelectedId = null;
+  if (characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden) app.setBodyModalOpen(true);
+};
+
+app.openCharacterWeaponFashionSwitchModal = (trigger = null) => {
+  if (!(characterWeaponFashionSwitchModal instanceof HTMLElement) || !state.currentCharacterDetailItem) return;
+  const currentFashionId = state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId;
+  state.characterWeaponFashionSwitchSelectedId = currentFashionId !== null && currentFashionId !== undefined && Number.isFinite(Number(currentFashionId))
+    ? Number(currentFashionId)
+    : null;
+  state.lastCharacterWeaponFashionSwitchTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  characterWeaponFashionSwitchModal.hidden = false;
+  app.setBodyModalOpen(true);
+  app.renderCharacterWeaponFashionSwitchPicker();
+  characterDetailWeaponFashions?.querySelector('.is-selected')?.focus();
+};
+
+app.confirmCharacterWeaponFashionSwitch = async () => {
+  if (state.characterWeaponFashionSwitchPending) return;
+  const recordId = Number(state.currentCharacterDetailItem?.record_id);
+  const selectedFashionId = state.characterWeaponFashionSwitchSelectedId;
+  const fashionId = Number.isFinite(Number(selectedFashionId)) ? Number(selectedFashionId) : null;
+  if (!Number.isFinite(recordId)) return;
+
+  state.characterWeaponFashionSwitchPending = true;
+  app.renderCharacterWeaponFashionSwitchPicker();
+  try {
+    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/weapon-fashion`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ FashionId: fashionId }),
+    });
+    const fashions = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo);
+    state.currentCharacterDetailExtraInfo = {
+      ...state.currentCharacterDetailExtraInfo,
+      CurrentWeaponFashionId: Number.isFinite(Number(payload?.CurrentWeaponFashionId)) ? Number(payload.CurrentWeaponFashionId) : null,
+      WeaponFashions: fashions.map((fashion) => fashion.Id === fashionId ? { ...fashion, IsLock: false } : fashion),
+    };
+    app.populateCharacterDetailCard(state.currentCharacterDetailItem);
+    app.closeCharacterWeaponFashionSwitchModal();
+  } catch (error) {
+    if (!app.isMutationRiskCancelled(error)) app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterWeaponFashionUpdateFailed'));
+  } finally {
+    state.characterWeaponFashionSwitchPending = false;
+    if (characterWeaponFashionSwitchModal instanceof HTMLElement && !characterWeaponFashionSwitchModal.hidden) app.renderCharacterWeaponFashionSwitchPicker();
+  }
+};
+
+app.handleCharacterWeaponFashionSlotActivate = (event) => {
+  if (event.type === 'keydown') return;
+  const target = event.target;
+  if (!(target instanceof HTMLElement) || state.characterWeaponFashionSwitchPending) return;
+  const slot = target.closest('[data-weapon-fashion-index]');
+  const fashion = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo)[Number(slot?.dataset.weaponFashionIndex)];
+  if (!fashion) return;
+  state.characterWeaponFashionSwitchSelectedId = fashion.Id === Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId)
+    ? null
+    : fashion.Id;
+  app.renderCharacterWeaponFashionSwitchPicker();
 };
 
 app.renderCharacterDetailMemorySlots = (memories) => {
@@ -2284,22 +2662,22 @@ app.getCharacterTrustSymbol = (trustLv) => {
   if (normalizedTrustLv <= 0) {
     return '';
   }
-  if (normalizedTrustLv <= 2) {
+  if (normalizedTrustLv === 1) {
     return '🖤';
   }
-  if (normalizedTrustLv <= 4) {
+  if (normalizedTrustLv <= 3) {
     return '💛';
   }
-  if (normalizedTrustLv === 5) {
+  if (normalizedTrustLv === 4) {
     return '🧡';
   }
-  if (normalizedTrustLv === 6) {
+  if (normalizedTrustLv === 5) {
     return '❤️';
   }
-  if (normalizedTrustLv === 7) {
+  if (normalizedTrustLv === 6) {
     return '💓';
   }
-  if (normalizedTrustLv === 8) {
+  if (normalizedTrustLv <= 8) {
     return '💗';
   }
   return '';
@@ -2440,7 +2818,7 @@ app.renderCharacterRows = (items) => {
     const characterId = item?.CharacterId ?? null;
     const characterName = app.getCharacterNameByCharacterId(characterId);
     const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
-    const recordId = Number.isFinite(Number(item?._id)) ? Number(item._id) : null;
+    const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
     const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
     const star = Number.isFinite(Number(item?.Star)) ? Number(item.Star) : 0;
     const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
@@ -2750,6 +3128,8 @@ app.populateCharacterDetailCard = (item) => {
   const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
   const trustLv = Number.isFinite(Number(extraInfo?.TrustLv)) ? Math.max(0, Number(extraInfo.TrustLv)) : null;
   const currentFahionId = Number.isFinite(Number(extraInfo?.CurrentFahionId)) ? Number(extraInfo.CurrentFahionId) : null;
+  const headFashionId = Number.isFinite(Number(extraInfo?.HeadFashionId)) ? Number(extraInfo.HeadFashionId) : null;
+  const headFashionType = Number.isFinite(Number(extraInfo?.HeadFashionType)) ? Number(extraInfo.HeadFashionType) : 0;
   const fashions = app.normalizeCharacterFashions(extraInfo);
   const weapon = extraInfo?.Weapon && typeof extraInfo.Weapon === 'object' ? extraInfo.Weapon : null;
   const memories = Array.isArray(extraInfo?.Memories) ? extraInfo.Memories : [];
@@ -2759,12 +3139,19 @@ app.populateCharacterDetailCard = (item) => {
     ? null
     : fashions.find((fashion) => fashion.Id === currentFahionId) ?? null;
   const unlockedCurrentFashion = currentFashion && currentFashion.IsLock === false ? currentFashion : null;
+  const headFashion = headFashionId === null ? null : fashions.find((fashion) => fashion.Id === headFashionId) ?? null;
   const introText = typeof extraInfo?.Intro === 'string' && extraInfo.Intro.trim()
     ? extraInfo.Intro.trim()
     : '--';
   const characterName = app.getCharacterNameByCharacterId(characterId);
   const iconUrl = app.getCharacterIconByCharacterId(characterId);
-  const displayMainIconUrl = unlockedCurrentFashion?.BigHeadIconFashion || iconUrl;
+  const displayMainIconUrl = headFashion
+    ? headFashionType === 1
+      ? headFashion.BigHeadIconLiberation
+      : headFashionType === 2
+        ? headFashion.BigHeadIconFashion
+        : headFashion.BigHeadIcon
+    : iconUrl;
   const gradeName = typeof item?.GradeName === 'string' && item.GradeName.trim() ? item.GradeName.trim() : '--';
   const qualityText = app.getCharacterQualityDisplayLabel(quality, star);
   const awakenText = app.getCharacterAwakenDisplay(awakenLevel);
@@ -2798,6 +3185,25 @@ app.populateCharacterDetailCard = (item) => {
     }
   }
 
+  if (characterDetailMainIconShell instanceof HTMLElement) {
+    const headFashionEffectClass = headFashion
+      ? Number(headFashion.Quality) === 1
+        ? 'fashion-quality-tier-1'
+        : app.getFashionQualityEffectClass(headFashion.Quality)
+      : '';
+    characterDetailMainIconShell.className = [
+      'character-detail-main-icon-shell-button',
+      headFashionEffectClass,
+    ].filter(Boolean).join(' ');
+    if (headFashion) {
+      characterDetailMainIconShell.dataset.characterDetailEquipSlot = '';
+      characterDetailMainIconShell.dataset.equipTooltipText = app.getCharacterDetailFashionTooltipText(headFashion);
+    } else {
+      delete characterDetailMainIconShell.dataset.characterDetailEquipSlot;
+      delete characterDetailMainIconShell.dataset.equipTooltipText;
+    }
+  }
+
   if (characterDetailMainFashionShell instanceof HTMLElement) {
     const fashionEffectClass = unlockedCurrentFashion ? app.getFashionQualityEffectClass(unlockedCurrentFashion.Quality) : '';
     characterDetailMainFashionShell.className = [
@@ -2806,6 +3212,13 @@ app.populateCharacterDetailCard = (item) => {
       fashionEffectClass,
     ].filter(Boolean).join(' ');
     characterDetailMainFashionShell.hidden = false;
+    if (unlockedCurrentFashion) {
+      characterDetailMainFashionShell.dataset.characterDetailEquipSlot = '';
+      characterDetailMainFashionShell.dataset.equipTooltipText = app.getCharacterDetailFashionTooltipText(unlockedCurrentFashion);
+    } else {
+      delete characterDetailMainFashionShell.dataset.characterDetailEquipSlot;
+      delete characterDetailMainFashionShell.dataset.equipTooltipText;
+    }
   }
 
   if (characterDetailMainFashionIcon instanceof HTMLImageElement) {
@@ -2889,6 +3302,9 @@ app.closeCharacterDetailModal = () => {
   }
 
   app.closeWeaponDetailModal?.();
+  app.closeCharacterFashionSwitchModal();
+  app.closeCharacterHeadFashionSwitchModal();
+  app.closeCharacterWeaponFashionSwitchModal();
   app.closeCharacterWeaponSwitchModal?.();
   app.closeCharacterQualityEditModal();
   app.closeCharacterLevelEditModal();
@@ -2903,6 +3319,8 @@ app.closeCharacterDetailModal = () => {
   state.currentCharacterDetailExtraInfo = null;
   state.characterDetailLoading = false;
   state.characterFashionSwitchPending = false;
+  state.characterHeadFashionSwitchPending = false;
+  state.characterWeaponFashionSwitchPending = false;
 
   if (state.lastCharacterDetailTrigger instanceof HTMLElement) {
     state.lastCharacterDetailTrigger.focus();
@@ -2929,7 +3347,7 @@ app.openCharacterDetailModal = (recordId, triggerButton) => {
   }
 
   const item = state.characterManagementItems?.find(
-    (i) => (i?._id ?? i?.record_id) === recordId
+    (i) => i?.record_id === recordId
   );
   if (!item) {
     return;
@@ -2939,6 +3357,7 @@ app.openCharacterDetailModal = (recordId, triggerButton) => {
   state.currentCharacterDetailItem = item;
   state.currentCharacterDetailExtraInfo = null;
   state.characterFashionSwitchPending = false;
+  state.characterWeaponFashionSwitchPending = false;
   app.hideCharacterDetailEquipTooltip();
   app.populateCharacterDetailCard(item);
   characterDetailModal.hidden = false;
@@ -3037,6 +3456,50 @@ export const initDatabaseCharacterManagementFeature = () => {
     });
   }
 
+  if (characterFashionSwitchModal instanceof HTMLElement) {
+    ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
+      characterFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+    });
+  }
+
+  if (characterHeadFashionSwitchModal instanceof HTMLElement) {
+    ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
+      characterHeadFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+    });
+    characterHeadFashionSwitchModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterHeadFashionSwitchModal();
+      }
+    });
+  }
+
+  if (characterWeaponFashionSwitchModal instanceof HTMLElement) {
+    ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
+      characterWeaponFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+    });
+    characterWeaponFashionSwitchModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') app.closeCharacterWeaponFashionSwitchModal();
+    });
+  }
+
+  if (characterFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterFashionSwitchConfirmButton.addEventListener('click', () => {
+      void app.confirmCharacterFashionSwitch();
+    });
+  }
+
+  if (characterHeadFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterHeadFashionSwitchConfirmButton.addEventListener('click', () => {
+      void app.confirmCharacterHeadFashionSwitch();
+    });
+  }
+
+  if (characterWeaponFashionSwitchConfirmButton instanceof HTMLButtonElement) {
+    characterWeaponFashionSwitchConfirmButton.addEventListener('click', () => {
+      void app.confirmCharacterWeaponFashionSwitch();
+    });
+  }
+
   if (characterDetailModal instanceof HTMLElement) {
     characterDetailModal.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -3048,6 +3511,55 @@ export const initDatabaseCharacterManagementFeature = () => {
   if (characterDetailFashions instanceof HTMLElement) {
     characterDetailFashions.addEventListener('click', app.handleCharacterFashionSlotActivate);
     characterDetailFashions.addEventListener('keydown', app.handleCharacterFashionSlotActivate);
+  }
+
+  if (characterDetailHeadFashions instanceof HTMLElement) {
+    characterDetailHeadFashions.addEventListener('click', app.handleCharacterHeadFashionSlotActivate);
+    characterDetailHeadFashions.addEventListener('keydown', app.handleCharacterHeadFashionSlotActivate);
+  }
+
+  if (characterDetailWeaponFashions instanceof HTMLElement) {
+    characterDetailWeaponFashions.addEventListener('click', app.handleCharacterWeaponFashionSlotActivate);
+  }
+
+  if (characterDetailMainIconShell instanceof HTMLButtonElement) {
+    characterDetailMainIconShell.addEventListener('click', app.openCharacterHeadFashionSwitchModal);
+  }
+
+  if (characterDetailMainFashionShell instanceof HTMLButtonElement) {
+    characterDetailMainFashionShell.addEventListener('click', app.openCharacterFashionSwitchModal);
+  }
+
+  characterFashionSwitchCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterFashionSwitchModal);
+  });
+
+  characterHeadFashionSwitchCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterHeadFashionSwitchModal);
+  });
+
+  characterWeaponFashionSwitchCloseTargets.forEach((target) => {
+    target.addEventListener('click', app.closeCharacterWeaponFashionSwitchModal);
+  });
+
+  if (characterDetailWeapon instanceof HTMLElement) {
+    characterDetailWeapon.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      const trigger = target.closest('[data-character-detail-weapon-fashion-trigger]');
+      if (trigger instanceof HTMLButtonElement) {
+        event.preventDefault();
+        app.openCharacterWeaponFashionSwitchModal(trigger);
+      }
+    });
+  }
+
+  if (characterFashionSwitchModal instanceof HTMLElement) {
+    characterFashionSwitchModal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        app.closeCharacterFashionSwitchModal();
+      }
+    });
   }
 
   if (characterDetailMaxAllButton instanceof HTMLButtonElement) {

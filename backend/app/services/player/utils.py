@@ -70,37 +70,13 @@ def extract_int_list(sub_row: dict[str, object], columns: list[str], dedupe: boo
         if isinstance(raw_value, list):
             for item in raw_value:
                 append_value(item)
-            continue
-        if isinstance(raw_value, dict):
-            for _, item in sorted(
-                raw_value.items(),
-                key=lambda pair: parse_int(pair[0]) if parse_int(pair[0]) is not None else float("inf"),
-            ):
-                append_value(item)
-            continue
-        append_value(raw_value)
+
     return values
 
 
-def unwrap_bson_numeric(value: Any) -> Any:
-    if isinstance(value, dict):
-        if "$numberLong" in value:
-            return parse_optional_int(value.get("$numberLong"))
-        if "$numberInt" in value:
-            return parse_optional_int(value.get("$numberInt"))
-        if "$numberDouble" in value:
-            raw = value.get("$numberDouble")
-            try:
-                return float(raw)
-            except (TypeError, ValueError):
-                return raw
-    return value
-
-
 def parse_optional_int(value: Any) -> int | None:
-    normalized = unwrap_bson_numeric(value)
     try:
-        return int(normalized)
+        return int(value)
     except (TypeError, ValueError):
         return None
 
@@ -108,8 +84,7 @@ def parse_optional_int(value: Any) -> int | None:
 def parse_optional_string(value: Any) -> str | None:
     if value is None:
         return None
-    normalized = unwrap_bson_numeric(value)
-    text = str(normalized)
+    text = str(value)
     return text if text else None
 
 
@@ -137,9 +112,4 @@ def ordered_number_key(value: int, sort_order: str) -> int:
 
 
 def matching_uid_query(uid: int) -> dict[str, Any]:
-    return {
-        "$or": [
-            {"_id": {"$in": [uid, Int64(uid), str(uid)]}},
-            {"uid": {"$in": [uid, Int64(uid), str(uid)]}},
-        ],
-    }
+    return {"uid": Int64(uid)}

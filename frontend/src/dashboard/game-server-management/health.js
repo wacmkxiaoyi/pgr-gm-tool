@@ -1,7 +1,7 @@
 import { app } from '../shared.js';
 
 const { dom, state, constants } = app;
-const { sdkGrid, gameGrid, databaseGrid, serverVersionLabel, intervalLabel, databaseRepairButton, statusControls } = dom;
+const { sdkGrid, gameGrid, databaseGrid, intervalLabel, statusControls } = dom;
 
 app.shouldHideHistoryGrid = (grid) => {
   if (!grid) {
@@ -69,17 +69,6 @@ app.updateDatabaseHealthCheckLabel = () => {
   }
 
   databaseIntervalLabel.textContent = app.getDatabaseHealthCheckLabelText();
-};
-
-app.updateDatabaseRepairButton = () => {
-  if (!(databaseRepairButton instanceof HTMLButtonElement)) {
-    return;
-  }
-
-  databaseRepairButton.disabled = state.databaseRepairPending || !app.isDatabaseHealthy();
-  databaseRepairButton.textContent = state.databaseRepairPending
-    ? app.translate('dashboard.databaseRepairPending')
-    : app.translate('dashboard.databaseRepair');
 };
 
 app.renderCard = (item) => {
@@ -182,10 +171,6 @@ app.renderSnapshot = (payload) => {
     app.updateNextHealthCheckLabel();
   }
 
-  if (serverVersionLabel) {
-    serverVersionLabel.textContent = app.translate('dashboard.serverVersion', { version: payload?.server_version ?? app.translate('common.notAvailable') });
-  }
-
   if (statusControls instanceof HTMLElement) {
     statusControls.hidden = !state.serverControlsVisible;
   }
@@ -219,7 +204,7 @@ app.renderSnapshot = (payload) => {
 
 app.renderDatabaseSnapshot = (payload) => {
   const sections = Array.isArray(payload?.sections) ? payload.sections : [];
-  const databaseSection = sections.find((section) => section.key === 'database') ?? sections[0];
+  const databaseSection = sections.find((section) => section.key === 'database') ?? null;
   const wasHealthy = app.isDatabaseHealthy(state.databaseHealthSnapshot);
   state.databaseHealthSnapshot = payload;
 
@@ -228,7 +213,6 @@ app.renderDatabaseSnapshot = (payload) => {
     app.updateDatabaseHealthCheckLabel();
   }
 
-  app.updateDatabaseRepairButton();
   app.renderGrid(databaseGrid, databaseSection, app.renderDatabaseCard);
   app.updateDatabaseHealthCheckLabel();
   app.updateDatabaseAccountsAccess(payload);
@@ -379,41 +363,10 @@ app.loadDatabaseStatus = async () => {
     state.databaseHealthSnapshot = null;
     state.nextDatabaseHealthCheckAtMs = null;
     app.updateDatabaseHealthCheckLabel();
-    app.updateDatabaseRepairButton();
     app.renderGrid(databaseGrid, { services: [] });
     app.updateDatabaseAccountsAccess(null);
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
     return 60;
-  }
-};
-
-app.submitDatabaseRepair = async () => {
-  if (state.databaseRepairPending || !app.isDatabaseHealthy()) {
-    return;
-  }
-
-  state.databaseRepairPending = true;
-  app.updateDatabaseRepairButton();
-
-  try {
-    const payload = await app.apiFetch('/api/database-repair', {
-      method: 'POST',
-    });
-    app.openSuccessModal(
-      app.translate('dashboard.databaseRepairSuccess', {
-        collections: Number(payload?.collections ?? 0),
-        scanned: Number(payload?.documents_scanned ?? 0),
-        updated: Number(payload?.documents_updated ?? 0),
-      }),
-    );
-    await app.loadDatabaseStatus();
-  } catch (error) {
-    if (!app.isMutationRiskCancelled(error)) {
-      app.openNoticeModal(app.apiErrorMessage(error, 'dashboard.databaseRepairFailed'));
-    }
-  } finally {
-    state.databaseRepairPending = false;
-    app.updateDatabaseRepairButton();
   }
 };
 
@@ -436,10 +389,4 @@ export const initStatusHealthFeature = () => {
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
   });
 
-  if (databaseRepairButton instanceof HTMLButtonElement) {
-    databaseRepairButton.addEventListener('click', () => {
-      void app.submitDatabaseRepair();
-    });
-    app.updateDatabaseRepairButton();
-  }
 };

@@ -1159,7 +1159,8 @@ button.character-equip-switch-current-card:focus-visible {
 }
 
 .character-detail-main-icon,
-.character-detail-main-fashion-shell {
+.character-detail-main-fashion-shell,
+.character-detail-main-icon-shell-button {
   width: 192px;
   height: 192px;
   border-radius: 24px;
@@ -1185,6 +1186,26 @@ button.character-equip-switch-current-card:focus-visible {
   position: relative;
   overflow: hidden;
   isolation: isolate;
+  padding: 0;
+  cursor: pointer;
+  appearance: none;
+  font: inherit;
+}
+
+.character-detail-main-icon-shell-button {
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.character-detail-main-icon-shell-button:focus-visible {
+  outline: 3px solid rgba(124, 92, 246, 0.5);
+  outline-offset: 4px;
+}
+
+.character-detail-main-fashion-shell:focus-visible {
+  outline: 3px solid rgba(124, 92, 246, 0.5);
+  outline-offset: 4px;
 }
 
 .character-detail-main-fashion-icon {
@@ -1402,12 +1423,16 @@ button.character-equip-switch-current-card:focus-visible {
 
 .character-detail-section-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 22px;
 }
 
 .character-detail-section-wide {
   grid-column: 1 / -1;
+}
+
+.character-detail-weapon-section {
+  grid-column: span 2;
 }
 
 .character-detail-section {
@@ -1458,6 +1483,153 @@ button.character-equip-switch-current-card:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
 }
 
+.character-fashion-switch-card {
+  width: min(100%, 920px);
+}
+
+.character-fashion-picker-meta {
+  margin-top: 14px;
+}
+
+.character-fashion-picker-summary {
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.character-fashion-picker-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.character-fashion-picker-summary-key {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.character-fashion-picker-summary-value {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  max-width: 100%;
+  color: var(--text);
+}
+
+.character-fashion-picker-summary-value-media {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  text-align: right;
+}
+
+.character-fashion-picker-summary-value-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.character-fashion-picker-summary-value-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
+  object-fit: contain;
+}
+
+.character-fashion-switch-grid-shell {
+  margin-top: 18px;
+  max-height: min(52vh, 560px);
+  overflow: auto;
+  padding: 4px 2px 2px;
+}
+
+.character-fashion-switch-grid-shell .character-detail-fashion-grid {
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+}
+
+.character-fashion-picker-item {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(67, 78, 117, 0.08);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.character-fashion-picker-item:hover,
+.character-fashion-picker-item:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(255, 79, 160, 0.28);
+  box-shadow: 0 16px 32px rgba(67, 78, 117, 0.12);
+  outline: none;
+}
+
+.character-fashion-picker-item.is-selected {
+  border-color: rgba(255, 79, 160, 0.42);
+  box-shadow: 0 0 0 3px rgba(255, 79, 160, 0.12), 0 16px 32px rgba(67, 78, 117, 0.12);
+}
+
+.character-fashion-picker-item.is-pending {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.character-fashion-picker-preview {
+  position: relative;
+  display: block;
+  width: 88px;
+  height: 88px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  isolation: isolate;
+}
+
+.character-fashion-picker-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.character-fashion-picker-name {
+  width: 100%;
+  min-height: 2.4em;
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: center;
+  word-break: break-word;
+}
+
+.character-fashion-picker-toolbar {
+  margin-top: 18px;
+}
+
+.character-fashion-picker-actions {
+  margin-top: 0;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.character-fashion-picker-cancel {
+  margin-right: auto;
+}
+
 .character-detail-memory-grid {
   grid-template-columns: repeat(3, minmax(96px, 1fr));
 }
@@ -1467,6 +1639,22 @@ button.character-equip-switch-current-card:focus-visible {
   justify-content: center;
   align-items: center;
   min-height: 184px;
+}
+
+.character-detail-weapon-slots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+
+.character-detail-weapon-fashion-guide {
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  min-width: 56px;
+  text-align: center;
 }
 
 .character-detail-slot {
@@ -1874,11 +2062,13 @@ button.character-equip-switch-current-card:focus-visible {
   line-height: 1.65;
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-6::after {
+.character-detail-main-fashion-shell.fashion-quality-tier-6::after,
+.character-detail-main-icon-shell-button.fashion-quality-tier-6::after {
   content: '';
   position: absolute;
   inset: 1px;
   z-index: 1;
+  pointer-events: none;
   border-radius: 23px;
   background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.38) 48%, rgba(255, 255, 255, 0.18) 52%, transparent 70%);
   animation: equipIconShine 2.2s ease-in-out infinite;
@@ -2055,7 +2245,8 @@ button.character-equip-switch-current-card:focus-visible {
     inset 0 0 10px rgba(22, 163, 74, 0.06);
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-2 {
+.character-detail-main-fashion-shell.fashion-quality-tier-2,
+.character-detail-main-icon-shell-button.fashion-quality-tier-2 {
   border-color: rgba(22, 163, 74, 0.36);
   box-shadow:
     0 0 14px rgba(22, 163, 74, 0.24),
@@ -2063,7 +2254,16 @@ button.character-equip-switch-current-card:focus-visible {
     inset 0 0 10px rgba(22, 163, 74, 0.06);
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-3 {
+.character-detail-main-icon-shell-button.fashion-quality-tier-1 {
+  border-color: rgba(100, 116, 139, 0.44);
+  box-shadow:
+    0 0 12px rgba(100, 116, 139, 0.3),
+    0 0 6px rgba(100, 116, 139, 0.16),
+    inset 0 0 9px rgba(100, 116, 139, 0.08);
+}
+
+.character-detail-main-fashion-shell.fashion-quality-tier-3,
+.character-detail-main-icon-shell-button.fashion-quality-tier-3 {
   border-color: rgba(37, 99, 235, 0.36);
   box-shadow:
     0 0 14px rgba(37, 99, 235, 0.24),
@@ -2071,7 +2271,8 @@ button.character-equip-switch-current-card:focus-visible {
     inset 0 0 10px rgba(37, 99, 235, 0.06);
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-4 {
+.character-detail-main-fashion-shell.fashion-quality-tier-4,
+.character-detail-main-icon-shell-button.fashion-quality-tier-4 {
   border-color: rgba(124, 58, 237, 0.38);
   box-shadow:
     0 0 16px rgba(124, 58, 237, 0.24),
@@ -2079,7 +2280,8 @@ button.character-equip-switch-current-card:focus-visible {
     inset 0 0 12px rgba(124, 58, 237, 0.06);
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-5 {
+.character-detail-main-fashion-shell.fashion-quality-tier-5,
+.character-detail-main-icon-shell-button.fashion-quality-tier-5 {
   border-color: rgba(234, 88, 12, 0.4);
   box-shadow:
     0 0 24px rgba(234, 88, 12, 0.32),
@@ -2087,7 +2289,8 @@ button.character-equip-switch-current-card:focus-visible {
     inset 0 0 18px rgba(234, 88, 12, 0.08);
 }
 
-.character-detail-main-fashion-shell.fashion-quality-tier-6 {
+.character-detail-main-fashion-shell.fashion-quality-tier-6,
+.character-detail-main-icon-shell-button.fashion-quality-tier-6 {
   border-color: rgba(220, 38, 38, 0.42);
   box-shadow:
     0 0 32px rgba(220, 38, 38, 0.36),
@@ -2207,7 +2410,7 @@ button.character-equip-switch-current-card:focus-visible {
   }
 
   .character-detail-main-icon,
-  .character-detail-main-fashion-icon {
+  .character-detail-main-fashion-shell {
     width: 160px;
     height: 160px;
   }
