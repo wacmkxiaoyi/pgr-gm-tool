@@ -21,7 +21,7 @@ from backend.app.services.player.player_items_service import PlayerItemsService
 from backend.app.services.player.player_profile_service import PlayerProfileService
 from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.server_control import ServerController, health_check_loop
-from backend.app.services.auth import get_session
+from backend.app.services.auth import configure_authentication, get_session
 from backend.app.services.api_errors import AppError, convert_http_exception, get_error_message, normalize_locale
 
 def _get_request_locale(request: Request) -> str:
@@ -47,6 +47,7 @@ def init_app(app, settings):
     from backend.app.apis import router, server_management_router
 
     app.state.settings = settings
+    configure_authentication(settings.authentication_enabled)
     app.state.db_schema_runtime = init_database_schema_runtime()
     app.state.pgr_server_controller = ServerController(settings)
     app.state.database_accounts_service = DatabaseAccountsService(settings, app.state.db_schema_runtime)

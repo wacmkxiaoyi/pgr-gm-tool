@@ -17,6 +17,7 @@ from backend.app.apis.schemas import (
     AddStagesRequest,
     AddStagesResponse,
     AppInfoResponse,
+    ChatEmojiEntryResponse,
     CharacterAvailableListResponse,
     CharacterMemoryCandidatesResponse,
     CharacterWeaponCandidatesResponse,
@@ -76,6 +77,11 @@ from backend.app.apis.schemas import (
     UpdateInventoryItemRequest,
     UpdateInventoryItemResponse,
     UpdateSelectedPlayerProfileRequest,
+    ScoreTitleEntryResponse,
+    UnlockChatEmojisRequest,
+    UnlockChatEmojisResponse,
+    UnlockScoreTitlesRequest,
+    UnlockScoreTitlesResponse,
     UpdateWeaponOverrunRequest,
     UpdateEquipRequest,
     UpdateEquipResonanceRequest,
@@ -109,6 +115,9 @@ from backend.app.services.player.player_characters import (
     get_character_trust_exp_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.nameplates import get_nameplate_entires_map
+from backend.app.services.player.medals import get_medal_entires_map
+from backend.app.services.player.chat_boards import get_chat_board_entires_map
 from backend.app.services.player.player_profile import (
     get_player_background_name_map,
     get_player_background_url_map,
@@ -148,7 +157,7 @@ PLAYER_NAME_PATTERN = r"^[\u4e00-\u9fa5A-Za-z0-9 _-]+$"
 PLAYER_PROFILE_INVENTORY_FIELDS = {"exp", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_FIELDS = {"likes", "money", "serum", "black_card", "rainbow_card"}
 PLAYER_PROFILE_INT32_MAX = 2147483647
-PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "honor_level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id"}
+PLAYER_PROFILE_MUTABLE_FIELDS = {"name", "gender", "level", "honor_level", "likes", "exp", "money", "serum", "black_card", "rainbow_card", "head_portrait_id", "head_frame_id", "use_background_id", "current_wear_nameplate", "current_medal_id", "current_chat_board_id"}
 WEAPON_MUTABLE_FIELDS = {"breakthrough", "level", "exp"}
 
 
@@ -195,6 +204,9 @@ async def app_info(request: Request) -> AppInfoResponse:
         "character_grade_name_map": get_character_grade_name_map(),
         "character_trust_exp_map": get_character_trust_exp_map(),
         "stage_entries_map": get_stage_entries_map(),
+        "nameplate_entires_map": get_nameplate_entires_map(),
+        "medal_entires_map": get_medal_entires_map(),
+        "chat_board_entires_map": get_chat_board_entires_map(),
         "equip_resonance_map": get_equip_resonance_map(),
     })
 
@@ -370,7 +382,82 @@ async def get_selected_database_player_profile(
     if profile is None:
         raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
-    return PlayerProfileResponse(**profile.model_dump())
+    current_wear_nameplate, unlock_nameplates = await request.app.state.player_characters_service.get_nameplate_state(selected_uid)
+    return PlayerProfileResponse(**{
+        **profile.model_dump(),
+        "current_wear_nameplate": current_wear_nameplate,
+        "unlock_nameplates": unlock_nameplates,
+    })
+
+
+@router.get("/database-players/selected/chat-emojis/locked", response_model=dict[int, ChatEmojiEntryResponse])
+async def get_selected_database_player_locked_chat_emojis(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> dict[int, dict[str, str | None]]:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    if not is_database_snapshot_healthy(get_database_health_snapshot(settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    locked_emojis = await request.app.state.player_characters_service.get_locked_chat_emojis(selected_uid)
+    if locked_emojis is None:
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
+    return locked_emojis
+
+
+@router.post("/database-players/selected/chat-emojis/unlock", response_model=UnlockChatEmojisResponse)
+async def unlock_selected_database_player_chat_emojis(
+    request: Request,
+    payload: UnlockChatEmojisRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> UnlockChatEmojisResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    if not is_database_snapshot_healthy(get_database_health_snapshot(settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    unlocked_ids = await request.app.state.player_characters_service.unlock_chat_emojis(selected_uid, payload.emoji_ids)
+    if unlocked_ids is None:
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
+    return UnlockChatEmojisResponse(unlocked_ids=unlocked_ids)
+
+
+@router.get("/database-players/selected/score-titles/locked", response_model=dict[int, ScoreTitleEntryResponse])
+async def get_selected_database_player_locked_score_titles(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> dict[int, dict[str, int | str | None]]:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    if not is_database_snapshot_healthy(get_database_health_snapshot(settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    locked_titles = await request.app.state.player_characters_service.get_locked_score_titles(selected_uid)
+    if locked_titles is None:
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
+    return locked_titles
+
+
+@router.post("/database-players/selected/score-titles/unlock", response_model=UnlockScoreTitlesResponse)
+async def unlock_selected_database_player_score_titles(
+    request: Request,
+    payload: UnlockScoreTitlesRequest,
+    login_session_token: str | None = Cookie(default=None),
+) -> UnlockScoreTitlesResponse:
+    active_session = _get_active_session(login_session_token)
+    settings = request.app.state.settings
+    if not is_database_snapshot_healthy(get_database_health_snapshot(settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    unlocked_ids = await request.app.state.player_characters_service.unlock_score_titles(selected_uid, payload.title_ids)
+    if unlocked_ids is None:
+        raise_http_error(404, "player.not_found", {"uid": selected_uid})
+    return UnlockScoreTitlesResponse(unlocked_ids=unlocked_ids)
 
 
 @router.put("/database-players/selected", response_model=PlayerProfileResponse)
@@ -392,7 +479,7 @@ async def update_selected_database_player_profile(
     if field_name not in PLAYER_PROFILE_MUTABLE_FIELDS:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
-    if not profile_service.allows_player_profile_field_update(field_name):
+    if field_name not in {"current_wear_nameplate", "current_medal_id", "current_chat_board_id"} and not profile_service.allows_player_profile_field_update(field_name):
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
     player_level_max = get_player_level_max()
@@ -520,7 +607,7 @@ async def update_selected_database_player_profile(
         if normalized_portrait_id != 0 and normalized_portrait_id not in portrait_map:
             raise_http_error(404, "player.portrait_not_found", {"field": field_name, "id": normalized_portrait_id})
 
-        update_payload = UpdatePlayerProfilePayload(head_portrait_id=normalized_portrait_id)
+        profile = await profile_service.select_player_appearance(selected_uid, field_name, normalized_portrait_id)
     elif field_name == "head_frame_id":
         try:
             normalized_frame_id = int(payload.value)
@@ -534,7 +621,7 @@ async def update_selected_database_player_profile(
         if normalized_frame_id != 0 and normalized_frame_id not in frame_map:
             raise_http_error(404, "player.frame_not_found", {"field": field_name, "id": normalized_frame_id})
 
-        update_payload = UpdatePlayerProfilePayload(head_frame_id=normalized_frame_id)
+        profile = await profile_service.select_player_appearance(selected_uid, field_name, normalized_frame_id)
     elif field_name == "use_background_id":
         try:
             normalized_background_id = int(payload.value)
@@ -548,15 +635,59 @@ async def update_selected_database_player_profile(
         if normalized_background_id != 0 and normalized_background_id not in background_map:
             raise_http_error(404, "player.background_not_found", {"field": field_name, "id": normalized_background_id})
 
-        update_payload = UpdatePlayerProfilePayload(use_background_id=normalized_background_id)
+        profile = await profile_service.select_player_appearance(selected_uid, field_name, normalized_background_id)
+    elif field_name == "current_wear_nameplate":
+        try:
+            normalized_nameplate_id = int(payload.value)
+        except (TypeError, ValueError):
+            raise_http_error(422, "player.nameplate_id_invalid", {"field": field_name})
+
+        if normalized_nameplate_id < 0:
+            raise_http_error(422, "player.nameplate_id_below_zero", {"field": field_name, "min": 0})
+        if normalized_nameplate_id != 0 and normalized_nameplate_id not in get_nameplate_entires_map():
+            raise_http_error(404, "player.nameplate_not_found", {"field": field_name, "id": normalized_nameplate_id})
+
+        if not await request.app.state.player_characters_service.select_nameplate(selected_uid, normalized_nameplate_id):
+            raise_http_error(404, "player.not_found", {"uid": selected_uid})
+        profile = await profile_service.get_player_profile(selected_uid)
+    elif field_name == "current_medal_id":
+        try:
+            normalized_medal_id = int(payload.value)
+        except (TypeError, ValueError):
+            raise_http_error(422, "player.medal_id_invalid", {"field": field_name})
+
+        if normalized_medal_id < 0:
+            raise_http_error(422, "player.medal_id_below_zero", {"field": field_name, "min": 0})
+        if normalized_medal_id != 0 and normalized_medal_id not in get_medal_entires_map():
+            raise_http_error(404, "player.medal_not_found", {"field": field_name, "id": normalized_medal_id})
+
+        profile = await profile_service.select_medal(selected_uid, normalized_medal_id)
+    elif field_name == "current_chat_board_id":
+        try:
+            normalized_chat_board_id = int(payload.value)
+        except (TypeError, ValueError):
+            raise_http_error(422, "player.chat_board_id_invalid", {"field": field_name})
+
+        if normalized_chat_board_id <= 0:
+            raise_http_error(422, "player.chat_board_id_below_zero", {"field": field_name, "min": 1})
+        if normalized_chat_board_id not in get_chat_board_entires_map():
+            raise_http_error(404, "player.chat_board_not_found", {"field": field_name, "id": normalized_chat_board_id})
+
+        profile = await profile_service.select_chat_board(selected_uid, normalized_chat_board_id)
     else:
         raise_http_error(422, "player.field_not_editable", {"field": field_name})
 
-    profile = await profile_service.update_player_profile(selected_uid, update_payload)
+    if field_name not in {"head_portrait_id", "head_frame_id", "use_background_id", "current_wear_nameplate", "current_medal_id", "current_chat_board_id"}:
+        profile = await profile_service.update_player_profile(selected_uid, update_payload)
     if profile is None:
         raise_http_error(404, "player.not_found", {"uid": selected_uid})
 
-    return PlayerProfileResponse(**profile.model_dump())
+    current_wear_nameplate, unlock_nameplates = await request.app.state.player_characters_service.get_nameplate_state(selected_uid)
+    return PlayerProfileResponse(**{
+        **profile.model_dump(),
+        "current_wear_nameplate": current_wear_nameplate,
+        "unlock_nameplates": unlock_nameplates,
+    })
 
 
 @router.get("/database-items/selected", response_model=InventoryListResponse)
@@ -995,6 +1126,8 @@ async def switch_selected_database_character_memory(
         if error_message == "equips.update_failed":
             raise_http_error(500, "equips.update_failed", {"record_id": payload.MemoryRecordId})
         raise
+
+    return SwitchCharacterMemoryResponse.model_validate(result.model_dump())
 
 
 
@@ -1555,7 +1688,7 @@ async def delete_selected_database_weapon(
     if not deleted:
         raise_http_error(404, "equips.not_found", {"record_id": record_id})
 
-    return DeleteEquipResponse(_id=record_id, deleted=True)
+    return DeleteEquipResponse(record_id=record_id, deleted=True)
 
 
 @router.delete("/database-memories/selected/{record_id}", response_model=DeleteEquipResponse)
@@ -1583,7 +1716,7 @@ async def delete_selected_database_memory(
     if not deleted:
         raise_http_error(404, "equips.not_found", {"record_id": record_id})
 
-    return DeleteEquipResponse(_id=record_id, deleted=True)
+    return DeleteEquipResponse(record_id=record_id, deleted=True)
 
 
 @router.put("/database-weapons/selected/{record_id}/enhance", response_model=UpdateEquipResponse)

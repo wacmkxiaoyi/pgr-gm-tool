@@ -1,8 +1,8 @@
-# WACMK PGR GM Tool
+# PGR GM Tool
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfinityLoop, commit from `2897b5862260bc9f0dd6098566c7727cb0a23b9d`;
+> Current support: InfiniteLoop, commit from `af439658f8c011552cd60a6d6506b24e47b17a60`;
 
 ## User Guide
 
@@ -35,10 +35,13 @@ Then uncomment and adjust the adjacent optional settings for `SERVER_PATH`, `SER
 
 ### Login And Basic Workflow
 
-1. Configure `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and MongoDB connection settings before starting.
-2. Open `http://127.0.0.1:8000/login` and sign in.
-3. Open Database Management and confirm that the MongoDB status is healthy.
-4. Select an account before editing player profile, characters, weapons, memories, items, or stages.
+1. Configure MongoDB connection settings before starting.
+2. To require login, configure both `ADMIN_USERNAME` and `ADMIN_PASSWORD`; leaving either one empty disables login.
+3. Open `http://127.0.0.1:8000/`. When login is enabled, sign in at `/login` first.
+4. Open Database Management and confirm that the MongoDB status is healthy.
+5. Select an account before editing player profile, characters, weapons, memories, items, or stages.
+
+When login is disabled, anyone who can reach the application can operate the GM tool. Use this mode only on a trusted local machine or protected network.
 
 When server management is enabled, the Server Management page also shows SDK and game-server health. If the configured executable is available, it provides start, stop, live-log, and server configuration controls.
 

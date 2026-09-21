@@ -2,10 +2,12 @@
 setlocal EnableExtensions
 pushd "%~dp0"
 
-rem Admin account:
-set "HEALTHY_CHECK_INTERVAL=60"
-set "ADMIN_USERNAME=admin"
-set "ADMIN_PASSWORD=password"
+rem Healthy check
+rem set "HEALTHY_CHECK_INTERVAL=60"
+
+rem Admin account: uncomment both lines to require login credentials.
+rem set "ADMIN_USERNAME=admin"
+rem set "ADMIN_PASSWORD=password"
 
 rem The quick-start path disables process management by default.
 set "ENABLE_SERVER_MANAGEMENT=false"

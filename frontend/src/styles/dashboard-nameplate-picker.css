@@ -1,0 +1,16 @@
+.nameplate-picker-card { width: min(100%, 920px); }
+.nameplate-picker-current { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; padding: 13px 16px; border: 1px solid rgba(148, 163, 184, .2); border-radius: 16px; background: rgba(255,255,255,.62); color: var(--muted); }
+.nameplate-picker-current strong { color: var(--text); }
+.nameplate-picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; max-height: min(52vh, 560px); margin-top: 18px; overflow: auto; padding: 3px; }
+.nameplate-picker-item { display: grid; gap: 9px; padding: 10px; border: 1px solid rgba(148,163,184,.2); border-radius: 16px; background: rgba(255,255,255,.68); color: var(--text); cursor: pointer; }
+.nameplate-picker-item:hover, .nameplate-picker-item.is-selected { border-color: rgba(255,79,160,.46); box-shadow: 0 0 0 3px rgba(255,79,160,.12); }
+.nameplate-picker-item > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; text-align: center; }
+.nameplate-picker-preview { position: relative; display: grid; place-items: center; min-height: 74px; overflow: hidden; border: 1px solid rgba(148,163,184,.2); border-radius: 12px; background: linear-gradient(145deg, rgba(124,92,246,.12), rgba(56,189,248,.1)); isolation: isolate; }
+.nameplate-picker-preview > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.nameplate-picker-preview .nameplate-picker-backboard { object-fit: cover; }
+.nameplate-picker-preview .nameplate-picker-outline { z-index: 1; object-fit: contain; }
+.nameplate-picker-title-text { position: relative; z-index: 2; padding: 4px 9px; color: #fff; font-weight: 700; font-size: 13px; text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.nameplate-picker-empty-preview { color: var(--muted); }
+.nameplate-picker-actions { justify-content: flex-end; }
+.nameplate-picker-cancel { margin-right: auto; }
+@media (max-width: 640px) { .nameplate-picker-grid { grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); } }

@@ -54,6 +54,10 @@ const rerenderLocaleSensitiveViews = () => {
   if (state.playerPortraitPickerState) {
     app.renderPlayerPortraitPicker();
   }
+
+  if (state.scoreTitlePickerState) {
+    app.renderScoreTitlePicker();
+  }
 };
 
 const initGlobalKeyboardShortcuts = () => {
@@ -68,6 +72,7 @@ const initGlobalKeyboardShortcuts = () => {
       app.closeAccountPasswordModal();
       app.closeLogoutConfirmModal();
       app.closePlayerPortraitPicker();
+      app.closeScoreTitlePicker?.();
       app.closeCharacterAddModal?.();
       app.closeWeaponDetailModal?.();
       app.closeCharacterDetailModal?.();

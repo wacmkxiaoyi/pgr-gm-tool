@@ -199,6 +199,13 @@
                           <button class="database-player-card-avatar-frame-hitbox" id="player-card-avatar-frame-hitbox" type="button" aria-label="切换头像框" data-i18n-aria-label="dashboard.playerFrameAlt"></button>
                         </div>
                         <strong class="database-player-card-name" id="player-card-name" data-player-edit-field="name">--</strong>
+                        <div class="database-player-card-appearance-actions" aria-label="Player appearance" data-i18n-aria-label="dashboard.playerAppearanceActionsAria">
+                          <button type="button" class="database-player-card-appearance-action" data-nameplate-picker-open aria-label="Choose nameplate" data-i18n-aria-label="dashboard.playerNameplateAction">N</button>
+                          <button type="button" class="database-player-card-appearance-action" data-medal-picker-open aria-label="Medal" data-i18n-aria-label="dashboard.playerMedalAction">M</button>
+                          <button type="button" class="database-player-card-appearance-action" data-score-title-picker-open aria-label="Score title" data-i18n-aria-label="dashboard.playerScoreTitleAction">S</button>
+                          <button type="button" class="database-player-card-appearance-action" data-chat-board-picker-open aria-label="Chat board" data-i18n-aria-label="dashboard.playerChatBoardAction">C</button>
+                          <button type="button" class="database-player-card-appearance-action" data-chat-emoji-picker-open aria-label="Chat emoji" data-i18n-aria-label="dashboard.playerChatEmojiAction">E</button>
+                        </div>
                       </div>
                       <div class="database-player-card-meta-row">
                         <span class="database-player-card-tag">
@@ -215,19 +222,19 @@
                       <div class="database-player-card-name-row">
                         <div class="database-player-card-resources" aria-label="玩家资源" data-i18n-aria-label="dashboard.playerResourcesAria">
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/icontoolssp/iconconsumegem02sp.webp" alt="彩虹卡" data-i18n-alt="dashboard.playerRainbowCardAlt">
+                            <img class="database-player-card-resource-icon" src="./assets/image/icontoolssp/iconconsumegem02sp.webp" alt="彩虹卡" data-i18n-alt="dashboard.playerRainbowCardAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-rainbow" id="player-card-rainbow-card" data-player-edit-field="rainbow_card">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/iconcurrency/iconconsumegem.webp" alt="黑卡" data-i18n-alt="dashboard.playerBlackCardAlt">
+                            <img class="database-player-card-resource-icon" src="./assets/image/iconcurrency/iconconsumegem.webp" alt="黑卡" data-i18n-alt="dashboard.playerBlackCardAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-black" id="player-card-black-card" data-player-edit-field="black_card">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/iconcurrency/iconconsumeactionpoint.webp" alt="血清" data-i18n-alt="dashboard.playerSerumAlt">
+                            <img class="database-player-card-resource-icon" src="./assets/image/iconcurrency/iconconsumeactionpoint.webp" alt="血清" data-i18n-alt="dashboard.playerSerumAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-serum" id="player-card-serum" data-player-edit-field="serum">0</strong>
                           </span>
                           <span class="database-player-card-resource">
-                            <img class="database-player-card-resource-icon" src="./assets/iconcurrency/iconconsumemoney.webp" alt="螺母" data-i18n-alt="dashboard.playerMoneyAlt">
+                            <img class="database-player-card-resource-icon" src="./assets/image/iconcurrency/iconconsumemoney.webp" alt="螺母" data-i18n-alt="dashboard.playerMoneyAlt">
                             <strong class="database-player-card-resource-value database-player-card-resource-value-money" id="player-card-money" data-player-edit-field="money">0</strong>
                           </span>
                         </div>
@@ -449,7 +456,7 @@
                         <input class="database-item-search-input" type="search" id="database-stage-search-input" data-i18n-placeholder="dashboard.stageManagementSearchPlaceholder" placeholder="输入战场 ID、名称或介绍后回车搜索">
                       </div>
                     </div>
-                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-stage-skip" data-stage-management-action="skip" data-i18n="dashboard.stageManagementSkip">跳过战斗</button>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="database-stage-skip" data-stage-management-action="skip" data-i18n="dashboard.stageManagementSkip">添加完成记录</button>
                   </div>
 
                   <div class="accounts-table-shell">
@@ -779,11 +786,11 @@
         <div class="shared-modal-header">
           <span class="shared-modal-icon" aria-hidden="true">+</span>
           <div>
-            <p class="shared-modal-eyebrow" data-i18n="runtime.stageSkipEyebrow">跳过战斗</p>
-            <h3 id="stage-skip-title" data-i18n="runtime.stageSkipTitle">选择要跳过的战场</h3>
+            <p class="shared-modal-eyebrow" data-i18n="runtime.stageSkipEyebrow">原始完成记录</p>
+            <h3 id="stage-skip-title" data-i18n="runtime.stageSkipTitle">选择要记录为完成的战场</h3>
           </div>
         </div>
-        <p id="stage-skip-description" class="shared-modal-message" data-i18n="runtime.stageSkipDescription">通过搜索和勾选选择未通关战场，可批量提交。</p>
+        <p id="stage-skip-description" class="shared-modal-message" data-i18n="runtime.stageSkipDescription">仅写入战场完成记录，不发放奖励，也不会同步活动、PPC 或试炼进度。</p>
         <div class="database-item-controls item-add-search-shell">
           <input class="database-item-search-input item-add-search-input" type="search" id="stage-skip-search-input" data-i18n-placeholder="runtime.stageSkipSearchPlaceholder" placeholder="输入战场 ID、名称或介绍进行搜索">
         </div>
@@ -805,11 +812,11 @@
             </thead>
             <tbody id="stage-skip-table-body"></tbody>
           </table>
-          <div class="database-player-empty" id="stage-skip-empty-state" data-i18n="dashboard.stageSkipEmpty">当前没有可跳过的战场。</div>
+          <div class="database-player-empty" id="stage-skip-empty-state" data-i18n="dashboard.stageSkipEmpty">当前没有可添加完成记录的战场。</div>
         </div>
         <div class="shared-modal-actions shared-modal-actions-split item-add-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-stage-skip-modal-close data-i18n="common.cancel">取消</button>
-          <button type="button" class="shared-modal-button" id="stage-skip-submit" data-i18n="runtime.stageSkipSubmit">确认跳过</button>
+          <button type="button" class="shared-modal-button" id="stage-skip-submit" data-i18n="runtime.stageSkipSubmit">确认添加</button>
         </div>
       </section>
     </div>
@@ -1501,6 +1508,105 @@
             <button type="button" class="shared-modal-button shared-modal-button-secondary player-portrait-picker-cancel" data-player-portrait-picker-modal-close data-i18n="common.cancel">取消</button>
             <button type="button" class="shared-modal-button" id="player-portrait-picker-confirm" disabled data-i18n="runtime.playerPickerConfirm">确认</button>
           </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal nameplate-picker-modal" hidden id="nameplate-picker-modal">
+      <div class="shared-modal-backdrop" data-nameplate-picker-modal-close></div>
+      <section class="shared-modal-card nameplate-picker-card" role="dialog" aria-modal="true" aria-labelledby="nameplate-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">N</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="nameplate-picker-eyebrow"></p>
+            <h3 id="nameplate-picker-title"></h3>
+          </div>
+        </div>
+        <div class="nameplate-picker-current" id="nameplate-picker-current"></div>
+        <div class="nameplate-picker-grid" id="nameplate-picker-grid"></div>
+        <div class="shared-modal-actions nameplate-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary nameplate-picker-cancel" data-nameplate-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="nameplate-picker-confirm" data-i18n="runtime.nameplatePickerConfirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal chat-emoji-picker-modal" hidden id="chat-emoji-picker-modal">
+      <div class="shared-modal-backdrop" data-chat-emoji-picker-modal-close></div>
+      <section class="shared-modal-card chat-emoji-picker-card" role="dialog" aria-modal="true" aria-labelledby="chat-emoji-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">E</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="chat-emoji-picker-eyebrow"></p>
+            <h3 id="chat-emoji-picker-title"></h3>
+          </div>
+        </div>
+        <div class="chat-emoji-picker-toolbar">
+          <button type="button" class="shared-modal-button chat-emoji-picker-unlock-all" id="chat-emoji-picker-unlock-all"></button>
+        </div>
+        <div class="chat-emoji-picker-grid" id="chat-emoji-picker-grid"></div>
+        <div class="shared-modal-actions chat-emoji-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary chat-emoji-picker-cancel" data-chat-emoji-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="chat-emoji-picker-confirm"></button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal score-title-picker-modal" hidden id="score-title-picker-modal">
+      <div class="shared-modal-backdrop" data-score-title-picker-modal-close></div>
+      <section class="shared-modal-card score-title-picker-card" role="dialog" aria-modal="true" aria-labelledby="score-title-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">S</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="score-title-picker-eyebrow"></p>
+            <h3 id="score-title-picker-title"></h3>
+          </div>
+        </div>
+        <div class="score-title-picker-toolbar">
+          <button type="button" class="shared-modal-button score-title-picker-unlock-all" id="score-title-picker-unlock-all"></button>
+        </div>
+        <div class="score-title-picker-grid" id="score-title-picker-grid"></div>
+        <div class="shared-modal-actions score-title-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary score-title-picker-cancel" data-score-title-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="score-title-picker-confirm"></button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal medal-picker-modal" hidden id="medal-picker-modal">
+      <div class="shared-modal-backdrop" data-medal-picker-modal-close></div>
+      <section class="shared-modal-card medal-picker-card" role="dialog" aria-modal="true" aria-labelledby="medal-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">M</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="medal-picker-eyebrow"></p>
+            <h3 id="medal-picker-title"></h3>
+          </div>
+        </div>
+        <div class="medal-picker-current" id="medal-picker-current"></div>
+        <div class="medal-picker-grid" id="medal-picker-grid"></div>
+        <div class="shared-modal-actions medal-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary medal-picker-cancel" data-medal-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="medal-picker-confirm" data-i18n="runtime.medalPickerConfirm">确认</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal chat-board-picker-modal" hidden id="chat-board-picker-modal">
+      <div class="shared-modal-backdrop" data-chat-board-picker-modal-close></div>
+      <section class="shared-modal-card chat-board-picker-card" role="dialog" aria-modal="true" aria-labelledby="chat-board-picker-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">C</span>
+          <div>
+            <p class="shared-modal-eyebrow" id="chat-board-picker-eyebrow"></p>
+            <h3 id="chat-board-picker-title"></h3>
+          </div>
+        </div>
+        <div class="chat-board-picker-current" id="chat-board-picker-current"></div>
+        <div class="chat-board-picker-grid" id="chat-board-picker-grid"></div>
+        <div class="shared-modal-actions chat-board-picker-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary chat-board-picker-cancel" data-chat-board-picker-modal-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="chat-board-picker-confirm" data-i18n="runtime.chatBoardPickerConfirm">确认</button>
         </div>
       </section>
     </div>

@@ -473,7 +473,11 @@
     },
     "unlocked_chat_boards": {
       "type": "array",
-      "default": [],
+      "default": [{
+        "id": 25000001,
+        "get_time": 0,
+        "end_time": 0
+      }],
       "schema": {
         "id": {
           "type": "number",

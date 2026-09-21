@@ -66,17 +66,19 @@ app.renderPlayerPortraitPicker = () => {
     `;
   }
   if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
-    playerPortraitPickerConfirmButton.disabled = !Number.isFinite(state.playerPortraitPickerState.selectedId);
+    playerPortraitPickerConfirmButton.disabled = field !== 'head_frame_id' && !Number.isFinite(state.playerPortraitPickerState.selectedId);
   }
 
   playerPortraitPickerGrid.innerHTML = entries.map((entry) => {
     const isSelected = entry.id === state.playerPortraitPickerState.selectedId;
+    const isLocked = !app.isPlayerResourceUnlocked(field, entry.id);
     const url = entry.url || app.getPlayerResourceUrlByField(field, entry.id);
     const name = app.getPlayerResourceNameByField(field, entry.id) || String(entry.id);
     return `
-      <button type="button" class="player-portrait-picker-item ${isSelected ? 'is-selected' : ''}" data-player-portrait-id="${entry.id}">
-        <span class="player-portrait-picker-item-preview">
+      <button type="button" class="player-portrait-picker-item${isSelected ? ' is-selected' : ''}" data-player-portrait-id="${entry.id}" aria-pressed="${isSelected ? 'true' : 'false'}">
+        <span class="player-portrait-picker-item-preview character-detail-fashion-slot${isLocked ? ' is-locked' : ''}">
           <img src="${url}" alt="${app.getPlayerResourceLabel(field)} ${entry.id}">
+          ${isLocked ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
         </span>
         <strong>${name}</strong>
       </button>
@@ -133,7 +135,7 @@ app.submitPlayerPortraitPicker = async () => {
     return;
   }
 
-  if (selectedId === null || selectedId === undefined) {
+  if ((selectedId === null || selectedId === undefined) && field !== 'head_frame_id') {
     app.openNoticeModal(app.translate('runtime.portraitPickerMissing'));
     return;
   }
@@ -155,7 +157,7 @@ app.submitPlayerPortraitPicker = async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ field, value: selectedId }),
+      body: JSON.stringify({ field, value: selectedId ?? 0 }),
     });
 
     app.closePlayerPortraitPicker();
@@ -200,7 +202,11 @@ app.handlePlayerPortraitPickerClick = (event) => {
     return;
   }
 
-  state.playerPortraitPickerState.selectedId = selectedId;
+  const { field } = state.playerPortraitPickerState;
+  const currentValue = app.getPlayerResourceCurrentValue(field);
+  state.playerPortraitPickerState.selectedId = field === 'head_frame_id' && selectedId === currentValue
+    ? null
+    : selectedId;
   app.renderPlayerPortraitPicker();
 };
 

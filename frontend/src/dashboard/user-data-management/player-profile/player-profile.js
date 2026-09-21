@@ -1165,6 +1165,10 @@ export const initDatabasePlayerProfileFeature = () => {
         return;
       }
 
+      if (event.target.closest('.database-player-card-appearance-actions')) {
+        return;
+      }
+
       if (
         event.target.closest('.database-player-card-avatar-image')
         || event.target.closest('.database-player-card-avatar-fallback')

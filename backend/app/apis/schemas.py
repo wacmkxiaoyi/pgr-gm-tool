@@ -29,6 +29,59 @@ class WeaponOverrunSuitEntryResponse(BaseModel):
     WaferBagPath: str
 
 
+class NameplateEntryResponse(BaseModel):
+    Id: int
+    NameplateQuality: int
+    Name: str
+    Title: str
+    Description: str
+    IconType: int
+    Icon: str | None = None
+    BackBoard: str | None = None
+    OutLineColor: str | None = None
+
+
+class MedalEntryResponse(BaseModel):
+    Name: str
+    Desc: str
+    MedalImg: str | None = None
+
+
+class ChatBoardEntryResponse(BaseModel):
+    Name: str
+    WorldDesc: str
+    Icon: str | None = None
+
+
+class ChatEmojiEntryResponse(BaseModel):
+    Name: str
+    BigIcon: str | None = None
+    WorldDesc: str
+
+
+class UnlockChatEmojisRequest(BaseModel):
+    emoji_ids: list[int] = Field(default_factory=list)
+
+
+class UnlockChatEmojisResponse(BaseModel):
+    unlocked_ids: list[int] = Field(default_factory=list)
+
+
+class ScoreTitleEntryResponse(BaseModel):
+    Name: str
+    MaxQuality: int
+    WorldDesc: str
+    MedalImg: str | None = None
+
+
+class UnlockScoreTitlesRequest(BaseModel):
+    title_ids: list[int] = Field(default_factory=list)
+
+
+class UnlockScoreTitlesResponse(BaseModel):
+    unlocked_ids: list[int] = Field(default_factory=list)
+
+
 class AppInfoResponse(BaseModel):
     name: str
     mongo_db: str
@@ -64,6 +117,9 @@ class AppInfoResponse(BaseModel):
     character_grade_name_map: dict[int, list[str]] = Field(default_factory=dict)
     character_trust_exp_map: dict[int, dict[int, int]] = Field(default_factory=dict)
     stage_entries_map: dict[int, dict[str, str]] = Field(default_factory=dict)
+    nameplate_entires_map: dict[int, NameplateEntryResponse] = Field(default_factory=dict)
+    medal_entires_map: dict[int, MedalEntryResponse] = Field(default_factory=dict)
+    chat_board_entires_map: dict[int, ChatBoardEntryResponse] = Field(default_factory=dict)
 
 
 class CharacterManagementItemResponse(BaseModel):
@@ -561,6 +617,15 @@ class PlayerProfileResponse(BaseModel):
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
     use_background_id: int | None = None
+    unlock_head_portraits: list[int] = []
+    unlock_head_frames: list[int] = []
+    owned_background_ids: list[int] = []
+    current_wear_nameplate: int | None = None
+    unlock_nameplates: list[int] = []
+    current_medal_id: int = 0
+    unlock_medals: list[int] = []
+    current_chat_board_id: int = 25000001
+    unlock_chat_boards: list[int] = []
 
 
 class UpdateSelectedPlayerProfileRequest(BaseModel):

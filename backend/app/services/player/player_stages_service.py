@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import contextlib
 import math
+import time
 from typing import Any, Literal
 
 from backend.app.config import Settings
@@ -126,11 +127,14 @@ class PlayerStagesService:
 
     async def get_cleared_stage_ids(self, uid: int) -> list[int]:
         document = await self._load_stage_document(uid)
-        raw_stages = self._sanitize_raw_stages(document.get('stages') if isinstance(document, dict) else [])
+        raw_stages = document.get('stages') if isinstance(document, dict) else []
         cleared_stage_ids = {
             stage_id
             for raw_stage in raw_stages
-            if (stage_id := _normalize_stage_id(raw_stage)) is not None
+            if isinstance(raw_stage, dict)
+            and isinstance(raw_stage.get('v'), dict)
+            and raw_stage['v'].get('Passed') is True
+            and (stage_id := _normalize_stage_id(raw_stage)) is not None
         }
         return sorted(cleared_stage_ids)
 
@@ -160,6 +164,9 @@ class PlayerStagesService:
             if not normalized_stage_ids:
                 return AddStagesResponse(added_count=0)
 
+            now = int(time.time())
+            # This records raw stage completion only. It intentionally does not grant rewards or
+            # update activity-specific progression owned by the game server.
             new_stages = [
                 {
                     'k': stage_id,
@@ -167,7 +174,18 @@ class PlayerStagesService:
                         'StageId': stage_id,
                         'StarsMark': 7,
                         'Passed': True,
+                        'PassTimesToday': 0,
                         'PassTimesTotal': 1,
+                        'BuyCount': 0,
+                        'Score': 0,
+                        'LastPassTime': now,
+                        'RefreshTime': now,
+                        'CreateTime': now,
+                        'BestRecordTime': 0,
+                        'LastRecordTime': 0,
+                        'BestCardIds': [1021001],
+                        'LastCardIds': [1021001],
+                        'Achievement': 0,
                     },
                 }
                 for stage_id in normalized_stage_ids

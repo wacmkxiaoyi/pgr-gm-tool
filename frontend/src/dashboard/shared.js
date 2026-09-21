@@ -232,6 +232,46 @@ export const dom = {
   playerCardSerum: document.querySelector('#player-card-serum'),
   playerCardBlackCard: document.querySelector('#player-card-black-card'),
   playerCardRainbowCard: document.querySelector('#player-card-rainbow-card'),
+  nameplatePickerOpenButton: document.querySelector('[data-nameplate-picker-open]'),
+  nameplatePickerModal: document.querySelector('#nameplate-picker-modal'),
+  nameplatePickerTitle: document.querySelector('#nameplate-picker-title'),
+  nameplatePickerEyebrow: document.querySelector('#nameplate-picker-eyebrow'),
+  nameplatePickerCurrent: document.querySelector('#nameplate-picker-current'),
+  nameplatePickerGrid: document.querySelector('#nameplate-picker-grid'),
+  nameplatePickerConfirmButton: document.querySelector('#nameplate-picker-confirm'),
+  nameplatePickerCloseTargets: document.querySelectorAll('[data-nameplate-picker-modal-close]'),
+  chatEmojiPickerOpenButton: document.querySelector('[data-chat-emoji-picker-open]'),
+  chatEmojiPickerModal: document.querySelector('#chat-emoji-picker-modal'),
+  chatEmojiPickerTitle: document.querySelector('#chat-emoji-picker-title'),
+  chatEmojiPickerEyebrow: document.querySelector('#chat-emoji-picker-eyebrow'),
+  chatEmojiPickerGrid: document.querySelector('#chat-emoji-picker-grid'),
+  chatEmojiPickerUnlockAllButton: document.querySelector('#chat-emoji-picker-unlock-all'),
+  chatEmojiPickerConfirmButton: document.querySelector('#chat-emoji-picker-confirm'),
+  chatEmojiPickerCloseTargets: document.querySelectorAll('[data-chat-emoji-picker-modal-close]'),
+  scoreTitlePickerOpenButton: document.querySelector('[data-score-title-picker-open]'),
+  scoreTitlePickerModal: document.querySelector('#score-title-picker-modal'),
+  scoreTitlePickerTitle: document.querySelector('#score-title-picker-title'),
+  scoreTitlePickerEyebrow: document.querySelector('#score-title-picker-eyebrow'),
+  scoreTitlePickerGrid: document.querySelector('#score-title-picker-grid'),
+  scoreTitlePickerUnlockAllButton: document.querySelector('#score-title-picker-unlock-all'),
+  scoreTitlePickerConfirmButton: document.querySelector('#score-title-picker-confirm'),
+  scoreTitlePickerCloseTargets: document.querySelectorAll('[data-score-title-picker-modal-close]'),
+  medalPickerOpenButton: document.querySelector('[data-medal-picker-open]'),
+  medalPickerModal: document.querySelector('#medal-picker-modal'),
+  medalPickerTitle: document.querySelector('#medal-picker-title'),
+  medalPickerEyebrow: document.querySelector('#medal-picker-eyebrow'),
+  medalPickerCurrent: document.querySelector('#medal-picker-current'),
+  medalPickerGrid: document.querySelector('#medal-picker-grid'),
+  medalPickerConfirmButton: document.querySelector('#medal-picker-confirm'),
+  medalPickerCloseTargets: document.querySelectorAll('[data-medal-picker-modal-close]'),
+  chatBoardPickerOpenButton: document.querySelector('[data-chat-board-picker-open]'),
+  chatBoardPickerModal: document.querySelector('#chat-board-picker-modal'),
+  chatBoardPickerTitle: document.querySelector('#chat-board-picker-title'),
+  chatBoardPickerEyebrow: document.querySelector('#chat-board-picker-eyebrow'),
+  chatBoardPickerCurrent: document.querySelector('#chat-board-picker-current'),
+  chatBoardPickerGrid: document.querySelector('#chat-board-picker-grid'),
+  chatBoardPickerConfirmButton: document.querySelector('#chat-board-picker-confirm'),
+  chatBoardPickerCloseTargets: document.querySelectorAll('[data-chat-board-picker-modal-close]'),
   playerPortraitPickerModal: document.querySelector('#player-portrait-picker-modal'),
   playerPortraitPickerTitle: document.querySelector('#player-portrait-picker-title'),
   playerPortraitPickerEyebrow: document.querySelector('#player-portrait-picker-eyebrow'),
@@ -509,6 +549,19 @@ export const state = {
   itemManagementSortOrder: 'asc',
   itemManagementEditState: null,
   stageEntriesMap: {},
+  nameplateEntiresMap: {},
+  nameplatePickerState: null,
+  lastNameplatePickerTrigger: null,
+  chatEmojiPickerState: null,
+  lastChatEmojiPickerTrigger: null,
+  scoreTitlePickerState: null,
+  lastScoreTitlePickerTrigger: null,
+  medalEntiresMap: {},
+  medalPickerState: null,
+  lastMedalPickerTrigger: null,
+  chatBoardEntiresMap: {},
+  chatBoardPickerState: null,
+  lastChatBoardPickerTrigger: null,
   stageManagementCurrentPage: 1,
   stageManagementTotalPages: 0,
   stageManagementHasLoaded: false,
@@ -724,6 +777,19 @@ Object.assign(app, {
       .map(([id, url]) => ({ id: app.normalizePlayerResourceId(id), url: typeof url === 'string' ? url : '' }))
       .filter((item) => item.id !== null)
       .sort((left, right) => left.id - right.id);
+  },
+  isPlayerResourceUnlocked: (field, id) => {
+    const profile = state.playerProfileData;
+    if (!profile || id === 0) {
+      return true;
+    }
+
+    const unlockedIds = field === 'head_frame_id'
+      ? profile.unlock_head_frames
+      : field === 'use_background_id'
+        ? profile.owned_background_ids
+        : profile.unlock_head_portraits;
+    return Array.isArray(unlockedIds) && unlockedIds.includes(id);
   },
   getPlayerResourceLabel: (field) => {
     if (field === 'head_frame_id') {

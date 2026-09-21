@@ -28,6 +28,12 @@ HONOR_LEVEL_TSV_PATH = Path("assets/HonorLevel.tsv")
 
 ITEM_TSV_PATH = Path("assets/Item.tsv")
 STAGE_TSV_PATH = Path("assets/Stage.tsv")
+NAMEPLATE_TSV_PATH = Path("assets/Nameplate.tsv")
+NAMEPLATE_CONTENT_MAP_TSV_PATH = Path("assets/NameplateContentMap.tsv")
+MEDAL_TSV_PATH = Path("assets/Medal.tsv")
+CHAT_BOARD_TSV_PATH = Path("assets/ChatBoard.tsv")
+EMOJI_TSV_PATH = Path("assets/Emoji.tsv")
+SCORE_TITLE_TSV_PATH = Path("assets/ScoreTitle.tsv")
 
 FIXED_CHARACTER_MAX_MEMORY_RESONANCES = [
     [

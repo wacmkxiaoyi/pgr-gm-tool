@@ -30,7 +30,31 @@ class _FakeClient:
     def close(self) -> None:
         self.closed = True
 
-def test_add_stages_persists_skipped_battle_completion_fields(monkeypatch) -> None:
+
+def test_get_cleared_stage_ids_requires_explicit_passed_true(monkeypatch) -> None:
+    service = object.__new__(PlayerStagesService)
+
+    async def load_stage_document(_uid: int):
+        return {
+            'stages': [
+                {'v': {'StageId': 1003, 'Passed': True}},
+                {'v': {'StageId': 1001, 'Passed': True}},
+                {'v': {'StageId': 1002, 'Passed': False}},
+                {'v': {'StageId': 1004}},
+                {'v': {'StageId': 1003, 'Passed': True}},
+                {'v': {'StageId': 'invalid', 'Passed': True}},
+                {'v': {'Passed': True}},
+                {'v': {'StageId': 1005, 'Passed': 1}},
+                {},
+            ],
+        }
+
+    monkeypatch.setattr(service, '_load_stage_document', load_stage_document)
+
+    assert asyncio.run(service.get_cleared_stage_ids(uid=42)) == [1001, 1003]
+
+
+def test_add_stages_persists_complete_raw_completion_record(monkeypatch) -> None:
     collection = _FakeCollection()
     client = _FakeClient(collection)
     service = object.__new__(PlayerStagesService)
@@ -38,6 +62,7 @@ def test_add_stages_persists_skipped_battle_completion_fields(monkeypatch) -> No
 
     monkeypatch.setattr(player_stages_service, 'create_mongo_client', lambda _settings: client)
     monkeypatch.setattr(player_stages_service, 'get_stage_entries_map', lambda: {1001: {}})
+    monkeypatch.setattr(player_stages_service.time, 'time', lambda: 1_700_000_000)
 
     result = asyncio.run(service.add_stages(uid=42, stage_ids=[1001]))
 
@@ -52,7 +77,18 @@ def test_add_stages_persists_skipped_battle_completion_fields(monkeypatch) -> No
                         'StageId': 1001,
                         'StarsMark': 7,
                         'Passed': True,
+                        'PassTimesToday': 0,
                         'PassTimesTotal': 1,
+                        'BuyCount': 0,
+                        'Score': 0,
+                        'LastPassTime': 1_700_000_000,
+                        'RefreshTime': 1_700_000_000,
+                        'CreateTime': 1_700_000_000,
+                        'BestRecordTime': 0,
+                        'LastRecordTime': 0,
+                        'BestCardIds': [1021001],
+                        'LastCardIds': [1021001],
+                        'Achievement': 0,
                     },
                 }],
             },

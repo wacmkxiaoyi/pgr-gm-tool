@@ -73,7 +73,9 @@ ASSET_MAP = {
     "Nameplate.tsv": "en/bytes/share/nameplate/Nameplate.json",
     "NameplateContentMap.tsv": "en/bytes/client/nameplate/NameplateContentMap.json",
     "ChatBoard.tsv": "en/bytes/share/chat/ChatBoard.json",
+    "Emoji.tsv": "en/bytes/share/chat/Emoji.json",
     "Medal.tsv": "cn/bytes/share/medal/Medal.json",
+    "ScoreTitle.tsv": "en/bytes/share/scoretitle/ScoreTitle.json",
     "leveluptemplate/1.tsv": "cn/bytes/share/character/leveluptemplate/1.json",
     "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
     **{
@@ -168,6 +170,27 @@ def write_tsv(data, destination: Path) -> int:
     return len(data)
 
 
+def convert_json_file(source_file: Path, target_path: Path, dry_run: bool = False) -> None:
+    """Convert one local JSON array into a TSV asset."""
+    try:
+        with source_file.open("r", encoding="utf-8-sig") as file:
+            data = json.load(file)
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"failed to read {source_file}: {error}") from error
+
+    if dry_run:
+        temporary_dir = Path(tempfile.mkdtemp(prefix="pgr-json-"))
+        try:
+            rows = write_tsv(data, temporary_dir / target_path)
+        finally:
+            shutil.rmtree(temporary_dir, ignore_errors=True)
+        print(f"Prepared {target_path} from {source_file} ({rows} rows); assets were not changed.")
+        return
+
+    rows = write_tsv(data, ASSETS_DIR / target_path)
+    print(f"Updated {target_path} from {source_file} ({rows} rows).")
+
+
 def prepare_asset(target_path: str, source_path: str, temporary_dir: Path, upstream_dir: Path | None):
     rows = write_tsv(fetch_json(source_path, upstream_dir), temporary_dir / target_path)
     return target_path, source_path, rows
@@ -232,6 +255,8 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true", help="download and convert without replacing assets")
+    parser.add_argument("--from-json", type=Path, help="local JSON file to convert; requires --to-tsv")
+    parser.add_argument("--to-tsv", type=Path, help="target path relative to backend/assets; requires --from-json")
     parser.add_argument(
         "--upstream-dir",
         type=Path,
@@ -256,6 +281,20 @@ def main() -> int:
         help="update CharacterRecommendEquips.tsv (default false)"
     )
     args = parser.parse_args()
+    if (args.from_json is None) != (args.to_tsv is None):
+        parser.error("--from-json and --to-tsv must be used together")
+    if args.from_json is not None:
+        args.from_json = args.from_json.resolve()
+        if not args.from_json.is_file():
+            parser.error("--from-json must be an existing JSON file")
+        if args.to_tsv.is_absolute() or ".." in args.to_tsv.parts or args.to_tsv.suffix != ".tsv":
+            parser.error("--to-tsv must be a relative .tsv path within backend/assets")
+        try:
+            convert_json_file(args.from_json, args.to_tsv, dry_run=args.dry_run)
+        except (RuntimeError, ValueError, OSError) as error:
+            print(f"Asset conversion failed: {error}", file=sys.stderr)
+            return 1
+        return 0
     if args.workers < 1:
         parser.error("--workers must be a positive integer")
     if args.upstream_dir is not None:

@@ -12,4 +12,9 @@
 @import url("./styles/dashboard-server-config.css");
 @import url("./styles/dashboard-account-modals.css");
 @import url("./styles/dashboard-portrait-picker.css");
+@import url("./styles/dashboard-nameplate-picker.css");
+@import url("./styles/dashboard-chat-emoji-picker.css");
+@import url("./styles/dashboard-score-title-picker.css");
+@import url("./styles/dashboard-medal-picker.css");
+@import url("./styles/dashboard-chat-board-picker.css");
 @import url("./styles/legacy-dashboard-unused.css");

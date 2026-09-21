@@ -2270,6 +2270,52 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
     return lines;
   }
 
+  if (payload?.type === 'nameplate') {
+    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
+    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.nameplateTooltipTitle'))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(String(payload?.title || '--'))}</span></div>`);
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.nameplateTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
+  if (payload?.type === 'medal') {
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
+  if (payload?.type === 'chatBoard') {
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
+  if (payload?.type === 'chatEmoji') {
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
+  if (payload?.type === 'scoreTitle') {
+    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
+    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.scoreTitleTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
+    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    return lines;
+  }
+
   const star = Number.isFinite(Number(payload?.star)) ? Math.max(0, Number(payload.star)) : 0;
   const breakthrough = Number.isFinite(Number(payload?.breakthrough)) ? Math.max(0, Number(payload.breakthrough)) : 0;
   const level = Number.isFinite(Number(payload?.level)) ? Math.max(0, Number(payload.level)) : null;

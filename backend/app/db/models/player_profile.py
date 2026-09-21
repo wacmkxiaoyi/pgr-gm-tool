@@ -27,6 +27,8 @@ PLAYER_DOCUMENT_FIELD_PATHS = {
     "likes": "player_data.Likes",
     "head_portrait_id": "player_data.CurrHeadPortraitId",
     "head_frame_id": f"player_data.{PLAYER_HEAD_FRAME_ID_FIELD}",
+    "current_medal_id": "player_data.CurrMedalId",
+    "current_chat_board_id": "player_data.CurrentChatBoardId",
     "use_background_id": PLAYER_BACKGROUND_ID_FIELD,
 }
 PLAYER_DATA_SCHEMA_PATH = "player_data"
@@ -47,6 +49,15 @@ class PlayerProfileRecord(BaseModel):
     head_portrait_id: int | None = None
     head_frame_id: int | None = None
     use_background_id: int | None = None
+    unlock_head_portraits: list[int] = []
+    unlock_head_frames: list[int] = []
+    owned_background_ids: list[int] = []
+    current_wear_nameplate: int | None = None
+    unlock_nameplates: list[int] = []
+    current_medal_id: int = 0
+    unlock_medals: list[int] = []
+    current_chat_board_id: int = 25000001
+    unlock_chat_boards: list[int] = []
 
 
 class UpdatePlayerProfilePayload(BaseModel):

@@ -11,6 +11,7 @@ from backend.app.config import Settings
 SESSION_COOKIE_NAME = "login_session_token"
 SESSION_TTL_HOURS = 12
 SESSION_STORE: dict[str, "Session"] = {}
+AUTHENTICATION_ENABLED = True
 
 
 class Session(BaseModel):
@@ -19,8 +20,17 @@ class Session(BaseModel):
     selected_account_uid: int | None = None
 
 
+ANONYMOUS_SESSION = Session(token="", expires_at=datetime.max.replace(tzinfo=timezone.utc))
+
+
+def configure_authentication(enabled: bool) -> None:
+    global AUTHENTICATION_ENABLED
+    AUTHENTICATION_ENABLED = enabled
+    ANONYMOUS_SESSION.selected_account_uid = None
+
+
 def create_session(username: str, password: str, settings: Settings) -> Session | None:
-    if not settings.admin_username or not settings.admin_password:
+    if not settings.authentication_enabled:
         return None
 
     if username != settings.admin_username or password != settings.admin_password:
@@ -34,6 +44,9 @@ def create_session(username: str, password: str, settings: Settings) -> Session 
 
 
 def get_session(token: str | None) -> Session | None:
+    if not AUTHENTICATION_ENABLED:
+        return ANONYMOUS_SESSION
+
     if not token:
         return None
 

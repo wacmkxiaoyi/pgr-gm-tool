@@ -304,6 +304,9 @@ app.loadAppInfo = async () => {
     state.characterGradeNameMap = payload?.character_grade_name_map && typeof payload.character_grade_name_map === 'object' ? payload.character_grade_name_map : {};
     state.characterTrustExpMap = payload?.character_trust_exp_map && typeof payload.character_trust_exp_map === 'object' ? payload.character_trust_exp_map : {};
     state.stageEntriesMap = payload?.stage_entries_map && typeof payload.stage_entries_map === 'object' ? payload.stage_entries_map : {};
+    state.nameplateEntiresMap = payload?.nameplate_entires_map && typeof payload.nameplate_entires_map === 'object' ? payload.nameplate_entires_map : {};
+    state.medalEntiresMap = payload?.medal_entires_map && typeof payload.medal_entires_map === 'object' ? payload.medal_entires_map : {};
+    state.chatBoardEntiresMap = payload?.chat_board_entires_map && typeof payload.chat_board_entires_map === 'object' ? payload.chat_board_entires_map : {};
     state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
     state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
     state.weaponOverrunSuitMemoryIdsMap = payload?.weapon_overrun_suit_memory_ids_map && typeof payload.weapon_overrun_suit_memory_ids_map === 'object' ? payload.weapon_overrun_suit_memory_ids_map : {};
@@ -341,6 +344,9 @@ app.loadAppInfo = async () => {
     state.characterGradeNameMap = {};
     state.characterTrustExpMap = {};
     state.stageEntriesMap = {};
+    state.nameplateEntiresMap = {};
+    state.medalEntiresMap = {};
+    state.chatBoardEntiresMap = {};
     state.weaponSkillEntriesMap = {};
     state.weaponOverrunSuitEntriesMap = {};
     state.weaponOverrunSuitMemoryIdsMap = {};

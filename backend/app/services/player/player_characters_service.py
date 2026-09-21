@@ -39,6 +39,9 @@ from backend.app.services.player.player_characters import (
     get_character_default_weapon_map,
     get_character_equip_type_map,
 )
+from backend.app.services.player.nameplates import get_nameplate_entires_map
+from backend.app.services.player.chat_emojis import get_emoji_entires_map
+from backend.app.services.player.score_titles import get_score_title_entires_map
 CharacterSortField = Literal["sequence", "name", "quality", "level", "grade", "awaken_level"]
 CharacterSortOrder = Literal["asc", "desc"]
 
@@ -303,6 +306,209 @@ class PlayerCharactersService:
             WEAPON_FASHIONS_SCHEMA_PATH,
         )
         return [item for item in sanitized if isinstance(item, dict)] if isinstance(sanitized, list) else []
+
+    async def get_nameplate_state(self, uid: int) -> tuple[int | None, list[int]]:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"nameplates": 1, "current_wear_nameplate": 1})
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not document:
+            return None, []
+
+        normalized_document = self._sanitize_characters_document(document)
+        now_unix_seconds = int(time.time())
+        nameplate_entries_map = get_nameplate_entires_map()
+        raw_nameplates = normalized_document.get("nameplates")
+        valid_nameplates = raw_nameplates if isinstance(raw_nameplates, list) else []
+        unlock_nameplates = sorted({
+            nameplate_id
+            for owned in valid_nameplates if isinstance(owned, dict)
+            if (nameplate_id := parse_optional_int(owned.get("Id"))) in nameplate_entries_map
+            and ((end_time := parse_optional_int(owned.get("EndTime"))) is None or end_time == 0 or end_time > now_unix_seconds)
+        })
+        current_wear_nameplate = parse_optional_int(normalized_document.get("current_wear_nameplate"))
+        return (current_wear_nameplate if current_wear_nameplate in unlock_nameplates else None), unlock_nameplates
+
+    async def select_nameplate(self, uid: int, nameplate_id: int) -> bool:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"nameplates": 1})
+            if not document:
+                return False
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_nameplates = normalized_document.get("nameplates")
+            nameplates = raw_nameplates if isinstance(raw_nameplates, list) else []
+            now_unix_seconds = int(time.time())
+            if nameplate_id > 0:
+                existing_index = next((
+                    index for index, owned in enumerate(nameplates)
+                    if isinstance(owned, dict) and parse_optional_int(owned.get("Id")) == nameplate_id
+                ), None)
+                existing_end_time = parse_optional_int(nameplates[existing_index].get("EndTime")) if existing_index is not None else None
+                if existing_index is None or (existing_end_time not in {None, 0} and existing_end_time <= now_unix_seconds):
+                    owned = {"Id": nameplate_id, "Exp": 0, "EndTime": 0, "GetTime": now_unix_seconds}
+                    if existing_index is None:
+                        nameplates.append(owned)
+                    else:
+                        nameplates[existing_index] = owned
+
+            update_fields = self._get_characters_schema().materialize_update_fields({
+                "nameplates": nameplates,
+                "current_wear_nameplate": nameplate_id,
+            })
+            result = await collection.update_one(matching_uid_query(uid), {"$set": update_fields})
+            return result.matched_count > 0
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def get_locked_chat_emojis(self, uid: int) -> dict[int, dict[str, str | None]] | None:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"chat_emojis": 1})
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not document:
+            return None
+
+        normalized_document = self._sanitize_characters_document(document)
+        now_unix_seconds = int(time.time())
+        raw_emojis = normalized_document.get("chat_emojis")
+        emojis = raw_emojis if isinstance(raw_emojis, list) else []
+        active_ids = {
+            emoji_id
+            for owned in emojis
+            if isinstance(owned, dict)
+            if (emoji_id := parse_optional_int(owned.get("Id"))) is not None
+            and ((end_time := parse_optional_int(owned.get("EndTime"))) is None or end_time == 0 or end_time > now_unix_seconds)
+        }
+        return {
+            emoji_id: entry
+            for emoji_id, entry in get_emoji_entires_map().items()
+            if emoji_id not in active_ids
+        }
+
+    async def unlock_chat_emojis(self, uid: int, emoji_ids: list[int]) -> list[int] | None:
+        valid_ids = set(emoji_ids) & set(get_emoji_entires_map())
+        if not valid_ids:
+            return []
+
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"chat_emojis": 1})
+            if not document:
+                return None
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_emojis = normalized_document.get("chat_emojis")
+            emojis = [entry for entry in raw_emojis if isinstance(entry, dict)] if isinstance(raw_emojis, list) else []
+            now_unix_seconds = int(time.time())
+            unlocked_ids: list[int] = []
+            for emoji_id in sorted(valid_ids):
+                existing_index = next((
+                    index for index, owned in enumerate(emojis)
+                    if parse_optional_int(owned.get("Id")) == emoji_id
+                ), None)
+                existing_end_time = parse_optional_int(emojis[existing_index].get("EndTime")) if existing_index is not None else None
+                if existing_index is not None and (existing_end_time is None or existing_end_time == 0 or existing_end_time > now_unix_seconds):
+                    continue
+
+                emoji = {"Id": emoji_id, "EndTime": 0}
+                if existing_index is None:
+                    emojis.append(emoji)
+                else:
+                    emojis[existing_index] = emoji
+                unlocked_ids.append(emoji_id)
+
+            if unlocked_ids:
+                update_fields = self._get_characters_schema().materialize_update_fields({"chat_emojis": emojis})
+                result = await collection.update_one(matching_uid_query(uid), {"$set": update_fields})
+                if result.matched_count <= 0:
+                    return None
+            return unlocked_ids
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def get_locked_score_titles(self, uid: int) -> dict[int, dict[str, int | str | None]] | None:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"score_titles": 1})
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+        if not document:
+            return None
+
+        normalized_document = self._sanitize_characters_document(document)
+        raw_titles = normalized_document.get("score_titles")
+        titles = raw_titles if isinstance(raw_titles, list) else []
+        qualities_by_id = {
+            title_id: quality
+            for owned in titles
+            if isinstance(owned, dict)
+            if (title_id := parse_optional_int(owned.get("Id"))) is not None
+            if (quality := parse_optional_int(owned.get("Quality"))) is not None
+        }
+        return {
+            title_id: entry
+            for title_id, entry in get_score_title_entires_map().items()
+            if qualities_by_id.get(title_id) != entry["MaxQuality"]
+        }
+
+    async def unlock_score_titles(self, uid: int, title_ids: list[int]) -> list[int] | None:
+        entries_map = get_score_title_entires_map()
+        valid_ids = set(title_ids) & set(entries_map)
+        if not valid_ids:
+            return []
+
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"score_titles": 1})
+            if not document:
+                return None
+
+            normalized_document = self._sanitize_characters_document(document)
+            raw_titles = normalized_document.get("score_titles")
+            titles = [entry for entry in raw_titles if isinstance(entry, dict)] if isinstance(raw_titles, list) else []
+            unlocked_ids: list[int] = []
+            for title_id in sorted(valid_ids):
+                max_quality = entries_map[title_id]["MaxQuality"]
+                existing_index = next((
+                    index for index, owned in enumerate(titles)
+                    if parse_optional_int(owned.get("Id")) == title_id
+                ), None)
+                if existing_index is not None and parse_optional_int(titles[existing_index].get("Quality")) == max_quality:
+                    continue
+
+                if existing_index is None:
+                    titles.append({"Id": title_id, "Quality": max_quality, "Score": 0, "Time": 0, "WallId": 0, "ExpandInfo": None})
+                else:
+                    titles[existing_index]["Quality"] = max_quality
+                unlocked_ids.append(title_id)
+
+            if unlocked_ids:
+                update_fields = self._get_characters_schema().materialize_update_fields({"score_titles": titles})
+                result = await collection.update_one(matching_uid_query(uid), {"$set": update_fields})
+                if result.matched_count <= 0:
+                    return None
+            return unlocked_ids
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
 
     def _build_weapon_fashion_document(self, fashion_id: int, character_id: int) -> dict[str, Any]:
         fashion_document = self._get_characters_schema().materialize_write({
@@ -805,7 +1011,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "weaponFashions": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
@@ -860,7 +1066,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "weaponFashions": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
             normalized_characters_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
 
@@ -1191,7 +1397,9 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1})
+            characters_document = await characters_collection.find_one(
+                matching_uid_query(uid), {"characters": 1, "weaponFashions": 1},
+            )
             normalized_document = self._sanitize_characters_document(characters_document)
             characters = self._sanitize_character_list(normalized_document.get("characters"))
             target_index = next((
@@ -1785,8 +1993,10 @@ class PlayerCharactersService:
         equip_type = character_equip_type_map.get(character_id)
         unlocked_weapon_fashion_ids: set[int] = set()
         current_weapon_fashion_id: int | None = None
+        now = int(time.time())
         for weapon_fashion in account_weapon_fashions:
             weapon_fashion_id = parse_optional_int(weapon_fashion.get("_id"))
+            expire_time = parse_optional_int(weapon_fashion.get("ExpireTime")) or 0
             use_character_ids = {
                 listed_character_id
                 for raw_character_id in weapon_fashion.get("UseCharacterList", [])
@@ -1794,6 +2004,8 @@ class PlayerCharactersService:
                 if listed_character_id is not None
             }
             if weapon_fashion_id is None:
+                continue
+            if expire_time != 0 and expire_time <= now:
                 continue
             unlocked_weapon_fashion_ids.add(weapon_fashion_id)
             if current_weapon_fashion_id is None and character_id in use_character_ids and weapon_fashion_id in weapon_fashion_entries_map:

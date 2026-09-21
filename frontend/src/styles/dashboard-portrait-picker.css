@@ -101,6 +101,7 @@
 }
 
 .player-portrait-picker-item-preview {
+  position: relative;
   width: 70px;
   height: 70px;
   display: grid;
@@ -109,6 +110,7 @@
   background: linear-gradient(145deg, rgba(124, 92, 246, 0.1), rgba(56, 189, 248, 0.08));
   border: 1px solid rgba(148, 163, 184, 0.14);
   overflow: hidden;
+  isolation: isolate;
 }
 
 .player-portrait-picker-item-preview img {

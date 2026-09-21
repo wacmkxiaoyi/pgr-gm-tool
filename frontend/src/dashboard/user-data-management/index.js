@@ -18,6 +18,11 @@ import './weapon/weapon-add-modal.js';
 import './shared/item-modals.js';
 import './player-profile/player-profile.js';
 import './player-profile/portrait-picker.js';
+import './player-profile/nameplate-picker.js';
+import './player-profile/medal-picker.js';
+import './player-profile/chat-board-picker.js';
+import './player-profile/chat-emoji-picker.js';
+import './player-profile/score-title-picker.js';
 
 import { initDatabaseAccountsFeature } from './accounts/accounts.js';
 import { initDatabaseAccountModalFeature } from './accounts/account-modals.js';
@@ -37,6 +42,11 @@ import { initDatabaseWeaponAddModalFeature } from './weapon/weapon-add-modal.js'
 import { initDatabaseItemModalFeature } from './shared/item-modals.js';
 import { initDatabasePlayerProfileFeature } from './player-profile/player-profile.js';
 import { initDatabasePortraitPickerFeature } from './player-profile/portrait-picker.js';
+import { initDatabaseNameplatePickerFeature } from './player-profile/nameplate-picker.js';
+import { initDatabaseMedalPickerFeature } from './player-profile/medal-picker.js';
+import { initDatabaseChatBoardPickerFeature } from './player-profile/chat-board-picker.js';
+import { initDatabaseChatEmojiPickerFeature } from './player-profile/chat-emoji-picker.js';
+import { initDatabaseScoreTitlePickerFeature } from './player-profile/score-title-picker.js';
 
 export const initDatabaseFeature = () => {
   initDatabaseAccountsFeature();
@@ -57,4 +67,9 @@ export const initDatabaseFeature = () => {
   initDatabaseItemModalFeature();
   initDatabasePlayerProfileFeature();
   initDatabasePortraitPickerFeature();
+  initDatabaseNameplatePickerFeature();
+  initDatabaseMedalPickerFeature();
+  initDatabaseChatBoardPickerFeature();
+  initDatabaseChatEmojiPickerFeature();
+  initDatabaseScoreTitlePickerFeature();
 };

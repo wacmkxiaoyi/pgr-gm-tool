@@ -137,6 +137,7 @@ class Settings:
         self.healthy_check_interval = max(1, _to_int(self._resolve("HEALTHY_CHECK_INTERVAL"), 60))
         self.admin_username = (self._resolve("ADMIN_USERNAME") or "").strip()
         self.admin_password = (self._resolve("ADMIN_PASSWORD") or "").strip()
+        self.authentication_enabled = bool(self.admin_username and self.admin_password)
         self.max_character_use_fix_memory_resonance = _to_bool(
             self._resolve("MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE"),
             True,
@@ -221,6 +222,7 @@ class Settings:
             "enable_server_management": self.enable_server_management,
             "server_runtime_log_path": self.server_runtime_log_path,
             "healthy_check_interval": self.healthy_check_interval,
+            "authentication_enabled": self.authentication_enabled,
             "sdk_server_scheme": self.sdk_server_scheme,
             "sdk_server_host": self.sdk_server_host,
             "sdk_server_port": self.sdk_server_port,
