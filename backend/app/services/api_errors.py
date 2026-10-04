@@ -182,6 +182,18 @@ ERROR_MESSAGES = {
         'zh-CN': '所选武器与当前角色的武器类型不匹配。',
         'en-US': 'The selected weapon type does not match the current character.',
     },
+    'character.weapon_swap_requires_weapon': {
+        'zh-CN': '当前角色没有可交还的武器，无法取用其他角色已穿戴的武器。',
+        'en-US': 'The current character needs a weapon to return before taking another character\'s equipped weapon.',
+    },
+    'character.add_invalid': {
+        'zh-CN': '角色 ID 无效，或缺少进化、默认涂装、默认武器配置，暂时无法添加。',
+        'en-US': 'The character ID is invalid or its quality, default fashion, or default weapon configuration is missing.',
+    },
+    'character.max_template_not_found': {
+        'zh-CN': '当前角色缺少完整的培养或推荐装备配置，暂时无法拉满。',
+        'en-US': 'Complete progression or recommended equipment data is missing for this character.',
+    },
     'equips.resonance_not_found': {
         'zh-CN': '未找到对应共鸣槽位数据。',
         'en-US': 'The requested resonance slot data was not found.',

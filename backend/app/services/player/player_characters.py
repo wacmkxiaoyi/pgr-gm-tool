@@ -79,6 +79,57 @@ def _build_character_skill_ids_map(character_skill_tsv_path: Any, skill_group_ts
     return normalized_map
 
 
+@lru_cache(maxsize=1)
+def get_character_skill_groups_map() -> dict[int, list[list[int]]]:
+    groups = get_character_skill_group_skill_ids_map()
+    return {
+        character_id: [groups.get(group_id, []) for group_id in group_ids]
+        for character_id, group_ids in get_character_skill_group_ids_map().items()
+    }
+
+
+def build_character_max_skills(character_id: int, existing_skills: Any = None) -> list[dict[str, Any]]:
+    """Match the server's last-existing selection, or the first skill of a group."""
+    entries = get_character_skill_entries_map()
+    existing = existing_skills if isinstance(existing_skills, list) else []
+    result: list[dict[str, Any]] = []
+    for skill_ids in get_character_skill_groups_map().get(character_id, []):
+        if not skill_ids:
+            continue
+        selected = next(
+            (entry for entry in reversed(existing) if isinstance(entry, dict) and parse_int(entry.get("_id")) in skill_ids),
+            None,
+        )
+        skill_id = parse_int(selected.get("_id")) if selected else skill_ids[0]
+        max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
+        if max_level > 0:
+            result.append({**(selected or {}), "_id": skill_id, "Level": max_level})
+    return result
+
+
+@lru_cache(maxsize=1)
+def get_character_add_config_map() -> dict[int, dict[str, int]]:
+    """Only offer characters whose real defaults can be materialized."""
+    qualities = get_character_quality_bound_map()
+    fashions = get_character_default_fashion_id_map()
+    fashion_catalog = get_character_fashions_map()
+    weapons = get_character_default_weapon_map()
+    sites = get_equip_site_map()
+    result: dict[int, dict[str, int]] = {}
+    for character_id in get_character_log_name_map():
+        quality = qualities.get(character_id)
+        fashion_id = parse_int(fashions.get(character_id))
+        weapon_id = parse_int(weapons.get(character_id))
+        if not isinstance(quality, list) or len(quality) != 2 or not (1 <= (parse_int(quality[0]) or 0) <= 6):
+            continue
+        if fashion_id is None or not any(parse_int(row.get("Id")) == fashion_id for row in fashion_catalog.get(character_id, [])):
+            continue
+        if weapon_id not in sites or parse_int(sites[weapon_id]) not in (None, 0):
+            continue
+        result[character_id] = {"Quality": int(quality[0]), "FashionId": fashion_id, "WeaponId": weapon_id}
+    return result
+
+
 def _build_skill_entries_map(level_effect_tsv_path: Any, upgrade_des_tsv_path: Any) -> dict[int, dict[str, int | str]]:
     level_effect_reader = TSVReader(level_effect_tsv_path, typed=True)
     upgrade_des_reader = TSVReader(upgrade_des_tsv_path, typed=True)
@@ -566,7 +617,10 @@ def _resolve_equip_max_level_exp(template_id: int, breakthrough: int) -> dict[st
     if levelup_template_id is None:
         return None
 
-    max_level = get_levelup_template_max_level(levelup_template_id)
+    try:
+        max_level = get_levelup_template_max_level(levelup_template_id)
+    except FileNotFoundError:
+        return None
     if max_level is None:
         return None
 
@@ -622,8 +676,6 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
     character_exhibitions_map = get_character_exhibitions_map()
     character_fashions_map = get_character_fashions_map()
     character_recommend_equips_map = get_character_recommend_equips_map()
-    character_skill_ids_map = get_character_skill_ids_map()
-    character_skill_entries_map = get_character_skill_entries_map()
     character_enhance_skill_ids_map = get_character_enhance_skill_ids_map()
     character_enhance_skill_entries_map = get_character_enhance_skill_entries_map()
     equip_breakthrough_max_map = get_equip_breakthrough_max_map()
@@ -643,7 +695,12 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         trust_levels = sorted(level for level in trust_exp_map if level > 0)
         max_trust_level = trust_levels[-1] if trust_levels else None
 
-        level_exp_map = get_level_exp_map(levelup_template_id)
+        try:
+            level_exp_map = get_level_exp_map(levelup_template_id)
+        except FileNotFoundError:
+            continue
+        if not level_exp_map:
+            continue
         character_max_level = max(list(level_exp_map.keys()))
         character_max_level_exp = level_exp_map[character_max_level]
 
@@ -756,11 +813,13 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
                     "WeaponOverrunData": overrun_data,
                 }
 
-        skill_list = [
-            {"_id": skill_id, "Level": parse_int(character_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}
-            for skill_id in character_skill_ids_map.get(character_id, [])
-            if (parse_int(character_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0) > 0
-        ]
+        if weapon_template is None or len(memory_templates) != 6:
+            continue
+
+        skill_list = build_character_max_skills(character_id)
+        groups = get_character_skill_groups_map().get(character_id, [])
+        if not groups or any(not group for group in groups) or len(skill_list) != len(groups):
+            continue
         enhance_skill_list = [
             {"_id": skill_id, "Level": parse_int(character_enhance_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}
             for skill_id in character_enhance_skill_ids_map.get(character_id, [])

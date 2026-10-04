@@ -85,6 +85,8 @@ class DatabaseAccountsService:
             await inventory_collection.delete_many({"uid": uid})
             await stages_collection.delete_many({"uid": uid})
             await boss_inshot_rank_entries_collection.delete_many({"player_id": uid})
+            await database["same_color_game_rank_entries"].delete_many({"player_id": uid})
+            await database["transfinite_tower_rank_entries"].delete_many({"player_id": uid})
         finally:
             with contextlib.suppress(Exception):
                 client.close()

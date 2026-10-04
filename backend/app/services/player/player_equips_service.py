@@ -612,6 +612,8 @@ class PlayerEquipsService:
                 if index != target_index:
                     swap_source_index = index
                     break
+            if swap_source_index is None:
+                raise ValueError("character.weapon_swap_requires_weapon")
 
         for index in current_weapon_indices:
             if index == target_index:

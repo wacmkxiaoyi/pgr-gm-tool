@@ -194,13 +194,13 @@ class PlayerProfileService:
                 now_unix_seconds = int(time.time())
                 existing_index = next((
                     index for index, entry in enumerate(normalized_medals)
-                    if parse_optional_int(entry.get("id")) == medal_id
+                    if parse_optional_int(entry.get("_id")) == medal_id
                 ), None)
                 if existing_index is None or not is_unlocked_medal_active(normalized_medals[existing_index], now_unix_seconds):
                     unlocked_medal = {
-                        "id": medal_id,
-                        "time": now_unix_seconds,
-                        "keep_time": get_medal_keep_time_map().get(medal_id, 0),
+                        "_id": medal_id,
+                        "time": Int64(now_unix_seconds),
+                        "keep_time": Int64(get_medal_keep_time_map().get(medal_id, 0)),
                     }
                     if existing_index is None:
                         normalized_medals.append(unlocked_medal)
@@ -236,10 +236,10 @@ class PlayerProfileService:
             now_unix_seconds = int(time.time())
             existing_index = next((
                 index for index, entry in enumerate(normalized_boards)
-                if parse_optional_int(entry.get("id")) == chat_board_id
+                if parse_optional_int(entry.get("_id")) == chat_board_id
             ), None)
             if existing_index is None or not is_unlocked_chat_board_active(normalized_boards[existing_index], now_unix_seconds):
-                unlocked_chat_board = {"id": chat_board_id, "get_time": now_unix_seconds, "end_time": 0}
+                unlocked_chat_board = {"_id": Int64(chat_board_id), "get_time": Int64(now_unix_seconds), "end_time": Int64(0)}
                 if existing_index is None:
                     normalized_boards.append(unlocked_chat_board)
                 else:
@@ -364,7 +364,7 @@ class PlayerProfileService:
         for unlocked_medal in unlocked_medals if isinstance(unlocked_medals, list) else []:
             if not isinstance(unlocked_medal, dict):
                 continue
-            medal_id = parse_optional_int(unlocked_medal.get("id"))
+            medal_id = parse_optional_int(unlocked_medal.get("_id"))
             if medal_id in medal_entries_map and is_unlocked_medal_active(unlocked_medal, now_unix_seconds):
                 unlock_medals.add(medal_id)
         if current_medal_id not in unlock_medals:
@@ -375,7 +375,7 @@ class PlayerProfileService:
         for unlocked_chat_board in unlocked_chat_boards if isinstance(unlocked_chat_boards, list) else []:
             if not isinstance(unlocked_chat_board, dict):
                 continue
-            chat_board_id = parse_optional_int(unlocked_chat_board.get("id"))
+            chat_board_id = parse_optional_int(unlocked_chat_board.get("_id"))
             if chat_board_id in chat_board_entries_map and is_unlocked_chat_board_active(unlocked_chat_board, now_unix_seconds):
                 unlock_chat_boards.add(chat_board_id)
         if current_chat_board_id not in unlock_chat_boards:

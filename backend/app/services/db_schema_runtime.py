@@ -247,6 +247,8 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
     node_type = schema_node.get("type")
 
     if node_type == "array":
+        if value is None and schema_node.get("default", []) is None:
+            return None
         item_schema = schema_node.get("schema")
         source = value if isinstance(value, list) else copy.deepcopy(schema_node.get("default", []))
         if not isinstance(source, list):

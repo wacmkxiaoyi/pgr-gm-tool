@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop, commit from `af439658f8c011552cd60a6d6506b24e47b17a60`;
+> Current support: InfiniteLoop 4.8, synchronized with commit `54075157794d3ecf3fca1370f3f3162575d97a39`.
 
 ## User Guide
 

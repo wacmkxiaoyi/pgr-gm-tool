@@ -350,7 +350,7 @@ def build_character_ids(character_full_name: str, c_id: int, character_skills_ma
             memory_resonance_skill_names = 'Signature - Hacking Sequence'
         elif memory_resonance_skill_names == 'Devastator':
             memory_resonance_skill_names = 'Signature - Devastator'
-        elif memory_resonance_skill_names in ('ATK', 'Any ATK'):
+        elif memory_resonance_skill_names in ('Core Passive', 'Class Passive', 'ATK', 'Any ATK', 'ATK Boost'):
             memory_resonance_skill_names = 'Ex - Precision Attack'
         elif memory_resonance_skill_names == 'Corporality of Peafowl, Spirit of Dragon':
             memory_resonance_skill_names = 'Marvel'

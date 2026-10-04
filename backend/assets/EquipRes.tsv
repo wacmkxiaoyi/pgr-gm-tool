@@ -226,6 +226,11 @@
 2674001	Assets/Product/Texture/Image/IconTools/E2AnchorMd010011.png	Assets/Product/Texture/Image/IconToolsSp/E2AnchorMd010011Sp.png	[16740111]	Assets/Product/Texture/Image/Arms/E2AnchorMd010011.png	Artist 211			
 2675001	Assets/Product/Texture/Image/IconTools/E2AnchorMd020011.png	Assets/Product/Texture/Image/IconToolsSp/E2AnchorMd020011Sp.png	[16750111]	Assets/Product/Texture/Image/Arms/E2AnchorMd020011.png	Artist 212			
 2676001	Assets/Product/Texture/Image/IconTools/E3AnchorMd010011.png	Assets/Product/Texture/Image/IconToolsSp/E3AnchorMd010011Sp.png	[16760111]	Assets/Product/Texture/Image/Arms/E3AnchorMd010011.png	Artist 213	[16760121]	[16760131]	[16760141]
+2685001	Assets/Product/Texture/Image/IconTools/E2KurumiMd020011.png	Assets/Product/Texture/Image/IconToolsSp/E2KurumiMd020011Sp.png	[16850111,16850112]	Assets/Product/Texture/Image/Arms/E2KurumiMd020011.png	Artist 214			
+2686001	Assets/Product/Texture/Image/IconTools/E3KurumiMd010011.png	Assets/Product/Texture/Image/IconToolsSp/E3KurumiMd010011Sp.png	[16860111,16860112]	Assets/Product/Texture/Image/Arms/E3KurumiMd010011.png	Artist 215			
+2694001	Assets/Product/Texture/Image/IconTools/E2HeavycrossMd010011.png	Assets/Product/Texture/Image/IconToolsSp/E2HeavycrossMd010011Sp.png	[16940111]	Assets/Product/Texture/Image/Arms/E2HeavycrossMd010011.png	Artist 216			
+2695001	Assets/Product/Texture/Image/IconTools/E2HeavycrossMd020011.png	Assets/Product/Texture/Image/IconToolsSp/E2HeavycrossMd020011Sp.png	[16950111]	Assets/Product/Texture/Image/Arms/E2HeavycrossMd020011.png	Artist 217			
+2696001	Assets/Product/Texture/Image/IconTools/E3HeavycrossMd010011.png	Assets/Product/Texture/Image/IconToolsSp/E3HeavycrossMd010011Sp.png	[16960111]	Assets/Product/Texture/Image/Arms/E3HeavycrossMd010011.png	Artist 218	[16960121]	[16960131]	[16960141]
 3011001	Assets/Product/Texture/Image/IconTools/EGouliangI01001.png	Assets/Product/Texture/Image/IconToolsSp/EGouliangI01001Sp.png		product/texture/image/rolewaferlihui/egouliangd01001.png.unity3d	zki_			
 3012001	Assets/Product/Texture/Image/IconTools/ESipeierI01001.png	Assets/Product/Texture/Image/IconToolsSp/ESipeierI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESipeierD01001.png	Chun Ri			
 3013001	Assets/Product/Texture/Image/IconTools/EModeerI01001.png	Assets/Product/Texture/Image/IconToolsSp/EModeerI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/EModeerD01001.png	Chun Ri			
@@ -835,6 +840,12 @@
 3046064	Assets/Product/Texture/Image/IconTools/ESantiagoI01001.png	Assets/Product/Texture/Image/IconToolsSp/ESantiagoI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESantiagoD01001.png	pilyeon			
 3056064	Assets/Product/Texture/Image/IconTools/ESantiagoI02001.png	Assets/Product/Texture/Image/IconToolsSp/ESantiagoI02001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESantiagoD01002.png	pilyeon			
 3066064	Assets/Product/Texture/Image/IconTools/ESantiagoI03001.png	Assets/Product/Texture/Image/IconToolsSp/ESantiagoI03001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESantiagoD01003.png	pilyeon			
+3016065	Assets/Product/Texture/Image/IconTools/ESimoneI01001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01001.png	Jie De Luo Lan			
+3026065	Assets/Product/Texture/Image/IconTools/ESimoneI02001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI02001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01002.png	Jie De Luo Lan			
+3036065	Assets/Product/Texture/Image/IconTools/ESimoneI03001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI03001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01003.png	Jie De Luo Lan			
+3046065	Assets/Product/Texture/Image/IconTools/ESimoneI01001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01001.png	Jie De Luo Lan			
+3056065	Assets/Product/Texture/Image/IconTools/ESimoneI02001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI02001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01002.png	Jie De Luo Lan			
+3066065	Assets/Product/Texture/Image/IconTools/ESimoneI03001.png	Assets/Product/Texture/Image/IconToolsSp/ESimoneI03001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ESimoneD01003.png	Jie De Luo Lan			
 3015061	Assets/Product/Texture/Image/IconTools/ECerberusI01001.png	Assets/Product/Texture/Image/IconToolsSp/ECerberusI01001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ECerberusD01001.png	Usu			
 3025061	Assets/Product/Texture/Image/IconTools/ECerberusI02001.png	Assets/Product/Texture/Image/IconToolsSp/ECerberusI02001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ECerberusD01002.png	Usu			
 3035061	Assets/Product/Texture/Image/IconTools/ECerberusI03001.png	Assets/Product/Texture/Image/IconToolsSp/ECerberusI03001Sp.png		Assets/Product/Texture/Image/RoleWaferLihui/ECerberusD01003.png	Usu			

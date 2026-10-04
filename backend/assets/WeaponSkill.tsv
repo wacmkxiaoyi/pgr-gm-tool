@@ -1,7 +1,7 @@
 ﻿Id	BornMagic	Ability	Icon	Name	Description	Account	DesLinkCharacterSkillId
 101	[510901]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuchuGuozaiqinxie.png	Incandescence	Weapon's final ATK increases by 15% at the start of battle. No duration limit.		
 102	[511001]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipPool17.png	Dead Line Timing	Gains 2 extra random Signal Orbs when deployed, and 3 Signal Orbs of the same color every 45s (also gains Signal Orbs on standby).		
-103	[509201]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipTongyongGandianshanbi.png	Matrix Lightning	Movement Speed greatly increases and all enemies' Extra DMG Reduction decreases by 10% in Matrix/during Hypermatrix Deduction.		
+103	[509201]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipTongyongGandianshanbi.png	Matrix Lightning	Movement Speed greatly increases and all enemies' Extra DMG Reduction decreases by 10% during Matrix/Hypermatrix Deduction/Overlink Ascension.		
 201	[509038]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipPool19.png	Shock Saturation	Gains 2s of Invincible time when attacked, CD for 15s.		
 202	[509040]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipPool20.png	Nsec Transmission	Max dodge increases by 400.		
 203	[509042]	100	Assets/Product/Texture/Image/IconSkill/IconSkillEquipPool21.png	Shock Echo	When taking damage, releases a shockwave that deals damage equal to 50% of own ATK, pushing enemies away and reducing enemies' Movement Speed by 35% for 5s, CD for 8s.		
@@ -270,3 +270,8 @@
 2674001	[512475]			Aberration Angle	ATK increases by 5%.		
 2675001	[512476]			Feedback Oscillation	Physical DMG increases by 10%.	Beginner Transition	
 2676001	[512477]			Ember Adrift	ATK increases by 10%, and the Piercing Strike effect applied by Karenina: Effulgence is increased by 20%. After entering the battlefield, the first Surge Breach that consumes 300 or more Tidal Force grants 6 Signal Orbs. The effect of consuming Tidal Force to boost Surge Breach's Base DMG is doubled.	ATK Boost	
+2685001	[512484]			Inverse Order	Dark DMG increases by 10%.	Beginner Transition	
+2686001	[512486]			Time Mark	ATK increases by 10%. Phantom and Signature - Angel of Time: Zafkiel deal 50% more DMG. When Bullet Brand is active, Aleph, Dalet, and Het deal 50% more DMG. Gains 1 stack of Imprint upon first deployment. After casting Phantom, gains 2 Signal Orbs, up to 4 per deployment.	ATK Boost	
+2694001	[512487]			True Accord	ATK increases by 5%.		
+2695001	[512488]			Kindled Clarity	Dark DMG increases by 10%.	Beginner Transition	
+2696001	[512489,512490]			All Flames as One	ATK increases by 10%. Consuming Echo Points doubles the Base DMG bonus for Burst Mode, Suppression Mode, Lightpierce Form, and Pressure Form.	ATK Boost	

@@ -462,6 +462,7 @@ app.confirmDeleteOrClearItems = async () => {
           count: payload?.character_count ?? 0,
           equipCount: payload?.equip_count ?? 0,
           gatherRewardCount: payload?.gather_reward_count ?? 0,
+          skipped: (payload?.skipped_character_ids ?? []).join(', ') || '0',
         }),
         app.translate('runtime.characterManagementMaxAllSuccessTitle'),
       );

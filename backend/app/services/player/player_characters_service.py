@@ -20,6 +20,8 @@ from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.levelup_template import get_level_exp_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.player_characters import (
+    build_character_max_skills,
+    get_character_add_config_map,
     get_character_Intro_map,
     get_character_default_fashion_id_map,
     get_character_enhance_skill_entries_map,
@@ -35,6 +37,7 @@ from backend.app.services.player.player_characters import (
     get_character_quality_bound_map,
     get_character_skill_entries_map,
     get_character_skill_ids_map,
+    get_character_skill_groups_map,
     get_character_trust_exp_map,
     get_character_default_weapon_map,
     get_character_equip_type_map,
@@ -327,7 +330,7 @@ class PlayerCharactersService:
         unlock_nameplates = sorted({
             nameplate_id
             for owned in valid_nameplates if isinstance(owned, dict)
-            if (nameplate_id := parse_optional_int(owned.get("Id"))) in nameplate_entries_map
+            if (nameplate_id := parse_optional_int(owned.get("_id"))) in nameplate_entries_map
             and ((end_time := parse_optional_int(owned.get("EndTime"))) is None or end_time == 0 or end_time > now_unix_seconds)
         })
         current_wear_nameplate = parse_optional_int(normalized_document.get("current_wear_nameplate"))
@@ -348,11 +351,11 @@ class PlayerCharactersService:
             if nameplate_id > 0:
                 existing_index = next((
                     index for index, owned in enumerate(nameplates)
-                    if isinstance(owned, dict) and parse_optional_int(owned.get("Id")) == nameplate_id
+                    if isinstance(owned, dict) and parse_optional_int(owned.get("_id")) == nameplate_id
                 ), None)
                 existing_end_time = parse_optional_int(nameplates[existing_index].get("EndTime")) if existing_index is not None else None
                 if existing_index is None or (existing_end_time not in {None, 0} and existing_end_time <= now_unix_seconds):
-                    owned = {"Id": nameplate_id, "Exp": 0, "EndTime": 0, "GetTime": now_unix_seconds}
+                    owned = {"_id": nameplate_id, "Exp": 0, "EndTime": Int64(0), "GetTime": Int64(now_unix_seconds)}
                     if existing_index is None:
                         nameplates.append(owned)
                     else:
@@ -388,7 +391,7 @@ class PlayerCharactersService:
             emoji_id
             for owned in emojis
             if isinstance(owned, dict)
-            if (emoji_id := parse_optional_int(owned.get("Id"))) is not None
+            if (emoji_id := parse_optional_int(owned.get("_id"))) is not None
             and ((end_time := parse_optional_int(owned.get("EndTime"))) is None or end_time == 0 or end_time > now_unix_seconds)
         }
         return {
@@ -417,13 +420,13 @@ class PlayerCharactersService:
             for emoji_id in sorted(valid_ids):
                 existing_index = next((
                     index for index, owned in enumerate(emojis)
-                    if parse_optional_int(owned.get("Id")) == emoji_id
+                    if parse_optional_int(owned.get("_id")) == emoji_id
                 ), None)
                 existing_end_time = parse_optional_int(emojis[existing_index].get("EndTime")) if existing_index is not None else None
                 if existing_index is not None and (existing_end_time is None or existing_end_time == 0 or existing_end_time > now_unix_seconds):
                     continue
 
-                emoji = {"Id": emoji_id, "EndTime": 0}
+                emoji = {"_id": emoji_id, "EndTime": 0}
                 if existing_index is None:
                     emojis.append(emoji)
                 else:
@@ -459,7 +462,7 @@ class PlayerCharactersService:
             title_id: quality
             for owned in titles
             if isinstance(owned, dict)
-            if (title_id := parse_optional_int(owned.get("Id"))) is not None
+            if (title_id := parse_optional_int(owned.get("_id"))) is not None
             if (quality := parse_optional_int(owned.get("Quality"))) is not None
         }
         return {
@@ -489,13 +492,13 @@ class PlayerCharactersService:
                 max_quality = entries_map[title_id]["MaxQuality"]
                 existing_index = next((
                     index for index, owned in enumerate(titles)
-                    if parse_optional_int(owned.get("Id")) == title_id
+                    if parse_optional_int(owned.get("_id")) == title_id
                 ), None)
                 if existing_index is not None and parse_optional_int(titles[existing_index].get("Quality")) == max_quality:
                     continue
 
                 if existing_index is None:
-                    titles.append({"Id": title_id, "Quality": max_quality, "Score": 0, "Time": 0, "WallId": 0, "ExpandInfo": None})
+                    titles.append({"_id": title_id, "Quality": max_quality, "Score": 0, "Time": 0, "WallId": 0, "ExpandInfo": None})
                 else:
                     titles[existing_index]["Quality"] = max_quality
                 unlocked_ids.append(title_id)
@@ -685,25 +688,12 @@ class PlayerCharactersService:
         if character_id <= 0:
             raise ValueError("character.add_invalid")
 
-        character_name_map = get_character_log_name_map()
-        if character_id not in character_name_map:
+        config = get_character_add_config_map().get(character_id)
+        if config is None:
             raise ValueError("character.add_invalid")
-
-        quality_bound = get_character_quality_bound_map().get(character_id)
-        if not isinstance(quality_bound, list) or len(quality_bound) != 2:
-            raise ValueError("character.add_invalid")
-
-        min_quality = parse_optional_int(quality_bound[0])
-        if min_quality is None:
-            raise ValueError("character.add_invalid")
-
-        fashion_id = get_character_default_fashion_id_map().get(character_id)
-        if fashion_id is None:
-            raise ValueError("character.add_invalid")
-
-        weapon_template_id = parse_optional_int(get_character_default_weapon_map().get(character_id))
-        if weapon_template_id is None or not _is_weapon_template_id(weapon_template_id):
-            raise ValueError("character.add_invalid")
+        min_quality = config["Quality"]
+        fashion_id = config["FashionId"]
+        weapon_template_id = config["WeaponId"]
 
         client = create_mongo_client(self._settings)
 
@@ -835,6 +825,7 @@ class PlayerCharactersService:
         ]
 
         character_patch = copy.deepcopy(template.get("character", {})) if isinstance(template.get("character"), dict) else {}
+        character_patch["SkillList"] = build_character_max_skills(character_id, target_character.get("SkillList"))
         for field_name, field_value in character_patch.items():
             target_character[field_name] = field_value
 
@@ -1552,11 +1543,13 @@ class PlayerCharactersService:
             if not isinstance(normalized_characters_document, dict) or not isinstance(normalized_players_document, dict):
                 raise ValueError("character.max_all_failed")
 
-            characters: list[dict[str, Any]] = []
-            fashions: list[dict[str, Any]] = []
-            equips: list[dict[str, Any]] = []
-            weapon_fashions: list[dict[str, Any]] = []
-            gather_rewards: set[int] = set()
+            # Preserve existing characters/ownership, especially those skipped for missing resources.
+            characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
+            fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
+            equips = self._sanitize_equips(normalized_characters_document.get("equips"))
+            weapon_fashions = self._sanitize_weapon_fashions(normalized_characters_document.get("weaponFashions"))
+            gather_rewards = self._sanitize_gather_rewards(normalized_players_document.get("gather_rewards"))
+            existing_by_id = {parse_optional_int(character.get("_id")): character for character in characters}
 
             quality_bound_map = get_character_quality_bound_map()
             max_template_map = get_character_max_template_map()
@@ -1566,6 +1559,7 @@ class PlayerCharactersService:
                 if isinstance(character_id, int)
                 and character_id > 0
                 and isinstance(template, dict)
+                and character_id in get_character_add_config_map()
             )
 
             for character_id in available_character_ids:
@@ -1585,8 +1579,10 @@ class PlayerCharactersService:
                 if fashion_id is None:
                     continue
 
-                target_character = self._build_character_document(character_id, quality=min_quality, fashion_id=fashion_id)
-                characters.append(target_character)
+                target_character = existing_by_id.get(character_id)
+                if target_character is None:
+                    target_character = self._build_character_document(character_id, quality=min_quality, fashion_id=fashion_id)
+                    characters.append(target_character)
 
                 fashion_index = next(
                     (
@@ -1612,7 +1608,10 @@ class PlayerCharactersService:
                 )
                 gather_rewards = set(updated_gather_rewards)
 
-            gather_rewards = self._build_gather_rewards_from_characters(characters)
+            gather_rewards = set(gather_rewards) | set(self._build_gather_rewards_from_characters(characters))
+
+            if not available_character_ids:
+                raise ValueError("character.max_template_not_found")
 
             characters_result = await characters_collection.update_one(
                 matching_uid_query(uid),
@@ -1637,6 +1636,7 @@ class PlayerCharactersService:
                 character_count=len(characters),
                 equip_count=len(equips),
                 gather_reward_count=len(gather_rewards),
+                skipped_character_ids=sorted((set(get_character_log_name_map()) | {key for key in existing_by_id if key is not None}) - set(available_character_ids)),
             )
         finally:
             with contextlib.suppress(Exception):
@@ -1694,6 +1694,12 @@ class PlayerCharactersService:
 
             raw_skill_list = target_character.get(list_field_name)
             normalized_skill_list = [item for item in raw_skill_list if isinstance(item, dict)] if isinstance(raw_skill_list, list) else []
+            if list_field_name == "SkillList":
+                group_ids = next((ids for ids in get_character_skill_groups_map().get(character_id, []) if skill_id in ids), [])
+                normalized_skill_list = [
+                    item for item in normalized_skill_list
+                    if parse_optional_int(item.get("_id")) == skill_id or parse_optional_int(item.get("_id")) not in group_ids
+                ]
             updated = False
             for skill_entry in normalized_skill_list:
                 if parse_optional_int(skill_entry.get("_id")) != skill_id:
@@ -1896,7 +1902,7 @@ class PlayerCharactersService:
 
         all_character_ids = sorted(
             character_id
-            for character_id in get_character_log_name_map()
+            for character_id in get_character_add_config_map()
             if isinstance(character_id, int) and character_id > 0
         )
         available_character_ids = [character_id for character_id in all_character_ids if character_id not in owned_character_ids]

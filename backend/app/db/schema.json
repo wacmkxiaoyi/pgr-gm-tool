@@ -17,6 +17,2034 @@
     }
   },
   "players[*]": {
+    "purchase_daily_passes": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "object",
+          "schema": {
+            "EndDay": {
+              "type": "number",
+              "default": 0
+            },
+            "StartDay": {
+              "type": "number",
+              "default": 0
+            },
+            "RewardIndexList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "LastClaimDay": {
+              "type": "number",
+              "default": -1
+            }
+          }
+        }
+      }
+    },
+    "purchase_period_buy_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "pending_recharge": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "Key": {
+          "type": "string",
+          "default": ""
+        },
+        "Order": {
+          "type": "string",
+          "default": ""
+        },
+        "Count": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "recharge_sequence": {
+      "type": "number",
+      "default": 0
+    },
+    "pending_partner_decompose": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "ClaimKey": {
+          "type": "string",
+          "default": ""
+        },
+        "PartnerIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "RewardGoodsList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "RewardType": {
+              "type": "number",
+              "default": 0
+            },
+            "TemplateId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "Quality": {
+              "type": "number",
+              "default": 0
+            },
+            "Grade": {
+              "type": "number",
+              "default": 0
+            },
+            "Breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "ConvertFrom": {
+              "type": "number",
+              "default": 0
+            },
+            "ShowQuality": {
+              "type": "number",
+              "default": 0
+            },
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "IsGift": {
+              "type": "boolean",
+              "default": false
+            },
+            "RewardMulti": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "partner_decompose_completions": {
+      "type": "array",
+      "default": null,
+      "schema": {
+        "ClaimKey": {
+          "type": "string",
+          "default": ""
+        },
+        "PartnerIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "RewardGoodsList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "RewardType": {
+              "type": "number",
+              "default": 0
+            },
+            "TemplateId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "Quality": {
+              "type": "number",
+              "default": 0
+            },
+            "Grade": {
+              "type": "number",
+              "default": 0
+            },
+            "Breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "ConvertFrom": {
+              "type": "number",
+              "default": 0
+            },
+            "ShowQuality": {
+              "type": "number",
+              "default": 0
+            },
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "IsGift": {
+              "type": "boolean",
+              "default": false
+            },
+            "RewardMulti": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "chat_board_reward_claims": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "string"
+      }
+    },
+    "pending_buy_asset": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "ItemId": {
+          "type": "number",
+          "default": 0
+        },
+        "Times": {
+          "type": "number",
+          "default": 0
+        },
+        "Gain": {
+          "type": "number",
+          "default": 0
+        },
+        "BuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "TotalBuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "OccurredAt": {
+          "type": "number",
+          "default": 0
+        },
+        "Debits": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "ItemId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "gacha": {
+      "type": "object",
+      "schema": {
+        "selected_group_id_to_gacha_id": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "reward_times": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "total_times": {
+              "type": "number",
+              "default": 0
+            },
+            "miss_times": {
+              "type": "number",
+              "default": 0
+            },
+            "exchange_count": {
+              "type": "number",
+              "default": 0
+            },
+            "records": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "reward_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "template_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "reward_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "convert_from": {
+                  "type": "number",
+                  "default": 0
+                },
+                "time": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "pending": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "RewardIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "MissTimes": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CourseRewardIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "Time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CostItemId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CostCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ExchangeNum": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "fang_kuai": {
+      "type": "object",
+      "schema": {
+        "ActivityId": {
+          "type": "number",
+          "default": 0
+        },
+        "FinishedStageIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "PlayedStageIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "TotalScoresByStage": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "StageHistroyDict": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "MaxScore": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalRound": {
+                  "type": "number",
+                  "default": 0
+                },
+                "MaxRound": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "StageDataDict": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "StageId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Point": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Round": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ExtraRound": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Combo": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FrozenRoundCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FallingBlockCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FallingBlockCd": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ItemIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "HistoryItemIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "HistoryUsedItemIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "HistoryDiscardItemIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "Blocks": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "BlockId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "X": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Y": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Length": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Color": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Direction": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ItemId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "HitCount": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "PreviewBlocks": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "BlockId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "X": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Y": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Length": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Color": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Direction": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ItemId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "HitCount": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "FrenzyVal": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FrenzyStage": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FrenzyEnergy": {
+                  "type": "number",
+                  "default": 0
+                },
+                "AccumulatedEnhanceCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "EnhancedItemIndexes": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "HistoryFrenzyRecords": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "EntryFrenzyRound": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FrenzyMaxLevel": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mine_sweeping": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "challenge_counts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "status": {
+                  "type": "number",
+                  "default": 1
+                },
+                "failed_counts": {
+                  "type": "number",
+                  "default": 0
+                },
+                "mines": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "opened": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "flagged": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "white_open": {
+                  "type": "number",
+                  "default": 0
+                },
+                "mine_open": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "pending": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "claim_key": {
+              "type": "string",
+              "default": ""
+            },
+            "reward_id": {
+              "type": "number",
+              "default": 0
+            },
+            "cost_item_id": {
+              "type": "number",
+              "default": 0
+            },
+            "cost_count": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "punishaar": {
+      "type": "object",
+      "schema": {
+        "ActivityId": {
+          "type": "number",
+          "default": 0
+        },
+        "CurrentStageId": {
+          "type": "number",
+          "default": 0
+        },
+        "StageSaves": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "StageId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CurrentNode": {
+                  "type": "object",
+                  "schema": {
+                    "NodeId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Status": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ShopInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "CandidateShopIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedShopId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Goods": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "CardId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "Level": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "SubCardId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "IsBought": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "Frozen": {
+                              "type": "boolean",
+                              "default": false
+                            }
+                          }
+                        },
+                        "RefreshTimes": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "EventInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "RandomEventIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedEventId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "FightInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "RandomFightIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedFightId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "PendingRewardCardId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PendingRewardCardLevel": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FightStarted": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  }
+                },
+                "HistoryNodeList": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "NodeId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Status": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ShopInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "CandidateShopIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedShopId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Goods": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "CardId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "Level": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "SubCardId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "IsBought": {
+                              "type": "boolean",
+                              "default": false
+                            },
+                            "Frozen": {
+                              "type": "boolean",
+                              "default": false
+                            }
+                          }
+                        },
+                        "RefreshTimes": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "EventInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "RandomEventIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedEventId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "FightInfo": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "RandomFightIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SelectedFightId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "PendingRewardCardId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PendingRewardCardLevel": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FightStarted": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  }
+                },
+                "Gold": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Durability": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FightWinCount": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CurrentRound": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalMasterCards": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "object",
+                      "schema": {
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "TemplateId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Level": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "AreaType": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "StartPos": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "SubCardId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "FightAreaGridLimit": {
+                  "type": "number",
+                  "default": 0
+                },
+                "BagGridLimit": {
+                  "type": "number",
+                  "default": 0
+                },
+                "AllGold": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RngState": {
+                  "type": "number",
+                  "default": 0
+                },
+                "NextCardId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "WonNodeCounts": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "PassedStageIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "StageChallengeCounts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "CharacterCatalogs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "Catalogs": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "PartnerCatalogs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "Catalogs": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "EquipCatalogs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "ResonanceCatalogs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "BestWonNodeCounts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "BestRounds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "same_color_game": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "boss_id": {
+              "type": "number",
+              "default": 0
+            },
+            "max_point": {
+              "type": "number",
+              "default": 0
+            },
+            "max_combo": {
+              "type": "number",
+              "default": 0
+            },
+            "last_use_role_id": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "total_score": {
+          "type": "number",
+          "default": 0
+        },
+        "pending_rank_updates": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "boss_id": {
+              "type": "number",
+              "default": 0
+            },
+            "score": {
+              "type": "number",
+              "default": 0
+            },
+            "role_id": {
+              "type": "number",
+              "default": 0
+            },
+            "achieved_at": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "run": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "boss_id": {
+              "type": "number",
+              "default": 0
+            },
+            "role_id": {
+              "type": "number",
+              "default": 0
+            },
+            "skill_group_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "rows": {
+              "type": "number",
+              "default": 0
+            },
+            "cols": {
+              "type": "number",
+              "default": 0
+            },
+            "board": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "item_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ball_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "weak_uid": {
+                  "type": "number",
+                  "default": 0
+                },
+                "weak_hit_times": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "cur_round": {
+              "type": "number",
+              "default": 0
+            },
+            "max_round": {
+              "type": "number",
+              "default": 0
+            },
+            "energy": {
+              "type": "number",
+              "default": 0
+            },
+            "score": {
+              "type": "number",
+              "default": 0
+            },
+            "max_combo": {
+              "type": "number",
+              "default": 0
+            },
+            "total_game_combo": {
+              "type": "number",
+              "default": 0
+            },
+            "obtain_energy": {
+              "type": "number",
+              "default": 0
+            },
+            "skill_cost_energy": {
+              "type": "number",
+              "default": 0
+            },
+            "boss_cost_energy": {
+              "type": "number",
+              "default": 0
+            },
+            "start_unix": {
+              "type": "number",
+              "default": 0
+            },
+            "next_buff_uid": {
+              "type": "number",
+              "default": 0
+            },
+            "next_weak_uid": {
+              "type": "number",
+              "default": 0
+            },
+            "buffs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "buff_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "uid": {
+                  "type": "number",
+                  "default": 0
+                },
+                "applied_round": {
+                  "type": "number",
+                  "default": 0
+                },
+                "left_turns": {
+                  "type": "number",
+                  "default": 0
+                },
+                "remaining_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "owner_weak_uid": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "skills": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "group_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "skill_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "left_cd": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "skill_use_count": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "key": {
+                  "type": "number",
+                  "default": 0
+                },
+                "value": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "prop_stats": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "ball_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "round": {
+                  "type": "number",
+                  "default": 0
+                },
+                "gain_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "use_count": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "weak_infos": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "uid": {
+                  "type": "number",
+                  "default": 0
+                },
+                "item_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "create_round": {
+                  "type": "number",
+                  "default": 0
+                },
+                "update_rounds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "drop_color": {
+              "type": "number",
+              "default": 0
+            },
+            "drop_color_left": {
+              "type": "number",
+              "default": 0
+            },
+            "excluded_color": {
+              "type": "number",
+              "default": 0
+            },
+            "excluded_color_left": {
+              "type": "number",
+              "default": 0
+            },
+            "drop_color_buff_uid": {
+              "type": "number",
+              "default": 0
+            },
+            "excluded_color_buff_uid": {
+              "type": "number",
+              "default": 0
+            },
+            "rng_seed": {
+              "type": "number",
+              "default": 0
+            },
+            "rng_step": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "transfinite_tower": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "ActivityId": {
+          "type": "number",
+          "default": 0
+        },
+        "PassedTeachStageIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "PendingFight": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "ChapterId": {
+              "type": "number",
+              "default": 0
+            },
+            "StageCfgId": {
+              "type": "number",
+              "default": 0
+            },
+            "StageId": {
+              "type": "number",
+              "default": 0
+            },
+            "FightId": {
+              "type": "number",
+              "default": 0
+            },
+            "StartedAt": {
+              "type": "number",
+              "default": 0
+            },
+            "Selection": {
+              "type": "object",
+              "schema": {
+                "CardIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "RobotIds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FirstFightPos": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "Team": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "FightId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsNavigator": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            },
+            "Charged": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "CharacterCfgId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CharacterId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "UsedCount": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "ChapterInfoList": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "ChapterId": {
+              "type": "number",
+              "default": 0
+            },
+            "MaxPassedOrder": {
+              "type": "number",
+              "default": 0
+            },
+            "CanSetMvp": {
+              "type": "boolean",
+              "default": false
+            },
+            "BestOrder": {
+              "type": "number",
+              "default": 0
+            },
+            "BestTotalSpendTime": {
+              "type": "number",
+              "default": 0
+            },
+            "CurBattleInfo": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "StageProgressIndex": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RollbackOrder": {
+                  "type": "number",
+                  "default": 0
+                },
+                "StageRecordList": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "Order": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "SpendTime": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "StageCfgId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Team": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "FightId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "IsNavigator": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      }
+                    },
+                    "Selection": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "CardIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "RobotIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "CaptainPos": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FirstFightPos": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "Charged": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "CharacterCfgId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CharacterId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "UsedCount": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "PendingStageRecord": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "Order": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "SpendTime": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "StageCfgId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Team": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "FightId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "IsNavigator": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      }
+                    },
+                    "Selection": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "CardIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "RobotIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "CaptainPos": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FirstFightPos": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "Charged": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "CharacterCfgId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CharacterId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "UsedCount": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "CharacterCountList": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "CharacterCfgId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CharacterId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "UsedCount": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "LastTeamSelection": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "CardIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "RobotIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "CaptainPos": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FirstFightPos": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "LastStageRecordList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "Order": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SpendTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "StageCfgId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Team": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "FightId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsNavigator": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  }
+                },
+                "Selection": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "CardIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "RobotIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "CaptainPos": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FirstFightPos": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "Charged": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "CharacterCfgId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CharacterId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "UsedCount": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "SettleInfo": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "Order": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalSpendTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalPower": {
+                  "type": "number",
+                  "default": 0
+                },
+                "MvpFightId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsNewRecord": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "AchievedAt": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Characters": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "FightId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsTrial": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "Quality": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Power": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "RankInfo": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "MaxOrder": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalSpendTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TotalPower": {
+                  "type": "number",
+                  "default": 0
+                },
+                "MvpFightId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "AchievedAt": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Characters": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "FightId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsTrial": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "Quality": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Power": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "transfinite_tower_rank_rewards": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "chapter_id": {
+          "type": "number",
+          "default": 0
+        },
+        "rank": {
+          "type": "number",
+          "default": 0
+        },
+        "reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "decided_at": {
+          "type": "number",
+          "default": 0
+        },
+        "delivered": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "_id": {
       "type": "ObjectId"
     },
@@ -330,7 +2358,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -439,7 +2467,7 @@
             "v": {
               "type": "object",
               "schema": {
-                "Id": {
+                "_id": {
                   "type": "number",
                   "default": 0
                 },
@@ -457,7 +2485,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -473,13 +2501,15 @@
     },
     "unlocked_chat_boards": {
       "type": "array",
-      "default": [{
-        "id": 25000001,
-        "get_time": 0,
-        "end_time": 0
-      }],
+      "default": [
+        {
+          "_id": 25000001,
+          "get_time": 0,
+          "end_time": 0
+        }
+      ],
       "schema": {
-        "id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -699,7 +2729,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "Id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -760,7 +2790,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "Id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -781,7 +2811,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "Id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -831,6 +2861,18 @@
     "mission_progress": {
       "type": "object",
       "schema": {
+        "day_task_condition_counters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
         "condition_counters": {
           "type": "array",
           "default": [],
@@ -1174,10 +3216,6 @@
           "type": "number",
           "default": null
         },
-        "last_self_runtime_id": {
-          "type": "number",
-          "default": 0
-        },
         "claimed_scene_objects": {
           "type": "array",
           "default": [],
@@ -1200,16 +3238,3019 @@
             }
           }
         },
-        "big_world_course_read_element_ids": {
+        "entered_world_ids": {
           "type": "array",
           "default": [],
           "schema": {
             "type": "number"
           }
         },
-        "big_world_course_task_progress": {
+        "entered_level_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "teleporter_data": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "level_play_datas": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "is_full_cleared": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "unlocked_invite_quest_result_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "custom_param_mark_data": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "scene_object_states": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "states": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "cur_npc_pos": {
           "type": "number",
           "default": 0
+        },
+        "guide_data": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "fov_type": {
+          "type": "number",
+          "default": 0
+        },
+        "level_fov_datas": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "map_track_pin": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "world_id": {
+              "type": "number",
+              "default": 0
+            },
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "track_pin_id": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "inst_level_id": {
+          "type": "number",
+          "default": 0
+        },
+        "inst_position": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "x": {
+              "type": "number",
+              "default": 0
+            },
+            "y": {
+              "type": "number",
+              "default": 0
+            },
+            "z": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "inst_rotation_y": {
+          "type": "number",
+          "default": null
+        },
+        "current_team_id": {
+          "type": "number",
+          "default": 0
+        },
+        "teams": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "character_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "pos": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "character_fashions": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "fashion_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "fashion_color_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "head_fashion_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "head_fashion_type": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "commander_gender": {
+          "type": "number",
+          "default": 0
+        },
+        "cur_commander_outfit_type": {
+          "type": "number",
+          "default": 0
+        },
+        "commander_fashion_outfits": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "part_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "colour_id": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "commander_fashion_bags": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "character_initialized": {
+          "type": "boolean",
+          "default": false
+        },
+        "pending_show_rewards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "RewardType": {
+              "type": "number",
+              "default": 0
+            },
+            "TemplateId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "Quality": {
+              "type": "number",
+              "default": 0
+            },
+            "Grade": {
+              "type": "number",
+              "default": 0
+            },
+            "Breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "ConvertFrom": {
+              "type": "number",
+              "default": 0
+            },
+            "ShowQuality": {
+              "type": "number",
+              "default": 0
+            },
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "IsGift": {
+              "type": "boolean",
+              "default": false
+            },
+            "RewardMulti": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "trace_quest_id": {
+          "type": "number",
+          "default": 0
+        },
+        "last_trace_quest_id": {
+          "type": "number",
+          "default": 0
+        },
+        "trace_ready_quest_id": {
+          "type": "number",
+          "default": 0
+        },
+        "received_reward_invite_quest_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "environment_quest_groups": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "rewarded_quest_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "rewarded_invite_result_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "dlc_quest_bag": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "album_photo_id_sequence": {
+          "type": "number",
+          "default": 0
+        },
+        "album_photos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "check_salt": {
+              "type": "number",
+              "default": 0
+            },
+            "is_task_hide_photo": {
+              "type": "boolean",
+              "default": false
+            },
+            "task_hide_unique_id": {
+              "type": "number",
+              "default": 0
+            },
+            "message_ref_id": {
+              "type": "number",
+              "default": 0
+            },
+            "remark": {
+              "type": "string",
+              "default": null
+            },
+            "create_time": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "unlocked_camera_filters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "unlocked_character_actions": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "course_read_element_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "course_task_reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "course_poi_counts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "course_explore_reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "course_explore_complete_version_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "state": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_get_reward": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "create_time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "step_ids": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "news_popup_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "help_courses": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "is_read": {
+              "type": "boolean",
+              "default": false
+            },
+            "create_time": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "claimed_task_periods": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "executed_hotfix_script_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "actor_overrides": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "actor_type": {
+              "type": "number",
+              "default": 0
+            },
+            "place_id": {
+              "type": "number",
+              "default": 0
+            },
+            "loaded": {
+              "type": "boolean",
+              "default": null
+            },
+            "interactable": {
+              "type": "boolean",
+              "default": null
+            },
+            "be_scanned": {
+              "type": "boolean",
+              "default": null
+            },
+            "position": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "x": {
+                  "type": "number",
+                  "default": 0
+                },
+                "y": {
+                  "type": "number",
+                  "default": 0
+                },
+                "z": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "rotation": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "x": {
+                  "type": "number",
+                  "default": 0
+                },
+                "y": {
+                  "type": "number",
+                  "default": 0
+                },
+                "z": {
+                  "type": "number",
+                  "default": 0
+                },
+                "w": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "trial_npc_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "trial_add_mode": {
+          "type": "number",
+          "default": 0
+        },
+        "trial_saved_cur_npc_pos": {
+          "type": "number",
+          "default": 0
+        },
+        "inst_level_finished_counts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "inst_level_finished": {
+          "type": "boolean",
+          "default": false
+        },
+        "inst_settle_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "settle_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "theme": {
+                  "type": "number",
+                  "default": 0
+                },
+                "quest_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "objective_ids": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "score": {
+                  "type": "number",
+                  "default": 0
+                },
+                "best_score": {
+                  "type": "number",
+                  "default": 0
+                },
+                "play_time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_win": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "death_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "gold_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "star_count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "trigger_judge": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "trigger_hide_road": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "executed_clear_places": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "quest_id": {
+              "type": "number",
+              "default": 0
+            },
+            "clear_id": {
+              "type": "string",
+              "default": ""
+            },
+            "actors": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "actor_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "place_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "prior_loaded": {
+                  "type": "boolean",
+                  "default": null
+                }
+              }
+            }
+          }
+        },
+        "actor_ai_overrides": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "actor_type": {
+              "type": "number",
+              "default": 0
+            },
+            "place_id": {
+              "type": "number",
+              "default": 0
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "silent_photo_requests": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "quest_id": {
+              "type": "number",
+              "default": 0
+            },
+            "photo_key": {
+              "type": "number",
+              "default": 0
+            },
+            "spot_id": {
+              "type": "number",
+              "default": 0
+            },
+            "fov": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "sg_drone_stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "IsFinished": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "MinCostTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "MaxScore": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FinishedStarTargets": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sg_drone_current": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "is_hard_mode": {
+              "type": "boolean",
+              "default": false
+            },
+            "seed": {
+              "type": "number",
+              "default": 0
+            },
+            "save_data": {
+              "type": "binary",
+              "default": null
+            }
+          }
+        },
+        "sg_cafe": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "BeginTime": {
+              "type": "number",
+              "default": 0
+            },
+            "CardDict": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "CardGroupList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "CafeStageList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "StageId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "MaxSales": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "GetMaxStarReward": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsKickOutCafe": {
+                      "type": "boolean",
+                      "default": false
+                    }
+                  }
+                }
+              }
+            },
+            "CafeGambling": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "StageId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Round": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SumSales": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ActPoint": {
+                  "type": "number",
+                  "default": 0
+                },
+                "HandCardPosNum": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ReviewNum": {
+                  "type": "number",
+                  "default": 0
+                },
+                "HandCards": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "AbandonCards": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "BanCards": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "CardsWarehouse": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "PriorityCard": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "RetainHandCard": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "UseCardTimes": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "BuffAdditionDict": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "object",
+                      "schema": {
+                        "Coffee": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Review": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "CardGroupId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "NextRoundBuffs": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "BuffId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CardId": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sg_dorm": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "CurFashionId": {
+              "type": "number",
+              "default": 0
+            },
+            "FurnitureList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CfgId": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "DormFashionList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "CurAreaLayout": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "LayoutList": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "AreaType": {
+                  "type": "number",
+                  "default": 0
+                },
+                "LayoutId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FurnitureInfos": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "Container": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "Layer": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "X": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Y": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Angle": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Index": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Scale": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "PhotoId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CfgId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "PlacementFurniture": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "Layer": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "X": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Y": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Angle": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Index": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Scale": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "PhotoId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CfgId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "npc_follow_extras": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "level_id": {
+              "type": "number",
+              "default": 0
+            },
+            "quest_id": {
+              "type": "number",
+              "default": 0
+            },
+            "place_id": {
+              "type": "number",
+              "default": 0
+            },
+            "paused": {
+              "type": "boolean",
+              "default": false
+            },
+            "tether_follow": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "IsForceTeleportEnabled": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "ForceTeleportRange": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsPlayerBecomeFollower": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "IsFollowPlayer": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "FollowTargetNpcPlaceId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "LeadExpRotRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ExpReachTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "NpcAnimAlignRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ChaseRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "HandType": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TargetPosOffset": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "X": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Y": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Z": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            },
+            "relative_follow": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "IsForceTeleportEnabled": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "ForceTeleportRange": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsFollowPlayer": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "FollowTargetNpcPlaceId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TargetAngle": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TargetRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ChaseRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "MaxIdleLagDistance": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IdleLookAtTargetDelayTime": {
+                  "type": "number",
+                  "default": 0
+                },
+                "UseNavMesh": {
+                  "type": "boolean",
+                  "default": null
+                },
+                "NormalFollowRadius": {
+                  "type": "number",
+                  "default": 0
+                },
+                "StartFollowDelayTime": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "quest_data": {
+          "type": "object",
+          "schema": {
+            "FinishedQuests": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "ReadyQuestIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "ActiveQuests": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "QuestId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "StaticData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {}
+                    },
+                    "DynamicData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "QuestState": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FixedSaveStepId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FinishedObjectiveIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "OccupiedObjectIds": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "TrialCharacterIdList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "TrialCharacterAddMode": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "TrialCurCharacterPos": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FuncEntryDisableDict": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "FuncEntryEnabled": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "SystemFuncControlSaveData": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "SystemFunctionType": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "LimitType": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "IsLimit": {
+                              "type": "boolean",
+                              "default": false
+                            }
+                          }
+                        },
+                        "VarBlockData": {
+                          "type": "object",
+                          "default": null,
+                          "schema": {
+                            "IntDict": {
+                              "type": "object",
+                              "default": {}
+                            },
+                            "FloatDict": {
+                              "type": "object",
+                              "default": {}
+                            },
+                            "BoolDict": {
+                              "type": "object",
+                              "default": {}
+                            },
+                            "Vector2Dict": {
+                              "type": "object",
+                              "default": {}
+                            },
+                            "Vector3Dict": {
+                              "type": "object",
+                              "default": {}
+                            }
+                          }
+                        },
+                        "Steps": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "object",
+                              "schema": {
+                                "StepId": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "StepState": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "Objectives": {
+                                  "type": "array",
+                                  "default": [],
+                                  "schema": {
+                                    "k": {
+                                      "type": "number"
+                                    },
+                                    "v": {
+                                      "type": "object",
+                                      "schema": {
+                                        "_id": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "ObjectiveState": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "FinishType": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "EnterActionListData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "CurActionIndex": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "CurActionState": {
+                                              "type": "number",
+                                              "default": 0
+                                            }
+                                          }
+                                        },
+                                        "ExitActionListData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "CurActionIndex": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "CurActionState": {
+                                              "type": "number",
+                                              "default": 0
+                                            }
+                                          }
+                                        },
+                                        "NavPointData": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "k": {
+                                              "type": "number"
+                                            },
+                                            "v": {
+                                              "type": "object",
+                                              "schema": {
+                                                "NavPointConfigId": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "HideFlags": {
+                                                  "type": "number",
+                                                  "default": null
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "InstLevelCompleteCount": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "InteractProgressRecords": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "k": {
+                                              "type": "number"
+                                            },
+                                            "v": {
+                                              "type": "array",
+                                              "default": [],
+                                              "schema": {
+                                                "TargetPlaceId": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "WasCompleted": {
+                                                  "type": "boolean",
+                                                  "default": false
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "NarrativeCompletedRecords": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "SceneObjectCollectedRecords": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "SceneObjectCollectedCountRecord": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "TimerStarted": {
+                                          "type": "boolean",
+                                          "default": false
+                                        },
+                                        "TimerElapsedMs": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "KilledEnemies": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "type": "number"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "LevelActorSaves": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "object",
+                              "schema": {
+                                "SoSaveDatas": {
+                                  "type": "array",
+                                  "default": [],
+                                  "schema": {
+                                    "k": {
+                                      "type": "number"
+                                    },
+                                    "v": {
+                                      "type": "object",
+                                      "schema": {
+                                        "Active": {
+                                          "type": "boolean",
+                                          "default": false
+                                        },
+                                        "Flags": {
+                                          "type": "array",
+                                          "default": [],
+                                          "schema": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "MovementToNodeIndex": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "MovementNodeIndexIncrement": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "IsInteractable": {
+                                          "type": "boolean",
+                                          "default": null
+                                        },
+                                        "CurrentAction": {
+                                          "type": "number",
+                                          "default": 0
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "NpcSaveDatas": {
+                                  "type": "array",
+                                  "default": [],
+                                  "schema": {
+                                    "k": {
+                                      "type": "number"
+                                    },
+                                    "v": {
+                                      "type": "object",
+                                      "schema": {
+                                        "IsInteractable": {
+                                          "type": "boolean",
+                                          "default": null
+                                        },
+                                        "TipIconQuestId": {
+                                          "type": "number",
+                                          "default": 0
+                                        },
+                                        "RelativeFollowModeSaveData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "IsForceTeleportEnabled": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "ForceTeleportRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "IsFollowPlayer": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "FollowTargetNpcPlaceId": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "TargetAngle": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "TargetRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "ChaseRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "MaxIdleLagDistance": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "IdleLookAtTargetDelayTime": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "UseNavMesh": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "NormalFollowRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "StartFollowDelayTime": {
+                                              "type": "number",
+                                              "default": 0
+                                            }
+                                          }
+                                        },
+                                        "DirectlyFollowModeSaveData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "IsFollowPlayer": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "FollowTargetNpcPlaceId": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "MaxIdleRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "StartFollowRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "UseNavMesh": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "IdleLookAtTarget": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "ExpectedMovingRotateAngularSpeed": {
+                                              "type": "number",
+                                              "default": 0
+                                            }
+                                          }
+                                        },
+                                        "GuideMoveSaveData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "TargetPosition": {
+                                              "type": "object",
+                                              "default": null,
+                                              "schema": {
+                                                "X": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Y": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Z": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                }
+                                              }
+                                            },
+                                            "UseNavMesh": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "OutOfRouteRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "StartGuideRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "ReachTargetPositionRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "WaitDramaCaptionName": {
+                                              "type": "string",
+                                              "default": ""
+                                            },
+                                            "WaitDramaCaptionPlayProbability": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "IdleTurningDelayTime": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "GuideMoveTypeMatchesTarget": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "GuideMoveType": {
+                                              "type": "number",
+                                              "default": 0
+                                            }
+                                          }
+                                        },
+                                        "NodeLockFollowModeSaveData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "IsFollowMasterPlayer": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "FollowTargetNpcPlaceId": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "LockJointName": {
+                                              "type": "string",
+                                              "default": ""
+                                            },
+                                            "PosOffset": {
+                                              "type": "object",
+                                              "default": null,
+                                              "schema": {
+                                                "X": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Y": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Z": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "TetherFollowModeSaveData": {
+                                          "type": "object",
+                                          "default": null,
+                                          "schema": {
+                                            "IsForceTeleportEnabled": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "ForceTeleportRange": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "IsPlayerBecomeFollower": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "IsFollowPlayer": {
+                                              "type": "boolean",
+                                              "default": null
+                                            },
+                                            "FollowTargetNpcPlaceId": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "LeadExpRotRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "ExpReachTime": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "NpcAnimAlignRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "ChaseRadius": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "HandType": {
+                                              "type": "number",
+                                              "default": 0
+                                            },
+                                            "TargetPosOffset": {
+                                              "type": "object",
+                                              "default": null,
+                                              "schema": {
+                                                "X": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Y": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                },
+                                                "Z": {
+                                                  "type": "number",
+                                                  "default": 0
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sg_street": {
+          "type": "object",
+          "schema": {
+            "PassedStageRecords": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "RewardIndexRecord": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "SceneData": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "BillboardData": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "CurrentBillboardId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CurrentTaskId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "LastRefreshTurn": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RandomBillboards": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "ShopDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "ShopId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Position": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Level": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "MainType": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsBuildByInit": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "UpgradeBranchIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "BranchIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "Score": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "TotalCost": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CustomerNum": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FoodData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ChefId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodsCountList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "FoodLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ChefId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodsCountList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "GroceryData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ShelfDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "GoodsId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoldCount": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "GroceryLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ShelfDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "GoodsId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoldCount": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DessertData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "GoodsIdList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "DessertLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "GoodsIdList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "LastCollectFeedBacks": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "CustomerId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FeedBackData": {
+                          "type": "object",
+                          "default": null,
+                          "schema": {
+                            "_id": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "FeedbackTemplateId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "DescIndex": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoodId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "Difference": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "LastFeedBacks": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FeedbackTemplateId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "DescIndex": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Difference": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "CurStageData": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "StageId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Turn": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ResourceDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "ResourceId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Count": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "ShopDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "ShopId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Position": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Level": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "MainType": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "IsBuildByInit": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "UpgradeBranchIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "BranchIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "Score": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "TotalCost": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CustomerNum": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "FoodData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ChefId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodsCountList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "FoodLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ChefId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodsCountList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "GroceryData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ShelfDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "GoodsId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoldCount": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "GroceryLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "ShelfDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "GoodsId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoldCount": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "DessertData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "GoodsIdList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "DessertLikeData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "GoodsIdList": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "type": "number"
+                          }
+                        },
+                        "Gold": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "LastCollectFeedBacks": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "CustomerId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FeedBackData": {
+                          "type": "object",
+                          "default": null,
+                          "schema": {
+                            "_id": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "FeedbackTemplateId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "DescIndex": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "GoodId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "Difference": {
+                              "type": "number",
+                              "default": 0
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "LastFeedBacks": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "FeedbackTemplateId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "DescIndex": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "GoodId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Difference": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "EnvironmentSatisfaction": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ShopScoreSatisfaction": {
+                  "type": "number",
+                  "default": 0
+                },
+                "BuffDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "BuffUid": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "BuffConfigId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RemainingTurn": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CreateTurn": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "FirstOutsideBuildTurn": {
+                  "type": "number",
+                  "default": 0
+                },
+                "NewsDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "Turn": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "NewsId": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "ShopGrapevineDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "Turn": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "GrapevineId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ShopId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "GrapevineList": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "GoodId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Difference": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    }
+                  }
+                },
+                "BillboardData": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "CurrentBillboardId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CurrentTaskId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "LastRefreshTurn": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RandomBillboards": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "StatisticsData": {
+                  "type": "object",
+                  "schema": {
+                    "CustomerNums": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "k": {
+                          "type": "number"
+                        },
+                        "v": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "AllGrapevineIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "FinishTaskTimeDict": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "k": {
+                          "type": "number"
+                        },
+                        "v": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "MaxDailyGold": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PromotionTimes": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "DiscontentEventTimes": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "EmergencyEventTimes": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "AccumulativeGold": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "TaskDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ConfigId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "State": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Source": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Schedule": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "RecommendShopId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "PromotionSelectGroups": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PromotionIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "CurrentTurnInsideBuilds": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "InsideBuildTimes": {
+                  "type": "number",
+                  "default": 0
+                },
+                "OperatingData": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "EnvironmentSatisfaction": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ShopScoreSatisfaction": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CustomerDatas": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "_id": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CustomerId": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CommandDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "_id": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "TargetId": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "Type": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "ShopAwardGold": {
+                              "type": "number",
+                              "default": 0
+                            },
+                            "EventData": {
+                              "type": "object",
+                              "default": null,
+                              "schema": {
+                                "_id": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "Type": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "DiscontentAwardGold": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "EmergencyEventId": {
+                                  "type": "number",
+                                  "default": 0
+                                },
+                                "FeedBackData": {
+                                  "type": "object",
+                                  "default": null,
+                                  "schema": {
+                                    "_id": {
+                                      "type": "number",
+                                      "default": 0
+                                    },
+                                    "FeedbackTemplateId": {
+                                      "type": "number",
+                                      "default": 0
+                                    },
+                                    "DescIndex": {
+                                      "type": "number",
+                                      "default": 0
+                                    },
+                                    "GoodId": {
+                                      "type": "number",
+                                      "default": 0
+                                    },
+                                    "Difference": {
+                                      "type": "number",
+                                      "default": 0
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "LastResultData": {
+                  "type": "object",
+                  "default": null,
+                  "schema": {
+                    "AwardGold": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CommandAwardGold": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "DiscontentAwardGold": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Reviews": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "EventSettles": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "EventType": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "HandledCount": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "TotalCount": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "CurrentSettleStatisticData": {
+                      "type": "object",
+                      "schema": {
+                        "Satisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "EnvironmentSatisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "ShopScoreSatisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CustomerNums": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "ShopScoreDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "LastSettleStatisticData": {
+                      "type": "object",
+                      "default": null,
+                      "schema": {
+                        "Satisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "EnvironmentSatisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "ShopScoreSatisfaction": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "CustomerNums": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "ShopScoreDatas": {
+                          "type": "array",
+                          "default": [],
+                          "schema": {
+                            "k": {
+                              "type": "number"
+                            },
+                            "v": {
+                              "type": "number"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "sg_street_private": {
+          "type": "object",
+          "schema": {
+            "rng": {
+              "type": "number",
+              "default": 0
+            },
+            "next_uid": {
+              "type": "number",
+              "default": 0
+            },
+            "stage_start_count": {
+              "type": "number",
+              "default": 0
+            },
+            "picked": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "string"
+              }
+            },
+            "turns_since_grapevine": {
+              "type": "number",
+              "default": 0
+            },
+            "task_bases": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "upgrade_times": {
+              "type": "number",
+              "default": 0
+            }
+          }
         }
       }
     },
@@ -1371,7 +6412,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -1403,7 +6444,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -1722,7 +6763,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -1756,6 +6797,169 @@
     "draw_state": {
       "type": "object",
       "schema": {
+        "claimed_draw_milestones": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "free_tickets": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "CfgId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            },
+            "ExpireTime": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "free_ticket_reward_claims": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "string"
+          }
+        },
+        "last_draw_progress_claim": {
+          "type": "string",
+          "default": null
+        },
+        "pending_free_draw": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "TicketId": {
+              "type": "number",
+              "default": 0
+            },
+            "DrawId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "ClaimKey": {
+              "type": "string",
+              "default": ""
+            },
+            "ClientDrawInfo": {
+              "type": "binary"
+            },
+            "Goods": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "RewardType": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TemplateId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Level": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Quality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Grade": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Breakthrough": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ConvertFrom": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ShowQuality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RewardMulti": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsGift": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            },
+            "Costs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "number"
+                }
+              }
+            },
+            "CharacterIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "OccurredAt": {
+              "type": "number",
+              "default": 0
+            },
+            "AdjustActivityId": {
+              "type": "number",
+              "default": 0
+            },
+            "AdjustTargetTimes": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
         "pity_rounds": {
           "type": "array",
           "default": [],
@@ -2014,7 +7218,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "Id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -2044,11 +7248,23 @@
     "lotto": {
       "type": "object",
       "schema": {
+        "selected_primary_id_to_lotto_id": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
         "infos": {
           "type": "array",
           "default": [],
           "schema": {
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -2115,7 +7331,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -2159,7 +7375,44 @@
       "type": "object",
       "default": null,
       "schema": {
-        "Id": {
+        "PeriodBuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "DailyPasses": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "EndDay": {
+                  "type": "number",
+                  "default": 0
+                },
+                "StartDay": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RewardIndexList": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "LastClaimDay": {
+                  "type": "number",
+                  "default": -1
+                }
+              }
+            }
+          }
+        },
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -2185,7 +7438,57 @@
         },
         "Goods": {
           "type": "array",
-          "default": []
+          "default": [],
+          "schema": {
+            "RewardType": {
+              "type": "number",
+              "default": 0
+            },
+            "TemplateId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "Level": {
+              "type": "number",
+              "default": 0
+            },
+            "Quality": {
+              "type": "number",
+              "default": 0
+            },
+            "Grade": {
+              "type": "number",
+              "default": 0
+            },
+            "Breakthrough": {
+              "type": "number",
+              "default": 0
+            },
+            "ConvertFrom": {
+              "type": "number",
+              "default": 0
+            },
+            "ShowQuality": {
+              "type": "number",
+              "default": 0
+            },
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "IsGift": {
+              "type": "boolean",
+              "default": false
+            },
+            "RewardMulti": {
+              "type": "number",
+              "default": 0
+            }
+          }
         }
       }
     },
@@ -2499,6 +7802,18 @@
     "version47_envelope": {
       "type": "object",
       "schema": {
+        "pending_task_reissues": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "string"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
         "activity_id": {
           "type": "number",
           "default": 0
@@ -2839,7 +8154,229 @@
       }
     }
   },
+  "same_color_game_rank_entries[*]": {
+    "_id": {
+      "type": "string",
+      "default": ""
+    },
+    "activity_id": {
+      "type": "number",
+      "default": 0
+    },
+    "boss_id": {
+      "type": "number",
+      "default": 0
+    },
+    "player_id": {
+      "type": "number",
+      "default": 0
+    },
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "head_portrait_id": {
+      "type": "number",
+      "default": 0
+    },
+    "head_frame_id": {
+      "type": "number",
+      "default": 0
+    },
+    "score": {
+      "type": "number",
+      "default": 0
+    },
+    "role_id": {
+      "type": "number",
+      "default": 0
+    },
+    "achieved_at": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "transfinite_tower_rank_entries[*]": {
+    "_id": {
+      "type": "string",
+      "default": ""
+    },
+    "activity_id": {
+      "type": "number",
+      "default": 0
+    },
+    "chapter_id": {
+      "type": "number",
+      "default": 0
+    },
+    "player_id": {
+      "type": "number",
+      "default": 0
+    },
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "head_portrait_id": {
+      "type": "number",
+      "default": 0
+    },
+    "head_frame_id": {
+      "type": "number",
+      "default": 0
+    },
+    "max_order": {
+      "type": "number",
+      "default": 0
+    },
+    "total_spend_time": {
+      "type": "number",
+      "default": 0
+    },
+    "total_power": {
+      "type": "number",
+      "default": 0
+    },
+    "mvp_fight_id": {
+      "type": "number",
+      "default": 0
+    },
+    "characters": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "FightId": {
+          "type": "number",
+          "default": 0
+        },
+        "IsTrial": {
+          "type": "boolean",
+          "default": false
+        },
+        "Quality": {
+          "type": "number",
+          "default": 0
+        },
+        "Power": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "achieved_at": {
+      "type": "number",
+      "default": 0
+    }
+  },
   "characters[*]": {
+    "team_recommend_finish_events": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "team_recommend_targets": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "object",
+          "schema": {
+            "BaseCharacterId": {
+              "type": "number",
+              "default": 0
+            },
+            "TeamCfgId": {
+              "type": "number",
+              "default": 0
+            },
+            "BaseFormationId": {
+              "type": "number",
+              "default": 0
+            },
+            "TargetFormation": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "CharacterDatas": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "CharacterId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "CharacterQualityStar": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "WeaponId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "WeaponOverrunChoseSuit": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "WeaponResonanceDatas": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "Slot": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Type": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "TemplateId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "EquipIds": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "EquipResonanceDatas": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "Slot": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "Type": {
+                          "type": "number",
+                          "default": 0
+                        },
+                        "TemplateId": {
+                          "type": "number",
+                          "default": 0
+                        }
+                      }
+                    },
+                    "PartnerId": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "_id": {
       "type": "ObjectId"
     },
@@ -3173,7 +8710,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "Id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -3217,7 +8754,7 @@
           "type": "array",
           "default": [],
           "schema": {
-            "Id": {
+            "_id": {
               "type": "number",
               "default": 0
             },
@@ -3252,7 +8789,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "Id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -3282,7 +8819,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "Id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -3308,7 +8845,7 @@
       "type": "array",
       "default": [],
       "schema": {
-        "Id": {
+        "_id": {
           "type": "number",
           "default": 0
         },
@@ -3454,7 +8991,7 @@
               "type": "number",
               "default": 0
             },
-            "id": {
+            "_id": {
               "type": "number",
               "default": 0
             }
@@ -3464,6 +9001,10 @@
     }
   },
   "stages[*]": {
+    "boss_single_activity_no": {
+      "type": "number",
+      "default": null
+    },
     "uid": {
       "type": "number"
     },

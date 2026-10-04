@@ -120,6 +120,7 @@ class MaxAllCharactersResponse(BaseModel):
     character_count: int = 0
     equip_count: int = 0
     gather_reward_count: int = 0
+    skipped_character_ids: list[int] = Field(default_factory=list)
 
 
 class CharacterFashionRecord(BaseModel):

@@ -192,6 +192,8 @@ def get_equip_type_weapon_fashion_ids_map() -> dict[int, list[int]]:
         equip_type = parse_int(equip_type_raw)
         if fashion_id is None or equip_type is None:
             continue
+        if fashion_id not in get_weapon_fashion_id_entries_map():
+            continue
 
         normalized_map.setdefault(equip_type, []).append(fashion_id)
 
