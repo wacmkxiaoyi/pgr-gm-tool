@@ -13,7 +13,7 @@ def test_asset_map_covers_current_assets() -> None:
         not in tsv_fetcher.GENERATED_ASSET_PATHS
     }
 
-    assert set(tsv_fetcher.ASSET_MAP) == assets
+    assert set(tsv_fetcher.get_download_mapping()) == assets
     tsv_fetcher.validate_mapping()
 
 
@@ -45,6 +45,13 @@ def test_refresh_does_not_replace_assets_when_preparation_fails(tmp_path: Path, 
     assets_dir.mkdir()
     target = assets_dir / "Table.tsv"
     target.write_text("previous content\n", encoding="utf-8")
+    for language in ("EN", "CN"):
+        (assets_dir / language).mkdir()
+        (assets_dir / language / "Table.tsv").write_text(f"previous {language}\n", encoding="utf-8")
+    # EN prepares successfully, but a missing CN source must prevent replacement.
+    source = tmp_path / "bytes/en/bytes/share/missing/Table.json"
+    source.parent.mkdir(parents=True)
+    source.write_text('[{"Id": 1}]', encoding="utf-8")
     monkeypatch.setattr(tsv_fetcher, "ASSETS_DIR", assets_dir)
     monkeypatch.setattr(tsv_fetcher, "ASSET_MAP", {"Table.tsv": "en/bytes/share/missing/Table.json"})
 
@@ -56,3 +63,5 @@ def test_refresh_does_not_replace_assets_when_preparation_fails(tmp_path: Path, 
         raise AssertionError("refresh_assets should fail when the source file is absent")
 
     assert target.read_text(encoding="utf-8") == "previous content\n"
+    for language in ("EN", "CN"):
+        assert (assets_dir / language / "Table.tsv").read_text(encoding="utf-8") == f"previous {language}\n"

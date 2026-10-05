@@ -84,6 +84,7 @@ class UnlockScoreTitlesResponse(BaseModel):
 
 class AppInfoResponse(BaseModel):
     name: str
+    authentication_enabled: bool = False
     mongo_db: str
     mongo_configured: bool
     server_management_enabled: bool

@@ -23,6 +23,7 @@ from fastapi import Request
 import psutil
 
 from backend.app.config import Settings
+from backend.app.services.launcher_runtime import LauncherRuntime, matching_servers
 
 
 StartupState = Literal["idle", "starting", "running", "start_failed"]
@@ -314,6 +315,8 @@ class ServerController:
         self._startup_error: str | None = None
         self._start_task: asyncio.Task[None] | None = None
         self._runtime_log_handle: TextIOWrapper | None = None
+        build = getattr(settings, 'launcher_build', None)
+        self._launcher_runtime = LauncherRuntime(build) if build is not None else None
 
     @property
     def server_binary_path(self) -> Path:
@@ -328,6 +331,9 @@ class ServerController:
         return Path(self._settings.server_runtime_log_path)
 
     def controls_visible(self) -> bool:
+        if self._launcher_runtime is not None:
+            build = self._launcher_runtime.build
+            return build.server_dll.is_file() and build.dotnet.is_file() and build.mongod.is_file()
         path = self.server_binary_path
         return _is_supported_server_binary(path)
 
@@ -343,6 +349,8 @@ class ServerController:
         return any(True for _ in self.iter_matching_processes())
 
     def iter_matching_processes(self) -> list[psutil.Process]:
+        if self._launcher_runtime is not None:
+            return matching_servers(self._launcher_runtime.build)
         current_pid = os.getpid()
         target_name = self.process_name.casefold()
         target_path = _safe_resolve(self.server_binary_path)
@@ -358,6 +366,7 @@ class ServerController:
                     if process_binary_path == target_path:
                         matched_processes.append(process)
                         continue
+                    continue
 
                 process_name = (process.info.get("name") or "").casefold()
                 if process_name == target_name:
@@ -383,6 +392,8 @@ class ServerController:
 
             self._startup_state = "starting"
             self._startup_error = None
+            if self._launcher_runtime is not None:
+                self._launcher_runtime.cancel.clear()
             self._start_task = asyncio.create_task(self._start_and_watch())
             return self.get_snapshot(all_healthy=False)
 
@@ -426,6 +437,9 @@ class ServerController:
             await asyncio.sleep(STARTUP_PROCESS_POLL_INTERVAL_SECONDS)
 
     def _launch_process(self) -> None:
+        if self._launcher_runtime is not None:
+            self._launcher_runtime.start()
+            return
         binary_path = self.server_binary_path
         runtime_log_handle = self._prepare_runtime_log_file()
         subprocess.Popen(  # noqa: S603
@@ -454,6 +468,9 @@ class ServerController:
         self._runtime_log_handle = None
 
     def _stop_processes(self) -> None:
+        if self._launcher_runtime is not None:
+            self._launcher_runtime.stop(include_external=True)
+            return
         matched_processes = self.iter_matching_processes()
         if not matched_processes:
             return
@@ -634,12 +651,16 @@ class ServerController:
         )
 
     async def shutdown(self) -> None:
+        if self._launcher_runtime is not None:
+            self._launcher_runtime.cancel.set()
         task = self._start_task
         if task is not None:
             task.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await task
 
+        if self._launcher_runtime is not None:
+            await asyncio.to_thread(self._launcher_runtime.stop)
         self._close_runtime_log_handle()
 
 

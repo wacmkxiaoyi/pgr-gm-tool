@@ -278,7 +278,12 @@ app.loadStatus = async () => {
 
 app.loadAppInfo = async () => {
   try {
-    const payload = await app.apiFetch('/api/app-info');
+    const payload = await app.apiFetch('/api/app-info', {
+      headers: { 'Accept-Language': state.locale },
+    });
+    if (app.dom.logoutButton instanceof HTMLElement) {
+      app.dom.logoutButton.hidden = !payload?.authentication_enabled;
+    }
     state.serverManagementEnabled = Boolean(payload?.server_management_enabled);
     state.serverControlsVisible = state.serverManagementEnabled && Boolean(payload?.server_controls_visible);
     app.setServerManagementEnabled(state.serverManagementEnabled);

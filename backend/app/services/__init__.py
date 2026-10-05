@@ -23,6 +23,7 @@ from backend.app.services.player.player_stages_service import PlayerStagesServic
 from backend.app.services.server_control import ServerController, health_check_loop
 from backend.app.services.auth import configure_authentication, get_session
 from backend.app.services.api_errors import AppError, convert_http_exception, get_error_message, normalize_locale
+from backend.app.utils.resource_language import ResourceLanguageMiddleware
 
 def _get_request_locale(request: Request) -> str:
     header = request.headers.get('accept-language', '')
@@ -57,6 +58,7 @@ def init_app(app, settings):
     app.state.player_equips_service = PlayerEquipsService(settings, app.state.db_schema_runtime)
     app.state.player_stages_service = PlayerStagesService(settings, app.state.db_schema_runtime)
     app.state.stages_schema_available = app.state.db_schema_runtime.has_collection("stages")
+    app.add_middleware(ResourceLanguageMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],

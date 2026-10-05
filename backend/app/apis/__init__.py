@@ -172,6 +172,7 @@ async def app_info(request: Request) -> AppInfoResponse:
     controller = request.app.state.pgr_server_controller
     return AppInfoResponse.model_validate({
         "name": settings.app_name,
+        "authentication_enabled": settings.authentication_enabled,
         "mongo_db": settings.mongo_db,
         "mongo_configured": bool(settings.mongo_uri or settings.mongo_host),
         "server_management_enabled": settings.enable_server_management,
@@ -2263,8 +2264,7 @@ async def save_server_config(request: Request, payload: SaveServerConfigRequest)
         raise_http_error(422, "server.config_root_not_object")
 
     try:
-        settings.server_config_path.parent.mkdir(parents=True, exist_ok=True)
-        settings.server_config_path.write_text(payload.text, encoding="utf-8")
+        settings.write_server_config_text(payload.text)
         settings.reload_server_runtime_config()
         reload_health_targets(settings)
         reload_database_health_targets(settings)
@@ -2273,6 +2273,8 @@ async def save_server_config(request: Request, payload: SaveServerConfigRequest)
         refreshed_text = settings.read_server_config_text()
     except OSError as error:
         raise_http_error(500, "server.config_save_failed", {"reason": str(error)})
+    except ValueError as error:
+        raise_http_error(422, "server.config_save_failed", {"reason": str(error)})
 
     return ServerConfigResponse(
         path=str(settings.server_config_path),

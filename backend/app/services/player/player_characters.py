@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+from backend.app.utils.resource_language import language_cache as lru_cache
 from typing import Any
 
 from backend.app.config import settings

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en-US">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,7 +19,7 @@
         <aside class="dashboard-sidebar" id="dashboard-sidebar" aria-label="后台导航" data-i18n-aria-label="dashboard.sidebarAria">
           <div class="sidebar-brand">
             <div>
-              <strong>WACMK PGR</strong>
+              <strong>Punishing Gray Raven</strong>
               <span data-i18n="dashboard.sidebarSubtitle">管理后台</span>
             </div>
           </div>
@@ -30,11 +30,14 @@
           </nav>
 
           <div class="sidebar-footer">
-            <div class="sidebar-status">
-              <span class="status-dot"></span>
-              <span data-i18n="dashboard.sidebarHealthy">系统运行正常</span>
-            </div>
-            <button class="logout-button sidebar-logout" type="button" data-i18n="dashboard.logout">退出登录</button>
+            <label class="sidebar-language" for="dashboard-language">
+              <span data-i18n="dashboard.languageSwitcherLabel">Language</span>
+              <select id="dashboard-language" data-locale-switcher>
+                <option value="en-US">English</option>
+                <option value="zh-CN">中文</option>
+              </select>
+            </label>
+            <button class="logout-button sidebar-logout" type="button" hidden data-i18n="dashboard.logout">退出登录</button>
             <button class="risk-reset-button" id="player-mutation-risk-reset" type="button" hidden data-i18n="runtime.playerEditConfirmRiskReset">恢复风险提示</button>
           </div>
         </aside>

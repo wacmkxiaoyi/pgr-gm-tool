@@ -16,25 +16,26 @@ logging.basicConfig(
 )
 
 ASSETS_DIR = Path(__file__).resolve().parents[2] / 'assets'
+EN_ASSETS_DIR = ASSETS_DIR / 'EN'
 
 if __name__ == '__main__':
-    attrib_skills_map = get_id_map_from_tsv(ASSETS_DIR / 'AttribPool.tsv', ('Name',))
-    character_id_map = get_id_map_from_tsv(ASSETS_DIR / 'Character.tsv', ('LogName',))
+    attrib_skills_map = get_id_map_from_tsv(EN_ASSETS_DIR / 'AttribPool.tsv', ('Name',))
+    character_id_map = get_id_map_from_tsv(EN_ASSETS_DIR / 'Character.tsv', ('LogName',))
     character_skills_map = get_id_map_from_tsv(
-        ASSETS_DIR / 'CharacterSkillUpgradeDes.tsv',
+        EN_ASSETS_DIR / 'CharacterSkillUpgradeDes.tsv',
         ('Name',),
         id_field='SkillId',
         keep_first=True,
     )
     weapon_id_map = get_id_map_from_tsv(
-        ASSETS_DIR / 'Equip.tsv',
+        EN_ASSETS_DIR / 'Equip.tsv',
         ('Name',),
         id_prefix='2',
         id_value_fields=('WeaponSkillId',),
     )
-    weapon_skills_map = get_id_map_from_tsv(ASSETS_DIR / 'WeaponSkill.tsv', ('Name',))
-    memory_id_map = get_id_map_from_tsv(ASSETS_DIR / 'Equip.tsv', ('Name', 'Site'), id_prefix='3')
-    cub_id_map = get_id_map_from_tsv(ASSETS_DIR / 'Partner.tsv', ('Name',))
+    weapon_skills_map = get_id_map_from_tsv(EN_ASSETS_DIR / 'WeaponSkill.tsv', ('Name',))
+    memory_id_map = get_id_map_from_tsv(EN_ASSETS_DIR / 'Equip.tsv', ('Name', 'Site'), id_prefix='3')
+    cub_id_map = get_id_map_from_tsv(EN_ASSETS_DIR / 'Partner.tsv', ('Name',))
 
     ids_map = {}
     total = len(character_id_map)

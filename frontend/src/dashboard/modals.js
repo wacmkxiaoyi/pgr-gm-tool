@@ -198,9 +198,7 @@ app.initSharedModals = () => {
       }
       app.setBodyModalOpen(false);
 
-      if (playerMutationRiskResetButton instanceof HTMLElement) {
-        playerMutationRiskResetButton.hidden = localStorage.getItem(app.constants.SKIP_MUTATION_RISK_KEY) !== '1';
-      }
+      app.updatePlayerMutationRiskResetVisibility();
 
       if (state.mutationRiskResolve) {
         state.mutationRiskResolve(true);
@@ -210,7 +208,7 @@ app.initSharedModals = () => {
   }
 
   if (playerMutationRiskResetButton instanceof HTMLElement) {
-    playerMutationRiskResetButton.hidden = localStorage.getItem(app.constants.SKIP_MUTATION_RISK_KEY) !== '1';
+    app.updatePlayerMutationRiskResetVisibility();
     playerMutationRiskResetButton.addEventListener('click', () => {
       app.resetPlayerMutationRiskSkip();
       app.openSuccessModal(app.translate('runtime.playerEditConfirmRiskResetTip'));

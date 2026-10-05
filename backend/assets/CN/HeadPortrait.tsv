@@ -1,0 +1,289 @@
+﻿Id	Type	IsInit	Name	ImgSrc	LockDesc	ConvertItemId	ConvertItemCount	Description	WorldDesc	Priority	Quality	ShowTimeStr	Effect	GroupId	LimitType	Duration	IsRepetition	Expire
+9000001	1	1	灰鸦	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer01.png	默认头像	1	10000	玩家头像	默认头像之一。	1	4							
+9000002	1	1	修理机工	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer02.png	默认头像	1	10000	玩家头像	默认头像之一。	2	4							
+9000003	1	1	铭牌	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer03.png	默认头像	1	10000	玩家头像	默认头像之一。	3	4							
+9010101	1		头像-红莲	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadluxiya5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	4	4							
+9010102	1		头像-黎明	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadluxiya5S.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	5	4							
+9010103	1		头像-深红之渊	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadluxiyaaerfa5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	6	4							
+9010104	1		头像-鸦羽	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luxiya5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	7	4							
+9010201	1		头像-蚀暗	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLifu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	8	4							
+9010202	1		头像-流光	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLifu5S.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	9	4							
+9010203	1		头像-仰光	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLifu5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	10	4							
+9010301	1		头像-异火	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLi5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	11	4							
+9010302	1		头像-乱数	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLi5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	12	4							
+9010401	1		头像-风暴	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadYongyechao5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	13	4							
+9010402	1		头像-脉冲	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadYongyechao5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	14	4							
+9010501	1		头像-爆裂	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKalienina5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	15	4							
+9010502	1		头像-烬燃	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKalienina5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	16	4							
+9010601	1		头像-夜刃	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadDubian5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	17	4							
+9010602	1		头像-夙星	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadDubian5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	18	4							
+9010701	1		头像-零度	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadAolisuo5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	19	4							
+9010801	1		头像-重能	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadShenwei5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	20	4							
+9010802	1		头像-暗能	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadShenwei5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	21	4							
+9010901	1		头像-溢彩	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadAila5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	22	4							
+9010702	1		头像-真理	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadBianka5SS.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	23	4							
+9011001	1		头像-银牙	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadSufeiya5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	24	4							
+9011002	1		头像-弧光	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKuluomu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	25	4							
+9011003	1		头像-瑰丽	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadWeila5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	26	4							
+9011004	1		头像-狂犬	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKamu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	27	4							
+9011005	1		头像-凛冽	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLuosaita5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	28	4							
+9011006	1		头像-雀翎	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadQu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	29	4							
+9011007	1		头像-游麟	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadChangyu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	30	4							
+9011008	1		头像-银冕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLuna4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	31	4							
+9011009	1		头像-2B	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadTwob5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	32	4							
+9011010	1		头像-9S	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadNines5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	33	4							
+9011011	1		头像-A2	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadATwo5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	34	4							
+9011012	1		头像-明觉	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadWanshi5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	35	4							
+9011013	1		头像-岚音	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadSailinna5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	36	4							
+9011014	1		头像-荣光	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Kuluomu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	37	4							
+9011015	1		头像-XXI	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadTwentyone5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	38	4							
+9011016	1		头像-绯耀	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weila5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	39	4							
+9011017	1		头像-戏炎	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLuolan5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	40	4							
+9011018	1		头像-极昼	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Lifu5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	41	4							
+9011019	1		头像-幻奏	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Sailinna5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	42	4							
+9011020	1		头像-华钟	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadPulao5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	43	4							
+9011021	1		头像-遥星之座	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Yongyechao5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	44	4							
+9011022	1		头像-隐星	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadHakama5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	45	4							
+9011023	1		头像-辉晓	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Kalienina5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	46	4							
+9011024	1		头像-逆旅	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadNuoan5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	47	4							
+9011025	1		头像-深痕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Bianka5.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	48	4							
+9011026	1		头像-琉璃	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Bangbinata4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	49	4							
+9011027	1		头像-超刻	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Li4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	50	4							
+9011028	1		头像-万华	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Aila4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	51	4							
+9011029	1		头像-深红囚影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Luxiya4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	52	4							
+9011030	1		头像-清商	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Hanying4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	53	4							
+9011031	1		头像-森息	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Twentyone4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	54	4							
+9011032	1		头像-擎驱	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Nuoketi4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	55	4							
+9011033	1		头像-回音	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Yalisha4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	56	4							
+9011034	1		头像-深谣	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lamiya4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	57	4							
+9011035	1		头像-BRS	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Blackrock4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	58	4							
+9011036	1		头像-尘铭	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Dubian4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	59	4							
+9011037	1		头像-启明	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Qu4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	60	4							
+9011038	1		头像-觅语	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Buouxiong4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	61	4							
+9011039	1		头像-终焉	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luna4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	62	4							
+9011040	1		头像-耀炎	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Bulijite4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	63	4							
+9011041	1		头像-檀心	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Hanying4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	64	4							
+9011042	1		头像-明晰梦	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Wanshi4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	65	4							
+9011043	1		头像-誓焰	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Luxiya4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	66	4							
+9011044	1		头像-徊闪	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Bazhi4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	67	4							
+9011045	1		头像-芒星之迹	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Yongyechao4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	68	4							
+9011046	1		头像-幻日	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Cibeizhe4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	69	4							
+9011047	1		头像-谬影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lilith4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	70	4							
+9011048	1		头像-希声	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Sailinna4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	71	4							
+9011049	1		头像-破晓	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Jietawei4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	72	4							
+9011050	1		头像-灼惘	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Weila4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	73	4							
+9011051	1		头像-但丁	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Danding4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	74	4							
+9011052	1		头像-维吉尔	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Weijier4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	75	4							
+9011053	1		头像-晖暮	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Bianka4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	76	4							
+9011054	1		头像-裁律	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Xiezou4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	77	4							
+9011055	1		头像-铮骨	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weiluonika4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	78	4							
+9011056	1		头像-霁梦	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Lifu4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	79	4							
+9011057	1		头像-骇影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Buouxiong4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	80	4							
+9011058	1		头像-极锋	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luosaita4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	81	4							
+9011059	1		头像-亡歌	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Nietiya4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	82	4							
+9011060	1		头像-不落日	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Shenwei4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	83	4							
+9011061	1		头像-逆冕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR7Luxiya4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	84	4							
+9011062	1		头像-安魂	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Helentine4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	85	4							
+9011063	1		头像-烬航	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Kalienina4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	86	4							
+9011064	1		头像-时崎狂三	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Kurumi4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	87	4							
+9011065	1		头像-破渊	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Adelaide4.png	构造体终阶解放可获得	1	10000	玩家头像	经历无数战斗和成长之后，构造体完成终阶解放的姿态。	88	4							
+9010703	1		幽涧青卞	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadBianka7SS.png	购买[限定特效]幽涧青卞-真理组合包获得	1	10000	玩家头像	幽涧松陲，青卞鹤栖。	200	4							
+9010211	1		朱云流霭	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luxiya7SS.png	购买[限定特效]朱云流霭-鸦羽组合包获得	1	10000	玩家头像	流云轻霭，朱颜颦笑。	201	4							
+9010212	1		深海蓝调	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Li7SS.png	购买限时礼包【深海蓝调涂装组合包】获得	1	10000	玩家头像	夏日，碧空，他的蔚蓝之调	202	4							
+9010213	1		深海少女	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lifu7SS.png	购买限时礼包【深海少女涂装组合包】获得	1	10000	玩家头像	夏日，海滩，她的纯白之姿	203	4							
+9010214	1		热夏白贝	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luxiya7SS.png	购买限时礼包【热夏白贝涂装组合包】获得	1	10000	玩家头像	夏日，白浪，她的片刻休憩	204	4							
+9010215	1		薄纱紫荆	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Kalienina7SS.png	购买限时礼包【薄纱紫荆涂装组合包】获得	1	10000	玩家头像	夏日，烟火，她的难忘之约	205	4	2020/8/19 10:00						
+9010216	1		潮汐心景	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadYongyechao6SS.png	购买限时礼包【潮汐心景涂装组合包】获得	1	10000	玩家头像	“前辈~嘿嘿，黄金时代的人类是这么称呼的对吧。”	206	4	2020/10/1 10:00						
+9010217	1		旧日回想	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKuluomu6.png	购买限时礼包【旧日回想涂装组合包】获得	1	10000	玩家头像	“在看哪呢？先专心眼前的任务吧。”	207	4	2020/9/28 10:00						
+9010218	1		万灵游行	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadShenwei7SS.png	购买限时礼包【万灵游行涂装组合包】获得	1	10000	玩家头像	羁绊构筑冥河之路，万灵指引归途之心。	208	4							
+9010219	1		天赐恩典	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Bianka8SS.png	参与限时活动【天赐眷礼】获得	1	10000	玩家头像	天赐恩典，如此甘甜。	209	4	2020/12/5 10:00						
+9010220	1		纺光同尘	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Lifu6S.png	购买限时礼包【纺光同尘涂装组合包】获得	1	10000	玩家头像	光流长空，万里同尘。	210	4							
+9010221	1		荆棘火	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luna1Sp.png	购买限时礼包【荆棘火涂装组合包】获得	1	10000	玩家头像	愿磷火从荆棘里出来，愿叛道之人受火焚烧。	211	4							
+9010222	1		末世绀华	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luxiya8SS.png	参与限时活动【年禧密约】获得	1	10000	玩家头像	挣脱荆棘，归于洁白	212	4	2021/2/4 10:00						
+9010223	1		红绡春榭	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadQu6.png	购买限时礼包【红绡春榭涂装组合包】获得	1	10000	玩家头像	明媚鲜妍多有时，春归锦庭自芳菲。	213	4	2021/2/4 10:00						
+9010224	1		旌风雪冠	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLuosaita6.png	购买限时礼包【旌风雪冠涂装组合包】获得	1	10000	玩家头像	冠冕是契约，是誓言。但与守林人的羁绊无需誓约，亦能斩断凌冽的寒风。	214	4	2021/3/14 10:00						
+9010225	1		荣勋典范	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKuluomu7.png	购买限时礼包【荣勋典范涂装组合包】获得	1	10000	玩家头像	将荣誉铭刻胸膛，用行动塑造典范。	215	4	2021/4/9 10:00						
+9010226	1		街头红芒	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luna2Sp.png	购买限时礼包【街头红芒涂装组合包】获得	1	10000	玩家头像	鲜红的荆棘，不受他人目光所困。	216	4	2021/6/1 10:00						
+9010227	1		鳞波沫舞	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luxiya8SS.png	参与限时活动【鳞波沫舞】获得	1	10000	玩家头像	即使知晓最终的结局或许会是化作泡影，仅在此刻，只愿一心一意，为珍重之人献上祝福。	217	4	2021/7/15 10:00						
+9010228	1		宁芙浪谣	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadSailinna6.png	购买限时礼包【宁芙浪谣涂装组合包】获得	1	10000	玩家头像	海之仙女，遥坐礁岸，与浪轻歌。	218	4	2021/7/1 10:00						
+9010229	1		鲨滩嬉戏	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadYongyechao7SS.png	购买限时礼包【鲨滩嬉戏涂装组合包】获得	1	10000	玩家头像	永远的夏日小岛上，热情洋溢的少女追在你身后，对你喊着“Aloha！”	219	4	2021/7/22 10:00						
+9010230	1		祈晓织翼	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadLifu7.png	参与限时活动【命运微光】获得	1	10000	玩家头像	仙神登上天穹，化作星座，引来白昼。从此晓光再次照进人们眼中。	220	4	2021/10/1 10:00						
+9010231	1		长夜魅影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKuluomu8.png	购买限时礼包【长夜魅影涂装组合包】获得	1	10000	玩家头像	在黑夜中畅饮一杯鲜红，众生也为他献上赞歌。虽已无法拥抱光明，但他仍会在黑暗中默默守护着你。	221	4	2021/11/12 10:00						
+9010232	1		雪豹之契	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Kalienina8.png	购买限时礼包【雪豹之契涂装组合包】获得	1	10000	玩家头像	“指挥官，有......有什么吩……啊啊！为什么我还得做这个！？”	222	4	2021/12/31 10:00						
+9010233	1		春围巡狩	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Bianka9SS.png	购买限时礼包【春围巡狩涂装组合包】获得	1	10000	玩家头像	灵感来自数千年前皇家春猎的古老仪典，融合传统弓射服饰设计，尽显贵族风韵。鸣镝离弦，以神祇之声击破禁锢世界的灾厄与苦痛，渡春意回归。	223	4	2022/1/27 10:00						
+9010234	1		扬威虎将	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadShenwei9SS.png	购买限时礼包【扬威虎将涂装组合包】获得	1	10000	玩家头像	得闻虎将啸前军，重剑轻飞万人敌。 为契合使用者张扬的性格，使用了多种大胆的纹印符号。焕然一新的装扮仿佛使其获得了东方神兽的神秘力量，显得更加威风凛凛，活力四射。	224	4	2022/1/27 10:00						
+9010235	1		撷影迷情	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Li8SS.png	购买限时礼包【撷影迷情涂装组合包】获得	1	10000	玩家头像	以魔术掩饰早已准备好的特殊回礼，繁复的技巧捧出绯红的真心，纵使众人因戏法演绎的绚烂惊叹不已，魔术师的目光仅会为心中唯一的观众而停留。现在，他已将回应交予你的手心。	225	4	2022/3/11 10:00						
+9010236	1		赤锦洄梦	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadPulao6.png	购买限时礼包【赤锦洄梦涂装组合包】获得	1	10000	玩家头像	根据蒲牢叙述的一次梦境来复原的涂装。在叙述过程中，蒲牢热情地演绎了茶房伙计、卖酸梅汤的老大爷，以及热情推销这套衣装给她的店主。诸如“叉烧包好食！”和“着起呢件衫你真系成个偶像一样！”等话语，在蒲牢的倾情再现后，便时时回响在大家的意识海里。	226	4	2022/6/3 10:00						
+9010237	1		逐魇幽芒	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Bianka7.png	购买限时礼包【逐魇幽芒涂装组合包】获得	1	10000	玩家头像	驱魔者的提灯在胸前常亮，淬银的利剑倒映清丽的脸庞。碧色的眼瞳追逐着旧日之影，在幽邃之境的终点，她终将得知何为真相。	227	4	2022/7/22 10:00						
+9010238	1		绯澜盛律	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weila7.png	购买限时礼包【绯澜盛律涂装组合包】获得	1	10000	玩家头像	将装甲减少到了最低限度，以确保她能够在音乐的盛会里追逐浪花。但本人似乎更倾向于背靠遮阳伞的阴影，尽情欣赏你在人潮中束手无措的样子。并在合适的时机发出呼唤：“指挥官，帮我把那个拿过来。”作为奖励，她会允许你共享遮阳伞下不怎么宽敞的空间。	228	4	2022/7/22 10:00						
+9010239	1		绮愿稚梦	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Lifu7.png	参与限时活动【憩梦穹森】获得	1	10000	玩家头像	童话般的梦想藏在尖塔角落，温柔守护着稚嫩的安眠。栖息的森林虽已走远，仍会第一个接回迷路的孩子。青色荧光指引风的方向，绮翼在花海中绽放。就在这里，哪也不去，小小地休憩。	229	4	2022/7/14 10:00						
+9010240	1		尼刻US1000	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luosaita7.png	购买限时礼包【尼刻US1000涂装组合包】获得	1	10000	玩家头像	“动力系统确认，风速平衡确认，GPS调整完毕……那么，你愿意成为我的幸运之神，和我一起获得这次胜利吗？”	230	4	2022/8/19 10:00						
+9010241	1		余暇沐日	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Kuluomu9.png	购买限时礼包【余暇沐日涂装组合包】获得	1	10000	玩家头像	虽然并非出行的提议者，但他仍然安排了一场称得上完美的行程。夜色渐临，路灯之下他挥手致意，微笑伴以晚风将为约定画上句号。在告别之前，轻轻将他快要滑落的围巾拢紧——做好了一切准备的周密者，未曾料想过自己会因为你的随手之举而短暂失措。	231	4	2022/9/30 10:00						
+9010242	1		苍空炽月	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Luna7.png	购买限时礼包【苍空炽月涂装组合包】获得	1	10000	玩家头像	苍月的幻想封缄伪神的恩典，只因其蔑视腐朽的生命，无需白昼为她加冕，破碎倒塌的神殿遗迹在她的挥手间重新筑起，重回世间的旅人啊，是否看到了她眼中转瞬即逝的光明？	232	4	2022/11/18 10:00						
+9010243	1		晴喻天音	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Sailinna7.png	购买限时礼包【晴喻天音涂装组合包】获得	1	10000	玩家头像	昼观朝露，夜望繁星，春涉江雪，秋抚落英。 无人知晓的深山神殿，静候日出的少女于雨幕之中独自演奏。 与天穹相伴，与四季为伍，将残存的碎片紧握手中。 即使距离愈加遥远，即使被世界待以沉默，少女也会为她所思念之人虔诚祈福。 笛声起，雨渐隐，初晓至，铃音鸣。 晴天之后，又会是百花盛开的季节。	233	4	2022/11/18 10:00						
+9010244	1		蚩龙渊渺	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Luxiya5.png	购买限时礼包【蚩龙渊渺涂装组合包】获得	1	10000	玩家头像	“霹雳昼射蛟螭渊,妖星夜落蚩尤躔。 同行、牺牲、背叛……即使舍弃了诸多过往，旅人仍将一路行来的记忆錾刻于身，繁复的纹样述说着上古之战的历史，于她而言，这是“他们”存在过的证明。 历史变为传说，神话被传承讲述，如今独自流浪的她，眼中映出的又会是怎样的世界？”	234	4	2022/12/30 10:00						
+9010245	1		拾梦白菀	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Bianka8.png	参与限时活动【拾梦白菀】获得	1	10000	玩家头像	拾梦游弋，寒雪生花。  叹息声拾起了沉睡的碎片，指引着梦的旅人步入覆雪的教堂。 圣者在此献上祈祷—— 即使神会永远沉默，有你在聆听，便好。  当那些曾被遗落的爱与花种再次盛开时，她定会回到这里，在微笑中守候着誓约者的到来。	235	4	2023/1/6 10:00						
+9010246	1		晓兔阗春	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Kalienina6.png	购买限时礼包【晓兔阗春涂装组合包】获得	1	10000	玩家头像	新晓辞旧岁，卯兔携春归。 遗落了发射装置的少女将“弹药”填入武器当中，指向夜空，扣动扳机，宣告新春的到来。寄托愿望的弧光划过天际，传递祝福的轰鸣响彻大地。 百花齐放，绚烂的夜景之下，刹那的辉光照亮了窗沿。沉思的兔子，又在悄悄编织着怎样的愿景呢？	236	4	2023/1/20 10:00						
+9010247	1		冥夜日冕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weila8.png	购买限时礼包【冥夜日冕涂装组合包】获得	1	10000	玩家头像	她如煌煌烈阳，逐光展旗，照亮幽邃深沉的天幕。她如冥域之风，呼啸苍穹，宣示生死界限的真谕。她是众神的先锋，是英灵的终点，是静候长夜的神祇。当太阳落下，圣鹮展翼之时，面对她的邀请，你是否愿意同行，去见证那永无止境的远征，守护你们共同铭刻的誓言？	237	4	2023/2/10 10:00						
+9010248	1		罪誓茜羽	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luxiya9.png	购买限时礼包【罪誓茜羽涂装组合包】获得	1	10000	玩家头像	在深沉的黑夜背向神明，以生命咏唱禁忌的咒语，燃烧的烛影间摇曳着熟悉的少女的面庞，即使曾历经长久的别离，彼此的契约与誓言终将点亮失落的记忆，遗失之物也会被尽数寻回。 “……谨遵黯红之契，前来履约。”	238	4	2023/3/24 10:00						
+9010249	1		长夜瞭望	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Yalisha5.png	购买限时礼包【长夜瞭望涂装组合包】获得	1	10000	玩家头像	少女追逐着午夜与罪恶的踪迹，在钢铁的丛林中，独自守候着城市的长夜。 尽管真正的零时已经过去，她习惯性地压了压帽檐，淡紫色的剪影在身后的盔甲上若隐若现，敲响下一道隐秘的门。	239	4	2023/6/8 10:00						
+9010250	1		海渊殊色	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lamiya5.png	购买限时礼包【海渊殊色涂装组合包】获得	1	10000	玩家头像	伴随水手们返航的不止货物，还有传说。 有人说她是海妖，以美丽的相貌为陷阱捕获人类；有人说她是守护神，为迷航的船只指明方向；有人说她跃出海面时，彩虹伴随着她的身躯；有人说饮下她的眼泪不仅可以治愈一切疾病，还能获得悠久的生命。 无数探险者为了她的眼泪踏上旅途。 可是，她为什么会流泪呢？	240	4	2023/7/20 18:00						
+9010251	1		梦隙流形	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Sailinna8.png	购买限时礼包【梦隙流形涂装组合包】获得	1	10000	玩家头像	明明从来没有尝试过穿上类似的服装，但这套涂装却似乎如同为赛琳娜量身订造一般合身。和模糊记忆中自己所习惯的穿着不一样，相当便于运动和奔跑，仿佛心情也能变得轻快了起来。涂装的制作者是不是也想有一天能够看到稍微有点不一样的赛琳娜，希望她能够在海岸之上面露微笑，唱着轻松愉快的歌曲呢？	241	4	2023/7/20 18:00						
+9010252	1		浮光潜影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Li5.png	购买限时礼包【浮光潜影涂装组合包】获得	1	10000	玩家头像	潜入水面之下，一切的喧嚣烦恼便瞬间消融，化成了宁静的粼光。无论何处都能前往，无论什么风景都能捕捉——这些绚烂美丽的光景，让人不禁想要记录下来，分享给那些最重要的人们，或者就在此刻约定，与之一起在这片海中同游吧。毕竟在这浪花与浮光之间，心愿不再只是心愿，它已触手可及。	242	4	2023/7/20 18:00						
+9010253	1		炸裂霓虹☆	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Kalienina7.png	参与限时活动【炸裂霓虹】获得	1	10000	玩家头像	让一切的梦想都在这聚光灯下暴露； 竖起尖尖的耳朵，索引着的是你的处所。 一点小动作都能成为引线，让拼命隐藏的心意爆破； 但此刻就让躁动的心稍微平复，就算多少有点不适合自己，刘海也必须保持完美； 准备好了吗？踏前一步，梦想的舞台就近在咫尺。	243	4	2023/7/28 10:00						
+9010254	1		破夜极星	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Luxiya6.png	购买限时礼包【破夜极星涂装组合包】获得	1	10000	玩家头像	午夜、暴雨、雷鸣、火光……待一切归于平静，少女翻转手腕，收刀入鞘，在鸣响的警笛到来前，消失在街道尽头。 无人知晓少女的身份，犯罪者称她为白色噩梦，执法者称她为独断的私刑者，强者称她为麻烦，弱者称她为救星……但无论外界如何评价，只要罪恶还在光照不进的阴暗中滋生，少女斩破黑夜的脚步就从未犹豫与停歇。	244	4	2023/8/31 10:00						
+9010255	1		竞跃纷斓	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Aila5.png	购买限时礼包【竞跃纷斓涂装组合包】获得	1	10000	玩家头像	“战场的基调绝不是黑白灰！”少女的每一次跃动，都将是这场战斗游戏中的最强指令。 艾拉根据自己的喜好在新涂装上做了特殊设计，不仅拥有超强机动性，斑斓亮色更是吸引着战场上每一个人的目光。	245	4	2023/9/28 18:00						
+9010256	1		灰翎飞翩	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Qu5.png	购买限时礼包【灰翎飞翩涂装组合包】获得	1	10000	玩家头像	在黑棘包围的塔顶上，少女发动了禁忌的秘仪，将自己化为永生的造物，只为了守护皇座下的子民。 如今百年过去，来犯的敌人都化为了枯骨。而不死身的女皇，依然端坐在破败城池的皇座上，等待着下一位挑战者，让她从漫长的使命中解脱。 而你，有勇气接下她的试炼吗？	246	4	2023/11/9 10:00						
+9010257	1		绮影凛然	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weila9.png	参与限时活动【绮影凛然】获得	1	10000	玩家头像	秀鸾枪破天门阵，桃花马踏西夏川。 “相传从前有一位骁勇善战的女将，巾帼须眉，建功无数，从皇城退下之后，成了空都里的女锦卫。自从空都有了这位女锦卫，寇盗鼠辈们都倒了大霉，百姓们的安稳终于有了保障，大伙儿都喜溢眉梢……” ——出自评书《空都话本》	247	4	2023/11/16 10:00						
+9010258	1		朽骨回生	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Twentyone5.png	购买限时礼包【朽骨回生涂装组合包】获得	1	10000	玩家头像	白衣胜雪，青衫湿露。神医手到病立除，谁言人间无圣迹。 “空都还有个神医，别看小小年纪，医术却是十分了得。连续哭了三天的婴孩，只消这神医来看上一眼，就立马停泣止啼，众人都夸她真是华佗转世……” ——出自评书《空都话本》	248	4	2023/11/16 10:00						
+9010259	1		茕心溯愿	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lamiya6.png	参与限时活动【茕心溯愿】获得	1	10000	玩家头像	游鱼藏身梦境，窥视岸边停泊的明光。风雨赴岸，深浪沦没，罅隙间的妄念化作泡影，伪饰的愿景终将被海渊埋葬。 如果，如果一切都能停留在这个片刻……能否为她留住，那海面遥不可及的光？	249	4	2024/2/8 10:00						
+9010260	1		弥月寒调	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luna5.png	购买限时礼包【弥月寒调涂装组合包】获得	1	10000	玩家头像	月色弥连，尽染成霜。	250	4	2024/2/1 18:00						
+9010261	1		绛龙佑岁	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Luxiya7.png	购买限时礼包【绛龙佑岁涂装组合包】获得	1	10000	玩家头像	龙升鱼跃，绛气萦薄。	251	4	2024/2/1 18:00						
+9010262	1		赤红璨焰	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Bianka9.png	购买限时礼包【赤红璨焰涂装组合包】获得	1	10000	玩家头像	葬魔以焚，安魂以祷。	252	4	2024/3/14 18:00						
+9010263	1		暮色黯星	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Yalisha6.png	购买限时礼包【暮色黯星涂装组合包】获得	1	10000	玩家头像	暮色深沉，愿微光为你指引归途。	253	4	2024/4/18 10:00						
+9010264	1		瑶云流华	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Hanying5.png	购买限时礼包【瑶云流华涂装组合包】获得	1	10000	玩家头像	瑶云绘梦，华舞千秋。	254	4	2024/4/18 10:00						
+9010265	1		稚眠绒狼	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Twentyone6.png	购买限时礼包【稚眠绒狼涂装组合包】获得	1	10000	玩家头像	小小的探险家，穿梭在彩色气球与旋转木马间。	255	4	2024/5/30 10:00						
+9010266	1		滨海涟漪	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Aila6.png	购买限时礼包【滨海涟漪涂装组合包】获得	1	10000	玩家头像	虹彩般的少女用手中画笔，将这蔚蓝世界的烂漫定格永恒。	256	4	2024/5/30 10:00						
+9010267	1		赤樗椿	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Luxiya8.png	参与限时活动【赤樗椿】获得	1	10000	玩家头像	鬼魅退散，真心归寻。	257	4	2024/7/18 10:00						
+9010268	1		璃蓝眸转	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luna6.png	购买限时礼包【璃蓝眸转涂装组合包】获得	1	10000	玩家头像	琉璃之海尽头，停泊着此刻的记忆。	258	4	2024/7/11 10:00						
+9010269	1		泠泫旖碧	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Hanying6.png	购买限时礼包【泠泫旖碧涂装组合包】获得	1	10000	玩家头像	荷髻蟠空，袅娜金缕。	259	4	2024/7/11 10:00						
+9010270	1		光耀颂赞	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Luxiya5.png	购买限时礼包【光耀颂赞涂装组合包】获得	1	10000	玩家头像	日冕无言诉说燃尽此身作灯盏的誓约。	260	4	2024/7/11 10:00						
+9010271	1		罡炁祛祟	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Kalienina8.png	购买限时礼包【罡炁祛祟涂装组合包】获得	1	10000	玩家头像	道法万钧，邪魔退散	261	4	2024/8/22 10:00						
+9010272	1		甜莓绯轮	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Yongyechao5.png	购买限时礼包【甜莓绯轮涂装组合包】获得	1	10000	玩家头像	霓虹闪烁下，疾驰着不眠的夜。	262	4	2024/9/26 7:00						
+9010273	1		逐孽游骑	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Dubian5.png	购买限时礼包【逐孽游骑涂装组合包】获得	1	10000	玩家头像	利刃诛恶，将漂泊游魂逐入遗忘之地。	263	4	2024/9/26 7:00						
+9010274	1		御衡圣翼	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Cibeizhe5.png	购买限时礼包【御衡圣翼涂装组合包】获得	1	10000	玩家头像	她遍历天涯，游览群星，传颂着不朽的咏叹调。	264	4							
+9010275	1		罪妄月华	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luna7.png	参与限时活动【罪妄月华】获得	1	10000	玩家头像	一座神庙，即使荒芜，仍然是祭坛；一座雕像，即使崩塌，仍然是神。	265	4	2024/11/14 10:00						
+9010276	1		绛鳞游虹	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lamiya7.png	购买限时礼包【绛鳞游虹涂装组合包】获得	1	10000	玩家头像	殷勤谢红叶，好去到人间。	266	4							
+9010277	1		梨缘韶华	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Qu6.png	购买限时礼包【梨缘韶华涂装组合包】获得	1	10000	玩家头像	梨园戏文，盛景江山。	267	4							
+9010278	1		拂晓长誓	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Luxiya6.png	参与限时活动【拂晓长誓】获得	1	10000	玩家头像	我们的爱情今日亦然，及世之世，以至永远。	268	4	2025/1/23 7:00						
+9010279	1		曜弦游吟	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Sailinna5.png	购买限时礼包【曜弦游吟涂装组合包】获得	1	10000	玩家头像	分秒指针之间，我们一起成为岁月谱下的寓言。	269	4	2025/1/23 7:00						
+9010280	1		鸿韵绣春	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Hanying7.png	购买限时礼包【鸿韵绣春涂装组合包】获得	1	10000	玩家头像	鸿运结彩，映火临春。	270	4	2025/1/23 7:00						
+9010281	1		妖蛊魇色	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Lilith5.png	购买限时礼包【妖蛊魇色涂装组合包】获得	1	10000	玩家头像	婵娟此豸，姿态妖蛊也。	271	4	2025/3/6 7:00						
+9010282	1		焰骸孤冕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Weila5.png	购买限时礼包【焰骸孤冕涂装组合包】获得	1	10000	玩家头像	末焰之主，人类的终焉化身。	272	4	2025/4/10 7:00						
+9010283	1		秘龙驰星	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Yongyechao6.png	购买限时礼包【秘龙驰星涂装组合包】获得	1	10000	玩家头像	走吧！去狩猎！	273	4	2025/4/10 7:00						
+9010284	1		巫渺魂祀	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Cibeizhe6.png	购买限时礼包【巫渺魂祀涂装组合包】获得	1	10000	玩家头像	巫魂渺渺，歌祀九天	274	4							
+9010285	1		沙飞虹芒	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Yalisha7.png	购买限时礼包【沙飞虹芒涂装组合包】获得	1	10000	玩家头像	金黄沙滩上，少女身着淡紫，回眸顾盼。	275	4							
+9010286	1		粼海浮荧	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Luxiya8.png	购买限时礼包【粼海浮荧涂装组合包】获得	1	10000	玩家头像	世间所有美好，都恰逢其时。	276	4	2025/7/3 7:00						
+9010287	1		绯烬黯棘	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Bianka5.png	购买限时礼包【绯烬黯棘涂装组合包】获得	1	10000	玩家头像	余烬执火，渡魂安息。	277	4	2025/7/3 7:00						
+9010288	1		缘纺祈糸	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Sailinna6.png	参与限时活动【缘纺祈糸】获得	1	10000	玩家头像	恍惚间，远去的夏天又抵临了此间。	278	4	2025/7/3 7:00						
+9010289	1		冥土渡魂	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Wanshi5.png	购买限时礼包【冥土渡魂涂装组合包】获得	1	10000	玩家头像	嘘...听见了吗？那些卡在喉间的哀嚎。	279	4	2025/8/21 7:00						
+9010290	1		龙雀归膺	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Qu7.png	购买限时礼包【龙雀归膺涂装组合包】获得	1	10000	玩家头像	赤日坠海，龙雀破云。	280	4	2025/8/21 7:00						
+9010291	1		莲歌行	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Lifu5.png	购买限时礼包【莲歌行涂装组合包】获得	1	10000	玩家头像	浮光掠影，惊鸿一瞥。	281	4	2025/11/13 5:00						
+9010292	1		涂鸦法则	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luna8.png	购买限时礼包【涂鸦法则涂装组合包】获得	1	10000	玩家头像	让每一夜的梦境，都浸在霓虹之中。	282	4	2025/11/13 5:00						
+9010293	1		夜诏终章	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Cibeizhe7.png	参与限时活动【夜诏终章】获得	1	10000	玩家头像	此时此刻，亦是永恒之刻。	283	4	2025/11/13 5:00						
+9010294	1		冥神绶寂	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weiluonika5.png	购买限时礼包【冥神绶寂涂装组合包】获得	1	10000	玩家头像	唯冥神的缄默统御诸魂。	284	4	2025/9/25 7:00						
+9010295	1		诡祚轮契	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Lilith6.png	购买限时礼包【诡祚轮契涂装组合包】获得	1	10000	玩家头像	这场典押灵魂的赌局……你，准备好开牌了吗？	285	4	2025/9/25 7:00						
+9010296	1		熊迹旅诗	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Buouxiong5.png	购买限时礼包【熊迹旅诗涂装组合包】获得	1	10000	玩家头像	旅途的终点是哪里？当然是熊爪还没到过的地方~	286	4	2025/12/23 7:00						
+9010297	1		圣律锢金	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Luosaita5.png	购买限时礼包【圣律锢金涂装组合包】获得	1	10000	玩家头像	无需任何约定，我对你的忠诚早已锻入血脉。	287	4	2026/2/3 5:00						
+9010298	1		旖夜咏奏	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Bianka6.png	参与限时活动【旖夜咏奏】获得	1	10000	玩家头像	我会与你共享命运，共同见证每一个朝暮。	288	4	2026/2/3 5:00						
+9010299	1		虹夜☆漫游	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR6Yongyechao7.png	购买限时礼包【虹夜☆漫游涂装组合包】获得	1	10000	玩家头像	宇宙那么广阔，总有比正确更令人快乐的事！	289	4	2026/2/3 5:00						
+9010300	1		焰血裁决	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Weila6.png	购买限时礼包【焰血裁决涂装组合包】获得	1	10000	玩家头像	我真心期盼，你是一个值得出手的对手。	290	4	2026/3/17 5:00						
+9010303	1		矢志猎踪	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR4Shenwei5.png	购买限时礼包【矢志猎踪涂装组合包】获得	1	10000	玩家头像	在又一场雾中，有火光微明。	291	4	2026/4/21 5:00						
+9010304	1		雾夜赤冕	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR7Luxiya5.png	购买限时礼包【雾夜赤冕涂装组合包】获得	1	10000	玩家头像	任腐朽化为尘烟，引天光照亮永夜。	292	4	2026/6/2 5:00						
+9010305	1		冥契妖翎	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Weiluonika6.png	购买限时礼包【冥契妖翎涂装组合包】获得	1	10000	玩家头像	前路无明，而她前进的步履永不停息。	293	4	2026/6/2 5:00						
+9010306	1		悠羽倾舞	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Lifu6.png	参与限时活动【悠羽倾舞】获得	1	10000	玩家头像	俯仰，旋转，相拥。你我进退翩跹。	294	4	2026/6/5 10:00						
+9010307	1		汐光曳影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Sailinna7.png	购买限时礼包【汐光曳影涂装组合包】获得	1	10000	玩家头像	唯有海潮的声音，和她的低语，共同编织成这个夏天令人想要永远珍藏的回忆。	295	4	2026/7/17 5:00						
+9010308	1		缱绻晴空	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Helentine5.png	购买限时礼包【缱绻晴空涂装组合包】获得	1	10000	玩家头像	此刻最大的心愿，是这一刻永不结束。	296	4	2026/7/17 5:00						
+9010309	1		晴屿漫汐	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Bianka7.png	购买限时礼包【晴屿漫汐涂装组合包】获得	1	10000	玩家头像	愿这个相伴的夏日，永不结束。	297	4	2026/8/19 5:00						
+9010310	1		炽音破律	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR5Kalienina5.png	购买限时礼包【炽音破律涂装组合包】获得	1	10000	玩家头像	予你独一无二的旋律，和永不改变的心意。	298	4	2026/8/19 5:00						
+9010311	1		旖梦逝影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Nietiya6.png	购买限时礼包【旖梦逝影涂装组合包】获得	1	10000	玩家头像	月影幽蓝的梦境中，你我重逢。	299	4	2026/9/24 5:00						
+9010312	1		禁隙摧厄	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR3Adelaide5.png	购买限时礼包【禁隙摧厄涂装组合包】获得	1	10000	玩家头像	永恒无际的苍宇，是神祇馈赠的自由。	300	4	2026/9/24 5:00						
+9012001	1		铭刻长路	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadDubianCharacterTower1.png	在本我回廊-夜刃的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	在成为“遗忘者”之前，他走过了漫长的路。每一步脚印，都有无数脚印跟随其后。每一步脚印，都是值得铭记的一段故事。	401	4							
+9012002	1		临渊择途	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadluxiyaaerfaCharacterTower1.png	在本我回廊-深红之渊的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	临渊求索，执剑择途，她见过地狱，更靠近深渊，但利剑未曾折断，不论怎样的阻碍都无法阻止她行走在前进的道路。	402	4							
+9012003	1		一起来玩吧！	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadluxiyaaerfaCharacterTower3.png	在本我回廊-遥星之座的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	正因为有你的参与，游戏才会成为游戏，挑战才会成为挑战……生命也才会成为生命——来一起愉快地玩游戏吧！	403	4							
+9012004	1		心引定航	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKalieninaCharacterTower4.png	在本我回廊-辉晓的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	银道测轨，心引定航	404	4							
+9012005	1		烛灯刑	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadKalieninaCharacterTower5.png	在本我回廊-逆旅的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	逝者为蜡，生者为芯，以生命的枯朽为灯，生者传递逝者燃烧时的光芒，也承受逝者回忆的焚烧。	405	4	2023/8/10 10:00						
+9012006	1		极乐净土	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadVeraCharacterTower6.png	在本我回廊-薇拉的心锁试炼挑战关中，累计5星获取	1	10000	玩家头像	下一处净土，必将由我开拓。	406	4							
+9080001	1		头像-执行部队	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer06.png	通关据点战第八章可获得	1	10000	玩家头像	执行部队的标志。	300	4							
+9090001	1		库罗罗	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer04.png	参与付费内测的玩家可获得	1	10000	玩家头像	地表各处存在的神秘机械种族，对收集螺母有狂热兴趣。	301	4							
+9090002	1		头像-特殊身份	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer05.png	累计购买10000虹卡可获得	1	10000	玩家头像	“抱歉，我拒绝透露我的指挥官的真实身份。”	302	6		Assets/Product/Ui/ComponentPrefab/UiRole/RoleTimeline01.prefab					
+9090003	1		库罗罗指挥官	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer10.png	官方预约奖励，通过邮件发放领取	1	10000	玩家头像	披着指挥官外套的神秘机械。	303	4							
+9090004	1		小电视指挥官	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer11.png	B站预约奖励，通过邮件发放领取	1	10000	玩家头像	披着指挥官外套的小电视家具，似乎被当成了衣架。	304	4							
+9090005	1		土豆先生	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer12.png	参与公测开服活动可获得，通过邮件发放领取	1	10000	玩家头像	空中花园的知名快餐，经过千锤百炼后依然坚挺。	305	4							
+9090006	1		逝世土豆	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer13.png	参与公测开服活动可获得，通过邮件发放领取	1	10000	玩家头像	纪念成熟后被做成熟食的土豆先生。	306	4							
+9090007	1		霸王	Assets/Product/Texture/Image/RolePlayerSp/RoleHeaSailikaSp.png	购买儿童节缤纷礼盒可获得	1	10000	玩家头像	《天空的霸者赛利卡》六一特供剧本封面图。	307	4							
+9091001	1		纯白之花	Assets/Product/Texture/Image/RolePlayerSp/RolePlaySuper01.png	参与特殊活动获取	1	10000	玩家头像	心怀希望，直面幽暗	308	6		Assets/Product/Ui/ComponentPrefab/UiRole/RoleTimeline02.prefab					
+9091002	1		安博莉亚	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerBoss01.png	在梦魇挽歌活动中击杀安博莉亚后获得	1	10000	玩家头像	愿梦醒之时，安博莉亚——你能得到真正的幸福。	309	4							
+9091003	1		易形重构	Assets/Product/Texture/Image/RolePlayerSp/RolePlayYixingchonggou01.png	参与【易形重构】涂装设计大赛获得	1	10000	玩家头像	努力，是最好的证明。	310	5							
+9091004	1		凯旋颂歌	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday01.png	参与限时活动【衍化断章】获得	1	10000	玩家头像	它不仅是简单的糕点，还寄托着对指挥官一年来卓越贡献的赞颂。凯旋之日，荣光常临，周年祝福，颂歌时鸣。以诚挚的颂歌赠予周年凯旋之人，愿人类的荣光常伴逆转绝境之军。	311	5							
+9091005	1		感谢应援！	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer15.png	参与限时活动【土豆の进攻！Solon lee应援战！】获得头像	1	10000	玩家头像	无论你选择哪一方应援，七实都会举着她也不明其意的手势为你祝福。	312	5	2020/11/21 12:00						
+9091006	1		碧玉绅士	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer14.png	选择【土豆服务器】阵营并且在活动中获得胜利后获得	1	10000	玩家头像	土豆胜利的纪念照。感谢你在这次进攻中的贡献！本土豆今后也会为各位提供稳定的连接服务务务务务务务务务uuu	313	5	2020/11/21 12:00						
+9091007	1		融雪者	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer16.png	参与【寅月福临】活动获得	1	10000	玩家头像	为新年的开拓者献上最崇高的敬意。	314	4	2021/2/11 10:00						
+9091008	1		小憩片刻	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday02.png	参与【宣叙妄响】签到活动获得	1	10000	玩家头像	蛋糕既是祝福也是感谢，还是一句劝慰——“过去的一年辛苦了，好好休息一下吧”，就此坐下来小憩片刻，与众人一起留下值得回忆的美好时光。 指挥官，二周年快乐。	315	5							
+9091009	1		织虎啸春归	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer18.png	参与【桃符授春】活动获得	1	10000	玩家头像	金箔织虎虎知搏今，麟红裁春春财翃临。	316	4	2022/1/31 5:00						
+9091010	1		悠长甜蜜	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday03.png	参与【创绘映想】签到活动获得	1	10000	玩家头像	这是属于所有人的节日，这一年里的所有回忆，全部化作口中悠长的甜蜜——“你是我们的指挥官，不单是过去的时间，更是未来的所有时间”，我们的指挥官，三周年快乐！	317	5	2022/11/17 10:00						
+9091011	1		玉兔耀新春	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer19.png	参与【恭贺新禧】签到活动获得	1	10000	玩家头像	蟾宫赐福，玉兔新辉	318	4	2023/1/21 5:00						
+9091012	1		缀色时光	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday04.png	参与【络勾陈】签到活动获得	1	10000	玩家头像	岁月不居，时节如流，蜜色记忆在舌尖流淌，汇聚成穿越远路的时光。珍藏的爱意，献给最珍贵的你，愿未来的征途，我们仍然能彼此相伴。四周年快乐，指挥官！	319	5							
+9091013	1		纯白祷告	Assets/Product/Texture/Image/RolePlayerSp/RolePlaySuper02.png	累计购买30000虹卡可获得	1	10000	玩家头像	少女的祈祷，纯白的心意。	320	5		Assets/Product/Ui/ComponentPrefab/UiRole/RoleTimeline01.prefab					
+9091014	1		乘龙华会	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer21.png	参与【新颂盈宵】签到活动获得	1	10000	玩家头像	杯酌椒酒，御龙而去。	321	4	2024/2/9 5:00						
+9091015	1		猫步轻俏	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer22.png	参与【幽塔黎光】签到活动获得	1	10000	玩家头像	音乐未停，她仍在起舞，如猫轻盈。	322	5	2024/3/14 10:00						
+9091016	1		未尽乐章	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerArtBook2.png	购买【战双帕弥什美术集 Vol.2】获得	1	10000	玩家头像	指挥，请听。希望此曲的音符可以抵达你所希冀的未来。	323	5	2024/5/15 5:00						
+9091017	1		誓约之焰	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerKeybordLucia.png	购买【键盘周边】获得	1	10000	玩家头像	炽焰如翼，熠明迷雾，以锋为誓，此志不渝	324	5	2024/9/26 7:00						
+9091018	1		甜意魔法	Assets/Product/Texture/Image/RolePlayerSp/RolePlayChupaNanami.png	【珍宝珠联动活动获取】	1	10000	玩家头像	指挥官，七实闻到了你身上有糖果的味道！快交出来快交出来，不然的话，七实就要对你使出捣蛋魔法了哦！	325	5	2024/10/16 12:00						
+9091019	1		宴后憩语	Assets/Product/Texture/Image/RolePlayerSp/RolePlayChupaBianca.png	【珍宝珠联动活动获取】	1	10000	玩家头像	指挥官阁下，今晚我带来了许多口味的糖果，不知道您会喜欢哪一种呢？	326	5	2024/10/16 12:00						
+9091020	1		怀溯剪影	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday05.png	参与【锈夜逐光】签到活动获得	1	10000	玩家头像	回首曾经走过的道路，星霜荏苒，急景流年。定格无数个记忆瞬间，拼成铭记不忘的碎片剪影。封存珍藏，名为“陪伴”的星会在未来一直闪闪发亮。指挥官，五周年快乐！	327	5							
+9091021	1		蛇舞祥瑞	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer23.png	参与【万祥沐春】签到活动获得	1	10000	玩家头像	禧盈满门，灵蛇献福	328	4	2025/1/28 10:00						
+9091022	1		祈愿深契	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerArtBook3.png	购买【战双帕弥什美术集 Vol.3】获得	1	10000	玩家头像	此身为影，恒随不悔。我将践行此道，直至指挥官阁下的愿景成为现实。	329	5	2025/4/10 7:00						
+9091023	1		TCG-深红囚影	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadTCG01.png	参加《战双帕弥什-卡牌对战》线下超前体验会获得，通过兑换码发放领取。	1	10000	玩家头像	现在，我是你的囚笼了。	330	5	2025/8/16 5:00						
+9091024	1		TCG-鸦羽	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadTCG02.png	参加《战双帕弥什-卡牌对战》线下超前体验会获得，通过兑换码发放领取。	1	10000	玩家头像	张开灰鸦羽翼，我将向前翱翔。	331	5	2025/8/16 5:00						
+9091025	1		冲线库洛洛	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadRace.png	参与限时活动【星间飞驰】获得	1	10000	玩家头像	马力和赛道！速度与激情！引擎轰鸣，欢呼响动！	332	5	2025/11/13 5:00						
+9091026	1		拾光六叙	Assets/Product/Texture/Image/RolePlayerSp/RolePlayBirthday06.png	参与【眠于厄寐之境】签到活动获得	1	10000	玩家头像	时光熬煮的温甜里，藏着六年的细碎回忆。那些难忘的旧影——初遇的瞬间、并肩的深夜、重逢的欢喜，都缩成胶片上的浅印，落在蛋糕的方寸间。	333	5	2025/11/13 5:00						
+9091027	1		像素骇影	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer24.png	参与【像素回响】网页活动获得	1	10000	玩家头像	“伊利希恩犯罪调查局，欢迎你的加入。”	334	5	2025/12/23 5:00						
+9091028	1		糖霜甜心	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer25.png	参与【全境特遣·墟市猎商】获得	1	10000	玩家头像	毛茸茸的布偶小熊，正手捧着糖霜，在大雪纷飞的街角等你。	335	5	2025/12/23 5:00						
+9091029	1		绒绒探长	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer26.png	参与【全境特遣·墟市猎商】获得	1	10000	玩家头像	嘘——当小勺碰响杯沿，谜底就顺着红茶，悄悄溜进了心里。	336	5	2025/12/23 5:00						
+9091030	1		骐骥踏云	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer27.png	参与【福韶祈岁】签到活动获得	1	10000	玩家头像	霜蹄送岁瑞，风鬣入长天	337	5	2026/2/16 5:00						
+9091031	1		骏业迎祥	Assets/Product/Texture/Image/RolePlayerSp/RolePlayer28.png	购买【新华网联动-限量新春礼盒】获得	1	10000	玩家头像	双骏裁春春似锦，千家纳福福如潮	338	5	2026/2/3 5:00						
+9091032	1		困困小狗	Assets/Product/Texture/Image/RolePlayerSp/HeadButterDog2.png	馥郁献礼活动中购买好睡眠守护包获得	1	10000	玩家头像	万事-困困小狗	339	4	2026/4/21 5:00						
+9091033	1		沉思小狗	Assets/Product/Texture/Image/RolePlayerSp/HeadButterDog3.png	馥郁献礼活动中购买集中力补充包获得	1	10000	玩家头像	库洛姆-沉思小狗	340	4	2026/4/21 5:00						
+9091034	1		观察小狗	Assets/Product/Texture/Image/RolePlayerSp/HeadButterDog4.png	馥郁献礼活动中购买运动力提升包获得	1	10000	玩家头像	卡穆-观察小狗	341	4	2026/4/21 5:00						
+9091035	1		开心小狗	Assets/Product/Texture/Image/RolePlayerSp/HeadButterDog1.png	馥郁献礼活动中购买好心情补给包获得	1	10000	玩家头像	神威-开心小狗	342	4	2026/4/21 5:00						
+9091036	1		盛夏律潮	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQAlpha.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	语言难以诉说的感情，就写在激烈澎湃的歌词里，让它震响整个盛夏吧。	343	4	2026/8/19 5:00						
+9091037	1		海秘航语	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQKarenina.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	汹涌的海面，澎湃的心绪，永不褪却的谜语是我们的歌。所有漂流瓶和泡沫的流经之地，都有爱的航标。	344	4	2026/8/19 5:00						
+9091038	1		光的洄响	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQLee.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	因为有你的共奏，这道光芒不再幽微，它将会和这首永不歇息的旋律共鸣，成为指向明日的辉光。	345	4	2026/8/19 5:00						
+9091039	1		梦序呢喃	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQLiv.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	月光洒落在窗前，安眠的轻歌化作羊毛被褥，柔软地包裹起她的梦境，今晚，一定是一个美好的长夜。	346	4	2026/8/19 5:00						
+9091040	1		辰光焰歌	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQLucia.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	所有的音节在时光中书写，所有的心跳都被编纂成曲调。倘若时光成为燃料，焰火的光泽足以照亮彼此的心房。	347	4	2026/8/19 5:00						
+9091041	1		绯蔷低语	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQRoland.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	蔷薇的花语不是热烈，而是：“期待被你发现，藏在棘刺下的心意。”	348	4	2026/8/19 5:00						
+9091042	1		鸢尾叠奏	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQSelena.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	每一颗种子都有属于自己的土壤，每一瓣花瓣也都朝着阳光生长……你呢？愿意停下脚步，听听这株鸢尾为你绽放的心律吗？	349	4	2026/8/19 5:00						
+9091043	1		烈日颂歌	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalQKamui.png	夏音巡礼活动中购买音螺海贝礼包获得	1	10000	玩家头像	献给太阳的颂歌应该写什么好呢……管他呢！想必他最大的心愿，也是让在场全部人都摇摆起来就够了。	350	4	2026/8/19 5:00						
+9091044	1		深红弦音	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalAlpha.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“这是你想听的曲子吗？……那就，在演出散场之后，额外为你加奏一首吧。”	351	4	2026/8/19 5:00						
+9091045	1		炸裂激奏	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalKarenina.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“干什么，这样一直盯着我！……这套衣服也很适合我？哼，我才，才没有想故意在你面前展示哦！”	352	4	2026/8/19 5:00						
+9091046	1		靛青蓝调	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalLee.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	"""没点名要哪首曲子，那就是让我随便发挥了。……什么都行，只要是我弹的你就喜欢？你这个人还真是……"""	353	4	2026/8/19 5:00						
+9091047	1		霓彩跃然	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalLiv.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“为了给指挥官演奏这一曲，我偷偷练习了很久……唔，虽然歌词远比我想象中的大胆，但我也会勇敢唱出来的！”	354	4	2026/8/19 5:00						
+9091048	1		灼色如焰	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalLucia.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“这是为你专门而作的曲子，我想诉说的心意都尽数倾注于其中了……在这场演奏会结束之前，请好好注视着我吧，指挥官。”	355	4	2026/8/19 5:00						
+9091049	1		星夜未央	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalRoland.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“难得命运垂青，为你我编织了这场绝无仅有的相逢。那么，在流星划落之前，就让烟火与音浪，共同见证这一刻吧。”	356	4	2026/8/19 5:00						
+9091050	1		蕊华盛放	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalSelena.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“户外音乐会？这让我想起，曾经只属于我们两人的那场舞台独舞……这一次，指挥，我把舞步的主导权交到你手里了。”	357	4	2026/8/19 5:00						
+9091051	1		烁澜鼓点	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasivalKamui.png	夏音巡礼活动中购买心海音缘礼包获得	1	10000	玩家头像	“让我当鼓手？没问题！那就来一段能把屋顶直接掀翻的大音浪吧！”	358	4	2026/8/19 5:00						
+9091052	1		烬色礼典	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadR2Jietawei5.png	参与【新客访临】签到活动获得	1	10000	玩家头像	这场仅属于她的独舞，还远远未到落幕之时。	359	4	2026/9/24 5:00						
+9090008	2		头像框-百历	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame8.png	在异聚迷宫玩法中段位达到【百历】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	101	4			1000				
+9090009	2		头像框-千劫	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame9.png	在异聚迷宫玩法中段位达到【千劫】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	102	4			1000	1	604800	1	
+9090010	2		头像框-万仞	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame10.png	在异聚迷宫玩法中段位达到【万仞】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	103	4			1000	1	604800	1	
+9090011	2		头像框-亿变	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame11.png	在异聚迷宫玩法中段位达到【亿变】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	104	4			1000	1	604800	1	
+9090012	2		头像框-兆黎	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame12.png	在异聚迷宫玩法中段位达到【兆黎】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	105	4			1000	1	604800	1	
+9090013	2		头像框-京垓	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame13.png	在异聚迷宫玩法中段位达到【京垓】	1	10000	头像框	艺术协会最新设计，用于纪念指挥官对异聚迷宫的探索进度。(在异聚迷宫达成不同段位可获得对应的头像框奖励)	106	4			1000	1	604800	1	
+9090014	2		头像框-瑞虎云尾	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame22.png	参与【福禄献礼】活动获取	1	10000	头像框	避邪禳灾，祈丰惩恶！ 白虎自西前来，长尾化云，纵贯天穹，见者必得虎年吉祥！	107	5	2022/1/27 10:00						
+9090015	2		头像框-拾梦白菀	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame24.png	参与限时活动【拾梦白菀】获得	1	10000	头像框	拾梦游弋，寒雪生花。  叹息声拾起了沉睡的碎片，指引着梦的旅人步入覆雪的教堂。 圣者在此献上祈祷—— 即使神会永远沉默，有你在聆听，便好。  当那些曾被遗落的爱与花种再次盛开时，她定会回到这里，在微笑中守候着誓约者的到来。	108	5	2023/1/6 10:00						
+9090016	2		头像框-弥撒圣福	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame27.png	累计购买30000虹卡可获得	1	10000	头像框	指挥官，你有听到我的祝福吗？	109	5							
+9090018	2		头像框-茕心溯愿	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame29.png	参与限时活动【茕心溯愿】获得	1	10000	头像框	游鱼藏身梦境，窥视岸边停泊的明光。风雨赴岸，深浪沦没，罅隙间的妄念化作泡影，伪饰的愿景终将被海渊埋葬。 如果，如果一切都能停留在这个片刻……能否为她留住，那海面遥不可及的光？	110	5	2024/2/8 10:00						
+9090019	2		头像框-赤樗椿	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame31.png	参与限时活动【赤樗椿】获得	1	10000	头像框	鬼魅退散，真心归寻。	111	5	2024/7/18 10:00						
+9090020	2		头像框-拂晓长誓	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame32.png	参与限时活动【拂晓长誓】获得	1	10000	头像框	我会忠诚地爱你、守护你，不论是今日、明日，亦或是永远。	112	5	2025/1/23 7:00						
+9090021	2		头像框-缘纺祈糸	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame33.png	参与限时活动【缘纺祈糸】获得	1	10000	头像框	祈愿凝成丝线，编织成缘，将两颗心的未来温柔相系于此刻。	113	5	2025/7/3 7:00						
+9090022	2		头像框-燃擎竞界	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame34.png	参与限时活动【星间飞驰】获得	1	10000	头像框	极速驰骋的拖影，为你加冕竞速世界的无上锋芒。	114	5	2025/11/13 5:00						
+9090023	2		头像框-旖夜咏奏	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame35.png	参与限时活动【旖夜咏奏】获得	1	10000	头像框	唯有你能赋予我的歌声翅膀，夜之乐章，此刻已至终篇。	115	5	2026/2/3 5:00						
+9090024	2		头像框-悠羽倾舞	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame37.png	参与限时活动【悠羽倾舞】获得	1	10000	头像框	舞步相携，像白鸟晨昏戏于微风，浪潮日夜亲吻海岸。	116	5	2026/6/5 10:00						
+9090025	2		头像框-穹顶勋誓	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame36.png	通过空中花园任务清单获取	1	10000	头像框	以礼堂的庄严为誓，以人类的存续为名，承载着使命与荣耀，赠予每一位为人类未来拼尽全力的指挥官。	117	5	2026/6/2 5:00						
+9090026	2		头像框-凛冽诗谣	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasival01.png	夏音巡礼活动中购买浮光掠音礼包获得	1	10000	头像框	无法付诸于口的，会沉淀成为歌谣。摇曳的光影中总能锁定重要之物的存在。	118	5	2026/8/19 5:00						
+9090027	2		头像框-余音流韵	Assets/Product/Texture/Image/RolePlayerSp/HeadMusicFeasival02.png	购买【于频率中相汇系列影音双碟专辑礼盒】可获得	1	10000	头像框	每当这道频率响起，我们便会再次相汇。	119	5	2026/12/17 5:00						
+9090101	2		Solon lee的钻石之心	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame14.png	选择【守护者Solon lee】阵营 并且在活动中获得胜利后获得	1	10000	头像框	守护成功的纪念品。感谢你对Solon lee的坚定信心！用不是土豆的材料做的……真的不是土豆！	108	5	2020/11/21 12:00						
+9090103	2		罗绮留香	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame16.png	参与限时活动【红绡春榭】获得	1	10000	头像框	春风入霞，罗绮留香。	109	5	2021/2/4 10:00						
+9090105	2		复兴之星	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame17.png	暂无	1	10000	头像框	诺曼矿业公司给予荣誉员工的至高奖励，愿在经营复兴之路上铭记此刻。	110	5	2021/11/11 5:00			1	2592000	1	true
+9090106	1		灰鸦的大家！	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerArtBook.png	购买【一周年美术集 Vol.1】获得	1	10000	玩家头像	无论你身在何方，灰鸦的大家都会一直在一起。	320	5							
+9090107	1		鱼与鱼与鱼	Assets/Product/Texture/Image/RolePlayerSp/RolePlayerKeybordLamia.png	购买【键盘周边】获得	1	10000	玩家头像	灰鸦的指挥官啊，你落下的是这条咸鱼，还是这条烤鱼……	321	5	2023/9/20 5:00						
+9090108	1		葵珍异宝	Assets/Product/Texture/Image/RolePlayerSp/RolePlayQiaqia02.png	洽洽香瓜子联动获取	1	10000	玩家头像	“给我的礼物……？呵，你是怎么知道我喜欢这道九龙小吃的？倒是学会了投我所好。”	322	5	2023/11/5 0:00						
+9090109	1		意洽情投	Assets/Product/Texture/Image/RolePlayerSp/RolePlayQiaqia01.png	洽洽香瓜子联动获取	1	10000	玩家头像	“没想到指挥官会那么喜欢九龙的这道小吃，看来我的手艺不错呢。”	323	5	2023/11/5 0:00						
+9053005	1		Happy 癸卯年~	Assets/Product/Texture/Image/RolePlayerSp/RoleHeadTWYuanDan2023.png	参与【万象更新】签到活动获得	1	10000	玩家头像	指挥官！你也要一起变成“兔子”吗？	319	4	2023/1/1 5:00						
+9092001	2		深潮学者	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame23.png	【厄愿潮声】玩法中的【溯潮之帐】中完成指定数量的条目即可获得	1	10000	头像框	此份证明，给予在轮回的狭缝中致力于探究潮声本质的渡厄者。	111	5							
+9092002	1		契约	Assets/Product/Texture/Image/RolePlayerSp/BiancaTheatreRoleHead.png	【厄愿潮声】玩法中的【溯潮之帐】中完成指定数量的条目即可获得	1	10000	玩家头像	作为达成契约之礼，少女认定了你的决心	112	4							
+9092003	2		矩阵行者	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame30.png	在【矩阵循生】玩法-【交错扇区】中完成指定数量的成就任务后即可获得	1	10000	头像框	摇曳的晚钟响彻矩阵之海，比明天先到来的，究竟是彼岸，还是海市蜃楼……	113	5							
+9092004	1		祇旅	Assets/Product/Texture/Image/RolePlayerSp/Theatre3RoleHead.png	在【矩阵循生】玩法-【交错扇区】中完成指定数量的成就任务后即可获得	1	10000	玩家头像	濒临崩溃的弦音，如何奏出超越宿命的最强音。	114	4							
+9100001	2		虚境历战	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame26.png	【历战映射】中在高算力区完成挑战获得	1	10000	头像框	算异相的衍生，干涉悖论的坍缩，前往裂变的循环，你的身影与决策已经烙印入这场宏大的演算，你的功绩与勋荣已经赢得了迈向明天的证明。	330	4				1	1728000	1	
+9100002	2		复兴之星	Assets/Product/Texture/Image/RolePlayerSp/HeadFrame28.png	在诺曼复兴战玩法中通过【渊山矿区深巢】	1	10000	头像框	诺曼矿业公司给予荣誉员工的至高奖励，愿在经营复兴之路上铭记此刻。	110	5	2023/11/9 10:00			1	2592000	1	

@@ -1,6 +1,6 @@
 """Cross-table diagnostics using the same TSVReader as runtime resource loading."""
 
-from functools import lru_cache
+from backend.app.utils.resource_language import language_cache as lru_cache
 
 from backend.app.services.player import player_characters as characters
 from backend.app.services.player.equips import get_equip_site_map

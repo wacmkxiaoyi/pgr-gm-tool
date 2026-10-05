@@ -95,6 +95,29 @@
   width: 100%;
 }
 
+.sidebar-language {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.sidebar-language select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sidebar-language select:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
 .dashboard-main {
   min-width: 0;
   padding: 24px;

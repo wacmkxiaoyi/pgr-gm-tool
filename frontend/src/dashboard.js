@@ -1,4 +1,4 @@
-import { applyI18n, getLocale, subscribeLocaleChange, t } from './i18n.js';
+import { applyI18n, getLocale, initLocaleControls, subscribeLocaleChange, t } from './i18n.js';
 import { app } from './dashboard/shared.js';
 import './dashboard/navigation.js';
 import './dashboard/modals.js';
@@ -12,51 +12,6 @@ const renderDashboardStaticState = () => {
   const title = document.querySelector('title');
   if (title) {
     title.textContent = t('dashboard.title', {}, state.locale);
-  }
-};
-
-const rerenderLocaleSensitiveViews = () => {
-  renderDashboardStaticState();
-  app.updateNextHealthCheckLabel();
-  app.updateDatabaseHealthCheckLabel();
-  app.renderSelectedAccountBadge();
-  app.updateDatabaseAccountsAccess();
-  app.updatePlayerProfileAccess();
-  app.updateCharacterManagementAccess();
-  app.updateItemManagementAccess();
-  app.updateStageManagementAccess();
-  app.updateWeaponManagementAccess();
-  app.updateMemoryManagementAccess();
-  app.rerenderCharacterManagementLocale?.();
-  app.rerenderCharacterAddLocale?.();
-  app.rerenderCharacterWeaponSwitchLocale?.();
-  app.rerenderCharacterMemorySwitchLocale?.();
-  app.rerenderItemManagementLocale?.();
-  app.rerenderStageManagementLocale?.();
-  app.rerenderWeaponManagementLocale?.();
-  app.rerenderMemoryManagementLocale?.();
-  app.updateStatusActionButtons({ controls: app.getControlState(state.serverControlState), sections: state.latestStatusSnapshot?.sections ?? [] });
-
-  if (state.latestStatusSnapshot) {
-    app.renderSnapshot(state.latestStatusSnapshot);
-  }
-
-  if (state.databaseHealthSnapshot) {
-    app.renderDatabaseSnapshot(state.databaseHealthSnapshot);
-  }
-
-  if (state.playerProfileData) {
-    app.renderPlayerProfile(state.playerProfileData);
-  }
-
-  app.queuePlayerCardBackgroundAspectSync?.();
-
-  if (state.playerPortraitPickerState) {
-    app.renderPlayerPortraitPicker();
-  }
-
-  if (state.scoreTitlePickerState) {
-    app.renderScoreTitlePicker();
   }
 };
 
@@ -192,10 +147,16 @@ const initDashboard = () => {
   state.locale = locale;
   applyI18n(document, locale);
   subscribeLocaleChange((nextLocale) => {
+    if (state.locale === nextLocale) {
+      return;
+    }
     state.locale = nextLocale;
     applyI18n(document, nextLocale);
-    rerenderLocaleSensitiveViews();
+    // A language change selects a different complete ruleset, including IDs
+    // and upgrade limits. Start fresh to discard in-flight requests and dialogs.
+    window.location.reload();
   });
+  initLocaleControls(document);
 
   app.initNavigation();
   app.initSharedModals();

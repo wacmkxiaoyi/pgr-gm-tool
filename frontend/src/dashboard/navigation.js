@@ -54,6 +54,7 @@ app.setServerManagementEnabled = (enabled) => {
   if (serverPage) {
     serverPage.hidden = !enabled;
   }
+  app.updatePlayerMutationRiskResetVisibility();
 };
 
 app.focusContentStart = () => {

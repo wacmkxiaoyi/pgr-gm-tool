@@ -91,23 +91,15 @@ ASSET_MAP = {
 
 
 def validate_mapping() -> None:
-    """Require the map to exactly describe the managed TSV asset set."""
-    asset_paths = {
+    """Reject unknown tables while allowing first downloads and legacy migration."""
+    managed_paths = set(get_download_mapping()) | GENERATED_ASSET_PATHS | set(ASSET_MAP)
+    unknown = sorted(
         path.relative_to(ASSETS_DIR).as_posix()
         for path in ASSETS_DIR.rglob("*.tsv")
-        if path.relative_to(ASSETS_DIR).as_posix() not in GENERATED_ASSET_PATHS
-    }
-    mapped_paths = set(ASSET_MAP)
-    missing = sorted(asset_paths - mapped_paths)
-    extra = sorted(mapped_paths - asset_paths)
-
-    if missing or extra:
-        details = []
-        if missing:
-            details.append(f"missing mappings: {', '.join(missing)}")
-        if extra:
-            details.append(f"mapped files not in assets: {', '.join(extra)}")
-        # raise ValueError("ASSET_MAP must cover backend/assets exactly; " + "; ".join(details))
+        if path.relative_to(ASSETS_DIR).as_posix() not in managed_paths
+    )
+    if unknown:
+        raise ValueError(f"unmanaged TSV assets: {', '.join(unknown)}")
 
     invalid_sources = sorted(
         source for source in ASSET_MAP.values()
@@ -206,8 +198,17 @@ def generate_recommend_equips() -> None:
         raise RuntimeError(f"recommendation generator failed with exit code {error.returncode}") from error
 
 
-def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None, cn_assets: bool = False, recommend_equips: bool = True) -> None:
+def get_download_mapping() -> dict[str, str]:
+    return {
+        f"{language}/{target}": source if language == "EN" else source.replace("en/bytes/", "cn/bytes/")
+        for language in ("EN", "CN")
+        for target, source in ASSET_MAP.items()
+    }
+
+
+def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None, recommend_equips: bool = True) -> None:
     validate_mapping()
+    download_mapping = get_download_mapping()
     temporary_dir = Path(tempfile.mkdtemp(prefix="pgr-assets-"))
     try:
         errors = []
@@ -217,11 +218,11 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
                 executor.submit(
                     prepare_asset,
                     target,
-                    source.replace("en/bytes/", "cn/bytes/") if cn_assets else source,
+                    source,
                     temporary_dir,
                     upstream_dir,
-                ): (target, source.replace("en/bytes/", "cn/bytes/") if cn_assets else source)
-                for target, source in ASSET_MAP.items()
+                ): (target, source)
+                for target, source in download_mapping.items()
             }
             for future in as_completed(futures):
                 target_path, source_path = futures[future]
@@ -240,14 +241,22 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
             print("Dry run complete; backend/assets was not changed.")
             return
 
-        for target_path in ASSET_MAP:
+        for target_path in download_mapping:
             source = temporary_dir / target_path
             destination = ASSETS_DIR / target_path
             destination.parent.mkdir(parents=True, exist_ok=True)
             source.replace(destination)
+        # Remove only known legacy tables after both versions are ready.
+        for target_path in ASSET_MAP:
+            legacy = ASSETS_DIR / target_path
+            if legacy.is_file():
+                legacy.unlink()
+        legacy_templates = ASSETS_DIR / "leveluptemplate"
+        if legacy_templates.is_dir() and not any(legacy_templates.iterdir()):
+            legacy_templates.rmdir()
         if recommend_equips:
             generate_recommend_equips()
-        print(f"Updated {len(ASSET_MAP)} assets.")
+        print(f"Updated {len(download_mapping)} assets (EN and CN).")
     finally:
         shutil.rmtree(temporary_dir, ignore_errors=True)
 
@@ -269,12 +278,6 @@ def main() -> int:
         help="number of concurrent download/read and conversion tasks (default: 8)",
     )
     parser.add_argument(
-        "--cn",
-        type=bool,
-        default=False,
-        help="use cn assets (default false)",
-    )
-    parser.add_argument(
         "--recommend-equips",
         type=bool,
         default=False,
@@ -289,6 +292,8 @@ def main() -> int:
             parser.error("--from-json must be an existing JSON file")
         if args.to_tsv.is_absolute() or ".." in args.to_tsv.parts or args.to_tsv.suffix != ".tsv":
             parser.error("--to-tsv must be a relative .tsv path within backend/assets")
+        if args.to_tsv.as_posix() not in GENERATED_ASSET_PATHS and args.to_tsv.parts[0] not in {"EN", "CN"}:
+            parser.error("--to-tsv must start with EN/ or CN/ (except shared generated assets)")
         try:
             convert_json_file(args.from_json, args.to_tsv, dry_run=args.dry_run)
         except (RuntimeError, ValueError, OSError) as error:
@@ -306,7 +311,6 @@ def main() -> int:
             dry_run=args.dry_run,
             workers=args.workers,
             upstream_dir=args.upstream_dir,
-            cn_assets=args.cn,
             recommend_equips=args.recommend_equips
         )
     except (RuntimeError, ValueError) as error:

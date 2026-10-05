@@ -1,0 +1,42 @@
+﻿Id	PoolId	Weight	AttribId	AttribGrowRateId	Description	Icon	Name
+1	1	100	1010210	0	攻击+10	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+2	1	100	1010211	0	防御+10	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+3	1	100	1010212	0	生命+200	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+4	1	100	1010213	0	暴击+10	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+5	2	100	0	500	攻击+2.5%	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+6	2	100	0	501	防御+1%	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+7	2	100	0	502	暴击+10%	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+8	2	100	0	503	生命+5%	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+9	2	100	0	504	生命+5%	Assets/Product/Texture/Image/IconcurrencySp/IconConsumeMoneySp.png	属性池1
+10	3	100	0	501		攻击+2.5%	(Max+5%)
+11	3	100	0	502		防御+1%	(Max+8%)
+12	3	100	0	503		暴击+10%	(Max+15%)
+13	3	100	0	504		生命+5%	(Max+10%)
+14	3	100	9	0		攻击+10	(Max+15)
+15	3	100	9	0		防御+10	(Max+15)
+16	3	100	9	0		生命+200	(Max+300)
+17	3	100	9	0		暴击+10	(Max+15)
+18	3	100	0	501		攻击+2.5%	(Max+5%)
+19	3	100	0	502		防御+1%	(Max+8%)
+20	5	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-1
+21	5	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-1
+22	8	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-2
+23	8	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-2
+24	9	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-3
+25	9	100	200005	0	攻击+30、会心+30	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-3
+26	6	100	201001	0	生命+50、攻击+10	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingZhuangjiaqianghua.png	战术调整-初
+27	6	100	201003	0	生命+50、会心+10	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingmixingdong.png	精密行动-初
+28	6	100	201004	0	攻击+10、防御+15	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingChuliqiangji.png	出力强化-初
+29	6	100	201005	0	攻击+10、会心+10	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-初
+30	7	100	202001	0	生命+75、攻击+15	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingZhuangjiaqianghua.png	战术调整-高
+31	7	100	202003	0	生命+75、会心+15	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingmixingdong.png	精密行动-高
+32	7	100	202004	0	攻击+15、防御+23	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingChuliqiangji.png	出力强化-高
+33	7	100	202005	0	攻击+15、会心+15	Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	精确攻击-高
+1001	1001	100	900001	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1002	1002	100	900002	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1003	1003	100	900003	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1004	1004	100	900004	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1005	1005	100	900005	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1006	1006	100	900006	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1007	1007	100	900007	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性
+1008	1008	100	900008	0		Assets/Product/Texture/Image/IconSkill/IconSkillEquipShuxingJingzhungongji.png	RPG属性

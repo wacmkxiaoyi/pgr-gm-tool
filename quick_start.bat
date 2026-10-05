@@ -9,8 +9,14 @@ rem Admin account: uncomment both lines to require login credentials.
 rem set "ADMIN_USERNAME=admin"
 rem set "ADMIN_PASSWORD=password"
 
-rem The quick-start path disables process management by default.
-set "ENABLE_SERVER_MANAGEMENT=false"
+rem Automatically use the local AscNet Launcher build when build-state.json exists.
+rem set "ASCNET_LAUNCHER_PATH=%LOCALAPPDATA%\AscNetLauncher\local"
+
+rem Set this to true to enable server management, including AscNet Launcher builds.
+if not defined ENABLE_SERVER_MANAGEMENT set "ENABLE_SERVER_MANAGEMENT=false"
+
+rem Optional GM web port (default 8000):
+rem set "APP_PORT=8001"
 
 rem To enable PGR server management, change the setting above to true and configure as needed:
 
@@ -64,9 +70,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo Starting WACMK PGR GM Tool...
-echo Login URL: http://127.0.0.1:8000/login
-echo Server management: %ENABLE_SERVER_MANAGEMENT%
+echo Starting PGR GM Tool...
 echo.
 ".venv\Scripts\python.exe" -m backend.app.main %*
 set "EXIT_CODE=%ERRORLEVEL%"

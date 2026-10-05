@@ -3,6 +3,7 @@ import csv
 import json
 import re
 from pathlib import Path
+from backend.app.utils.resource_language import resolve_resource_path
 
 
 TOKEN_REGEX = re.compile(
@@ -306,9 +307,7 @@ def _evaluate(node, row, available_columns):
 
 class TSVReader:
     def __init__(self, path, typed=False):
-        file_path = Path(path)
-        if not file_path.is_absolute():
-            file_path = Path(__file__).resolve().parents[2] / file_path
+        file_path = resolve_resource_path(Path(path))
 
         with file_path.open("r", encoding="utf-8-sig", newline="") as file:
             rows = list(csv.DictReader(file, delimiter="\t"))

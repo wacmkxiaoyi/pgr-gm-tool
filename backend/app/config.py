@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote_plus
 
+from backend.app.launcher import default_launcher_path, load_launcher_build
+
 def _to_bool(value: str | None, default: bool = False) -> bool:
     if value is None:
         return default
@@ -120,19 +122,22 @@ class Settings:
     SRC_DIR = FRONTEND_DIR / "src"
     ASSETS_DIR = FRONTEND_DIR / "assets"
 
-    def __init__(self, cli_args: dict[str, Any] | None = None) -> None:
+    def __init__(self, cli_args: dict[str, Any] | None = None, *, discover_launcher: bool = True) -> None:
         self._cli_args = cli_args or {}
 
-        self.app_name = self._resolve("APP_NAME", "WACMK PGR Management")
+        self.app_name = self._resolve("APP_NAME", "Punishing Gray Raven Management")
         self.app_host = self._resolve("APP_HOST", "0.0.0.0")
         self.app_port = _to_int(self._resolve("APP_PORT"), 8000)
 
-        self.enable_server_management = _to_bool(self._resolve("ENABLE_SERVER_MANAGEMENT"), True)
+        self.enable_server_management = _to_bool(self._resolve("ENABLE_SERVER_MANAGEMENT"), False)
         self.server_path = self._resolve("SERVER_PATH", "/root/wacmk-pgr-server")
         self.server_binary_file = self._resolve("SERVER_BINARY_FILE", "Wacmk.Pgr.Server")
         self.server_runtime_log_path = (self._resolve("SERVER_RUNTIME_LOG_PATH") or "").strip() or "/tmp/rpg-server.log"
         self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
         self.server_config_path = Path(self.server_path) / "Configs" / "config.json"
+
+        self.ascnet_launcher_path = (self._resolve('ASCNET_LAUNCHER_PATH', default_launcher_path()) or '').strip()
+        self.launcher_build = load_launcher_build(self.ascnet_launcher_path) if discover_launcher else None
 
         self.healthy_check_interval = max(1, _to_int(self._resolve("HEALTHY_CHECK_INTERVAL"), 60))
         self.admin_username = (self._resolve("ADMIN_USERNAME") or "").strip()
@@ -192,6 +197,22 @@ class Settings:
         self.mongo_tls = _to_bool(self._resolve("MONGO_TLS"), False)
 
     def reload_server_runtime_config(self) -> None:
+        if self.launcher_build is not None:
+            build = self.launcher_build
+            self.server_path = str(build.server_directory)
+            self.server_binary_file = 'AscNet.dll'
+            self.server_controls_visible = build.server_dll.is_file() and build.dotnet.is_file()
+            self.server_config_path = build.config_path
+            self.server_runtime_log_path = str(build.root / 'logs' / 'server.log')
+            config = json.loads(build.config_path.read_text(encoding='utf-8-sig'))
+            build.validate_config(config)
+            self._apply_server_runtime_config(_deep_merge(_server_config_defaults(), config))
+            self.sdk_server_scheme = 'http'
+            self.sdk_server_host = self.game_server_host = self.mongo_host = '127.0.0.1'
+            self.sdk_server_port = build.sdk_port
+            self.game_server_port = build.game_port
+            self.mongo_port = build.mongo_port
+            return
         self.server_controls_visible = _path_is_executable(Path(self.server_path) / self.server_binary_file)
         self.server_config_path = Path(self.server_path) / "Configs" / "config.json"
         server_config = _load_server_config(str(self.server_config_path))
@@ -199,6 +220,15 @@ class Settings:
 
     def read_server_config_text(self) -> str:
         return self.server_config_path.read_text(encoding="utf-8")
+
+    def write_server_config_text(self, text: str) -> None:
+        parsed = json.loads(text)
+        if self.launcher_build is not None:
+            self.launcher_build.validate_config(parsed)
+        self.server_config_path.parent.mkdir(parents=True, exist_ok=True)
+        self.server_config_path.write_text(text, encoding='utf-8')
+        if self.launcher_build is not None:
+            (self.launcher_build.root / 'config.json').write_text(text, encoding='utf-8')
 
     def build_mongo_uri(self) -> str:
         if self.mongo_uri:
@@ -219,6 +249,7 @@ class Settings:
             "app_name": self.app_name,
             "app_host": self.app_host,
             "app_port": self.app_port,
+            "ascnet_launcher_path": self.ascnet_launcher_path,
             "enable_server_management": self.enable_server_management,
             "server_runtime_log_path": self.server_runtime_log_path,
             "healthy_check_interval": self.healthy_check_interval,
@@ -237,7 +268,9 @@ class Settings:
         }
 
 
-settings = Settings()
+# CLI arguments are parsed by main before discovery, so an invalid default
+# state must not prevent selecting another root (or disabling discovery).
+settings = Settings(discover_launcher=False)
 
 
 def configure_settings(cli_args: dict[str, Any] | None = None) -> Settings:

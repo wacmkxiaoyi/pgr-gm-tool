@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'wacmk-pgr-locale';
-const DEFAULT_LOCALE = 'zh-CN';
+const DEFAULT_LOCALE = 'en-US';
 const SUPPORTED_LOCALES = ['zh-CN', 'en-US'];
 
 const messages = {
@@ -41,7 +41,6 @@ const messages = {
       sidebarSubtitle: '管理后台',
       sidebarServerManagement: '游戏服务器管理',
       sidebarDatabaseManagement: '用户数据管理',
-      sidebarHealthy: 'Power by XiaoYi@WACMK',
       logout: '退出登录',
       logoutPending: '正在退出...',
       serverStop: '停止',
@@ -862,7 +861,6 @@ const messages = {
       sidebarSubtitle: 'Admin dashboard',
       sidebarServerManagement: 'Game Server Management',
       sidebarDatabaseManagement: 'User Data Management',
-      sidebarHealthy: 'Power by XiaoYi@WACMK',
       logout: 'Sign Out',
       logoutPending: 'Signing out...',
       serverStop: 'Stop',
@@ -1959,7 +1957,9 @@ export const parseApiErrorPayload = (payload, status) => {
 
 export const apiFetch = async (input, init = {}) => {
   const headers = new Headers(init.headers || {});
-  headers.set('Accept-Language', getLocale());
+  if (!headers.has('Accept-Language')) {
+    headers.set('Accept-Language', getLocale());
+  }
 
   const response = await fetch(input, {
     credentials: 'include',

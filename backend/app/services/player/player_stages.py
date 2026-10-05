@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+from backend.app.utils.resource_language import language_cache as lru_cache
 
 from backend.app.services.player.constants import STAGE_TSV_PATH
 from backend.app.services.player.utils import parse_int

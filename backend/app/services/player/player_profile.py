@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
+from backend.app.utils.resource_language import language_cache as lru_cache
 from typing import Any
 
 from backend.app.services.player.constants import BACKGROUND_TSV_PATH, HEAD_PORTRAIT_TSV_PATH, HONOR_LEVEL_TSV_PATH, PLAYER_LEVEL_TSV_PATH

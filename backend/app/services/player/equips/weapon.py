@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+from backend.app.utils.resource_language import language_cache as lru_cache
 
 from backend.app.services.player.equips.constants import ARCHIVE_WEAPON_GROUP_TSV_PATH, EQUIP_SUIT_TSV_PATH, EQUIP_TSV_PATH, WEAPON_OVERRUN_TSV_PATH, WEAPON_SKILL_POOL_TSV_PATH, WEAPON_SKILL_TSV_PATH
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int

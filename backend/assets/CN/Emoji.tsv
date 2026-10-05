@@ -1,0 +1,350 @@
+﻿Id	Type	Order	Name	BigIcon	Path	Description	WorldDesc	IsFree	ConvertItemId	ConvertItemCount	TimeLimitType	ConnotationDesc	Duration	PackageId	GIFAsset
+11000001	1	1	表情1	Assets/Product/Texture/Image/IconExpression/IconExpressA1.png	Assets/Product/Texture/Image/IconExpression/IconExpressA1.png	聊天表情	默认表情之一	1	1	10000	1	阳光开朗			
+11000002	1	2	表情2	Assets/Product/Texture/Image/IconExpression/IconExpressA2.png	Assets/Product/Texture/Image/IconExpression/IconExpressA2.png	聊天表情	默认表情之一	1	1	10000	1	回见			
+11000003	1	3	表情3	Assets/Product/Texture/Image/IconExpression/IconExpressA3.png	Assets/Product/Texture/Image/IconExpression/IconExpressA3.png	聊天表情	默认表情之一	1	1	10000	1	嘤嘤嘤			
+11000004	1	4	表情4	Assets/Product/Texture/Image/IconExpression/IconExpressA4.png	Assets/Product/Texture/Image/IconExpression/IconExpressA4.png	聊天表情	默认表情之一	1	1	10000	1	呦			
+11000005	1	5	表情5	Assets/Product/Texture/Image/IconExpression/IconExpressA5.png	Assets/Product/Texture/Image/IconExpression/IconExpressA5.png	聊天表情	默认表情之一	1	1	10000	1	……			
+11000006	1	6	表情6	Assets/Product/Texture/Image/IconExpression/IconExpressA6.png	Assets/Product/Texture/Image/IconExpression/IconExpressA6.png	聊天表情	默认表情之一	1	1	10000	1	哼！			
+11000007	1	7	表情-这一曲	Assets/Product/Texture/Image/IconExpression/IconExpressA7.png	Assets/Product/Texture/Image/IconExpression/IconExpressA7.png	聊天表情	请听这一曲——比安卡·真理		1	10000	1	这一曲			
+11000008	1	8	表情-开饭啦	Assets/Product/Texture/Image/IconExpression/IconExpressA8.png	Assets/Product/Texture/Image/IconExpression/IconExpressA8.png	聊天表情	你妈喊你吃饭了——库洛姆·弧光		1	10000	1	开饭啦			
+11000009	1	9	表情-枪法不错	Assets/Product/Texture/Image/IconExpression/IconExpressA9.png	Assets/Product/Texture/Image/IconExpression/IconExpressA9.png	聊天表情	没人能躲过我的子弹——里·异火		1	10000	1	枪法不错			
+11000010	1	10	表情-呵	Assets/Product/Texture/Image/IconExpression/IconExpressA10.png	Assets/Product/Texture/Image/IconExpression/IconExpressA10.png	聊天表情	呵——里·异火		1	10000	1	呵			
+11000011	1	11	表情-新晋	Assets/Product/Texture/Image/IconExpression/IconExpressA11.png	Assets/Product/Texture/Image/IconExpression/IconExpressA11.png	聊天表情	拟真围剿结算时排行前30%~95%可获得		1	10000	2	新晋	604800		
+11000012	1	12	表情-老手	Assets/Product/Texture/Image/IconExpression/IconExpressA12.png	Assets/Product/Texture/Image/IconExpression/IconExpressA12.png	聊天表情	拟真围剿结算时排行前10%~30%可获得		1	10000	2	老手	604800		
+11000013	1	13	表情-专家	Assets/Product/Texture/Image/IconExpression/IconExpressA13.png	Assets/Product/Texture/Image/IconExpression/IconExpressA13.png	聊天表情	拟真围剿结算时排行前5%~10%可获得		1	10000	2	专家	604800		
+11000014	1	14	表情-王牌	Assets/Product/Texture/Image/IconExpression/IconExpressA14.png	Assets/Product/Texture/Image/IconExpression/IconExpressA14.png	聊天表情	拟真围剿结算时排行前1%~5%可获得		1	10000	2	王牌	604800		
+11000015	1	15	表情-至尊	Assets/Product/Texture/Image/IconExpression/IconExpressA15.png	Assets/Product/Texture/Image/IconExpression/IconExpressA15.png	聊天表情	拟真围剿结算时排行前1%以内可获得		1	10000	2	至尊	604800		
+11000016	1	16	表情-比心比心	Assets/Product/Texture/Image/IconExpression/IconExpressA16.png	Assets/Product/Texture/Image/IconExpression/IconExpressA16.png	聊天表情	比心比心——露西亚·鸦羽		1	10000	1	比心比心			
+11000017	1	17	表情-很多螺母	Assets/Product/Texture/Image/IconExpression/IconExpressA17.png	Assets/Product/Texture/Image/IconExpression/IconExpressA17.png	聊天表情	你有很多螺母——神威		1	10000	1	很多螺母			
+11000018	1	18	表情-咻	Assets/Product/Texture/Image/IconExpression/IconExpressA18.png	Assets/Product/Texture/Image/IconExpression/IconExpressA18.png	聊天表情	咻~——七实·脉冲		1	10000	1	咻			
+11000019	1	19	表情-牛年大吉	Assets/Product/Texture/Image/IconExpression/IconExpressA19.png	Assets/Product/Texture/Image/IconExpression/IconExpressA19.png	春节表情——领取后可获得该表情7天的使用权限	牛年大吉——卡列尼娜		1	10000	2	牛年大吉	604800		
+11000020	1	20	表情-万事如意	Assets/Product/Texture/Image/IconExpression/IconExpressA20.png	Assets/Product/Texture/Image/IconExpression/IconExpressA20.png	春节表情——领取后可获得该表情7天的使用权限	万事如意——蒲牢		1	10000	2	万事如意	604800		
+11000021	1	21	表情-恭喜发财	Assets/Product/Texture/Image/IconExpression/IconExpressA21.png	Assets/Product/Texture/Image/IconExpression/IconExpressA21.png	春节表情——领取后可获得该表情7天的使用权限	恭喜发财-常羽		1	10000	2	恭喜发财	604800		
+11000022	1	22	表情-放鞭炮	Assets/Product/Texture/Image/IconExpression/IconExpressA22.png	Assets/Product/Texture/Image/IconExpression/IconExpressA22.png	春节表情——领取后可获得该表情7天的使用权限	放鞭炮——库洛姆		1	10000	2	放鞭炮	604800		
+11000023	1	23	表情-脱非入欧	Assets/Product/Texture/Image/IconExpression/IconExpressA23.png	Assets/Product/Texture/Image/IconExpression/IconExpressA23.png	春节表情——领取后可获得该表情7天的使用权限	脱非入欧——神威		1	10000	2	脱非入欧	604800		
+11000024	1	24	表情-我要睡了	Assets/Product/Texture/Image/IconExpression/IconExpressA24.png	Assets/Product/Texture/Image/IconExpression/IconExpressA24.png	聊天表情——抑制拟算活动获得	我要睡了——万事		1	10000	1	我要睡了			
+11000025	1	25	表情-投票啦	Assets/Product/Texture/Image/IconExpression/IconExpressA25.png	Assets/Product/Texture/Image/IconExpression/IconExpressA25.png	聊天表情——参加“伊甸文化纪支援站”活动获得	投票啦——赛利卡		1	10000	1	投票啦		1000	
+11000026	1	26	表情-来抱抱	Assets/Product/Texture/Image/IconExpression/IconExpressA26.png	Assets/Product/Texture/Image/IconExpression/IconExpressA26.png	聊天表情——参加“分光双星”活动获得	来抱抱——丽芙		1	10000	1	来抱抱		1000	
+11000027	1	27	表情-啾啾啾	Assets/Product/Texture/Image/IconExpression/IconExpressA27.png	Assets/Product/Texture/Image/IconExpression/IconExpressA27.png	聊天表情——参加“超限乱斗”活动获得	啾啾啾——丽芙		1	10000	1	啾啾啾		1000	
+11000028	1	28	成就表情-异火	Assets/Product/Texture/Image/IconExpression/IconExpressA28.png	Assets/Product/Texture/Image/IconExpression/IconExpressA28.png	成就表情-异火进化至SSS	成就-异火		1	10000	1	方向反了吗？		1001	
+11000029	1	29	成就表情-红莲	Assets/Product/Texture/Image/IconExpression/IconExpressA29.png	Assets/Product/Texture/Image/IconExpression/IconExpressA29.png	成就表情-红莲进化至SSS	成就-红莲		1	10000	1	嗅到一丝阴谋		1001	
+11000030	1	30	成就表情-蚀暗	Assets/Product/Texture/Image/IconExpression/IconExpressA30.png	Assets/Product/Texture/Image/IconExpression/IconExpressA30.png	成就表情-蚀暗进化至SSS	成就-蚀暗		1	10000	1	Zzz...		1001	
+11000031	1	31	成就表情-零度	Assets/Product/Texture/Image/IconExpression/IconExpressA31.png	Assets/Product/Texture/Image/IconExpression/IconExpressA31.png	成就表情-零度进化至SSS	成就-零度		1	10000	1	情绪管理中		1001	
+11000032	1	32	成就表情-风暴	Assets/Product/Texture/Image/IconExpression/IconExpressA32.png	Assets/Product/Texture/Image/IconExpression/IconExpressA32.png	成就表情-风暴进化至SSS	成就-风暴		1	10000	1	诶嘿~		1001	
+11000033	1	33	成就表情-重能	Assets/Product/Texture/Image/IconExpression/IconExpressA33.png	Assets/Product/Texture/Image/IconExpression/IconExpressA33.png	成就表情-重能进化至SSS	成就-重能		1	10000	1	优雅		1001	
+11000034	1	34	成就表情-爆裂	Assets/Product/Texture/Image/IconExpression/IconExpressA34.png	Assets/Product/Texture/Image/IconExpression/IconExpressA34.png	成就表情-爆裂进化至SSS	成就-爆裂		1	10000	1	不服吗！		1001	
+11000035	1	35	成就表情-夜刃	Assets/Product/Texture/Image/IconExpression/IconExpressA35.png	Assets/Product/Texture/Image/IconExpression/IconExpressA35.png	成就表情-夜刃进化至SSS	成就-夜刃		1	10000	1	生日快乐		1001	
+11000036	1	36	成就表情-黎明	Assets/Product/Texture/Image/IconExpression/IconExpressA36.png	Assets/Product/Texture/Image/IconExpression/IconExpressA36.png	成就表情-黎明进化至SSS	成就-黎明		1	10000	1	冷静分析		1001	
+11000037	1	37	成就表情-流光	Assets/Product/Texture/Image/IconExpression/IconExpressA37.png	Assets/Product/Texture/Image/IconExpression/IconExpressA37.png	成就表情-流光进化至SSS	成就-流光		1	10000	1	为难丽芙了		1001	
+11000038	1	38	成就表情-仰光	Assets/Product/Texture/Image/IconExpression/IconExpressA38.png	Assets/Product/Texture/Image/IconExpression/IconExpressA38.png	成就表情-仰光进化至SSS	成就-仰光		1	10000	1	期待		1001	
+11000039	1	39	成就表情-暗能	Assets/Product/Texture/Image/IconExpression/IconExpressA39.png	Assets/Product/Texture/Image/IconExpression/IconExpressA39.png	成就表情-暗能进化至SSS	成就-暗能		1	10000	1	钱包空了		1001	
+11000040	1	40	成就表情-乱数	Assets/Product/Texture/Image/IconExpression/IconExpressA40.png	Assets/Product/Texture/Image/IconExpression/IconExpressA40.png	成就表情-乱数进化至SSS	成就-乱数		1	10000	1	没眼看		1001	
+11000041	1	41	成就表情-烬燃	Assets/Product/Texture/Image/IconExpression/IconExpressA41.png	Assets/Product/Texture/Image/IconExpression/IconExpressA41.png	成就表情-烬燃进化至SSS	成就-烬燃		1	10000	1	哼		1001	
+11000042	1	42	成就表情-脉冲	Assets/Product/Texture/Image/IconExpression/IconExpressA42.png	Assets/Product/Texture/Image/IconExpression/IconExpressA42.png	成就表情-脉冲进化至SSS	成就-脉冲		1	10000	1	哎呀呀呀		1001	
+11000043	1	43	成就表情-深红之渊	Assets/Product/Texture/Image/IconExpression/IconExpressA43.png	Assets/Product/Texture/Image/IconExpression/IconExpressA43.png	成就表情-深红之渊进化至SSS	成就-深红之渊		1	10000	1	上车		1001	
+11000044	1	44	成就表情-夙星	Assets/Product/Texture/Image/IconExpression/IconExpressA44.png	Assets/Product/Texture/Image/IconExpression/IconExpressA44.png	成就表情-夙星进化至SSS	成就-夙星		1	10000	1	暗中观察		1001	
+11000045	1	45	成就表情-溢彩	Assets/Product/Texture/Image/IconExpression/IconExpressA45.png	Assets/Product/Texture/Image/IconExpression/IconExpressA45.png	成就表情-溢彩进化至SSS	成就-溢彩		1	10000	1	买买买！		1001	
+11000046	1	46	成就表情-真理	Assets/Product/Texture/Image/IconExpression/IconExpressA46.png	Assets/Product/Texture/Image/IconExpression/IconExpressA46.png	成就表情-真理进化至SSS	成就-真理		1	10000	1	干得漂亮		1001	
+11000047	1	47	成就表情-银牙	Assets/Product/Texture/Image/IconExpression/IconExpressA47.png	Assets/Product/Texture/Image/IconExpression/IconExpressA47.png	成就表情-银牙进化至SSS	成就-银牙		1	10000	1	毫无难度		1001	
+11000048	1	48	成就表情-弧光	Assets/Product/Texture/Image/IconExpression/IconExpressA48.png	Assets/Product/Texture/Image/IconExpression/IconExpressA48.png	成就表情-弧光进化至SSS	成就-弧光		1	10000	1	格局小了		1001	
+11000049	1	49	成就表情-鸦羽	Assets/Product/Texture/Image/IconExpression/IconExpressA49.png	Assets/Product/Texture/Image/IconExpression/IconExpressA49.png	成就表情-鸦羽进化至SSS	成就-鸦羽		1	10000	1	要尝尝吗		1001	
+11000050	1	50	成就表情-瑰丽	Assets/Product/Texture/Image/IconExpression/IconExpressA50.png	Assets/Product/Texture/Image/IconExpression/IconExpressA50.png	成就表情-瑰丽进化至SSS	成就-瑰丽		1	10000	1	自己体会		1001	
+11000051	1	51	成就表情-狂犬	Assets/Product/Texture/Image/IconExpression/IconExpressA51.png	Assets/Product/Texture/Image/IconExpression/IconExpressA51.png	成就表情-狂犬进化至SSS	成就-狂犬		1	10000	1	肚子饿了		1001	
+11000052	1	52	成就表情-凛冽	Assets/Product/Texture/Image/IconExpression/IconExpressA52.png	Assets/Product/Texture/Image/IconExpression/IconExpressA52.png	成就表情-凛冽进化至SSS	成就-凛冽		1	10000	1	理解不能		1001	
+11000053	1	53	成就表情-雀翎	Assets/Product/Texture/Image/IconExpression/IconExpressA53.png	Assets/Product/Texture/Image/IconExpression/IconExpressA53.png	成就表情-雀翎进化至SSS	成就-雀翎		1	10000	1	乘风而起		1001	
+11000054	1	54	成就表情-游麟	Assets/Product/Texture/Image/IconExpression/IconExpressA54.png	Assets/Product/Texture/Image/IconExpression/IconExpressA54.png	成就表情-游麟进化至SSS	成就-游麟		1	10000	1	嘿嘿，钱		1001	
+11000055	1	55	成就表情-银冕	Assets/Product/Texture/Image/IconExpression/IconExpressA55.png	Assets/Product/Texture/Image/IconExpression/IconExpressA55.png	成就表情-银冕进化至SSS	成就-银冕		1	10000	1	不开心		1001	
+11000056	1	56	成就表情-明觉	Assets/Product/Texture/Image/IconExpression/IconExpressA56.png	Assets/Product/Texture/Image/IconExpression/IconExpressA56.png	成就表情-明觉进化至SSS	成就-明觉		1	10000	1	醒着，别掐		1001	
+11000057	1	57	成就表情-岚音	Assets/Product/Texture/Image/IconExpression/IconExpressA57.png	Assets/Product/Texture/Image/IconExpression/IconExpressA57.png	成就表情-岚音进化至SSS	成就-岚音		1	10000	1	乖巧		1001	
+11000058	1	58	成就表情-荣光	Assets/Product/Texture/Image/IconExpression/IconExpressA58.png	Assets/Product/Texture/Image/IconExpression/IconExpressA58.png	成就表情-荣光进化至SSS	成就-荣光		1	10000	1	那我走？		1001	
+11000059	1	59	成就表情-XXI	Assets/Product/Texture/Image/IconExpression/IconExpressA59.png	Assets/Product/Texture/Image/IconExpression/IconExpressA59.png	成就表情-XXI进化至SSS	成就-XXI		1	10000	1	摸摸		1001	
+11000060	1	60	成就表情-绯耀	Assets/Product/Texture/Image/IconExpression/IconExpressA60.png	Assets/Product/Texture/Image/IconExpression/IconExpressA60.png	成就表情-绯耀进化至SSS	成就-绯耀		1	10000	1	就这？		1001	
+11000061	1	61	成就表情-戏炎	Assets/Product/Texture/Image/IconExpression/IconExpressA61.png	Assets/Product/Texture/Image/IconExpression/IconExpressA61.png	成就表情-戏炎进化至SSS	成就-戏炎		1	10000	1	怪我咯		1001	
+11000062	1	62	成就表情-极昼	Assets/Product/Texture/Image/IconExpression/IconExpressA62.png	Assets/Product/Texture/Image/IconExpression/IconExpressA62.png	成就表情-极昼进化至SSS	成就-极昼		1	10000	1	谢谢你		1001	
+11000063	1	63	成就表情-幻奏	Assets/Product/Texture/Image/IconExpression/IconExpressA63.png	Assets/Product/Texture/Image/IconExpression/IconExpressA63.png	成就表情-幻奏进化至SSS	成就-幻奏		1	10000	1	悠哉小调		1001	
+11000064	1	64	成就表情-元谒	Assets/Product/Texture/Image/IconExpression/IconExpressA64.png	Assets/Product/Texture/Image/IconExpression/IconExpressA64.png	成就表情-元谒进化至SSS	成就-元谒		1	10000	1	这盒里吗		1001	
+11000065	1	65	成就表情-沃托	Assets/Product/Texture/Image/IconExpression/IconExpressA65.png	Assets/Product/Texture/Image/IconExpression/IconExpressA65.png	成就表情-沃托进化至SSS	成就-沃托		1	10000	1	耶~		1001	
+11000066	1	66	成就表情-庭霓	Assets/Product/Texture/Image/IconExpression/IconExpressA66.png	Assets/Product/Texture/Image/IconExpression/IconExpressA66.png	成就表情-庭霓进化至SSS	成就-庭霓		1	10000	1	白鹤亮翅		1001	
+11000067	1	67	成就表情-霜誓	Assets/Product/Texture/Image/IconExpression/IconExpressA67.png	Assets/Product/Texture/Image/IconExpression/IconExpressA67.png	成就表情-霜誓进化至SSS	成就-霜誓		1	10000	1	哼		1001	
+11000068	1	68	成就表情-冷观	Assets/Product/Texture/Image/IconExpression/IconExpressA68.png	Assets/Product/Texture/Image/IconExpression/IconExpressA68.png	成就表情-冷观进化至SSS	成就-冷观		1	10000	1	打开有惊喜		1001	
+11000069	1	69	成就表情-宵煌	Assets/Product/Texture/Image/IconExpression/IconExpressA69.png	Assets/Product/Texture/Image/IconExpression/IconExpressA69.png	成就表情-宵煌进化至SSS	成就-宵煌		1	10000	1	喵~		1001	
+11000070	1	70	成就表情-伶崖	Assets/Product/Texture/Image/IconExpression/IconExpressA70.png	Assets/Product/Texture/Image/IconExpression/IconExpressA70.png	成就表情-伶崖进化至SSS	成就-伶崖		1	10000	1	开饭		1001	
+11000071	1	71	成就表情-沧翊	Assets/Product/Texture/Image/IconExpression/IconExpressA71.png	Assets/Product/Texture/Image/IconExpression/IconExpressA71.png	成就表情-沧翊进化至SSS	成就-沧翊		1	10000	1	为了薯条		1001	
+11000072	1	72	成就表情-华钟	Assets/Product/Texture/Image/IconExpression/IconExpressA72.png	Assets/Product/Texture/Image/IconExpression/IconExpressA72.png	成就表情-华钟进化至SSS	成就-华钟		1	10000	1	谢谢老板		1001	
+11000073	1	73	成就表情-棘钧	Assets/Product/Texture/Image/IconExpression/IconExpressA73.png	Assets/Product/Texture/Image/IconExpression/IconExpressA73.png	成就表情-棘钧进化至SSS	成就-棘钧		1	10000	1	圆润离开		1001	
+11000074	1	74	成就表情-遥星之座	Assets/Product/Texture/Image/IconExpression/IconExpressA79.png	Assets/Product/Texture/Image/IconExpression/IconExpressA79.png	成就表情-遥星之座进化至SSS	成就-遥星之座		1	10000	1	七实开的		1001	
+11000075	1	75	成就表情-啸钺	Assets/Product/Texture/Image/IconExpression/IconExpressA80.png	Assets/Product/Texture/Image/IconExpression/IconExpressA80.png	成就表情-啸钺进化至SSS	成就-啸钺		1	10000	1	猛虎下山		1001	
+11000076	1	76	表情-虎年大吉	Assets/Product/Texture/Image/IconExpression/IconExpressA81.png	Assets/Product/Texture/Image/IconExpression/IconExpressA81.png	2022春节活动-桃符授春获得	虎年大吉-七实		1	10000	1	虎年大吉			
+11000077	1	77	表情-如虎添翼	Assets/Product/Texture/Image/IconExpression/IconExpressA83.png	Assets/Product/Texture/Image/IconExpression/IconExpressA83.png	2022春节活动-新岁淘金获得	如虎添翼-比安卡		1	10000	1	如虎添翼			
+11000078	1	78	表情-虎虎生威	Assets/Product/Texture/Image/IconExpression/IconExpressA82.png	Assets/Product/Texture/Image/IconExpression/IconExpressA82.png	2022春节活动-新岁淘金获得	虎虎生威-神威		1	10000	1	虎虎生威			
+11000079	1	79	表情-食汤圆了喂	Assets/Product/Texture/Image/IconExpression/IconExpressA77.png	Assets/Product/Texture/Image/IconExpression/IconExpressA77.png	2022元宵活动-同祈迎春获得	食汤圆了喂-渡边		1	10000	1	食汤圆了喂			
+11000080	1	80	表情-年年有余	Assets/Product/Texture/Image/IconExpression/IconExpressA78.png	Assets/Product/Texture/Image/IconExpression/IconExpressA78.png	2022春节-福禄献礼活动获得	年年有余-蒲牢		1	10000	1	年年有余			
+11000081	1	81	表情-不愧是我	Assets/Product/Texture/Image/IconExpression/IconExpressA74.png	Assets/Product/Texture/Image/IconExpression/IconExpressA74.png	众志行征通关平坦难度获得	不愧是我-七实		1	10000	1	不愧是我			
+11000082	1	82	表情-轻松通关	Assets/Product/Texture/Image/IconExpression/IconExpressA75.png	Assets/Product/Texture/Image/IconExpression/IconExpressA75.png	众志行征通关险要难度获得	轻松通关-七实		1	10000	1	轻松通关			
+11000083	1	83	表情-就这就这	Assets/Product/Texture/Image/IconExpression/IconExpressA76.png	Assets/Product/Texture/Image/IconExpression/IconExpressA76.png	众志行征通关崎岖难度获得	就这就这-七实		1	10000	1	就这就这			
+11000084	1	84	表情-微笑	Assets/Product/Texture/Image/IconExpression/IconExpressA84.png	Assets/Product/Texture/Image/IconExpression/IconExpressA84.png	参与分光双星玩法获得	微笑-哈卡玛		1	10000	1	微笑			
+11000085	1	85	成就表情-隐星	Assets/Product/Texture/Image/IconExpression/IconExpressA85.png	Assets/Product/Texture/Image/IconExpression/IconExpressA85.png	成就表情-隐星进化至SSS	成就-隐星		1	10000	1	先加体力		1001	
+11000086	1	86	成就表情-辉晓	Assets/Product/Texture/Image/IconExpression/IconExpressA89.png	Assets/Product/Texture/Image/IconExpression/IconExpressA89.png	成就表情-辉晓进化至SSS	成就-辉晓		1	10000	1	倔强		1001	
+11000087	1	87	成就表情-暝月	Assets/Product/Texture/Image/IconExpression/IconExpressA90.png	Assets/Product/Texture/Image/IconExpression/IconExpressA90.png	成就表情-暝月进化至SSS	成就-暝月		1	10000	1	不用谢		1001	
+11000088	1	88	表情-五一纪行	Assets/Product/Texture/Image/IconExpression/IconExpressA91.png	Assets/Product/Texture/Image/IconExpression/IconExpressA91.png	2022五一活动-五一纪行获得	五一纪行-赛利卡		1	10000	1	五一纪行			
+11000089	1	89	表情-哼	Assets/Product/Texture/Image/IconExpression/IconExpressA86.png	Assets/Product/Texture/Image/IconExpression/IconExpressA86.png	聊天表情——参加“超限乱斗·核心重燃”活动获得	哼——辉晓		1	10000	1	哼		1000	
+11000090	1	90	表情-哦呵呵呵	Assets/Product/Texture/Image/IconExpression/IconExpressA87.png	Assets/Product/Texture/Image/IconExpression/IconExpressA87.png	聊天表情——参加“超限乱斗·核心重燃”活动获得	哦呵呵呵——辉晓		1	10000	1	哦呵呵呵		1000	
+11000091	1	91	表情-给我等着	Assets/Product/Texture/Image/IconExpression/IconExpressA88.png	Assets/Product/Texture/Image/IconExpression/IconExpressA88.png	聊天表情——参加“超限乱斗·核心重燃”活动获得	给我等着——辉晓		1	10000	1	给我等着		1000	
+11000092	1	92	表情-鸢纸刻历	Assets/Product/Texture/Image/IconExpression/IconExpressA93.png	Assets/Product/Texture/Image/IconExpression/IconExpressA93.png	2022端午活动-鸢纸刻历获得	鸢纸刻历-蒲牢		1	10000	1	鸢纸刻历			
+11000093	1	93	表情-思考	Assets/Product/Texture/Image/IconExpression/IconExpressA92.png	Assets/Product/Texture/Image/IconExpression/IconExpressA92.png	成就表情-逆旅进化至SSS	思考——逆旅		1	10000	1	思考		1001	
+11000094	1	94	表情-饮茶	Assets/Product/Texture/Image/IconExpression/IconExpressA94.png	Assets/Product/Texture/Image/IconExpression/IconExpressA94.png	聊天表情——参加“心象风景”活动获得	饮茶——逆旅		1	10000	1	饮茶		1000	
+11000095	1	95	表情-空花最强	Assets/Product/Texture/Image/IconExpression/IconExpressA95.png	Assets/Product/Texture/Image/IconExpression/IconExpressA95.png	完成新手指导任务后获得	空花最强-赛利卡		1	10000	1	空花最强			
+11000096	1	96	表情-前有隐藏道路	Assets/Product/Texture/Image/IconExpression/IconExpressA98.png	Assets/Product/Texture/Image/IconExpression/IconExpressA98.png	众志行征Ⅱ通关平坦难度获得	前有隐藏道路——深痕		1	10000	1	前有隐藏道路			
+11000097	1	97	表情-前有重要道具	Assets/Product/Texture/Image/IconExpression/IconExpressA97.png	Assets/Product/Texture/Image/IconExpression/IconExpressA97.png	众志行征Ⅱ通关险要难度获得	前有重要道具——深痕		1	10000	1	前有重要道具			
+11000098	1	98	表情-需要肢体动作	Assets/Product/Texture/Image/IconExpression/IconExpressA96.png	Assets/Product/Texture/Image/IconExpression/IconExpressA96.png	众志行征Ⅱ通关崎岖难度获得	需要肢体动作——深痕		1	10000	1	需要肢体动作			
+11000099	1	99	表情-膝枕	Assets/Product/Texture/Image/IconExpression/IconExpressA99.png	Assets/Product/Texture/Image/IconExpression/IconExpressA99.png	成就表情-深痕进化至SSS	膝枕——深痕		1	10000	1	膝枕		1001	
+11000100	1	100	成就表情-霏粼	Assets/Product/Texture/Image/IconExpression/IconExpressA100.png	Assets/Product/Texture/Image/IconExpression/IconExpressA100.png	成就表情-霏粼进化至SSS	成就-霏粼		1	10000	1	意识模糊		1001	
+11000101	1	101	表情-哭哭	Assets/Product/Texture/Image/IconExpression/IconExpressA101.png	Assets/Product/Texture/Image/IconExpression/IconExpressA101.png	成就表情-琉璃进化至SSS	琉璃——哭哭		1	10000	1	哭哭		1001	
+11000102	1	102	表情-秋月渐盈	Assets/Product/Texture/Image/IconExpression/IconExpressA102.png	Assets/Product/Texture/Image/IconExpression/IconExpressA102.png	2022中秋活动-秋月渐盈获得	秋月渐盈-辉晓		1	10000	1	秋月渐盈			
+11000103	1	103	表情-快来吃饭	Assets/Product/Texture/Image/IconExpression/IconExpressA105.png	Assets/Product/Texture/Image/IconExpression/IconExpressA105.png	聊天表情——在本我回廊-夜刃的心锁试炼挑战关中，3星通关所有关卡获得	夜刃-快来吃饭		1	10000	1	快来吃饭		1000	
+11000104	1	104	表情-POWER	Assets/Product/Texture/Image/IconExpression/IconExpressA104.png	Assets/Product/Texture/Image/IconExpression/IconExpressA104.png	聊天表情——在本我回廊-深红之渊的心锁试炼挑战关中，3星通关所有关卡获得	深红之渊-POWER		1	10000	1	POWER		1000	
+11000105	1	105	表情-歪比巴卜	Assets/Product/Texture/Image/IconExpression/IconExpressA106.png	Assets/Product/Texture/Image/IconExpression/IconExpressA106.png	聊天表情——参加“分光双星”获得	超刻-歪比巴卜		1	10000	1	歪比巴卜		1000	
+11000106	1	106	表情-快停下！	Assets/Product/Texture/Image/IconExpression/IconExpressA103.png	Assets/Product/Texture/Image/IconExpression/IconExpressA103.png	成就表情-超刻进化至SSS	超刻——快停下！		1	10000	1	快停下！		1001	
+11000107	1	107	成就表情-？	Assets/Product/Texture/Image/IconExpression/IconExpressA107.png	Assets/Product/Texture/Image/IconExpression/IconExpressA107.png	成就表情-掣矩进化至SSS	成就-掣矩		1	10000	1	？		1001	
+11000108	1	108	表情-别急	Assets/Product/Texture/Image/IconExpression/IconExpressA113.png	Assets/Product/Texture/Image/IconExpression/IconExpressA113.png	通关调色板喧嚣盛典所有简单关卡获得	别急		1	10000	1	别急		1000	
+11000109	1	109	表情-你先别急	Assets/Product/Texture/Image/IconExpression/IconExpressA114.png	Assets/Product/Texture/Image/IconExpression/IconExpressA114.png	通关调色板帷幕之后所有简单关卡获得	你先别急		1	10000	1	你先别急		1000	
+11000110	1	110	表情-总之别急	Assets/Product/Texture/Image/IconExpression/IconExpressA112.png	Assets/Product/Texture/Image/IconExpression/IconExpressA112.png	调色板商店兑换	总之别急		1	10000	1	总之别急		1000	
+11000111	1	111	表情-木大	Assets/Product/Texture/Image/IconExpression/IconExpressA109.png	Assets/Product/Texture/Image/IconExpression/IconExpressA109.png	通过活动“光辉同行”获得	木大		1	10000	1	木大		1000	
+11000112	1	112	表情-欧拉	Assets/Product/Texture/Image/IconExpression/IconExpressA110.png	Assets/Product/Texture/Image/IconExpression/IconExpressA110.png	通过活动“光辉同行”获得	欧拉		1	10000	1	欧拉		1000	
+11000113	1	113	表情-失败的嘴炮	Assets/Product/Texture/Image/IconExpression/IconExpressA111.png	Assets/Product/Texture/Image/IconExpression/IconExpressA111.png	通过活动“光辉同行”获得	失败的嘴炮		1	10000	1	失败的嘴炮		1000	
+11000114	1	114	表情-真正的首席	Assets/Product/Texture/Image/IconExpression/IconExpressA115.png	Assets/Product/Texture/Image/IconExpression/IconExpressA115.png	成就表情-万华进化至SSS	万华——真正的首席！		1	10000	1	真正的首席		1001	
+11000115	1	115	成就表情-醒醒	Assets/Product/Texture/Image/IconExpression/IconExpressA108.png	Assets/Product/Texture/Image/IconExpression/IconExpressA108.png	成就表情-虹霁进化至SSS	成就-虹霁		1	10000	1	醒醒		1001	
+11000116	1	116	成就表情-出警！	Assets/Product/Texture/Image/IconExpression/IconExpressA123.png	Assets/Product/Texture/Image/IconExpression/IconExpressA123.png	成就表情-坼霆进化至SSS	成就-出警！		1	10000	1	出警！		1001	
+11000117	1	117	成就表情-呜呜露娜	Assets/Product/Texture/Image/IconExpression/IconExpressA125.png	Assets/Product/Texture/Image/IconExpression/IconExpressA125.png	成就表情-深红囚影进化至SSS	成就-呜呜露娜		1	10000	1	呜呜露娜		1001	
+11000118	1	118	表情-露厨	Assets/Product/Texture/Image/IconExpression/IconExpressA126.png	Assets/Product/Texture/Image/IconExpression/IconExpressA126.png	通过活动“露记大排档”获得	露厨		1	10000	1	露厨		1000	
+11000119	1	119	表情-YOU LOSE	Assets/Product/Texture/Image/IconExpression/IconExpressA124.png	Assets/Product/Texture/Image/IconExpression/IconExpressA124.png	聊天表情——在本我回廊-遥星之座的心锁试炼挑战关中，3星通关所有关卡获得	遥星之座-YOU LOSE		1	10000	1	YOU LOSE		1000	
+11000120	1	120	表情-？？？	Assets/Product/Texture/Image/IconExpression/IconExpressA122.png	Assets/Product/Texture/Image/IconExpression/IconExpressA122.png	通过活动“异构战线”获得	？？？		1	10000	1	？？？		1000	
+11000121	1	121	表情-风暴——	Assets/Product/Texture/Image/IconExpression/IconExpressA118.png	Assets/Product/Texture/Image/IconExpression/IconExpressA118.png	通过活动“缚囚死战”获得	风暴——		1	10000	1	风暴——		1000	
+11000122	1	122	表情-别在这发电	Assets/Product/Texture/Image/IconExpression/IconExpressA117.png	Assets/Product/Texture/Image/IconExpression/IconExpressA117.png	通过活动“厄愿潮声”获得	别在这里发电		1	10000	1	别在这发电		1000	
+11000123	1	123	表情-准你先跑5米	Assets/Product/Texture/Image/IconExpression/IconExpressA119.png	Assets/Product/Texture/Image/IconExpression/IconExpressA119.png	众志行征Ⅲ通关平坦难度获得	准你先跑5米		1	10000	1	准你先跑5米			
+11000124	1	124	表情-准你先跑10米	Assets/Product/Texture/Image/IconExpression/IconExpressA120.png	Assets/Product/Texture/Image/IconExpression/IconExpressA120.png	众志行征Ⅲ通关险要难度获得	准你先跑10米		1	10000	1	准你先跑10米			
+11000125	1	125	表情-准你先跑99米	Assets/Product/Texture/Image/IconExpression/IconExpressA121.png	Assets/Product/Texture/Image/IconExpression/IconExpressA121.png	众志行征Ⅲ通关崎岖难度获得	准你先跑99米		1	10000	1	准你先跑99米			
+11000126	1	126	表情-兔年大吉	Assets/Product/Texture/Image/IconExpression/IconExpressA116.png	Assets/Product/Texture/Image/IconExpression/IconExpressA116.png	2023春节活动-恭贺新禧获得	兔年大吉		1	10000	1	兔年大吉			
+11000127	1	127	成就表情-得意	Assets/Product/Texture/Image/IconExpression/IconExpressA127.png	Assets/Product/Texture/Image/IconExpression/IconExpressA127.png	成就表情-清商进化至SSS	成就-得意		1	10000	1	得意		1001	
+11000128	1	128	表情-啊咧？	Assets/Product/Texture/Image/IconExpression/IconExpressA128.png	Assets/Product/Texture/Image/IconExpression/IconExpressA128.png	通过活动“心象风景-遥乡蜃境”获得	啊咧？		1	10000	1	啊咧？		1000	
+11000129	1	129	表情-觉察	Assets/Product/Texture/Image/IconExpression/IconExpressA129.png	Assets/Product/Texture/Image/IconExpression/IconExpressA129.png	通过活动“心象风景-遥乡蜃境”获得	凡妮莎酱的眼神变锐利了		1	10000	1	觉察		1000	
+11000130	1	130	表情-就是他！	Assets/Product/Texture/Image/IconExpression/IconExpressA130.png	Assets/Product/Texture/Image/IconExpression/IconExpressA130.png	通过活动“心象风景-遥乡蜃境”获得	名侦探21号		1	10000	1	就是他！		1000	
+11000131	1	131	成就表情-好闻的味道！	Assets/Product/Texture/Image/IconExpression/IconExpressA131.png	Assets/Product/Texture/Image/IconExpression/IconExpressA131.png	成就表情-森息进化至SSS	森息——好闻的味道！		1	10000	1	好闻的味道！		1001	
+11000132	1	132	成就表情-裂开	Assets/Product/Texture/Image/IconExpression/IconExpressA135.png	Assets/Product/Texture/Image/IconExpression/IconExpressA135.png	成就表情-冥牙进化至SSS	成就-冥牙		1	10000	1	裂开		1001	
+11000133	1	133	表情-去咬他！	Assets/Product/Texture/Image/IconExpression/IconExpressA134.png	Assets/Product/Texture/Image/IconExpression/IconExpressA134.png	通过活动“拟聚纷争”获得	去咬他！		1	10000	1	去咬他		1000	
+11000134	1	134	表情-烤棉花糖	Assets/Product/Texture/Image/IconExpression/IconExpressA133.png	Assets/Product/Texture/Image/IconExpression/IconExpressA133.png	通过活动“行星环游记”获得	烤棉花糖		1	10000	1	烤棉花糖		1000	
+11000135	1	135	表情-八十！八十！	Assets/Product/Texture/Image/IconExpression/IconExpressA132.png	Assets/Product/Texture/Image/IconExpression/IconExpressA132.png	通过活动“心引定航”获得	八十！八十！		1	10000	1	八十！八十		1000	
+11000136	1	136	表情-全员恶人	Assets/Product/Texture/Image/IconExpression/IconExpressA139.png	Assets/Product/Texture/Image/IconExpression/IconExpressA139.png	通过活动“余尘三重奏”获得	全员恶人		1	10000	1	全员恶人		1000	
+11000137	1	137	表情-打一架！	Assets/Product/Texture/Image/IconExpression/IconExpressA136.png	Assets/Product/Texture/Image/IconExpression/IconExpressA136.png	通过活动“余尘三重奏”获得	打一架！		1	10000	1	打一架！		1000	
+11000138	1	138	表情-放学别跑	Assets/Product/Texture/Image/IconExpression/IconExpressA137.png	Assets/Product/Texture/Image/IconExpression/IconExpressA137.png	通过活动“余尘三重奏”获得	放学别跑		1	10000	1	放学别跑		1000	
+11000139	1	139	表情-劳动最光荣	Assets/Product/Texture/Image/IconExpression/IconExpressA138.png	Assets/Product/Texture/Image/IconExpression/IconExpressA138.png	通过活动“劳动便签”获得	劳动最光荣		1	10000	1	劳动最光荣		1000	
+11000140	1	140	表情-你过来啊！	Assets/Product/Texture/Image/IconExpression/IconExpressA140.png	Assets/Product/Texture/Image/IconExpression/IconExpressA140.png	通过活动“界限构解”获得	你过来啊		1	10000	1	你过来啊！		1000	
+11000141	1	141	成就表情-炸你！	Assets/Product/Texture/Image/IconExpression/IconExpressA141.png	Assets/Product/Texture/Image/IconExpression/IconExpressA141.png	成就表情-擎驱进化至SSS	擎驱——炸你！		1	10000	1	炸你！		1001	
+11000142	1	142	成就表情-铁咩！	Assets/Product/Texture/Image/IconExpression/IconExpressA142.png	Assets/Product/Texture/Image/IconExpression/IconExpressA142.png	成就表情-回音进化至SSS	回音——铁咩！		1	10000	1	铁咩！		1001	
+11000143	1	143	成就表情-鹰雄登场	Assets/Product/Texture/Image/IconExpression/IconExpressA143.png	Assets/Product/Texture/Image/IconExpression/IconExpressA143.png	成就表情-昼翼进化至SSS	成就-昼翼		1	10000	1	鹰雄登场		1001	
+11000144	1	144	表情-判决	Assets/Product/Texture/Image/IconExpression/IconExpressA147.png	Assets/Product/Texture/Image/IconExpression/IconExpressA147.png	通过活动“沙盘拟算”获得	判决		1	10000	1	判决		1000	
+11000145	1	145	表情-粽享端午	Assets/Product/Texture/Image/IconExpression/IconExpressA144.png	Assets/Product/Texture/Image/IconExpression/IconExpressA144.png	通过活动“乔阳纪叙”获得	粽享端午		1	10000	1	粽享端午		1000	
+11000146	1	146	表情-好难	Assets/Product/Texture/Image/IconExpression/IconExpressA145.png	Assets/Product/Texture/Image/IconExpression/IconExpressA145.png	通过活动“深海遗歌”获得	好难		1	10000	1	好难		1000	
+11000147	1	147	表情-轻松	Assets/Product/Texture/Image/IconExpression/IconExpressA146.png	Assets/Product/Texture/Image/IconExpression/IconExpressA146.png	通过活动“远歌深潜”获得	轻松		1	10000	1	轻松		1000	
+11000148	1	148	成就表情-瑟瑟发抖	Assets/Product/Texture/Image/IconExpression/IconExpressA148.png	Assets/Product/Texture/Image/IconExpression/IconExpressA148.png	成就表情-深谣进化至SSS	深谣-瑟瑟发抖		1	10000	1	瑟瑟发抖		1001	
+11000149	1	149	成就表情-匿了！	Assets/Product/Texture/Image/IconExpression/IconExpressA149.png	Assets/Product/Texture/Image/IconExpression/IconExpressA149.png	成就表情-潜泽进化至SSS	成就-潜泽		1	10000	1	匿了！		1001	
+11000150	1	150	表情-摸鱼	Assets/Product/Texture/Image/IconExpression/IconExpressA152.png	Assets/Product/Texture/Image/IconExpression/IconExpressA152.png	通过活动“众志行征Ⅳ”获得	摸鱼		1	10000	1	摸鱼		1000	
+11000151	1	151	表情-摸鱼鱼	Assets/Product/Texture/Image/IconExpression/IconExpressA153.png	Assets/Product/Texture/Image/IconExpression/IconExpressA153.png	通过活动“众志行征Ⅳ”获得	摸鱼鱼		1	10000	1	摸鱼鱼		1000	
+11000152	1	152	表情-摸大鱼	Assets/Product/Texture/Image/IconExpression/IconExpressA154.png	Assets/Product/Texture/Image/IconExpression/IconExpressA154.png	通过活动“众志行征Ⅳ”获得	摸大鱼		1	10000	1	摸大鱼		1000	
+11000153	1	153	表情-天热饮茶	Assets/Product/Texture/Image/IconExpression/IconExpressA150.png	Assets/Product/Texture/Image/IconExpression/IconExpressA150.png	通过活动“露记冰城”获得	天热饮茶		1	10000	1	天热饮茶		1000	
+11000154	1	154	表情-玩偶抱抱	Assets/Product/Texture/Image/IconExpression/IconExpressA151.png	Assets/Product/Texture/Image/IconExpression/IconExpressA151.png	聊天表情——在本我回廊-逆旅的心锁试炼挑战关中，3星通关所有关卡获得	给个抱抱！		1	10000	1	玩偶抱抱		1000	
+11000155	1	155	成就表情-抛瓦	Assets/Product/Texture/Image/IconExpression/IconExpressA155.png	Assets/Product/Texture/Image/IconExpression/IconExpressA155.png	成就表情-BLACK★ROCK SHOOTER进化至SSS	BRS-抛瓦		1	10000	1	抛瓦		1001	
+11000156	1	156	表情-你完了	Assets/Product/Texture/Image/IconExpression/IconExpressA156.png	Assets/Product/Texture/Image/IconExpression/IconExpressA156.png	通过活动“箱庭棋域”获得	你完了		1	10000	1	你完了		1000	
+11000157	1	157	表情-嫌弃	Assets/Product/Texture/Image/IconExpression/IconExpressA157.png	Assets/Product/Texture/Image/IconExpression/IconExpressA157.png	通过活动“箱庭棋域”获得	嫌弃		1	10000	1	嫌弃		1000	
+11000158	1	158	表情-编，继续编	Assets/Product/Texture/Image/IconExpression/IconExpressA158.png	Assets/Product/Texture/Image/IconExpression/IconExpressA158.png	通过活动“箱庭棋域”获得	编，继续编		1	10000	1	编，继续编		1000	
+11000159	1	159	表情-状态绝佳	Assets/Product/Texture/Image/IconExpression/IconExpressA159.png	Assets/Product/Texture/Image/IconExpression/IconExpressA159.png	通过活动“奔行日夜”获得	状态绝佳		1	10000	1	状态绝佳		1000	
+11000160	1	160	表情-状态下降	Assets/Product/Texture/Image/IconExpression/IconExpressA160.png	Assets/Product/Texture/Image/IconExpression/IconExpressA160.png	通过活动“奔行日夜”获得	状态下降		1	10000	1	状态下降		1000	
+11000161	1	161	成就表情-忠！诚！	Assets/Product/Texture/Image/IconExpression/IconExpressA161.png	Assets/Product/Texture/Image/IconExpression/IconExpressA161.png	成就表情-尘铭进化至SSS	尘铭-忠！诚！		1	10000	1	忠！诚！		1001	
+11000162	1	162	成就表情-睡不着	Assets/Product/Texture/Image/IconExpression/IconExpressA162.png	Assets/Product/Texture/Image/IconExpression/IconExpressA162.png	成就表情-夜蝠进化至SSS	成就-夜蝠		1	10000	1	睡不着		1001	
+11000163	1	163	表情-探阑盛月	Assets/Product/Texture/Image/IconExpression/IconExpressA163.png	Assets/Product/Texture/Image/IconExpression/IconExpressA163.png	通过活动“探阑盛月”获得	探阑盛月		1	10000	1	探阑盛月		1000	
+11000164	1	164	成就表情-专业	Assets/Product/Texture/Image/IconExpression/IconExpressA168.png	Assets/Product/Texture/Image/IconExpression/IconExpressA168.png	成就表情-启明进化至SSS	启明-专业		1	10000	1	专业		1001	
+11000165	1	165	成就表情-显眼包	Assets/Product/Texture/Image/IconExpression/IconExpressA169.png	Assets/Product/Texture/Image/IconExpression/IconExpressA169.png	成就表情-徽羽进化至SSS	成就-徽羽		1	10000	1	显眼包		1001	
+11000166	1	166	表情-一夜暴富	Assets/Product/Texture/Image/IconExpression/IconExpressA166.png	Assets/Product/Texture/Image/IconExpression/IconExpressA166.png	通过活动“另世构想·九龙一商”获得	一夜暴富		1	10000	1	一夜暴富		1000	
+11000167	1	167	表情-幻想时间	Assets/Product/Texture/Image/IconExpression/IconExpressA165.png	Assets/Product/Texture/Image/IconExpression/IconExpressA165.png	通过活动“另世构想·九龙一商”获得	幻想时间		1	10000	1	幻想时间		1000	
+11000168	1	168	表情-大佬坐姿	Assets/Product/Texture/Image/IconExpression/IconExpressA164.png	Assets/Product/Texture/Image/IconExpression/IconExpressA164.png	通过活动“另世构想·九龙一商”获得	大佬坐姿		1	10000	1	大佬坐姿		1000	
+11000169	1	169	成就表情-“礼貌”	Assets/Product/Texture/Image/IconExpression/IconExpressA170.png	Assets/Product/Texture/Image/IconExpression/IconExpressA170.png	成就表情-觅语进化至SSS	觅语-“礼貌”		1	10000	1	“礼貌”		1001	
+11000170	1	170	表情-放烟花啦~	Assets/Product/Texture/Image/IconExpression/IconExpressA167.png	Assets/Product/Texture/Image/IconExpression/IconExpressA167.png	通过活动“禧夜灯火”获得	放烟花啦~		1	10000	1	放烟花啦~		1000	
+11000171	1	171	表情-请赐教	Assets/Product/Texture/Image/IconExpression/IconExpressA171.png	Assets/Product/Texture/Image/IconExpression/IconExpressA171.png	通过活动“蒲牢大冒险”获得	请赐教		1	10000	1	请赐教		1000	
+11000172	1	172	表情-合体	Assets/Product/Texture/Image/IconExpression/IconExpressA179.png	Assets/Product/Texture/Image/IconExpression/IconExpressA179.png	通过活动“幻弈棋踪”获得	合体		1	10000	1	合体		1000	
+11000173	1	173	表情-深红终焉	Assets/Product/Texture/Image/IconExpression/IconExpressA183.png	Assets/Product/Texture/Image/IconExpression/IconExpressA183.png	通过活动“幻弈棋踪”获得	深红终焉		1	10000	1	深红终焉		1000	
+11000175	1	183	表情-龙年大吉	Assets/Product/Texture/Image/IconExpression/IconExpressA174.png	Assets/Product/Texture/Image/IconExpression/IconExpressA174.png	通过活动“新颂盈宵”获得	龙年大吉		1	10000	1	龙年大吉			
+11000176	1	176	表情-蔑视	Assets/Product/Texture/Image/IconExpression/IconExpressA180.png	Assets/Product/Texture/Image/IconExpression/IconExpressA180.png	通过活动“众志行征V”获得	蔑视		1	10000	1	蔑视		1000	
+11000177	1	177	表情-王之蔑视	Assets/Product/Texture/Image/IconExpression/IconExpressA181.png	Assets/Product/Texture/Image/IconExpression/IconExpressA181.png	通过活动“众志行征V”获得	王之蔑视		1	10000	1	王之蔑视		1000	
+11000178	1	178	表情-神之蔑视	Assets/Product/Texture/Image/IconExpression/IconExpressA182.png	Assets/Product/Texture/Image/IconExpression/IconExpressA182.png	通过活动“众志行征V”获得	神之蔑视		1	10000	1	神之蔑视		1000	
+11000179	1	179	成就表情-呜呜姐姐	Assets/Product/Texture/Image/IconExpression/IconExpressA172.png	Assets/Product/Texture/Image/IconExpression/IconExpressA172.png	成就表情-终焉进化至SSS	终焉-呜呜姐姐		1	10000	1	呜呜姐姐		1001	
+11000180	1	180	成就表情-组成头部	Assets/Product/Texture/Image/IconExpression/IconExpressA173.png	Assets/Product/Texture/Image/IconExpression/IconExpressA173.png	成就表情-肃噩进化至SSS	成就-肃噩		1	10000	1	组成头部		1001	
+11000181	1	181	表情-使不得	Assets/Product/Texture/Image/IconExpression/IconExpressA175.png	Assets/Product/Texture/Image/IconExpression/IconExpressA175.png	通过活动“新岁游园”获得	使不得		1	10000	1	使不得		1000	
+11000182	1	182	表情-吃汤圆咯	Assets/Product/Texture/Image/IconExpression/IconExpressA176.png	Assets/Product/Texture/Image/IconExpression/IconExpressA176.png	通过活动“新岁游园”获得	吃汤圆咯		1	10000	1	吃汤圆咯		1000	
+11000183	1	174	表情-多喝牛奶	Assets/Product/Texture/Image/IconExpression/IconExpressA177.png	Assets/Product/Texture/Image/IconExpression/IconExpressA177.png	通过玩法“矩阵循生”获得	多喝牛奶		1	10000	1	多喝牛奶		1000	
+11000184	1	175	表情-还有大家	Assets/Product/Texture/Image/IconExpression/IconExpressA178.png	Assets/Product/Texture/Image/IconExpression/IconExpressA178.png	通过玩法“矩阵循生”获得	还有大家		1	10000	1	还有大家		1000	
+11000185	1	185	成就表情-快上车	Assets/Product/Texture/Image/IconExpression/IconExpressA190.png	Assets/Product/Texture/Image/IconExpression/IconExpressA190.png	成就表情-耀炎进化至SSS	耀炎-快上车		1	10000	1	快上车		1001	
+11000186	1	186	表情-干杯	Assets/Product/Texture/Image/IconExpression/IconExpressA189.png	Assets/Product/Texture/Image/IconExpression/IconExpressA189.png	通过玩法“界限构解”获得	干杯		1	10000	1	干杯		1000	
+11000187	1	187	表情-问题不大	Assets/Product/Texture/Image/IconExpression/IconExpressA188.png	Assets/Product/Texture/Image/IconExpression/IconExpressA188.png	通过玩法“联界枢行”获得	问题不大		1	10000	1	问题不大		1000	
+11000188	1	188	表情-摸摸	Assets/Product/Texture/Image/IconExpression/IconExpressA184.png	Assets/Product/Texture/Image/IconExpression/IconExpressA184.png	参与暹罗猫小豆泥联动活动获得	摸摸		1	10000	1	摸摸		1002	
+11000189	1	189	表情-抱抱	Assets/Product/Texture/Image/IconExpression/IconExpressA185.png	Assets/Product/Texture/Image/IconExpression/IconExpressA185.png	参与暹罗猫小豆泥联动活动获得	抱抱		1	10000	1	抱抱		1002	
+11000190	1	190	表情-怕怕	Assets/Product/Texture/Image/IconExpression/IconExpressA186.png	Assets/Product/Texture/Image/IconExpression/IconExpressA186.png	参与暹罗猫小豆泥联动活动获得	怕怕		1	10000	1	怕怕		1002	
+11000191	1	191	表情-猫猫	Assets/Product/Texture/Image/IconExpression/IconExpressA187.png	Assets/Product/Texture/Image/IconExpression/IconExpressA187.png	参与暹罗猫小豆泥联动活动获得	猫猫		1	10000	1	猫猫		1002	
+11000192	1	192	成就表情-入梦来……	Assets/Product/Texture/Image/IconExpression/IconExpressA197.png	Assets/Product/Texture/Image/IconExpression/IconExpressA197.png	成就表情-檀心进化至SSS	檀心-入梦来……		1	10000	1	入梦来……		1001	
+11000193	1	193	成就表情-伪装	Assets/Product/Texture/Image/IconExpression/IconExpressA193.png	Assets/Product/Texture/Image/IconExpression/IconExpressA193.png	成就表情-寐寤进化至SSS	成就-寐寤		1	10000	1	伪装		1001	
+11000194	1	194	表情-修仙中	Assets/Product/Texture/Image/IconExpression/IconExpressA194.png	Assets/Product/Texture/Image/IconExpression/IconExpressA194.png	通过玩法“蒲牢修仙记”获得	修仙中		1	10000	1	修仙中		1000	
+11000195	1	195	表情-自愿打工	Assets/Product/Texture/Image/IconExpression/IconExpressA195.png	Assets/Product/Texture/Image/IconExpression/IconExpressA195.png	通过玩法“露记工房”获得	自愿打工		1	10000	1	自愿打工		1000	
+11000196	1	196	表情-卧猫藏鼠	Assets/Product/Texture/Image/IconExpression/IconExpressA196.png	Assets/Product/Texture/Image/IconExpression/IconExpressA196.png	通过玩法“卧猫藏鼠”获得	卧猫藏鼠		1	10000	1	卧猫藏鼠		1000	
+11000197	1	197	表情-含英飞天	Assets/Product/Texture/Image/IconExpression/IconExpressA192.png	Assets/Product/Texture/Image/IconExpression/IconExpressA192.png	通过活动“缘绘敦煌”获得	含英飞天		1	10000	1	飞天		1000	
+11000198	1	198	表情-含英反弹琵琶	Assets/Product/Texture/Image/IconExpression/IconExpressA191.png	Assets/Product/Texture/Image/IconExpression/IconExpressA191.png	通过活动“缘绘敦煌”获得	含英反弹琵琶		1	10000	1	反弹琵琶		1000	
+11000199	1	199	表情-五一快乐	Assets/Product/Texture/Image/IconExpression/IconExpressA198.png	Assets/Product/Texture/Image/IconExpression/IconExpressA198.png	通过活动“天道酬勤”获得	五一快乐		1	10000	1	五一快乐		1000	
+11000200	1	200	成就表情-爬	Assets/Product/Texture/Image/IconExpression/IconExpressA199.png	Assets/Product/Texture/Image/IconExpression/IconExpressA199.png	成就表情-明晰梦进化至SSS	明晰梦-爬		1	10000	1	爬		1001	
+11000201	1	201	成就表情-扑倒！	Assets/Product/Texture/Image/IconExpression/IconExpressA200.png	Assets/Product/Texture/Image/IconExpression/IconExpressA200.png	成就表情-瑞雪进化至SSS	成就-瑞雪		1	10000	1	扑倒！		1001	
+11000202	1	202	表情-沉沉睡去	Assets/Product/Texture/Image/IconExpression/IconExpressA204.png	Assets/Product/Texture/Image/IconExpression/IconExpressA204.png	通过玩法“安梦小憩”获得	沉沉睡去		1	10000	1	沉沉睡去		1000	
+11000203	1	203	表情-冻住不许走	Assets/Product/Texture/Image/IconExpression/IconExpressA201.png	Assets/Product/Texture/Image/IconExpression/IconExpressA201.png	通过玩法“衍变测算”获得	冻住不许走		1	10000	1	冻住不许走		1000	
+11000204	1	204	表情-龙舟竞渡	Assets/Product/Texture/Image/IconExpression/IconExpressA202.png	Assets/Product/Texture/Image/IconExpression/IconExpressA202.png	通过活动“龙游韶光”获得	龙舟竞渡		1	10000	1	龙舟竞渡		1000	
+11000205	1	205	表情-咩事啊？	Assets/Product/Texture/Image/IconExpression/IconExpressA203.png	Assets/Product/Texture/Image/IconExpression/IconExpressA203.png	通过玩法“全境特遣”获得	咩事啊？		1	10000	1	咩事啊？		1000	
+11000206	1	206	成就表情-指挥官还没回来	Assets/Product/Texture/Image/IconExpression/IconExpressA205.png	Assets/Product/Texture/Image/IconExpression/IconExpressA205.png	成就表情-誓焰进化至SSS	誓焰-指挥官还没回来		1	10000	1	还不回来？		1001	
+11000207	1	207	成就表情-灰鸦要放假	Assets/Product/Texture/Image/IconExpression/IconExpressA206.png	Assets/Product/Texture/Image/IconExpression/IconExpressA206.png	成就表情-熠空进化至SSS	成就-熠空		1	10000	1	灰鸦要放假		1001	
+11000208	1	208	表情-茄子！	Assets/Product/Texture/Image/IconExpression/IconExpressA207.png	Assets/Product/Texture/Image/IconExpression/IconExpressA207.png	通过玩法“阿呆破坏王”获得	茄子！		1	10000	1	茄子！		1000	
+11000209	1	209	表情-我能打五个	Assets/Product/Texture/Image/IconExpression/IconExpressA208.png	Assets/Product/Texture/Image/IconExpression/IconExpressA208.png	通过玩法“众志行征Ⅵ”获得	我能打五个		1	10000	1	我能打五个		1000	
+11000210	1	210	表情-我要打十个	Assets/Product/Texture/Image/IconExpression/IconExpressA209.png	Assets/Product/Texture/Image/IconExpression/IconExpressA209.png	通过玩法“众志行征Ⅵ”获得	我要打十个		1	10000	1	我要打十个		1000	
+11000211	1	211	表情-还有谁！	Assets/Product/Texture/Image/IconExpression/IconExpressA210.png	Assets/Product/Texture/Image/IconExpression/IconExpressA210.png	通过玩法“众志行征Ⅵ”获得	还有谁！？		1	10000	1	还有谁！		1000	
+11000212	1	212	成就表情-写不完了	Assets/Product/Texture/Image/IconExpression/IconExpressA212.png	Assets/Product/Texture/Image/IconExpression/IconExpressA212.png	成就表情-八咫进化至SSS	八咫-写不完了		1	10000	1	写不完了		1001	
+11000213	1	213	表情-会赢的	Assets/Product/Texture/Image/IconExpression/IconExpressA213.png	Assets/Product/Texture/Image/IconExpression/IconExpressA213.png	通过玩法“复沓厄息”获得	会赢的		1	10000	1	会赢的		1000	
+11000214	1	214	表情-要不…	Assets/Product/Texture/Image/IconExpression/IconExpressA211.png	Assets/Product/Texture/Image/IconExpression/IconExpressA211.png	通过玩法“学园放课后”获得	要不…		1	10000	1	要不…		1000	
+11000215	1	215	表情-超级赞	Assets/Product/Texture/Image/IconExpression/IconExpressA214.png	Assets/Product/Texture/Image/IconExpression/IconExpressA214.png	通过玩法“花见游园”获得	超级赞		1	10000	1	超级赞		1000	
+11000216	1	216	表情-月饼多多哦	Assets/Product/Texture/Image/IconExpression/IconExpressA215.png	Assets/Product/Texture/Image/IconExpression/IconExpressA215.png	通过玩法“瑶月澄秋”获得	月饼多多哦		1	10000	1	月饼多多哦		1000	
+11000217	1	217	成就表情-给你小星星	Assets/Product/Texture/Image/IconExpression/IconExpressA220.png	Assets/Product/Texture/Image/IconExpression/IconExpressA220.png	成就表情-芒星之迹进化至SSS	芒星之迹-给你小星星		1	10000	1	给你小星星		1001	
+11000218	1	218	成就表情-我要吃群友	Assets/Product/Texture/Image/IconExpression/IconExpressA219.png	Assets/Product/Texture/Image/IconExpression/IconExpressA219.png	成就表情-鮟棘进化至SSS	成就-鮟棘		1	10000	1	我要吃群友		1001	
+11000219	1	219	表情-变身	Assets/Product/Texture/Image/IconExpression/IconExpressA218.png	Assets/Product/Texture/Image/IconExpression/IconExpressA218.png	通过玩法“寰维逐星”获得	变身		1	10000	1	变身		1000	
+11000220	1	220	表情-最强武装	Assets/Product/Texture/Image/IconExpression/IconExpressA217.png	Assets/Product/Texture/Image/IconExpression/IconExpressA217.png	通过玩法“寰维逐星”获得	最强武装		1	10000	1	最强武装		1000	
+11000221	1	253	表情-暇时小歇	Assets/Product/Texture/Image/IconExpression/IconExpressA216.png	Assets/Product/Texture/Image/IconExpression/IconExpressA216.png	通过“暇时小歇-签到”获取	暇时小歇		1	10000	1	暇时小歇		1000	
+11000222	1	222	成就表情-测算	Assets/Product/Texture/Image/IconExpression/IconExpressA222.png	Assets/Product/Texture/Image/IconExpression/IconExpressA222.png	成就表情-幻日进化至SSS	幻日-测算		1	10000	1	测算		1001	
+11000223	1	223	成就表情-只好自爆了	Assets/Product/Texture/Image/IconExpression/IconExpressA223.png	Assets/Product/Texture/Image/IconExpression/IconExpressA223.png	成就表情-杼菱进化至SSS	成就-杼菱		1	10000	1	只好自爆了		1001	
+11000224	1	224	表情-让我看看	Assets/Product/Texture/Image/IconExpression/IconExpressA224.png	Assets/Product/Texture/Image/IconExpression/IconExpressA224.png	通过玩法“海沙奇旅”获得	让我看看		1	10000	1	让我看看		1000	
+11000225	1	225	表情-高维凝视	Assets/Product/Texture/Image/IconExpression/IconExpressA225.png	Assets/Product/Texture/Image/IconExpression/IconExpressA225.png	通过玩法“海沙奇旅”获得	高维凝视		1	10000	1	高维凝视		1000	
+11000226	1	226	表情-射击冠军	Assets/Product/Texture/Image/IconExpression/IconExpressA221.png	Assets/Product/Texture/Image/IconExpression/IconExpressA221.png	通过玩法“拟论区行动”获得	射击冠军		1	10000	1	射击冠军		1000	
+11000227	1	227	成就表情-不可以哦	Assets/Product/Texture/Image/IconExpression/IconExpressA226.png	Assets/Product/Texture/Image/IconExpression/IconExpressA226.png	成就表情-谬影进化至SSS	谬影-不可以哦		1	10000	1	不可以哦		1001	
+11000228	1	228	成就表情-:-)	Assets/Product/Texture/Image/IconExpression/IconExpressA229.png	Assets/Product/Texture/Image/IconExpression/IconExpressA229.png	成就表情-彼莉进化至SSS	成就-彼莉		1	10000	1	:-)		1001	
+11000229	1	229	表情-孩子你无敌了	Assets/Product/Texture/Image/IconExpression/IconExpressA231.png	Assets/Product/Texture/Image/IconExpression/IconExpressA231.png	聊天表情——在本我回廊-绯耀的心锁试炼挑战关中，3星通关所有关卡获得	孩子你无敌了		1	10000	1	孩子你无敌了		1000	
+11000230	1	230	表情-爆竹迎春	Assets/Product/Texture/Image/IconExpression/IconExpressA233.png	Assets/Product/Texture/Image/IconExpression/IconExpressA233.png	通过活动“贺岁鸣新”获得	爆竹迎春		1	10000	1	爆竹迎春		1000	
+11000231	1	231	表情-大开杀戒	Assets/Product/Texture/Image/IconExpression/IconExpressA227.png	Assets/Product/Texture/Image/IconExpression/IconExpressA227.png	通过玩法“异构阵线·绝境先锋”获得	大开杀戒		1	10000	1	大开杀戒		1000	
+11000232	1	232	表情-优势在我	Assets/Product/Texture/Image/IconExpression/IconExpressA232.png	Assets/Product/Texture/Image/IconExpression/IconExpressA232.png	通过玩法“星罗棋布”获得	优势在我		1	10000	1	优势在我		1000	
+11000233	1	233	表情-那么，开赌吧	Assets/Product/Texture/Image/IconExpression/IconExpressA230.png	Assets/Product/Texture/Image/IconExpression/IconExpressA230.png	通过玩法“星罗棋布”获得	那么，开赌吧		1	10000	1	那么，开赌吧		1000	
+11000234	1	234	成就表情-感受宁静	Assets/Product/Texture/Image/IconExpression/IconExpressA234.png	Assets/Product/Texture/Image/IconExpression/IconExpressA234.png	成就表情-希声进化至SSS	希声-感受宁静		1	10000	1	感受宁静		1001	
+11000235	1	235	成就表情-即使在时光流逝	Assets/Product/Texture/Image/IconExpression/IconExpressA235.png	Assets/Product/Texture/Image/IconExpression/IconExpressA235.png	成就表情-雪歌进化至SSS	成就-雪歌		1	10000	1	即使时光流逝		1001	
+11000236	1	236	表情-对的！	Assets/Product/Texture/Image/IconExpression/IconExpressA236.png	Assets/Product/Texture/Image/IconExpression/IconExpressA236.png	通过玩法“众志行征Ⅶ”获得	对的！		1	10000	1	对的！		1000	
+11000237	1	237	表情-不对呀？	Assets/Product/Texture/Image/IconExpression/IconExpressA237.png	Assets/Product/Texture/Image/IconExpression/IconExpressA237.png	通过玩法“众志行征Ⅶ”获得	不对呀？		1	10000	1	不对呀？		1000	
+11000238	1	238	表情-这…对吗？？？	Assets/Product/Texture/Image/IconExpression/IconExpressA238.png	Assets/Product/Texture/Image/IconExpression/IconExpressA238.png	通过玩法“众志行征Ⅶ”获得	这…对吗？？？		1	10000	1	这…对吗？？？		1000	
+11000239	1	239	表情-蛇年大吉	Assets/Product/Texture/Image/IconExpression/IconExpressA239.png	Assets/Product/Texture/Image/IconExpression/IconExpressA239.png	通过活动“万祥沐春”获得	蛇年大吉		1	10000	1	蛇年大吉		1000	
+11000240	1	240	表情-快到碗里来	Assets/Product/Texture/Image/IconExpression/IconExpressA240.png	Assets/Product/Texture/Image/IconExpression/IconExpressA240.png	通过2025元宵节邮件获得	快到碗里来		1	10000	1	快到碗里来		1000	
+11000241	1	241	表情-打得不错	Assets/Product/Texture/Image/IconExpression/IconExpressA241.png	Assets/Product/Texture/Image/IconExpression/IconExpressA241.png	通过玩法“寰格牌律”获得	打得不错		1	10000	1	打得不错		1000	
+11000242	1	242	表情-措手不及	Assets/Product/Texture/Image/IconExpression/IconExpressA242.png	Assets/Product/Texture/Image/IconExpression/IconExpressA242.png	通过玩法“卧猫藏鼠-新春大作战”获得	措手不及		1	10000	1	措手不及		1000	
+11000243	1	243	成就表情-降临！	Assets/Product/Texture/Image/IconExpression/IconExpressA243.png	Assets/Product/Texture/Image/IconExpression/IconExpressA243.png	成就表情-破晓进化至SSS	破晓-降临！		1	10000	1	降临！		1001	
+11000244	1	244	表情-逊诶~	Assets/Product/Texture/Image/IconExpression/IconExpressA244.png	Assets/Product/Texture/Image/IconExpression/IconExpressA244.png	通过玩法“永封裂隙”获得	逊诶~		1	10000	1	逊诶~		1000	
+11000245	1	245	表情-怎么个事	Assets/Product/Texture/Image/IconExpression/IconExpressA245.png	Assets/Product/Texture/Image/IconExpression/IconExpressA245.png	通过玩法“偷闲专递”获得	怎么个事		1	10000	1	怎么个事		1000	
+11000246	1	246	表情-啊哈！	Assets/Product/Texture/Image/IconExpression/IconExpressA246.png	Assets/Product/Texture/Image/IconExpression/IconExpressA246.png	通过玩法“偷闲专递”获得	啊哈！		1	10000	1	啊哈！		1000	
+11000247	1	247	表情-这很难评	Assets/Product/Texture/Image/IconExpression/IconExpressA247.png	Assets/Product/Texture/Image/IconExpression/IconExpressA247.png	通过玩法“偷闲专递”获得	这很难评		1	10000	1	这很难评		1000	
+11000248	1	248	成就表情-尝尝这个	Assets/Product/Texture/Image/IconExpression/IconExpressA253.png	Assets/Product/Texture/Image/IconExpression/IconExpressA253.png	成就表情-灼惘进化至SSS	灼惘-尝尝这个		1	10000	1	尝尝这个		1001	
+11000249	1	249	成就表情-已下线	Assets/Product/Texture/Image/IconExpression/IconExpressA254.png	Assets/Product/Texture/Image/IconExpression/IconExpressA254.png	成就表情-啸牙进化至SSS	成就-已下线		1	10000	1	已下线		1001	
+11000250	1	250	表情-小心心	Assets/Product/Texture/Image/IconExpression/IconExpressA252.png	Assets/Product/Texture/Image/IconExpression/IconExpressA252.png	通过玩法“烬锋破浪”获得	小心心		1	10000	1	小心心		1000	
+11000251	1	251	表情-乖，我来	Assets/Product/Texture/Image/IconExpression/IconExpressA255.png	Assets/Product/Texture/Image/IconExpression/IconExpressA255.png	通过玩法“淬身斩烬”获得	乖，我来		1	10000	1	乖，我来		1000	
+11000252	1	252	表情-下课	Assets/Product/Texture/Image/IconExpression/IconExpressA256.png	Assets/Product/Texture/Image/IconExpression/IconExpressA256.png	通过玩法“步步荆棋”获得	下课		1	10000	1	下课		1000	
+11000253	1	254	成就表情-整理发型	Assets/Product/Texture/Image/IconExpression/IconExpressA248.png	Assets/Product/Texture/Image/IconExpression/IconExpressA248.png	成就表情-维吉尔进化至SSS	维吉尔-整理发型		1	10000	1	整理发型		1001	
+11000254	1	255	成就表情-帕瓦	Assets/Product/Texture/Image/IconExpression/IconExpressA249.png	Assets/Product/Texture/Image/IconExpression/IconExpressA249.png	成就表情-幻影剑进化至SSS	成就-幻影剑		1	10000	1	帕瓦		1001	
+11000255	1	256	成就表情-咿呀	Assets/Product/Texture/Image/IconExpression/IconExpressA250.png	Assets/Product/Texture/Image/IconExpression/IconExpressA250.png	成就表情-但丁进化至SSS	但丁-咿呀		1	10000	1	咿呀		1001	
+11000256	1	257	成就表情-哇哦	Assets/Product/Texture/Image/IconExpression/IconExpressA251.png	Assets/Product/Texture/Image/IconExpression/IconExpressA251.png	成就表情-科沃兹进化至SSS	成就-科沃兹		1	10000	1	哇哦		1001	
+11000257	1	258	表情-吃粽粽	Assets/Product/Texture/Image/IconExpression/IconExpressA259.png	Assets/Product/Texture/Image/IconExpression/IconExpressA259.png	通过“箬香盈岸-签到”获取	吃粽粽		1	10000	1	吃粽粽		1000	
+11000258	1	259	表情-吔堡啦你	Assets/Product/Texture/Image/IconExpression/IconExpressA258.png	Assets/Product/Texture/Image/IconExpression/IconExpressA258.png	通过玩法“算力吞吞怪”获得	吔堡啦你		1	10000	1	吔堡啦你		1000	
+11000259	1	260	表情-试探	Assets/Product/Texture/Image/IconExpression/IconExpressA257.png	Assets/Product/Texture/Image/IconExpression/IconExpressA257.png	通过玩法“界限解构”获得	试探		1	10000	1	试探		1000	
+11000260	1	291	表情-来杯咖啡	Assets/Product/Texture/Image/IconExpression/IconExpressA261.png	Assets/Product/Texture/Image/IconExpression/IconExpressA261.png	通过玩法“库洛洛咖啡”获得	来一杯咖啡提提神吧。		1	10000	1	来杯咖啡		1000	
+11000261	1	292	表情-噗———	Assets/Product/Texture/Image/IconExpression/IconExpressA262.png	Assets/Product/Texture/Image/IconExpression/IconExpressA262.png	通过玩法“库洛洛咖啡”获得	谁在咖啡里加了机油！		1	10000	1	噗———		1000	
+11000262	1	293	表情-名侦探	Assets/Product/Texture/Image/IconExpression/IconExpressA263.png	Assets/Product/Texture/Image/IconExpression/IconExpressA263.png	通过玩法“商业开发计划”获得	启动搜索模式。		1	10000	1	名侦探		1000	
+11000263	1	294	表情-三头犬！开门	Assets/Product/Texture/Image/IconExpression/IconExpressA264.png	Assets/Product/Texture/Image/IconExpression/IconExpressA264.png	通过玩法“商业开发计划”获得	双手抱头，不许动！		1	10000	1	三头犬！开门		1000	
+11000264	1	295	表情-看镜头	Assets/Product/Texture/Image/IconExpression/IconExpressA265.png	Assets/Product/Texture/Image/IconExpression/IconExpressA265.png	通过“心语剧情”获得	“3、2、1——茄子！”		1	10000	1	看镜头		1000	
+11000265	1	296	表情-寻箱达人	Assets/Product/Texture/Image/IconExpression/IconExpressA266.png	Assets/Product/Texture/Image/IconExpression/IconExpressA266.png	通过“互动玩法”获得	这就是首席的洞察力！		1	10000	1	寻箱达人		1000	
+11000266	1	267	成就表情-心想事成	Assets/Product/Texture/Image/IconExpression/IconExpressA267.png	Assets/Product/Texture/Image/IconExpression/IconExpressA267.png	成就表情-晖暮进化至SSS	晖暮-心想事成		1	10000	1	心想事成		1001	
+11000267	1	268	成就表情-无所谓啦	Assets/Product/Texture/Image/IconExpression/IconExpressA268.png	Assets/Product/Texture/Image/IconExpression/IconExpressA268.png	成就表情-浊璃进化至SSS	浊璃-无所谓啦		1	10000	1	无所谓啦		1001	
+11000268	1	269	表情-开门	Assets/Product/Texture/Image/IconExpression/IconExpressA269.png	Assets/Product/Texture/Image/IconExpression/IconExpressA269.png	通过玩法“神寂启示录”获得	开门		1	10000	1	开门		1000	
+11000269	1	270	表情-我有个点子	Assets/Product/Texture/Image/IconExpression/IconExpressA270.png	Assets/Product/Texture/Image/IconExpression/IconExpressA270.png	通过玩法“神寂启示录”获得	我有个点子		1	10000	1	我有个点子		1000	
+11000270	1	271	表情-干杯	Assets/Product/Texture/Image/IconExpression/IconExpressA271.png	Assets/Product/Texture/Image/IconExpression/IconExpressA271.png	通过玩法“神寂启示录”获得	干杯		1	10000	1	干杯		1000	
+11000271	1	272	表情-坏人	Assets/Product/Texture/Image/IconExpression/IconExpressA272.png	Assets/Product/Texture/Image/IconExpression/IconExpressA272.png	通过玩法“众志行征Ⅷ”获得	坏人		1	10000	1	坏人		1000	
+11000272	1	273	表情-肃清	Assets/Product/Texture/Image/IconExpression/IconExpressA273.png	Assets/Product/Texture/Image/IconExpression/IconExpressA273.png	通过玩法“众志行征Ⅷ”获得	肃清		1	10000	1	肃清		1000	
+11000273	1	274	表情-涤净罪孽	Assets/Product/Texture/Image/IconExpression/IconExpressA274.png	Assets/Product/Texture/Image/IconExpression/IconExpressA274.png	通过玩法“众志行征Ⅷ”获得	涤净罪孽		1	10000	1	涤净罪孽		1000	
+11000274	1	275	表情-呼叫支援	Assets/Product/Texture/Image/IconExpression/IconExpressA275.png	Assets/Product/Texture/Image/IconExpression/IconExpressA275.png	通过玩法“鲨鲨破坏王”获得	呼叫支援		1	10000	1	呼叫支援		1000	
+11000275	1	276	表情-沉醉其中	Assets/Product/Texture/Image/IconExpression/IconExpressA276.png	Assets/Product/Texture/Image/IconExpression/IconExpressA276.png	通过玩法“鲨鲨破坏王”邮件获得	沉醉其中		1	10000	1	沉醉其中		1000	
+11000276	1	277	成就表情-不可以捣蛋	Assets/Product/Texture/Image/IconExpression/IconExpressA279.png	Assets/Product/Texture/Image/IconExpression/IconExpressA279.png	成就表情-裁律进化至SSS	裁律-不可以捣蛋		1	10000	1	不可以捣蛋		1001	
+11000277	1	278	表情-一触即发	Assets/Product/Texture/Image/IconExpression/IconExpressA277.png	Assets/Product/Texture/Image/IconExpression/IconExpressA277.png	通过玩法“作战覆写”获得	一触即发		1	10000	1	一触即发		1000	
+11000278	1	279	表情-睡得安详	Assets/Product/Texture/Image/IconExpression/IconExpressA278.png	Assets/Product/Texture/Image/IconExpression/IconExpressA278.png	通过玩法“神寂启示录”获得	睡得安详		1	10000	1	睡得安详		1000	
+11000279	1	280	表情-有些说法	Assets/Product/Texture/Image/IconExpression/IconExpressA280.png	Assets/Product/Texture/Image/IconExpression/IconExpressA280.png	通过玩法“纫纺裁艺”获得	有些说法		1	10000	1	有些说法		1000	
+11000280	1	281	成就表情-让我来！	Assets/Product/Texture/Image/IconExpression/IconExpressA281.png	Assets/Product/Texture/Image/IconExpression/IconExpressA281.png	成就表情-铮骨进化至SSS	铮骨-让我来！		1	10000	1	让我来！		1001	
+11000281	1	282	成就表情-龙翼展开	Assets/Product/Texture/Image/IconExpression/IconExpressA282.png	Assets/Product/Texture/Image/IconExpression/IconExpressA282.png	成就表情-鳞垒进化至SSS	鳞垒-龙翼展开		1	10000	1	龙翼展开		1001	
+11000282	1	283	表情-真的累了	Assets/Product/Texture/Image/IconExpression/IconExpressA283.png	Assets/Product/Texture/Image/IconExpression/IconExpressA283.png	通过玩法“神寂启示录”获得	真的累了		1	10000	1	真的累了		1000	
+11000283	1	284	表情-忍不了！	Assets/Product/Texture/Image/IconExpression/IconExpressA284.png	Assets/Product/Texture/Image/IconExpression/IconExpressA284.png	通过玩法“葬愿穷途”获得	忍不了！		1	10000	1	忍不了！		1000	
+11000284	1	285	表情-全是破绽！	Assets/Product/Texture/Image/IconExpression/IconExpressA285.png	Assets/Product/Texture/Image/IconExpression/IconExpressA285.png	通过玩法“觅迹寻踪·炎与拳”获得	全是破绽！		1	10000	1	全是破绽！		1000	
+11000285	1	286	表情-奇识增！	Assets/Product/Texture/Image/IconExpression/IconExpressA286.png	Assets/Product/Texture/Image/IconExpression/IconExpressA286.png	通过玩法“作战覆写”获得	奇识增！		1	10000	1	奇识增！		1000	
+11000286	1	287	表情-中秋快乐	Assets/Product/Texture/Image/IconExpression/IconExpressA287.png	Assets/Product/Texture/Image/IconExpression/IconExpressA287.png	通过“千秋一月-签到”获取	中秋快乐		1	10000	1	中秋快乐		1000	
+11000287	1	288	成就表情-辛苦自己了	Assets/Product/Texture/Image/IconExpression/IconExpressA288.png	Assets/Product/Texture/Image/IconExpression/IconExpressA288.png	成就表情-霁梦进化至SSS	霁梦-辛苦自己了		1	10000	1	辛苦自己了		1001	
+11000288	1	289	成就表情-来签契约	Assets/Product/Texture/Image/IconExpression/IconExpressA289.png	Assets/Product/Texture/Image/IconExpression/IconExpressA289.png	成就表情-浮浮进化至SSS	浮浮-来签契约		1	10000	1	来签契约		1001	
+11000289	1	290	表情-伴你安眠	Assets/Product/Texture/Image/IconExpression/IconExpressA290.png	Assets/Product/Texture/Image/IconExpression/IconExpressA290.png	通过玩法“绵绵眠梦”获得	伴你安眠		1	10000	1	伴你安眠		1000	
+11000290	1	291	成就表情-只有这种程度吗？	Assets/Product/Texture/Image/IconExpression/IconExpressA291.png	Assets/Product/Texture/Image/IconExpression/IconExpressA291.png	成就表情-骇影进化至SSS	骇影-只有这种程度吗？		1	10000	1	只有这种程度吗？		1001	
+11000291	1	292	成就表情-熊熊帮大忙	Assets/Product/Texture/Image/IconExpression/IconExpressA292.png	Assets/Product/Texture/Image/IconExpression/IconExpressA292.png	成就表情-吡啵进化至SSS	吡啵-熊熊帮大忙		1	10000	1	熊熊帮大忙		1001	
+11000292	1	293	表情-送花花	Assets/Product/Texture/Image/IconExpression/IconExpressA293.png	Assets/Product/Texture/Image/IconExpression/IconExpressA293.png	通过玩法“神寂启示录”获得	送花花		1	10000	1	送花花		1000	
+11000293	1	294	表情-元旦快乐	Assets/Product/Texture/Image/IconExpression/IconExpressA294.png	Assets/Product/Texture/Image/IconExpression/IconExpressA294.png	通过“时轨崭列-签到”获取	元旦快乐		1	10000	1	元旦快乐		1000	
+11000294	1	295	表情-一发入魂	Assets/Product/Texture/Image/IconExpression/IconExpressA295.png	Assets/Product/Texture/Image/IconExpression/IconExpressA295.png	通过玩法“全境特遣·墟市猎商”获得	一发入魂		1	10000	1	一发入魂		1000	
+11000295	1	296	表情-反复分析	Assets/Product/Texture/Image/IconExpression/IconExpressA296.png	Assets/Product/Texture/Image/IconExpression/IconExpressA296.png	通过玩法“抢险敲敲敲”获得	反复分析		1	10000	1	反复分析		1000	
+11000296	1	297	表情-我来助你	Assets/Product/Texture/Image/IconExpression/IconExpressA297.png	Assets/Product/Texture/Image/IconExpression/IconExpressA297.png	通过探索主线“推想视限”关卡38-11夜与玫瑰获得	我来助你		1	10000	1	我来助你		1000	
+11000297	1	298	成就表情-决定是你了	Assets/Product/Texture/Image/IconExpression/IconExpressA306.png	Assets/Product/Texture/Image/IconExpression/IconExpressA306.png	成就表情-极锋进化至SSS	极锋-决定是你了		1	10000	1	决定是你了		1001	
+11000298	1	299	成就表情-好厉害	Assets/Product/Texture/Image/IconExpression/IconExpressA307.png	Assets/Product/Texture/Image/IconExpression/IconExpressA307.png	成就表情-波灵进化至SSS	波灵-好厉害		1	10000	1	好厉害		1001	
+11000299	1	300	表情-“张力”	Assets/Product/Texture/Image/IconExpression/IconExpressA298.png	Assets/Product/Texture/Image/IconExpression/IconExpressA298.png	通过玩法“空域迷航”获得	“张力”		1	10000	1	“张力”		1000	
+11000300	1	301	表情-“喏，给你”	Assets/Product/Texture/Image/IconExpression/IconExpressA299.png	Assets/Product/Texture/Image/IconExpression/IconExpressA299.png	通过玩法“空域迷航”获得	“喏，给你”		1	10000	1	“喏，给你”		1000	
+11000301	1	302	表情-说茄子！	Assets/Product/Texture/Image/IconExpression/IconExpressA301.png	Assets/Product/Texture/Image/IconExpression/IconExpressA301.png	通过玩法“镜头下的意志”获得	久违的合照，一起期待最后的成片吧！		1	10000	1	说茄子！		1000	
+11000302	1	303	表情-神气	Assets/Product/Texture/Image/IconExpression/IconExpressA300.png	Assets/Product/Texture/Image/IconExpression/IconExpressA300.png	通过“互动玩法”获得	神气		1	10000	1	神气		1000	
+11000303	1	304	表情-做完你的做你的	Assets/Product/Texture/Image/IconExpression/IconExpressA302.png	Assets/Product/Texture/Image/IconExpression/IconExpressA302.png	通过玩法“卧猫藏鼠-辞岁总动员”获得	做完你的做你的		1	10000	1	做完你的做你的		1000	
+11000304	1	305	表情-宕机	Assets/Product/Texture/Image/IconExpression/IconExpressA303.png	Assets/Product/Texture/Image/IconExpression/IconExpressA303.png	通过玩法“众志行征Ⅸ”获得	宕机		1	10000	1	宕机		1000	
+11000305	1	306	表情-无法面对	Assets/Product/Texture/Image/IconExpression/IconExpressA304.png	Assets/Product/Texture/Image/IconExpression/IconExpressA304.png	通过玩法“众志行征Ⅸ”获得	无法面对		1	10000	1	无法面对		1000	
+11000306	1	307	表情-彻底崩溃	Assets/Product/Texture/Image/IconExpression/IconExpressA305.png	Assets/Product/Texture/Image/IconExpression/IconExpressA305.png	通过玩法“众志行征Ⅸ”获得	彻底崩溃		1	10000	1	彻底崩溃		1000	
+11000307	1	308	表情-马到成功	Assets/Product/Texture/Image/IconExpression/IconExpressA308.png	Assets/Product/Texture/Image/IconExpression/IconExpressA308.png	通过“福韶祈岁-签到”获取	马到成功		1	10000	1	马到成功		1000	
+11000308	1	309	表情- 红包拿来	Assets/Product/Texture/Image/IconExpression/IconExpressA309.png	Assets/Product/Texture/Image/IconExpression/IconExpressA309.png	购买新华网联动限量新春礼盒获得	红包拿来		1	10000	1	红包拿来		1000	
+11000309	1	310	表情- 给你福气	Assets/Product/Texture/Image/IconExpression/IconExpressA310.png	Assets/Product/Texture/Image/IconExpression/IconExpressA310.png	购买新华网联动限量新春礼盒获得	给你福气		1	10000	1	给你福气		1000	
+11000310	1	311	表情- 幸运加“马”	Assets/Product/Texture/Image/IconExpression/IconExpressA311.png	Assets/Product/Texture/Image/IconExpression/IconExpressA311.png	购买新华网联动限量新春礼盒获得	幸运加“马”		1	10000	1	幸运加“马”		1000	
+11000311	1	312	成就表情-查岗	Assets/Product/Texture/Image/IconExpression/IconExpressA313.png	Assets/Product/Texture/Image/IconExpression/IconExpressA313.png	成就表情-亡歌进化至SSS	亡歌-查岗		1	10000	1	查岗		1001	
+11000312	1	313	成就表情-在吗！	Assets/Product/Texture/Image/IconExpression/IconExpressA314.png	Assets/Product/Texture/Image/IconExpression/IconExpressA314.png	成就表情-摩利甘进化至SSS	摩利甘-在吗！		1	10000	1	在吗！		1001	
+11000313	1	314	表情-无期坐班	Assets/Product/Texture/Image/IconExpression/IconExpressA312.png	Assets/Product/Texture/Image/IconExpression/IconExpressA312.png	通过玩法“指尖防卫战”获得	无期坐班		1	10000	1	无期坐班		1000	
+11000314	1	315	表情-好冷	Assets/Product/Texture/Image/IconExpression/IconExpressA315.png	Assets/Product/Texture/Image/IconExpression/IconExpressA315.png	通过玩法“寒境曙光”获得	好冷		1	10000	1	好冷		1000	
+11000315	1	316	表情-这就是强者嘛！	Assets/Product/Texture/Image/IconExpression/IconExpressA316.png	Assets/Product/Texture/Image/IconExpression/IconExpressA316.png	通过玩法“映射裁断”获得	这就是强者嘛！		1	10000	1	这就是强者嘛！		1000	
+11000316	2	1	动态表情-困困小狗	Assets/Product/Texture/Image/IconExpression/IconExpressA318.png	Assets/Product/Texture/Image/IconExpression/IconExpressA318.png	馥郁献礼活动中购买好睡眠守护包获得	万事-困困小狗		1	10000	1	困困小狗		1003	Assets/Product/Texture/SpriteAtlas/DynamicFace/huangyouxiaogou/HeadButterDog1/HeadButterDog1.spriteatlas
+11000317	2	2	动态表情-沉思小狗	Assets/Product/Texture/Image/IconExpression/IconExpressA320.png	Assets/Product/Texture/Image/IconExpression/IconExpressA320.png	馥郁献礼活动中购买集中力补充包获得	库洛姆-沉思小狗		1	10000	1	沉思小狗		1003	Assets/Product/Texture/SpriteAtlas/DynamicFace/huangyouxiaogou/HeadButterDog2/HeadButterDog2.spriteatlas
+11000318	2	3	动态表情-观察小狗	Assets/Product/Texture/Image/IconExpression/IconExpressA319.png	Assets/Product/Texture/Image/IconExpression/IconExpressA319.png	馥郁献礼活动中购买运动力提升包获得	卡穆-观察小狗		1	10000	1	观察小狗		1003	Assets/Product/Texture/SpriteAtlas/DynamicFace/huangyouxiaogou/HeadButterDog3/HeadButterDog3.spriteatlas
+11000319	2	4	动态表情-开心小狗	Assets/Product/Texture/Image/IconExpression/IconExpressA317.png	Assets/Product/Texture/Image/IconExpression/IconExpressA317.png	馥郁献礼活动中购买好心情补给包获得	神威-开心小狗		1	10000	1	开心小狗		1003	Assets/Product/Texture/SpriteAtlas/DynamicFace/huangyouxiaogou/HeadButterDog4/HeadButterDog4.spriteatlas
+11000320	1	320	成就表情-剑来！	Assets/Product/Texture/Image/IconExpression/IconExpressA324.png	Assets/Product/Texture/Image/IconExpression/IconExpressA324.png	成就表情-不落日进化至SSS	不落日-剑来！		1	10000	1	剑来！		1001	
+11000321	1	321	成就表情-躺猫猫	Assets/Product/Texture/Image/IconExpression/IconExpressA323.png	Assets/Product/Texture/Image/IconExpression/IconExpressA323.png	成就表情-焰燧进化至SSS	焰燧-躺猫猫		1	10000	1	躺猫猫		1001	
+11000322	1	322	表情-你是最棒的！	Assets/Product/Texture/Image/IconExpression/IconExpressA321.png	Assets/Product/Texture/Image/IconExpression/IconExpressA321.png	通过玩法“黄油咖啡奇遇事”获得	你是最棒的！		1	10000	1	你是最棒的！		1000	
+11000323	1	323	表情-自愿上班中	Assets/Product/Texture/Image/IconExpression/IconExpressA322.png	Assets/Product/Texture/Image/IconExpression/IconExpressA322.png	通过“晴朗假日-签到”获取	自愿上班中		1	10000	1	自愿上班中		1000	
+11000324	1	324	成就表情-不如叉鱼去	Assets/Product/Texture/Image/IconExpression/IconExpressA332.png	Assets/Product/Texture/Image/IconExpression/IconExpressA332.png	成就表情-逆冕进化至SSS	逆冕-不如叉鱼去		1	10000	1	不如叉鱼去		1001	
+11000325	1	325	成就表情-躺平……	Assets/Product/Texture/Image/IconExpression/IconExpressA331.png	Assets/Product/Texture/Image/IconExpression/IconExpressA331.png	成就表情-异身进化至SSS	异身-躺平……		1	10000	1	躺平……		1001	
+11000326	1	326	表情-思索中	Assets/Product/Texture/Image/IconExpression/IconExpressA325.png	Assets/Product/Texture/Image/IconExpression/IconExpressA325.png	通过玩法“雾夜镇魂曲”获得	思索中		1	10000	1	思索中		1000	
+11000327	1	327	表情-感觉不对！	Assets/Product/Texture/Image/IconExpression/IconExpressA326.png	Assets/Product/Texture/Image/IconExpression/IconExpressA326.png	通过玩法“雾夜镇魂曲”获得	感觉不对！		1	10000	1	感觉不对！		1000	
+11000328	1	328	表情-高冷人士视察	Assets/Product/Texture/Image/IconExpression/IconExpressA327.png	Assets/Product/Texture/Image/IconExpression/IconExpressA327.png	通过玩法“众志行征Ⅹ”获得	高冷人士视察		1	10000	1	高冷人士视察		1000	
+11000329	1	329	表情-墨镜酷姐视察	Assets/Product/Texture/Image/IconExpression/IconExpressA328.png	Assets/Product/Texture/Image/IconExpression/IconExpressA328.png	通过玩法“众志行征Ⅹ”获得	墨镜酷姐视察		1	10000	1	墨镜酷姐视察		1000	
+11000330	1	330	表情-酷姐从不回头	Assets/Product/Texture/Image/IconExpression/IconExpressA329.png	Assets/Product/Texture/Image/IconExpression/IconExpressA329.png	通过玩法“众志行征Ⅹ”获得	酷姐从不回头		1	10000	1	酷姐从不回头		1000	
+11000331	1	331	表情-“粽”横四海	Assets/Product/Texture/Image/IconExpression/IconExpressA330.png	Assets/Product/Texture/Image/IconExpression/IconExpressA330.png	通过“ 艾束芳兰-签到”获取	“粽”横四海		1	10000	1	“粽”横四海		1000	
+11000332	1	332	表情-“发光”	Assets/Product/Texture/Image/IconExpression/IconExpressA334.png	Assets/Product/Texture/Image/IconExpression/IconExpressA334.png	通过完成空中花园引航任务「归航与启程」获取	“发光”		1	10000	1	“发光”		1000	
+11000334	1	334	表情-吃我一拳！	Assets/Product/Texture/Image/IconExpression/IconExpressA333.png	Assets/Product/Texture/Image/IconExpression/IconExpressA333.png	通过玩法“旧世游艺”获取	吃我一拳！		1	10000	1	吃我一拳！		1000	
+11000335	1	335	成就表情-我摔倒了。	Assets/Product/Texture/Image/IconExpression/IconExpressA336.png	Assets/Product/Texture/Image/IconExpression/IconExpressA336.png	成就表情-安魂进化至SSS	安魂-我摔倒了。		1	10000	1	我摔倒了。		1001	
+11000336	1	336	成就表情-嗯？不对？	Assets/Product/Texture/Image/IconExpression/IconExpressA337.png	Assets/Product/Texture/Image/IconExpression/IconExpressA337.png	成就表情-大公进化至SSS	大公-嗯？不对？		1	10000	1	嗯？不对？		1001	
+11000337	1	337	表情-我也要死吗？	Assets/Product/Texture/Image/IconExpression/IconExpressA335.png	Assets/Product/Texture/Image/IconExpression/IconExpressA335.png	通过玩法“虚像破执”获得	我也要死吗？		1	10000	1	我也要死吗？		1000	
+11000338	1	338	表情-相信着你	Assets/Product/Texture/Image/IconExpression/IconExpressA338.png	Assets/Product/Texture/Image/IconExpression/IconExpressA338.png	通过玩法“忽忽的奇幻花园”获得	相信着你		1	10000	1	相信着你		1000	
+11000339	1	339	表情-轻松拿捏	Assets/Product/Texture/Image/IconExpression/IconExpressA339.png	Assets/Product/Texture/Image/IconExpression/IconExpressA339.png	通过玩法“雾夜镇魂曲”获得	轻松拿捏		1	10000	1	轻松拿捏		1000	
+11000340	1	340	成就表情-帽子戏法	Assets/Product/Texture/Image/IconExpression/IconExpressA343.png	Assets/Product/Texture/Image/IconExpression/IconExpressA343.png	成就表情-烬航进化至SSS	帽子戏法		1	10000	1	帽子戏法		1001	
+11000341	1	341	成就表情-对的对的	Assets/Product/Texture/Image/IconExpression/IconExpressA342.png	Assets/Product/Texture/Image/IconExpression/IconExpressA342.png	成就表情-派德里进化至SSS	对的对的		1	10000	1	对的对的		1001	
+11000342	1	342	表情-王从天降	Assets/Product/Texture/Image/IconExpression/IconExpressA344.png	Assets/Product/Texture/Image/IconExpression/IconExpressA344.png	通过玩法“耀律狂潮”获得	王从天降		1	10000	1	王从天降		1000	
+11000343	1	344	成就表情-吸猫	Assets/Product/Texture/Image/IconExpression/IconExpressA341.png	Assets/Product/Texture/Image/IconExpression/IconExpressA341.png	成就表情-时崎狂三进化至SSS	时崎狂三-吸猫		1	10000	1	吸猫		1001	
+11000344	1	345	成就表情-好急好急	Assets/Product/Texture/Image/IconExpression/IconExpressA340.png	Assets/Product/Texture/Image/IconExpression/IconExpressA340.png	成就表情-刻刻帝进化至SSS	刻刻帝-好急好急		1	10000	1	好急好急		1001	
+11000345	1	343	表情-辰光焰歌	Assets/Product/Texture/Image/IconExpression/IconExpressA345.png	Assets/Product/Texture/Image/IconExpression/IconExpressA345.png	通过音乐会直播 《于频率中相汇》发放的兑换码兑换获得	辰光焰歌		1	10000	1	辰光焰歌		1000	
+11000346	1	346	成就表情-此路不通！	Assets/Product/Texture/Image/IconExpression/IconExpressA346.png	Assets/Product/Texture/Image/IconExpression/IconExpressA346.png	成就表情-破渊进化至SSS	破渊-此路不通！		1	10000	1	此路不通！		1001	
+11000347	1	347	成就表情-静下心来	Assets/Product/Texture/Image/IconExpression/IconExpressA347.png	Assets/Product/Texture/Image/IconExpression/IconExpressA347.png	成就表情-凯尔派进化至SSS	凯尔派-静下心来		1	10000	1	静下心来		1001	
+11000348	1	348	表情-嘘~	Assets/Product/Texture/Image/IconExpression/IconExpressA348.png	Assets/Product/Texture/Image/IconExpression/IconExpressA348.png	"通过玩法""雾夜镇魂曲""获得"	嘘~		1	10000	1	嘘~		1000	
+11000349	1	349	表情-忽忽出击！	Assets/Product/Texture/Image/IconExpression/IconExpressA349.png	Assets/Product/Texture/Image/IconExpression/IconExpressA349.png	"通过玩法""忽忽破坏王""获得"	忽忽出击！		1	10000	1	忽忽出击！		1000	
+11000350	1	350	表情-邀月	Assets/Product/Texture/Image/IconExpression/IconExpressA350.png	Assets/Product/Texture/Image/IconExpression/IconExpressA350.png	"通过""桂月澄明-签到""获得"	邀月		1	10000	1	邀月		1000	
+11000351	1	351	表情-欲言又止	Assets/Product/Texture/Image/IconExpression/IconExpressA351.png	Assets/Product/Texture/Image/IconExpression/IconExpressA351.png	"通过玩法""回路演算""获得"	欲言又止		1	10000	1	欲言又止		1000	

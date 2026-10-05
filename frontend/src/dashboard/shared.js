@@ -1,4 +1,4 @@
-import { ApiError, apiFetch, getLocale, getLocalizedApiErrorMessage, resolveUiTextToken, subscribeLocaleChange, t } from '../i18n.js';
+import { ApiError, apiFetch, getLocale, getLocalizedApiErrorMessage, resolveUiTextToken, t } from '../i18n.js';
 
 const selectAll = (selector) => Array.from(document.querySelectorAll(selector));
 
@@ -652,6 +652,13 @@ export const constants = {
 
 export const app = { dom, state, constants };
 
+app.updatePlayerMutationRiskResetVisibility = () => {
+  if (dom.playerMutationRiskResetButton instanceof HTMLElement) {
+    dom.playerMutationRiskResetButton.hidden = !state.serverManagementEnabled
+      || localStorage.getItem(constants.SKIP_MUTATION_RISK_KEY) !== '1';
+  }
+};
+
 Object.assign(app, {
   MutationRiskCancelledError: class MutationRiskCancelledError extends Error {
     constructor() {
@@ -949,8 +956,4 @@ Object.assign(app, {
 
     return Math.min(Math.max(parsed, 1), safeTotalPages);
   },
-});
-
-subscribeLocaleChange((locale) => {
-  state.locale = locale;
 });

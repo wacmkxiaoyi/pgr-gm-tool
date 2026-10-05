@@ -11,6 +11,7 @@ def _parse_cli_args() -> dict[str, object]:
     parser.add_argument("--APP_NAME", default=None)
     parser.add_argument("--APP_HOST", default=None)
     parser.add_argument("--APP_PORT", type=int, default=None)
+    parser.add_argument("--ASCNET_LAUNCHER_PATH", default=None)
     parser.add_argument("--ENABLE_SERVER_MANAGEMENT", default=None)
     parser.add_argument("--SERVER_PATH", default=None)
     parser.add_argument("--SERVER_BINARY_FILE", default=None)
@@ -42,4 +43,9 @@ init_app(app, settings)
 
 if __name__ == '__main__':
     import uvicorn
+    display_host = '127.0.0.1' if settings.app_host in {'0.0.0.0', '::'} else settings.app_host
+    print(f'Login URL: http://{display_host}:{settings.app_port}/login', flush=True)
+    print(f'Server management: {settings.enable_server_management}', flush=True)
+    if settings.launcher_build is not None:
+        print(f'Launcher build: {settings.launcher_build.server_directory}', flush=True)
     uvicorn.run(app, host=settings.app_host, port=settings.app_port)
