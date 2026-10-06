@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `b7b9fae016ffa3ebcc76aea0a0b7531ae8fa2115`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `f30151151aad36307e770d490ab466ae6d9b900b`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
@@ -183,7 +183,7 @@ python backend/scripts/tsv_fetcher.py --upstream-dir "....\PGR_Data"
 
 Omit `--upstream-dir` to download from GitHub, or add `--dry-run` to validate without replacing files. Existing CN-only source mappings for EN are preserved. Both datasets must be prepared successfully before replacement; known legacy root tables are removed after migration. Restart the backend after a resource refresh to clear its in-memory caches.
 
-`backend/assets/CharacterRecommendEquips.tsv` is shared by both languages. Its generator reads only EN tables; run `python backend/scripts/character-recommend-equips/main.py` separately or add `--recommend-equips true` when refreshing. Single-file conversion targets must start with `EN/` or `CN/`, except for this shared generated table.
+Max All uses the first `BaseCharacterIds` entry in `TeamRecommendCharacterTarget.tsv` and resolves equipment from `TeamRecommendBaseCharacter.tsv`. Both datasets currently use the CN upstream source for these tables. `MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE` defaults to `true` to retain the fixed memory resonance strategy; when disabled, the selected native recommendation supplies memory resonances. `MAX_CHARACTER_USE_RECOMMEND_HARMONY` defaults to `true` to use the selected recommendation's `WeaponOverrunChoseSuit` (zero means no selected suit); set it to `false` to select a Harmony suit automatically from the equipped memories. Both switches support environment variables and matching command-line options. Partner recommendations are loaded but are not applied by Max All. Single-file conversion targets must start with `EN/` or `CN/`.
 
 Database health monitoring is always started. Game-server health monitoring and all server-control routes are registered only when `ENABLE_SERVER_MANAGEMENT` is enabled.
 

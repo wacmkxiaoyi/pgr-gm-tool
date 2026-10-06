@@ -164,3 +164,24 @@ def get_weapon_overrun_max_level_map() -> dict[int, int]:
             weapon_max_level_map[weapon_id] = level
 
     return weapon_max_level_map
+
+
+@lru_cache(maxsize=1)
+def get_weapon_overrun_character_max_level_skill_upgrade_map() -> dict[int, dict[int, dict[int, int]]]:
+    """Sum the skill-group bonuses unlocked across all Harmony stages."""
+    reader = TSVReader(WEAPON_OVERRUN_TSV_PATH, typed=True)
+    rows = reader.select(["WeaponId", "CharacterId", "UpSkillGroupId", "UpSkillGroupLevel"])
+    normalized_map: dict[int, dict[int, dict[int, int]]] = {}
+
+    for row in rows:
+        weapon_id = parse_int(row.get("WeaponId"))
+        character_id = parse_int(row.get("CharacterId"))
+        group_id = parse_int(row.get("UpSkillGroupId"))
+        level = parse_int(row.get("UpSkillGroupLevel"))
+        if any(value is None or value <= 0 for value in (weapon_id, character_id, group_id, level)):
+            continue
+
+        group_levels = normalized_map.setdefault(weapon_id, {}).setdefault(character_id, {})
+        group_levels[group_id] = group_levels.get(group_id, 0) + level
+
+    return normalized_map

@@ -147,6 +147,10 @@ class Settings:
             self._resolve("MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE"),
             True,
         )
+        self.max_character_use_recommend_harmony = _to_bool(
+            self._resolve("MAX_CHARACTER_USE_RECOMMEND_HARMONY"),
+            True,
+        )
 
         self.reload_server_runtime_config()
 
@@ -265,6 +269,7 @@ class Settings:
             "mongo_tls": self.mongo_tls,
             "admin_username": self.admin_username,
             "max_character_use_fix_memory_resonance": self.max_character_use_fix_memory_resonance,
+            "max_character_use_recommend_harmony": self.max_character_use_recommend_harmony,
         }
 
 

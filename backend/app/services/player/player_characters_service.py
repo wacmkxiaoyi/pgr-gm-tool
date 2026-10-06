@@ -20,6 +20,7 @@ from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.levelup_template import get_level_exp_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.player_characters import (
+    apply_character_max_weapon_skill_upgrades,
     build_character_max_skills,
     get_character_add_config_map,
     get_character_Intro_map,
@@ -37,7 +38,6 @@ from backend.app.services.player.player_characters import (
     get_character_quality_bound_map,
     get_character_skill_entries_map,
     get_character_skill_ids_map,
-    get_character_skill_groups_map,
     get_character_trust_exp_map,
     get_character_default_weapon_map,
     get_character_equip_type_map,
@@ -826,6 +826,11 @@ class PlayerCharactersService:
 
         character_patch = copy.deepcopy(template.get("character", {})) if isinstance(template.get("character"), dict) else {}
         character_patch["SkillList"] = build_character_max_skills(character_id, target_character.get("SkillList"))
+        weapon_template = template.get("weapon") if isinstance(template.get("weapon"), dict) else None
+        if weapon_template is not None:
+            apply_character_max_weapon_skill_upgrades(
+                character_id, parse_optional_int(weapon_template.get("TemplateId")), character_patch,
+            )
         for field_name, field_value in character_patch.items():
             target_character[field_name] = field_value
 
@@ -868,7 +873,6 @@ class PlayerCharactersService:
             equip_document = self._build_equip_document(equips, memory_template)
             equips.append(equip_document)
 
-        weapon_template = template.get("weapon") if isinstance(template.get("weapon"), dict) else None
         if isinstance(weapon_template, dict) and _is_weapon_template_id(parse_optional_int(weapon_template.get("TemplateId"))):
             equip_document = self._build_equip_document(equips, weapon_template)
             equips.append(equip_document)
@@ -1694,12 +1698,6 @@ class PlayerCharactersService:
 
             raw_skill_list = target_character.get(list_field_name)
             normalized_skill_list = [item for item in raw_skill_list if isinstance(item, dict)] if isinstance(raw_skill_list, list) else []
-            if list_field_name == "SkillList":
-                group_ids = next((ids for ids in get_character_skill_groups_map().get(character_id, []) if skill_id in ids), [])
-                normalized_skill_list = [
-                    item for item in normalized_skill_list
-                    if parse_optional_int(item.get("_id")) == skill_id or parse_optional_int(item.get("_id")) not in group_ids
-                ]
             updated = False
             for skill_entry in normalized_skill_list:
                 if parse_optional_int(skill_entry.get("_id")) != skill_id:

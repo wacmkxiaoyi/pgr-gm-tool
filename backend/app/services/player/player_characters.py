@@ -4,9 +4,9 @@ from backend.app.utils.resource_language import language_cache as lru_cache
 from typing import Any
 
 from backend.app.config import settings
-from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH
+from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, TEAM_RECOMMEND_CHARACTER_TARGET_TSV_PATH, TEAM_RECOMMEND_BASE_CHARACTER_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH
 from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map, get_equip_site_map
-from backend.app.services.player.equips.weapon import get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
+from backend.app.services.player.equips.weapon import get_weapon_overrun_character_max_level_skill_upgrade_map, get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
@@ -89,22 +89,47 @@ def get_character_skill_groups_map() -> dict[int, list[list[int]]]:
 
 
 def build_character_max_skills(character_id: int, existing_skills: Any = None) -> list[dict[str, Any]]:
-    """Match the server's last-existing selection, or the first skill of a group."""
+    """Maximize every skill ID, preserving its last-existing metadata."""
     entries = get_character_skill_entries_map()
     existing = existing_skills if isinstance(existing_skills, list) else []
+    existing_by_id = {
+        parse_int(entry.get("_id")): entry
+        for entry in existing if isinstance(entry, dict)
+    }
     result: list[dict[str, Any]] = []
+    seen: set[int] = set()
     for skill_ids in get_character_skill_groups_map().get(character_id, []):
-        if not skill_ids:
-            continue
-        selected = next(
-            (entry for entry in reversed(existing) if isinstance(entry, dict) and parse_int(entry.get("_id")) in skill_ids),
-            None,
-        )
-        skill_id = parse_int(selected.get("_id")) if selected else skill_ids[0]
-        max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
-        if max_level > 0:
-            result.append({**(selected or {}), "_id": skill_id, "Level": max_level})
+        for skill_id in skill_ids:
+            if skill_id in seen:
+                continue
+            seen.add(skill_id)
+            max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
+            if max_level > 0:
+                result.append({**existing_by_id.get(skill_id, {}), "_id": skill_id, "Level": max_level})
     return result
+
+
+def apply_character_max_weapon_skill_upgrades(character_id: int, weapon_id: int | None, character: dict[str, Any]) -> None:
+    """Reserve room for the max weapon's Harmony bonuses in both skill lists."""
+    group_levels = get_weapon_overrun_character_max_level_skill_upgrade_map().get(weapon_id, {}).get(character_id, {})
+    if not group_levels:
+        return
+
+    for field_name, groups, entries in (
+        ("SkillList", get_character_skill_group_skill_ids_map(), get_character_skill_entries_map()),
+        ("EnhanceSkillList", get_character_enhance_skill_group_skill_ids_map(), get_character_enhance_skill_entries_map()),
+    ):
+        skill_levels: dict[int, int] = {}
+        for group_id, level in group_levels.items():
+            for skill_id in groups.get(group_id, []):
+                skill_levels[skill_id] = skill_levels.get(skill_id, 0) + level
+
+        for skill in character.get(field_name, []):
+            skill_id = parse_int(skill.get("_id"))
+            bonus = skill_levels.get(skill_id, 0)
+            if bonus:
+                max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
+                skill["Level"] = max(0, max_level - bonus)
 
 
 @lru_cache(maxsize=1)
@@ -302,6 +327,18 @@ def get_character_skill_pool_entries_map() -> dict[int, dict[int, list[dict[str,
         normalized_map[pool_id] = character_entries_map
 
     return normalized_map
+
+@lru_cache(maxsize=1)
+def get_character_enhance_skill_group_skill_ids_map() -> dict[int, list[int]]:
+    reader = TSVReader(ENHANCE_SKILL_GROUP_TSV_PATH, typed=True)
+    skill_group_table = reader.get_sub_table("Id", ["SkillId"])
+    return {
+        group_id: extract_int_list(row, ["SkillId"], dedupe=True)
+        for raw_group_id, row in skill_group_table.items()
+        for group_id in [parse_int(raw_group_id)]
+        if group_id is not None
+    }
+
 
 @lru_cache(maxsize=1)
 def get_character_enhance_skill_ids_map() -> dict[int, list[int]]:
@@ -565,29 +602,58 @@ def get_character_default_weapon_map() -> dict[int, int]:
 
 @lru_cache(maxsize=1)
 def get_character_recommend_equips_map() -> dict[int, dict[str, Any]]:
-    reader = TSVReader(CHARACTER_RECOMMEND_EQUIPS_TSV_PATH, typed=True)
-    raw_table = reader.get_sub_table(
-        "Id",
-        ["WeaponId", "WeaponResonances", "Memories", "MemoryResonances"],
+    """Use the first authored target, independent of localized target names."""
+    targets = TSVReader(TEAM_RECOMMEND_CHARACTER_TARGET_TSV_PATH, typed=True).get_maps(
+        "CharacterId", "BaseCharacterIds",
+    )[0]
+    base_configs = TSVReader(TEAM_RECOMMEND_BASE_CHARACTER_TSV_PATH, typed=True).get_sub_table(
+        "Id", ["CharacterId", "WeaponId", "WeaponResonanceTypes", "WeaponResonanceSkillIds",
+               "EquipIds", "EquipResonanceTypes", "EquipSkillIds", "PartnerId", "WeaponOverrunChoseSuit"],
     )
+    skill_ids = TSVReader(CHARACTER_SKILL_POOL_TSV_PATH, typed=True).get_maps("Id", "SkillId")[0]
     normalized_map: dict[int, dict[str, Any]] = {}
 
-    for character_id_raw, row in raw_table.items():
-        character_id = parse_int(character_id_raw)
-        weapon_id = parse_int(row.get("WeaponId"))
+    def resonances(types: Any, skills: Any, *, memory: bool = False) -> list[dict[str, Any]]:
+        if not isinstance(types, list) or not isinstance(skills, list):
+            return []
+        entries = []
+        for index, raw_skill in enumerate(skills):
+            entry_type = parse_int(types[index]) if index < len(types) else None
+            skill_id = parse_int(raw_skill)
+            if memory and entry_type == 2:
+                skill_id = parse_int(skill_ids.get(skill_id, skill_id))
+            # Keep empty positions so later slots never shift into earlier slots.
+            entries.append({"Type": entry_type, "TemplateId": skill_id})
+        return entries
 
-        if character_id is None or weapon_id is None:
+    for character_id_raw, base_ids in targets.items():
+        character_id = parse_int(character_id_raw)
+        if character_id is None or not isinstance(base_ids, list) or not base_ids:
+            continue
+        base_id = parse_int(base_ids[0])
+        row = base_configs.get(base_id)
+        if not isinstance(row, dict) or parse_int(row.get("CharacterId")) != character_id:
+            continue
+        weapon_id = parse_int(row.get("WeaponId"))
+        if weapon_id is None or weapon_id <= 0:
             continue
 
-        weapon_resonances = row.get("WeaponResonances")
-        memories = row.get("Memories")
-        memory_resonances = row.get("MemoryResonances")
+        memories = row.get("EquipIds")
+        memory_entries = resonances(row.get("EquipResonanceTypes"), row.get("EquipSkillIds"), memory=True)
+        # The source is site-major; the max template consumes two slot-major lists.
+        memory_resonances = [
+            [memory_entries[site * 2 + slot] if site * 2 + slot < len(memory_entries) else {} for site in range(6)]
+            for slot in range(2)
+        ]
 
         normalized_map[character_id] = {
+            "BaseCharacterId": base_id,
             "WeaponId": weapon_id,
-            "WeaponResonances": weapon_resonances if isinstance(weapon_resonances, list) else [],
+            "WeaponResonances": resonances(row.get("WeaponResonanceTypes"), row.get("WeaponResonanceSkillIds"))[:3],
             "Memories": memories if isinstance(memories, list) else [],
-            "MemoryResonances": memory_resonances if isinstance(memory_resonances, list) else [],
+            "MemoryResonances": memory_resonances,
+            "PartnerId": parse_int(row.get("PartnerId")) or 0,
+            "WeaponOverrunChoseSuit": parse_int(row.get("WeaponOverrunChoseSuit")) or 0,
         }
 
     return normalized_map
@@ -793,12 +859,16 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
                     if normalized_entry is not None
                 ]
                 awake_slots = sorted({entry["Slot"] for entry in resonance_info if weapon_template_id in awake_supported_template_ids})
-                overrun_suit_id = _choose_weapon_overrun_suit(resolved_memory_template_ids)
+                overrun_suit_id = (
+                    parse_int(recommend_equips.get("WeaponOverrunChoseSuit"))
+                    if settings.max_character_use_recommend_harmony
+                    else _choose_weapon_overrun_suit(resolved_memory_template_ids)
+                )
                 overrun_data: dict[str, Any] = {}
                 max_overrun_level = weapon_overrun_max_level_map.get(weapon_template_id)
                 if max_overrun_level is not None:
                     overrun_data["Level"] = max_overrun_level
-                if overrun_suit_id is not None:
+                if overrun_suit_id is not None and overrun_suit_id > 0:
                     overrun_data["ActiveSuits"] = [overrun_suit_id]
                     overrun_data["ChoseSuit"] = overrun_suit_id
 
@@ -818,7 +888,8 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
 
         skill_list = build_character_max_skills(character_id)
         groups = get_character_skill_groups_map().get(character_id, [])
-        if not groups or any(not group for group in groups) or len(skill_list) != len(groups):
+        expected_skill_ids = {skill_id for group in groups for skill_id in group}
+        if not groups or any(not group for group in groups) or {skill["_id"] for skill in skill_list} != expected_skill_ids:
             continue
         enhance_skill_list = [
             {"_id": skill_id, "Level": parse_int(character_enhance_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}

@@ -15,6 +15,8 @@ from backend.app.services.player.player_characters_service import PlayerCharacte
 from backend.app.services.player.player_equips_service import PlayerEquipsService
 from backend.app.services.player.player_items_service import PlayerItemsService
 from backend.app.services.player.resource_validation import get_resource_issues
+from backend.app.services.player.equips.weapon import get_weapon_overrun_character_max_level_skill_upgrade_map
+from backend.app.utils.resource_language import resource_language
 
 
 class Collection:
@@ -98,22 +100,23 @@ def test_new_activity_defaults_and_server_only_paths():
     assert runtime.get_collection_schema("transfinite_tower_rank_entries").allows_update_path("characters.0.IsTrial")
 
 
-def test_max_skills_keep_one_variant_and_existing_selection():
+def test_max_skills_cover_all_variants_and_preserve_each_skill_metadata():
     character_id = 1031005
     group = [103528, 103518]
     assert group in resources.get_character_skill_groups_map()[character_id]
     default = resources.build_character_max_skills(character_id)
-    assert [entry["_id"] for entry in default if entry["_id"] in group] == [103528]
+    assert [entry["_id"] for entry in default if entry["_id"] in group] == group
     selected = resources.build_character_max_skills(character_id, [
-        {"_id": 103528, "Level": 2},
+        {"_id": 103528, "Level": 2, "other_metadata": 7},
         {"_id": 103518, "Level": 3, "server_future": True},
     ])
     assert [entry for entry in selected if entry["_id"] in group] == [
+        {"_id": 103528, "Level": 35, "other_metadata": 7},
         {"_id": 103518, "Level": 35, "server_future": True},
     ]
     for cid, skills in ((cid, resources.build_character_max_skills(cid)) for cid in resources.get_character_skill_groups_map()):
         for ids in resources.get_character_skill_groups_map()[cid]:
-            assert sum(entry["_id"] in ids for entry in skills) <= 1
+            assert {entry["_id"] for entry in skills if entry["_id"] in ids} == set(ids)
 
 
 def test_missing_resources_are_reported_and_not_offered(monkeypatch):
@@ -175,7 +178,7 @@ def test_weapon_transfer_swaps_both_owners_and_preserves_forward_fields(monkeypa
     assert [(item["CharacterId"], item["server_future"]) for item in updated] == [(1011002, 1), (1021001, 2)]
 
 
-def test_manual_skill_selection_removes_other_group_variant(monkeypatch):
+def test_manual_skill_update_preserves_other_group_variant(monkeypatch):
     collection = Collection({"characters": [{"_id": 1031005, "SkillList": [
         {"_id": 103528, "Level": 7}, {"_id": 103517, "Level": 4},
     ]}]})
@@ -183,7 +186,8 @@ def test_manual_skill_selection_removes_other_group_variant(monkeypatch):
     service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
     asyncio.run(service.update_character_skill_level(42, 1031005, 103518, 10))
     skills = collection.updates[0][1]["$set"]["characters"][0]["SkillList"]
-    assert {entry["_id"] for entry in skills} == {103518, 103517}
+    assert {entry["_id"] for entry in skills} == {103528, 103518, 103517}
+    assert next(entry for entry in skills if entry["_id"] == 103528)["Level"] == 7
     assert next(entry for entry in skills if entry["_id"] == 103518)["Level"] == 10
 
 
@@ -228,3 +232,44 @@ def test_bulk_max_preserves_skipped_character_and_assets(monkeypatch):
     assert update["equips"][0]["server_future"] == 7
     assert 9999999 in result.skipped_character_ids
     assert 999 in players.updates[0][1]["$set"]["gather_rewards"]
+
+
+@pytest.mark.parametrize("language", ["CN", "EN"])
+@pytest.mark.parametrize("bulk", [False, True])
+@pytest.mark.parametrize("character_id", [1031005, 1531005])
+def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language, bulk, character_id):
+    token = resource_language.set(language)
+    try:
+        template = resources.get_character_max_template_map()[character_id]
+        monkeypatch.setattr(player_characters_service, "get_character_max_template_map", lambda: {character_id: template})
+        # Maximize every variant and preserve forward-compatible fields while rebuilding skills.
+        variant = 103518 if character_id == 1031005 else 153518
+        chars = Collection({"characters": [{"_id": character_id, "SkillList": [
+            {"_id": variant, "Level": 3, "server_future": True},
+        ]}], "equips": [], "fashions": [], "weaponFashions": []})
+        players = Collection({"gather_rewards": []})
+        monkeypatch.setattr(player_characters_service, "create_mongo_client", lambda _: Client({"characters": chars, "players": players}))
+        service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
+        bonuses = get_weapon_overrun_character_max_level_skill_upgrade_map()[template["weapon"]["TemplateId"]][character_id]
+        for _ in range(2):
+            if bulk:
+                asyncio.run(service.max_all_characters(42))
+            else:
+                asyncio.run(service.max_character(42, character_id))
+            update = chars.updates[-1][1]["$set"]
+            skills = {entry["_id"]: entry for entry in update["characters"][0]["SkillList"]}
+            assert set(skills) == set(resources.get_character_skill_ids_map()[character_id])
+            for group in resources.get_character_skill_groups_map()[character_id]:
+                if variant in group:
+                    assert all(skills[skill_id]["Level"] == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"] for skill_id in group)
+            for group_id, bonus in bonuses.items():
+                for skill_id in resources.get_character_skill_group_skill_ids_map()[group_id]:
+                    if skill_id in skills:
+                        assert skills[skill_id]["Level"] + bonus == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"]
+            assert skills[variant]["Level"] == resources.get_character_skill_entries_map()[variant]["MaxLevel"]
+            assert skills[variant]["server_future"] is True
+            assert update["equips"][-1]["WeaponOverrunData"]["Level"] == 7
+            chars.document.update(update)
+            players.document.update(players.updates[-1][1]["$set"])
+    finally:
+        resource_language.reset(token)

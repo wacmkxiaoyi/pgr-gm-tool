@@ -60,19 +60,22 @@ def get_resource_issues() -> list[dict[str, object]]:
 
     sites = get_equip_site_map()
     partners = {parse_int(row.get("Id")) for row in TSVReader("assets/Partner.tsv", typed=True).data}
-    for row in TSVReader("assets/CharacterRecommendEquips.tsv", typed=True).data:
-        character_id = parse_int(row.get("Id"))
-        if character_id is None:
-            continue
+    bases = TSVReader("assets/TeamRecommendBaseCharacter.tsv", typed=True).get_maps("Id", "CharacterId")[0]
+    targets = TSVReader("assets/TeamRecommendCharacterTarget.tsv", typed=True).get_maps("CharacterId", "BaseCharacterIds")[0]
+    for character_id, base_ids in targets.items():
+        base_id = parse_int(base_ids[0]) if isinstance(base_ids, list) and base_ids else None
+        if base_id not in bases or parse_int(bases.get(base_id)) != character_id:
+            missing("TeamRecommendCharacterTarget", character_id, "TeamRecommendBaseCharacter", base_id)
+    for character_id, row in characters.get_character_recommend_equips_map().items():
         weapon = parse_int(row.get("WeaponId"))
         if weapon not in sites or parse_int(sites.get(weapon)) not in (None, 0):
-            missing("CharacterRecommendEquips", character_id, "Equip.Weapon", weapon)
+            missing("TeamRecommendBaseCharacter", row["BaseCharacterId"], "Equip.Weapon", weapon)
         for memory_id in extract_int_list(row, ["Memories"]):
             if memory_id not in sites or parse_int(sites.get(memory_id)) not in range(1, 7):
-                missing("CharacterRecommendEquips", character_id, "Equip.Memory", memory_id)
-        cub = parse_int(row.get("CUB"))
+                missing("TeamRecommendBaseCharacter", row["BaseCharacterId"], "Equip.Memory", memory_id)
+        cub = parse_int(row.get("PartnerId"))
         if cub is not None and cub > 0 and cub not in partners:
-            missing("CharacterRecommendEquips", character_id, "Partner", cub)
+            missing("TeamRecommendBaseCharacter", row["BaseCharacterId"], "Partner", cub)
     max_templates = characters.get_character_max_template_map()
     for character_id in characters.get_character_log_name_map():
         if character_id not in max_templates:

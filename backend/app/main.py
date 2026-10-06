@@ -33,6 +33,7 @@ def _parse_cli_args() -> dict[str, object]:
     parser.add_argument("--MONGO_AUTH_SOURCE", default=None)
     parser.add_argument("--MONGO_TLS", default=None)
     parser.add_argument("--MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE", default=None)
+    parser.add_argument("--MAX_CHARACTER_USE_RECOMMEND_HARMONY", default=None)
     args, _ = parser.parse_known_args()
     return {k: v for k, v in vars(args).items() if v is not None}
 

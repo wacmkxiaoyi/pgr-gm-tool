@@ -1,4 +1,9 @@
+import pytest
+
+from backend.app.services.player import player_characters as resources
+from backend.app.utils.resource_language import resource_language
 from backend.app.services.player.equips.weapon import (
+    get_weapon_overrun_character_max_level_skill_upgrade_map,
     get_weapon_overrun_max_level_map,
     get_weapon_overrun_suit_entries_map,
     get_weapon_overrun_suit_memory_ids_map,
@@ -97,4 +102,40 @@ def test_character_max_templates_set_weapon_overrun_data() -> None:
         weapon = template["weapon"]
         overrun_data = weapon["WeaponOverrunData"]
         assert overrun_data["Level"] == weapon_overrun_max_level_map[weapon["TemplateId"]]
-        assert overrun_data["ActiveSuits"] == [overrun_data["ChoseSuit"]]
+        if "ChoseSuit" in overrun_data:
+            assert overrun_data["ChoseSuit"] > 0
+            assert overrun_data["ActiveSuits"] == [overrun_data["ChoseSuit"]]
+        else:
+            assert "ActiveSuits" not in overrun_data
+
+
+@pytest.mark.parametrize("language", ["CN", "EN"])
+def test_weapon_harmony_accumulates_all_max_level_skill_bonuses(language) -> None:
+    token = resource_language.set(language)
+    try:
+        bonuses = get_weapon_overrun_character_max_level_skill_upgrade_map()
+        assert bonuses[2526001] == {1531005: {1535210: 3, 1535170: 2}}
+        assert bonuses[2606001] == {1031005: {1035210: 2, 1035170: 3}}
+        assert 2016001 not in bonuses
+    finally:
+        resource_language.reset(token)
+
+
+def test_max_harmony_supports_enhanced_skill_groups_and_weapon_character_matching(monkeypatch) -> None:
+    monkeypatch.setattr(resources, "get_weapon_overrun_character_max_level_skill_upgrade_map", lambda: {
+        100: {200: {300: 3}},
+    })
+    monkeypatch.setattr(resources, "get_character_skill_group_skill_ids_map", lambda: {})
+    monkeypatch.setattr(resources, "get_character_enhance_skill_group_skill_ids_map", lambda: {300: [400, 401]})
+    monkeypatch.setattr(resources, "get_character_enhance_skill_entries_map", lambda: {
+        400: {"MaxLevel": 10}, 401: {"MaxLevel": 2}, 402: {"MaxLevel": 5},
+    })
+    character = {"EnhanceSkillList": [
+        {"_id": 400, "Level": 10}, {"_id": 401, "Level": 2}, {"_id": 402, "Level": 5},
+    ]}
+    resources.apply_character_max_weapon_skill_upgrades(201, 100, character)
+    resources.apply_character_max_weapon_skill_upgrades(200, 101, character)
+    assert [entry["Level"] for entry in character["EnhanceSkillList"]] == [10, 2, 5]
+    for _ in range(2):
+        resources.apply_character_max_weapon_skill_upgrades(200, 100, character)
+        assert [entry["Level"] for entry in character["EnhanceSkillList"]] == [7, 0, 5]

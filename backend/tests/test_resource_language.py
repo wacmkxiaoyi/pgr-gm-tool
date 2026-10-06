@@ -16,25 +16,23 @@ def test_mapping_preserves_cn_only_en_sources():
     mapping = get_download_mapping()
     assert mapping["EN/Character.tsv"].startswith("en/")
     assert mapping["CN/Character.tsv"].startswith("cn/")
-    for table in ("Player.tsv", "HonorLevel.tsv", "Medal.tsv", "leveluptemplate/1.tsv"):
+    for table in ("Player.tsv", "HonorLevel.tsv", "Medal.tsv", "leveluptemplate/1.tsv",
+                  "TeamRecommendCharacterTarget.tsv", "TeamRecommendBaseCharacter.tsv"):
         assert mapping[f"EN/{table}"] == mapping[f"CN/{table}"]
 
 
-def test_reader_selects_language_and_shared_asset(tmp_path, monkeypatch):
+def test_reader_selects_language_and_explicit_resource_path(tmp_path, monkeypatch):
     monkeypatch.setattr(resources, "BACKEND_DIR", tmp_path)
     for language, name in (("EN", "English"), ("CN", "Chinese")):
         directory = tmp_path / "assets" / language
         directory.mkdir(parents=True)
         (directory / "Item.tsv").write_text(f"Id\tName\n1\t{name}\n", encoding="utf-8")
-    shared = tmp_path / "assets/CharacterRecommendEquips.tsv"
-    shared.write_text("Id\tWeaponId\n1\t2\n", encoding="utf-8")
     get_item_name_map.cache_clear()
     try:
         en = get_item_name_map()
         token = resources.resource_language.set("CN")
         try:
             assert get_item_name_map() == {1: "Chinese"}
-            assert TSVReader("assets/CharacterRecommendEquips.tsv").path == shared
             assert TSVReader("assets/EN/Item.tsv").data[0]["Name"] == "English"
         finally:
             resources.resource_language.reset(token)

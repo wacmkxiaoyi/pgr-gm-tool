@@ -7,7 +7,6 @@ from pathlib import Path
 
 resource_language: ContextVar[str] = ContextVar("resource_language", default="EN")
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-SHARED_ASSETS = {"CharacterRecommendEquips.tsv"}
 
 
 def normalize_resource_language(locale: str) -> str:
@@ -21,7 +20,7 @@ def resolve_resource_path(path: Path) -> Path:
         relative = absolute.relative_to(BACKEND_DIR / "assets")
     except ValueError:
         return absolute
-    if relative.as_posix() in SHARED_ASSETS or relative.parts[0] in {"EN", "CN"}:
+    if relative.parts[0] in {"EN", "CN"}:
         return absolute
     return BACKEND_DIR / "assets" / resource_language.get() / relative
 

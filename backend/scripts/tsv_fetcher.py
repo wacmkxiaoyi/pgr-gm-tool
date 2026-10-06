@@ -1,6 +1,6 @@
 """Refresh the TSV assets consumed by the backend from PGR_Data.
 
-When an asset TSV is added, find its exact source in the upstream ``en/bytes``
+When an asset TSV is added, find its exact source in the upstream ``en/bytes`` or ``cn/bytes``
 client/share trees and explicitly add it to ASSET_MAP. Do not infer a source
 from a matching filename: several upstream tables have similar names.
 """
@@ -10,7 +10,6 @@ import csv
 import json
 import shutil
 import socket
-import subprocess
 import sys
 import tempfile
 import time
@@ -22,8 +21,6 @@ from urllib.request import urlopen
 
 REPOSITORY_URL = "https://raw.githubusercontent.com/myssal/PGR_Data/master"
 ASSETS_DIR = Path(__file__).resolve().parents[1] / "assets"
-RECOMMEND_EQUIPS_SCRIPT = Path(__file__).with_name("character-recommend-equips") / "main.py"
-GENERATED_ASSET_PATHS = {"CharacterRecommendEquips.tsv"}
 
 # Target paths are relative to backend/assets; sources are relative to PGR_Data.
 ASSET_MAP = {
@@ -78,6 +75,8 @@ ASSET_MAP = {
     "ScoreTitle.tsv": "en/bytes/share/scoretitle/ScoreTitle.json",
     "leveluptemplate/1.tsv": "cn/bytes/share/character/leveluptemplate/1.json",
     "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
+    "TeamRecommendCharacterTarget.tsv": "cn/bytes/share/teamrecommend/teamrecommendcharactertarget.json",
+    "TeamRecommendBaseCharacter.tsv": "cn/bytes/share/teamrecommend/teamrecommendbasecharacter.json",
     **{
         f"leveluptemplate/{template_id}.tsv": (
             f"cn/bytes/share/equip/leveluptemplate/{template_id}.json"
@@ -92,7 +91,7 @@ ASSET_MAP = {
 
 def validate_mapping() -> None:
     """Reject unknown tables while allowing first downloads and legacy migration."""
-    managed_paths = set(get_download_mapping()) | GENERATED_ASSET_PATHS | set(ASSET_MAP)
+    managed_paths = set(get_download_mapping()) | set(ASSET_MAP)
     unknown = sorted(
         path.relative_to(ASSETS_DIR).as_posix()
         for path in ASSETS_DIR.rglob("*.tsv")
@@ -188,16 +187,6 @@ def prepare_asset(target_path: str, source_path: str, temporary_dir: Path, upstr
     return target_path, source_path, rows
 
 
-def generate_recommend_equips() -> None:
-    """Build the wiki-derived character recommendation asset from refreshed TSVs."""
-    try:
-        subprocess.run([sys.executable, str(RECOMMEND_EQUIPS_SCRIPT)], check=True)
-    except OSError as error:
-        raise RuntimeError(f"failed to start recommendation generator: {error}") from error
-    except subprocess.CalledProcessError as error:
-        raise RuntimeError(f"recommendation generator failed with exit code {error.returncode}") from error
-
-
 def get_download_mapping() -> dict[str, str]:
     return {
         f"{language}/{target}": source if language == "EN" else source.replace("en/bytes/", "cn/bytes/")
@@ -206,7 +195,7 @@ def get_download_mapping() -> dict[str, str]:
     }
 
 
-def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None, recommend_equips: bool = True) -> None:
+def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path | None = None) -> None:
     validate_mapping()
     download_mapping = get_download_mapping()
     temporary_dir = Path(tempfile.mkdtemp(prefix="pgr-assets-"))
@@ -254,8 +243,6 @@ def refresh_assets(dry_run: bool = False, workers: int = 8, upstream_dir: Path |
         legacy_templates = ASSETS_DIR / "leveluptemplate"
         if legacy_templates.is_dir() and not any(legacy_templates.iterdir()):
             legacy_templates.rmdir()
-        if recommend_equips:
-            generate_recommend_equips()
         print(f"Updated {len(download_mapping)} assets (EN and CN).")
     finally:
         shutil.rmtree(temporary_dir, ignore_errors=True)
@@ -277,12 +264,6 @@ def main() -> int:
         default=8,
         help="number of concurrent download/read and conversion tasks (default: 8)",
     )
-    parser.add_argument(
-        "--recommend-equips",
-        type=bool,
-        default=False,
-        help="update CharacterRecommendEquips.tsv (default false)"
-    )
     args = parser.parse_args()
     if (args.from_json is None) != (args.to_tsv is None):
         parser.error("--from-json and --to-tsv must be used together")
@@ -292,8 +273,8 @@ def main() -> int:
             parser.error("--from-json must be an existing JSON file")
         if args.to_tsv.is_absolute() or ".." in args.to_tsv.parts or args.to_tsv.suffix != ".tsv":
             parser.error("--to-tsv must be a relative .tsv path within backend/assets")
-        if args.to_tsv.as_posix() not in GENERATED_ASSET_PATHS and args.to_tsv.parts[0] not in {"EN", "CN"}:
-            parser.error("--to-tsv must start with EN/ or CN/ (except shared generated assets)")
+        if args.to_tsv.parts[0] not in {"EN", "CN"}:
+            parser.error("--to-tsv must start with EN/ or CN/")
         try:
             convert_json_file(args.from_json, args.to_tsv, dry_run=args.dry_run)
         except (RuntimeError, ValueError, OSError) as error:
@@ -311,7 +292,6 @@ def main() -> int:
             dry_run=args.dry_run,
             workers=args.workers,
             upstream_dir=args.upstream_dir,
-            recommend_equips=args.recommend_equips
         )
     except (RuntimeError, ValueError) as error:
         print(f"Asset update failed: {error}", file=sys.stderr)

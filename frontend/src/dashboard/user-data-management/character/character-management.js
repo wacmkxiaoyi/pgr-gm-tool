@@ -1473,7 +1473,7 @@ app.normalizeCharacterSkillList = (value) => {
     return [];
   }
 
-  return value.map((entry) => {
+  const normalizedItems = value.map((entry) => {
     const skillId = Number.isFinite(Number(entry?.SkillId)) ? Number(entry.SkillId) : null;
     if (skillId === null) {
       return null;
@@ -1490,6 +1490,22 @@ app.normalizeCharacterSkillList = (value) => {
       MaxLevel: Number.isFinite(Number(entry?.MaxLevel)) ? Math.max(0, Number(entry.MaxLevel)) : 0,
     };
   }).filter((entry) => Boolean(entry));
+
+  const nameCounts = new Map();
+  for (const entry of normalizedItems) {
+    nameCounts.set(entry.Name, (nameCounts.get(entry.Name) ?? 0) + 1);
+  }
+  const nameIndexes = new Map();
+  return normalizedItems.map((entry) => {
+    const index = (nameIndexes.get(entry.Name) ?? 0) + 1;
+    nameIndexes.set(entry.Name, index);
+    return {
+      ...entry,
+      DisplayName: nameCounts.get(entry.Name) > 1
+        ? app.translate('dashboard.characterDetailSkillVariantName', { name: entry.Name, index })
+        : entry.Name,
+    };
+  });
 };
 
 app.getCharacterSkillSectionType = (tableBody) => {
@@ -1519,7 +1535,7 @@ app.renderCharacterSkillTableRows = (items, tableBody, sectionType = app.getChar
   for (let index = 0; index < normalizedItems.length; index += 2) {
     const left = normalizedItems[index] ?? null;
     const right = normalizedItems[index + 1] ?? null;
-    const renderNameCell = (entry) => `<td>${entry ? app.escapeHtml(entry.Name) : '--'}</td>`;
+    const renderNameCell = (entry) => `<td>${entry ? app.escapeHtml(entry.DisplayName) : '--'}</td>`;
     const renderLevelCell = (entry) => {
       if (!entry) {
         return '<td>--</td>';
@@ -1564,7 +1580,7 @@ app.getCharacterSkillEditState = () => {
     recordId,
     sectionType,
     skillId,
-    name: entry.Name,
+    name: entry.DisplayName,
     level: Math.max(0, entry.Level),
     maxLevel: Math.max(0, entry.MaxLevel),
   };

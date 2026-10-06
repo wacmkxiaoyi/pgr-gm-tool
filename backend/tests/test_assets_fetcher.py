@@ -9,8 +9,6 @@ def test_asset_map_covers_current_assets() -> None:
     assets = {
         path.relative_to(tsv_fetcher.ASSETS_DIR).as_posix()
         for path in tsv_fetcher.ASSETS_DIR.rglob("*.tsv")
-        if path.relative_to(tsv_fetcher.ASSETS_DIR).as_posix()
-        not in tsv_fetcher.GENERATED_ASSET_PATHS
     }
 
     assert set(tsv_fetcher.get_download_mapping()) == assets

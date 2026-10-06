@@ -7,25 +7,11 @@ import pytest
 from backend.scripts import tsv_fetcher
 
 
-def test_generate_recommend_equips_runs_generator(monkeypatch) -> None:
-    calls = []
-
-    def run(command, check):
-        calls.append((command, check))
-
-    monkeypatch.setattr(tsv_fetcher.subprocess, "run", run)
-
-    tsv_fetcher.generate_recommend_equips()
-
-    assert calls == [([tsv_fetcher.sys.executable, str(tsv_fetcher.RECOMMEND_EQUIPS_SCRIPT)], True)]
-
-
-def test_refresh_generates_recommend_equips_after_replacing_assets(tmp_path, monkeypatch) -> None:
+def test_refresh_replaces_both_datasets_and_removes_legacy_table(tmp_path, monkeypatch) -> None:
     assets_dir = tmp_path / "assets"
     assets_dir.mkdir()
     target = assets_dir / "Table.tsv"
     target.write_text("previous content\n", encoding="utf-8")
-    generated = []
 
     def prepare_asset(target_path, source_path, temporary_dir, upstream_dir):
         output = temporary_dir / target_path
@@ -37,18 +23,20 @@ def test_refresh_generates_recommend_equips_after_replacing_assets(tmp_path, mon
     monkeypatch.setattr(tsv_fetcher, "ASSET_MAP", {"Table.tsv": "en/bytes/share/Table.json"})
     monkeypatch.setattr(tsv_fetcher, "validate_mapping", lambda: None)
     monkeypatch.setattr(tsv_fetcher, "prepare_asset", prepare_asset)
-    monkeypatch.setattr(tsv_fetcher, "generate_recommend_equips", lambda: generated.append(True))
 
     tsv_fetcher.refresh_assets(workers=1)
 
     assert not target.exists()
     for language in ("EN", "CN"):
         assert (assets_dir / language / "Table.tsv").read_text(encoding="utf-8") == "updated content\n"
-    assert generated == [True]
 
 
-def test_dry_run_does_not_generate_recommend_equips(tmp_path, monkeypatch) -> None:
-    generated = []
+def test_dry_run_does_not_replace_assets(tmp_path, monkeypatch) -> None:
+    assets_dir = tmp_path / "assets"
+    assets_dir.mkdir()
+    target = assets_dir / "Table.tsv"
+    target.write_text("previous content\n", encoding="utf-8")
+    monkeypatch.setattr(tsv_fetcher, "ASSETS_DIR", assets_dir)
 
     def prepare_asset(target_path, source_path, temporary_dir, upstream_dir):
         (temporary_dir / target_path).parent.mkdir(parents=True, exist_ok=True)
@@ -58,11 +46,18 @@ def test_dry_run_does_not_generate_recommend_equips(tmp_path, monkeypatch) -> No
     monkeypatch.setattr(tsv_fetcher, "ASSET_MAP", {"Table.tsv": "en/bytes/share/Table.json"})
     monkeypatch.setattr(tsv_fetcher, "validate_mapping", lambda: None)
     monkeypatch.setattr(tsv_fetcher, "prepare_asset", prepare_asset)
-    monkeypatch.setattr(tsv_fetcher, "generate_recommend_equips", lambda: generated.append(True))
 
     tsv_fetcher.refresh_assets(dry_run=True, workers=1)
 
-    assert generated == []
+    assert target.read_text(encoding="utf-8") == "previous content\n"
+    assert not (assets_dir / "EN").exists()
+
+
+def test_main_rejects_removed_recommend_equips_option(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["tsv_fetcher.py", "--recommend-equips", "true"])
+    with pytest.raises(SystemExit) as error:
+        tsv_fetcher.main()
+    assert error.value.code == 2
 
 
 def test_main_requires_from_json_and_to_tsv_together(monkeypatch) -> None:
