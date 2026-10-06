@@ -2,20 +2,20 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `f30151151aad36307e770d490ab466ae6d9b900b`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `9a0ec0c2a8bed4bf4369d4dc37e796c33cd61f69`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
 1. Install Python (> 3.12)
 2. Start AscNet Launcher, and click 'Play' (**do not login**).
-    > If you have logined, please close your game client, but not close launcher (or close and re-launch again)
-3. Run `quick_start.bat` or `quick_start.sh`
+    > If you have logined, please close your game, and click 'play' again (>= 1.0.12)
+3. Run `quick_start.bat` or `quick_start.sh`, according to your system
 4. Open `http://127.0.0.1:8000`, switch your language:
     - For CN client, use language: `Chinese`
     - For other client (GLO, JP, TW, etc.), use `English` (default)
-    > **Do not** mix-use language, some model has been hidden/deleted in CN, **game crashes** may encounter as mixed use.
-5. Make some modified
-6. Login in and enjoy
+    > **Do not** mix-use language, some models has been hidden/deleted in CN, **game crashes** may encounter as mixed use.
+5. Make some modification
+6. Login now and enjoy
 
 ## Detailed User Guide
 
@@ -119,6 +119,8 @@ The state provides `serverDirectory`, `resourceDirectory`, `dotnet`, `mongod`, `
 - Database and player management connect to the Launcher's loopback MongoDB port and the database specified by the running configuration.
 - Server **Start** first starts MongoDB with `<local root>/data/mongo`, then runs `dotnet <serverDirectory>/AscNet.dll --urls http://127.0.0.1:<sdkPort>` from `resourceDirectory`, with the same routing/bind/managed-stdin environment as Launcher. Startup waits for MongoDB, the game port and `/api/launcher/status`.
 - Exact existing Launcher server/MongoDB instances are reused. Occupied ports from other instances cause startup to fail. Logs append to `<local root>/logs/server.log` and `mongod.log`.
+- Launcher 1.0.12 uses native Rust Setup while retaining the same version-1 build state. When GM runs as a Windows process under Wine, its MongoDB command also disables diagnostic data collection, matching Launcher.
+- Launcher stops its local services when the game exits. With server management disabled in GM, keep the game and Launcher running while editing player data before login; if they stop, start the backend through Launcher again.
 - **Stop** shuts down the GM-started server before its MongoDB. A matching externally started server can be stopped explicitly; externally started MongoDB is left running. Exiting GM cleans up only the backend processes it started.
 - Configuration reads `resourceDirectory/Configs/config.json`. Saving also updates `<local root>/config.json`, the persistent source used by Launcher Setup. Game/MongoDB loopback settings and the `asc_net` database must remain consistent with the Launcher state; SDK HTTP uses `sdkPort` via the startup arguments.
 

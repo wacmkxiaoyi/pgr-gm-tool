@@ -234,6 +234,10 @@ app.renderDatabaseSnapshot = (payload) => {
       void app.loadSelectedAccountWeapons(state.weaponManagementCurrentPage);
     }
   }
+  if (app.isDatabasePartnerManagementSectionActive()) {
+    app.updatePartnerManagementAccess(payload);
+    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) void app.loadSelectedAccountPartners();
+  }
   if (app.isDatabaseItemManagementSectionActive()) {
     app.updateItemManagementAccess(payload);
     if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) {
@@ -299,6 +303,9 @@ app.loadAppInfo = async () => {
     state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
     state.itemNameMap = payload?.item_name_map && typeof payload.item_name_map === 'object' ? payload.item_name_map : {};
     state.equipNameMap = payload?.equip_name_map && typeof payload.equip_name_map === 'object' ? payload.equip_name_map : {};
+    state.partnerEntriesMap = payload?.partner_entries_map && typeof payload.partner_entries_map === 'object' ? payload.partner_entries_map : {};
+    state.partnerElementSkillEntiersMap = payload?.partner_element_skill_entiers_map ?? {};
+    state.partnerMainSkillGroupIdsMap = payload?.partner_main_skill_group_ids_map ?? {};
     state.weaponTypeNameMap = payload?.weapon_type_name_map && typeof payload.weapon_type_name_map === 'object' ? payload.weapon_type_name_map : {};
     state.equipStarMap = payload?.equip_star_map && typeof payload.equip_star_map === 'object' ? payload.equip_star_map : {};
     state.equipSiteMap = payload?.equip_site_map && typeof payload.equip_site_map === 'object' ? payload.equip_site_map : {};
@@ -339,6 +346,9 @@ app.loadAppInfo = async () => {
     state.playerHonorLevelMaxExpMap = {};
     state.itemNameMap = {};
     state.equipNameMap = {};
+    state.partnerEntriesMap = {};
+    state.partnerElementSkillEntiersMap = {};
+    state.partnerMainSkillGroupIdsMap = {};
     state.weaponTypeNameMap = {};
     state.equipStarMap = {};
     state.equipSiteMap = {};

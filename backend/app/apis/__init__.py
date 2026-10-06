@@ -99,6 +99,10 @@ from backend.app.services.player.equips import (
     get_equip_star_map,
 )
 from backend.app.services.player.equips.constants import EQUIPPABLE_MEMORY_NUMS
+from backend.app.services.player.equips.partner import get_partner_entries_map, get_partner_element_skill_entiers_map, get_partner_main_skill_group_ids_map
+from backend.app.apis.schemas import PartnerEditRequest
+from backend.app.apis.schemas import CharacterPartnerCandidatesResponse, SwitchCharacterPartnerRequest, SwitchCharacterPartnerResponse
+from backend.app.db.models.player_equips import PartnerListResponse
 from backend.app.services.player.equips.weapon import (
     get_weapon_overrun_suit_entries_map,
     get_weapon_overrun_suit_memory_ids_map,
@@ -189,6 +193,9 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
         "equip_name_map": get_equip_name_map(),
+        "partner_entries_map": get_partner_entries_map(),
+        "partner_element_skill_entiers_map": get_partner_element_skill_entiers_map(),
+        "partner_main_skill_group_ids_map": get_partner_main_skill_group_ids_map(),
         "equip_star_map": get_equip_star_map(),
         "equip_site_map": get_equip_site_map(),
         "equippable_memory_nums": EQUIPPABLE_MEMORY_NUMS,
@@ -846,6 +853,132 @@ async def add_selected_database_items(
         [{"item_id": item_id, "quantity": quantity} for item_id, quantity in merged_items.items()],
     )
     return AddInventoryItemsResponse(**result)
+
+
+@router.get("/database-partners/selected", response_model=PartnerListResponse)
+async def get_selected_database_partners(
+    request: Request, page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10), keyword: str | None = None,
+    sort_by: Literal["name", "quality", "enhancement", "character"] = "character",
+    sort_order: Literal["asc", "desc"] = "asc",
+    login_session_token: str | None = Cookie(default=None),
+) -> PartnerListResponse:
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+    uid = await _get_selected_uid_or_error(request, session)
+    return await request.app.state.player_equips_service.list_character_partners(
+        uid, page, page_size, keyword, sort_by, sort_order,
+    )
+
+
+@router.post("/database-partners/selected", response_model=AddEquipResponse)
+async def add_selected_database_partners(
+    request: Request, payload: AddEquipRequest, login_session_token: str | None = Cookie(default=None),
+) -> AddEquipResponse:
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    uid = await _get_selected_uid_or_error(request, session)
+    try:
+        result = await request.app.state.player_equips_service.add_partners(uid, payload.template_ids)
+    except ValueError as error:
+        codes = {"partner.template_invalid": 422, "partner.data_missing": 404, "partner.add_failed": 500}
+        if str(error) in codes:
+            raise_http_error(codes[str(error)], str(error))
+        raise
+    return AddEquipResponse.model_validate(result.model_dump())
+
+
+@router.delete("/database-partners/selected", response_model=ClearEquipsResponse)
+async def clear_selected_database_partners(
+    request: Request, payload: ClearEquipsRequest, login_session_token: str | None = Cookie(default=None),
+) -> ClearEquipsResponse:
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    uid = await _get_selected_uid_or_error(request, session)
+    result = await request.app.state.player_equips_service.clear_unequipped_partners_by_keyword(uid, payload.keyword or "")
+    return ClearEquipsResponse.model_validate(result.model_dump())
+
+
+@router.delete("/database-partners/selected/{record_id}", response_model=DeleteEquipResponse)
+async def delete_selected_database_partner(
+    record_id: int, request: Request, login_session_token: str | None = Cookie(default=None),
+) -> DeleteEquipResponse:
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    uid = await _get_selected_uid_or_error(request, session)
+    try:
+        deleted = await request.app.state.player_equips_service.delete_unequipped_partner(uid, record_id)
+    except ValueError as error:
+        if str(error) == "partner.equipped_delete_forbidden":
+            raise_http_error(409, str(error))
+        raise
+    if not deleted:
+        raise_http_error(404, "partner.not_found")
+    return DeleteEquipResponse(record_id=record_id, deleted=True)
+
+
+@router.get("/database-characters/selected/{record_id}/partner-candidates", response_model=CharacterPartnerCandidatesResponse)
+async def get_selected_character_partners(record_id: int, request: Request,
+                                          login_session_token: str | None = Cookie(default=None)):
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+    uid = await _get_selected_uid_or_error(request, session)
+    try:
+        return await request.app.state.player_equips_service.character_partners(uid, record_id)
+    except ValueError as error:
+        raise_http_error(404 if str(error) in ("character.not_found", "partner.not_found") else 409, str(error))
+
+
+@router.put("/database-characters/selected/{record_id}/partner", response_model=SwitchCharacterPartnerResponse)
+async def switch_selected_character_partner(record_id: int, request: Request, payload: SwitchCharacterPartnerRequest,
+                                            login_session_token: str | None = Cookie(default=None)):
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    uid = await _get_selected_uid_or_error(request, session)
+    try:
+        return await request.app.state.player_equips_service.character_partners(uid, record_id, payload.PartnerRecordId)
+    except ValueError as error:
+        code = str(error)
+        raise_http_error(404 if code in ("character.not_found", "partner.not_found") else 409 if code == "partner.conflict" else 422, code)
+
+
+@router.get("/database-partners/selected/{record_id}/extra-info")
+async def get_selected_partner_detail(record_id: int, request: Request,
+                                      login_session_token: str | None = Cookie(default=None)):
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+    uid = await _get_selected_uid_or_error(request, session)
+    try:
+        return await request.app.state.player_equips_service.partner_detail(uid, record_id)
+    except ValueError as error:
+        raise_http_error(404 if str(error) == "partner.not_found" else 409, str(error))
+
+
+@router.put("/database-partners/selected/{record_id}/{action}")
+async def edit_selected_partner(record_id: int, action: Literal["enhance", "quality", "skill-level", "passive", "main-skill"],
+                                request: Request, payload: PartnerEditRequest,
+                                login_session_token: str | None = Cookie(default=None)):
+    session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    uid = await _get_selected_uid_or_error(request, session)
+    required = {"enhance": ("field", "value"), "quality": ("quality", "star"),
+                "skill-level": ("skill_id", "value"), "passive": ("skill_id", "enabled"), "main-skill": ("skill_id",)}
+    data = payload.model_dump(exclude_none=True)
+    if any(key not in data for key in required[action]):
+        raise_http_error(422, "partner.value_invalid")
+    try:
+        return await request.app.state.player_equips_service.partner_detail(uid, record_id, action, data)
+    except ValueError as error:
+        code = str(error)
+        raise_http_error(404 if code == "partner.not_found" else 409 if code in ("partner.conflict", "partner.passive_limit") else 422, code)
 
 
 @router.get("/database-weapons/selected", response_model=EquipListResponse, response_model_exclude_none=True)

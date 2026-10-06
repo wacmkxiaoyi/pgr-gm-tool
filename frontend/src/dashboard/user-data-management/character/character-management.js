@@ -2144,6 +2144,7 @@ app.executeCharacterMaxAll = async (recordId) => {
     }
 
     await app.loadCharacterDetailExtraInfo(normalizedRecordId);
+    await app.loadSelectedAccountPartners?.();
     if (state.currentCharacterDetailItem) {
       app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     }
@@ -2274,6 +2275,15 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
 
 app.getCharacterDetailEquipTooltipLines = (payload) => {
   const lines = [];
+  if (payload?.type === 'partner') {
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(payload.name)}</div>`);
+    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.partnerEvolution'))} <span class="character-quality ${app.getCharacterQualityClass(payload.Quality)}">${app.escapeHtml(app.getCharacterQualityDisplayLabel(payload.Quality, payload.Star))}</span></div>`);
+    for (const [label, value] of [['equipDetailBreakthrough', payload.BreakThrough], ['equipDetailLevel', payload.Level], ['characterWeaponSwitchEnhancement', payload.EnhancementLevel]]) {
+      lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate(`dashboard.${label}`))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(String(value ?? 0))}</span></div>`);
+    }
+    lines.push(`<div class="character-detail-equip-tooltip-spacer"></div><div class="character-detail-equip-tooltip-description">${app.escapeHtml(payload.description)}</div>`);
+    return lines;
+  }
   if (payload?.type === 'fashion') {
     const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
     const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
@@ -3301,6 +3311,7 @@ app.populateCharacterDetailCard = (item) => {
 
   app.renderCharacterFashionSlots(fashions);
   app.renderCharacterDetailWeaponSlot(weapon);
+  app.renderCharacterDetailPartnerSlot?.(state.currentCharacterDetailExtraInfo?.Partner);
   app.renderCharacterDetailMemorySlots(memories);
   app.renderCharacterSkillTableRows(skills, characterDetailSkillsBody, 'normal');
   app.renderCharacterSkillTableRows(enhanceSkills, characterDetailEnhanceSkillsBody, 'enhance');
@@ -3365,6 +3376,7 @@ app.closeCharacterDetailModal = () => {
 
   app.closeWeaponDetailModal?.();
   app.closeCharacterFashionSwitchModal();
+  app.closeCharacterPartnerSwitchModal?.();
   app.closeCharacterHeadFashionSwitchModal();
   app.closeCharacterWeaponFashionSwitchModal();
   app.closeCharacterWeaponSwitchModal?.();
@@ -3391,15 +3403,18 @@ app.closeCharacterDetailModal = () => {
 };
 
 app.loadCharacterDetailExtraInfo = async (recordId) => {
+  const uid = state.selectedAccountUid;
+  const item = state.currentCharacterDetailItem;
   state.characterDetailLoading = true;
   try {
     const extraInfo = await app.getCharacterDetailExtraInfo(recordId);
+    if (uid !== state.selectedAccountUid || state.currentCharacterDetailItem !== item || item?.record_id !== recordId) return;
     state.currentCharacterDetailExtraInfo = extraInfo;
     if (state.currentCharacterDetailItem) {
       app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     }
   } finally {
-    state.characterDetailLoading = false;
+    if (uid === state.selectedAccountUid && state.currentCharacterDetailItem === item) state.characterDetailLoading = false;
   }
 };
 

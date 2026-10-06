@@ -239,3 +239,32 @@ def test_existing_mongo_is_not_stopped_on_server_start_failure(local_build, monk
     with pytest.raises(OSError, match='spawn failed'):
         runtime.start()
     assert runtime.mongo is None and runtime.server is None
+
+
+def test_wine_mongo_arguments_keep_native_behavior(local_build, monkeypatch):
+    from backend.app import launcher
+    monkeypatch.setattr(launcher, 'running_under_wine', lambda: False)
+    native = local_build.mongo_command
+    assert '--setParameter' not in native
+    monkeypatch.setattr(launcher, 'running_under_wine', lambda: True)
+    assert local_build.mongo_command == [*native, '--setParameter', 'diagnosticDataCollectionEnabled=false']
+
+
+@pytest.mark.parametrize('body,length,expected', [
+    (b'{"schemaVersion":1}', None, True),
+    (b'{"schemaVersion":1}', '19', True),
+    (b'{"schemaVersion":1}', '20', False),
+    (b'{"schemaVersion":1}', '65537', False),
+    (b'x' * 65537, None, False),
+    (b'[]', None, False),
+    (b'not json', None, False),
+    (b'{"schemaVersion":2}', None, False),
+], ids=['no-length', 'exact-length', 'truncated', 'large-header', 'large-body', 'array', 'invalid-json', 'wrong-version'])
+def test_status_response_is_bounded_and_complete(local_build, monkeypatch, body, length, expected):
+    from io import BytesIO
+    response = BytesIO(body)
+    response.headers = {} if length is None else {'Content-Length': length}
+    monkeypatch.setattr(launcher_runtime, '_tcp_ready', lambda _: True)
+    monkeypatch.setattr(launcher_runtime.urllib.request, 'build_opener',
+                        lambda *args: SimpleNamespace(open=lambda *args, **kwargs: response))
+    assert LauncherRuntime(local_build)._server_ready() is expected

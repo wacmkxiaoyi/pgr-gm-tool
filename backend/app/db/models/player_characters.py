@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pydantic import Field
 from pydantic import BaseModel
+from backend.app.db.models.player_equips import PartnerItemRecord
 
 
 CHARACTERS_COLLECTION_NAME = "characters"
@@ -183,6 +184,7 @@ class WeaponFashionRecord(BaseModel):
 
 
 class CharacterExtraInfoRecord(BaseModel):
+    Partner: PartnerItemRecord | None = None
     TrustLv: int | None = None
     TrustExp: int | None = None
     Exp: int | None = None

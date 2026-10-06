@@ -26,12 +26,14 @@
 #memory-add-modal,
 #character-memory-switch-modal,
 #character-weapon-switch-modal,
+#character-partner-switch-modal,
 #server-log-modal,
 #server-config-modal {
   z-index: 120;
 }
 
-#equip-detail-modal {
+#equip-detail-modal,
+#partner-detail-modal {
   z-index: 130;
 }
 

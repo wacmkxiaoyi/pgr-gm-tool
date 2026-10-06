@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 from backend.app.utils.resource_language import language_cache as lru_cache
 from typing import Any
 
@@ -7,6 +9,7 @@ from backend.app.config import settings
 from backend.app.services.player.constants import ATTRIB_POOL_TSV_PATH, CHARACTER_GRADE_TSV_PATH, CHARACTER_QUALITY_TSV_PATH, TEAM_RECOMMEND_CHARACTER_TARGET_TSV_PATH, TEAM_RECOMMEND_BASE_CHARACTER_TSV_PATH, CHARACTER_SKILL_GROUP_TSV_PATH, CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH, CHARACTER_SKILL_POOL_TSV_PATH, CHARACTER_SKILL_TSV_PATH, CHARACTER_SKILL_UPGRADE_DES_TSV_PATH, CHARACTER_TRUST_EXP_TSV_PATH, CHARACTER_TSV_PATH, ENHANCE_SKILL_GROUP_TSV_PATH, ENHANCE_SKILL_LEVEL_EFFECT_TSV_PATH, ENHANCE_SKILL_TSV_PATH, ENHANCE_SKILL_UPGRADE_DES_TSV_PATH, EXHIBITION_REWARD_TSV_PATH, FASHION_TSV_PATH, FIXED_CHARACTER_MAX_MEMORY_RESONANCES, REWARD_GOODS_TSV_PATH, REWARD_TSV_PATH
 from backend.app.services.player.equips import get_breakthrough_levelup_template_map, get_equip_awake_template_id_set, get_equip_breakthrough_max_map, get_equip_site_map
 from backend.app.services.player.equips.weapon import get_weapon_overrun_character_max_level_skill_upgrade_map, get_weapon_overrun_max_level_map, get_weapon_overrun_suit_memory_ids_map
+from backend.app.services.player.equips.partner import build_partner_max_save_template
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
@@ -748,6 +751,15 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
     awake_supported_template_ids = get_equip_awake_template_id_set()
     weapon_overrun_max_level_map = get_weapon_overrun_max_level_map()
 
+    cache: dict[str, dict] = {"weapon": {}, "memory": {}, "partner": {}}
+
+    def max_equip(kind: str, key: Any, template_id: int) -> dict | None:
+        if key not in cache[kind]:
+            breakthrough = equip_breakthrough_max_map.get(template_id, {}).get("max_breakthrough", 0)
+            level_exp = _resolve_equip_max_level_exp(template_id, breakthrough)
+            cache[kind][key] = {"Breakthrough": breakthrough, **level_exp} if level_exp else None
+        return copy.deepcopy(cache[kind][key])
+
     normalized_map: dict[int, dict[str, Any]] = {}
     for character_id, recommend_equips in character_recommend_equips_map.items():
         quality_bound = character_quality_bound_map.get(character_id)
@@ -810,10 +822,10 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         for memory_site, memory_template_id in sorted(memory_ids_by_site.items()):
             site_index = memory_site - 1
 
-            max_breakthrough = equip_breakthrough_max_map.get(memory_template_id, {}).get("max_breakthrough", 0)
-            memory_level_exp = _resolve_equip_max_level_exp(memory_template_id, max_breakthrough)
+            memory_level_exp = max_equip("memory", (memory_template_id, memory_site), memory_template_id)
             if memory_level_exp is None:
                 continue
+            max_breakthrough = memory_level_exp["Breakthrough"]
 
             resonance_info: list[dict[str, int]] = []
             awake_slots: list[int] = []
@@ -848,9 +860,9 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         weapon_template_id = parse_int(recommend_equips.get("WeaponId"))
         weapon_template: dict[str, Any] | None = None
         if weapon_template_id is not None:
-            max_breakthrough = equip_breakthrough_max_map.get(weapon_template_id, {}).get("max_breakthrough", 0)
-            weapon_level_exp = _resolve_equip_max_level_exp(weapon_template_id, max_breakthrough)
+            weapon_level_exp = max_equip("weapon", weapon_template_id, weapon_template_id)
             if weapon_level_exp is not None:
+                max_breakthrough = weapon_level_exp["Breakthrough"]
                 weapon_resonances = recommend_equips.get("WeaponResonances") if isinstance(recommend_equips.get("WeaponResonances"), list) else []
                 resonance_info = [
                     normalized_entry
@@ -886,6 +898,15 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
         if weapon_template is None or len(memory_templates) != 6:
             continue
 
+        partner_id = parse_int(recommend_equips.get("PartnerId")) or 0
+        partner_template = None
+        if partner_id > 0:
+            if partner_id not in cache["partner"]:
+                cache["partner"][partner_id] = build_partner_max_save_template(partner_id)
+            partner_template = copy.deepcopy(cache["partner"][partner_id])
+            if partner_template is None:
+                continue
+
         skill_list = build_character_max_skills(character_id)
         groups = get_character_skill_groups_map().get(character_id, [])
         expected_skill_ids = {skill_id for group in groups for skill_id in group}
@@ -919,6 +940,7 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
             },
             "memories": memory_templates,
             "weapon": weapon_template,
+            "partner": partner_template,
         }
 
     return normalized_map

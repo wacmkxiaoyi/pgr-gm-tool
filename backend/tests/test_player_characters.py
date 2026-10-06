@@ -147,6 +147,8 @@ def test_character_extra_info_ignores_expired_weapon_fashions(monkeypatch) -> No
         'characters': [{'_id': 1011002}],
         'fashions': [],
         'equips': [],
+        'partners': [{'_id': 7, 'TemplateId': 16010000, 'CharacterId': 1011002,
+                      'Quality': 4, 'StarSchedule': 162, 'BreakThrough': 3, 'Level': 30}],
         'weaponFashions': [
             {'_id': 7001, 'ExpireTime': 0, 'UseCharacterList': []},
             {'_id': 7002, 'ExpireTime': now + 1, 'UseCharacterList': [1011002]},
@@ -185,6 +187,9 @@ def test_character_extra_info_ignores_expired_weapon_fashions(monkeypatch) -> No
     result = asyncio.run(service.get_character_extra_info(42, 1011002))
 
     assert result.CurrentWeaponFashionId == 7002
+    assert result.Partner.record_id == 7
+    assert result.Partner.CharacterId == 1011002
+    assert result.Partner.Star == 4 and result.Partner.EnhancementLevel == 80
     assert {fashion.Id: fashion.IsLock for fashion in result.WeaponFashions} == {
         7001: False,
         7002: False,

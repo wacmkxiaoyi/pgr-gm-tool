@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 
 import pytest
 
@@ -89,7 +90,8 @@ def test_max_template_preserves_independent_resonance_and_harmony_settings(monke
         expected_suit = recommendation["WeaponOverrunChoseSuit"] if recommended_harmony else automatic_suit
         assert template["weapon"]["WeaponOverrunData"]["ChoseSuit"] == expected_suit
         assert template["weapon"]["WeaponOverrunData"]["ActiveSuits"] == [expected_suit]
-        assert "partner" not in template
+        assert template["partner"]["TemplateId"] == recommendation["PartnerId"]
+        assert template["partner"]["Quality"] == 6
     finally:
         characters.get_character_max_template_map.cache_clear()
         resources.resource_language.reset(token)
@@ -108,6 +110,52 @@ def test_zero_recommended_harmony_does_not_fall_back_to_automatic(monkeypatch):
         assert "ActiveSuits" not in overrun
     finally:
         characters.get_character_max_template_map.cache_clear()
+
+
+@pytest.mark.parametrize("language", ["CN", "EN"])
+def test_max_template_local_hash_resolves_shared_rules_once(monkeypatch, language):
+    token = resources.resource_language.set(language)
+    original_equip = characters._resolve_equip_max_level_exp
+    original_partner = characters.build_partner_max_save_template
+    equip_calls, partner_calls = Counter(), Counter()
+
+    def equip(template_id, breakthrough):
+        equip_calls[template_id] += 1
+        return original_equip(template_id, breakthrough)
+
+    def partner(template_id):
+        partner_calls[template_id] += 1
+        return original_partner(template_id)
+
+    monkeypatch.setattr(characters, "_resolve_equip_max_level_exp", equip)
+    monkeypatch.setattr(characters, "build_partner_max_save_template", partner)
+    characters.get_character_max_template_map.cache_clear()
+    try:
+        templates = characters.get_character_max_template_map()
+        assert templates and equip_calls and partner_calls
+        assert set(equip_calls.values()) == {1}
+        assert set(partner_calls.values()) == {1}
+        same_partner = {}
+        same_equip = {}
+        for character_id, template in templates.items():
+            for item in [template["weapon"], *template["memories"]]:
+                assert item["CharacterId"] == character_id
+                assert all(row["CharacterId"] == character_id for row in item["ResonanceInfo"])
+                previous = same_equip.setdefault(item["TemplateId"], item)
+                if previous is not item:
+                    assert previous["ResonanceInfo"] is not item["ResonanceInfo"]
+            item = template["partner"]
+            if item:
+                previous = same_partner.setdefault(item["TemplateId"], item)
+                if previous is not item:
+                    assert previous is not item and previous["SkillList"] is not item["SkillList"]
+                    assert previous["SkillList"][0] is not item["SkillList"][0]
+        before = (dict(equip_calls), dict(partner_calls))
+        assert characters.get_character_max_template_map() is templates
+        assert (dict(equip_calls), dict(partner_calls)) == before
+    finally:
+        characters.get_character_max_template_map.cache_clear()
+        resources.resource_language.reset(token)
 
 
 def test_harmony_setting_defaults_to_recommended_and_supports_env_and_cli(monkeypatch):

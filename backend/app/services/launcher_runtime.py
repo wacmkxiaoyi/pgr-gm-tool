@@ -65,7 +65,14 @@ class LauncherRuntime:
         try:
             opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
             with opener.open(self.build.origin + '/api/launcher/status', timeout=2) as response:
-                return json.load(response).get('schemaVersion') == 1
+                length = response.headers.get('Content-Length')
+                if length is not None and not 0 <= int(length) <= 65536:
+                    return False
+                body = response.read(65537)
+                if len(body) > 65536 or (length is not None and len(body) != int(length)):
+                    return False
+                value = json.loads(body)
+                return isinstance(value, dict) and value.get('schemaVersion') == 1
         except (OSError, ValueError):
             return False
 

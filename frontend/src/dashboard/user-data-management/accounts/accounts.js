@@ -52,6 +52,7 @@ app.setSelectedAccountUid = (uid) => {
     app.resetCharacterManagementView();
     app.clearWeaponManagementKeyword();
     app.resetWeaponManagementView();
+    app.resetPartnerManagementView();
     app.clearMemoryManagementKeyword();
     app.resetMemoryManagementView();
     app.clearItemManagementKeyword();
@@ -62,6 +63,7 @@ app.setSelectedAccountUid = (uid) => {
   app.updatePlayerProfileAccess();
   app.updateCharacterManagementAccess();
   app.updateWeaponManagementAccess();
+  app.updatePartnerManagementAccess();
   app.updateMemoryManagementAccess();
   app.updateItemManagementAccess();
   app.updateStageManagementAccess();
@@ -73,6 +75,9 @@ app.setSelectedAccountUid = (uid) => {
   }
   if (app.isDatabaseWeaponManagementSectionActive() && app.canAccessWeaponManagement()) {
     void app.loadSelectedAccountWeapons(1);
+  }
+  if (app.isDatabasePartnerManagementSectionActive() && app.canAccessPartnerManagement()) {
+    void app.loadSelectedAccountPartners(1);
   }
   if (app.isDatabaseMemoryManagementSectionActive() && app.canAccessMemoryManagement()) {
     void app.loadSelectedAccountMemories(1);
@@ -300,6 +305,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
     app.updatePlayerProfileAccess(payload);
     app.updateCharacterManagementAccess(payload);
     app.updateWeaponManagementAccess(payload);
+    app.updatePartnerManagementAccess(payload);
     app.updateMemoryManagementAccess(payload);
     app.updateItemManagementAccess(payload);
     app.updateStageManagementAccess(payload);
@@ -310,6 +316,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
   app.updatePlayerProfileAccess(payload);
   app.updateCharacterManagementAccess(payload);
   app.updateWeaponManagementAccess(payload);
+  app.updatePartnerManagementAccess(payload);
   app.updateMemoryManagementAccess(payload);
   app.updateItemManagementAccess(payload);
   app.updateStageManagementAccess(payload);

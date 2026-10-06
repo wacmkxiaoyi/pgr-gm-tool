@@ -14,6 +14,10 @@ from bson.int64 import Int64
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime
 from backend.app.services.player import player_stages_service
 from backend.app.services.player.player_stages_service import PlayerStagesService
+from backend.app.services.player.player_equips_service import PlayerEquipsService
+from backend.app.services.player.player_characters_service import PlayerCharactersService
+from backend.app.services.player.equips.partner import build_partner_max_save_template, get_partner_entries_map
+from backend.app.utils.resource_language import resource_language
 
 
 def test_latest_state_defaults_and_removed_fields():
@@ -156,6 +160,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'pending_purchase': 'PlayerPendingPurchase', 'pending_recharge': 'PlayerPendingRecharge',
         'pending_partner_decompose': 'PartnerDecomposePendingOperation',
         'partner_decompose_completions': 'List<PartnerDecomposeCompletion>',
+        'partners': 'List<PartnerData>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
     emitted = set()
@@ -225,10 +230,35 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
             declarations.append(f'public class {plain} {{ ' + '\n'.join(lines) + ' }')
         return sample
 
-    payload = {name: build(type_name, schema.resolve(name)) for name, type_name in roots.items()}
+    characters_schema = runtime.get_collection_schema('characters')
+
+    def root_schema(name):
+        return characters_schema if name == 'partners' else schema
+
+    payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
+    # Verify actual new-feature writes, not only synthetic schema defaults:
+    # every language-local add/max template and representative detail edits.
+    equips = PlayerEquipsService(SimpleNamespace(), runtime)
+    characters = PlayerCharactersService(SimpleNamespace(), runtime)
+    partner_rows = []
+    for language in ('CN', 'EN'):
+        token = resource_language.set(language)
+        try:
+            for partner_id in get_partner_entries_map():
+                partner_rows.append(equips._build_partner_document(partner_id, len(partner_rows) + 1))
+                target = build_partner_max_save_template(partner_id)
+                if target is not None:
+                    characters._apply_max_partner_template(partner_rows, 1011002, {'partner': target})
+            added = equips._build_partner_document(16010000, len(partner_rows) + 1)
+            added = equips._edit_partner(added, 'main-skill', {'skill_id': 1022})
+            added = equips._edit_partner(added, 'skill-level', {'skill_id': 1022, 'value': 2})
+            partner_rows.append(added)
+        finally:
+            resource_language.reset(token)
+    payload['partners'] = partner_rows
     # Compare both the server's exact property graph and the driver's strict
     # deserialization of a populated GM document, including all nested Id fields.
-    normalized = {name: schema.materialize_subpath(name, value) for name, value in payload.items()}
+    normalized = {name: root_schema(name).materialize_subpath(name, value) for name, value in payload.items()}
     declarations.append('public class LatestDocument {' + ''.join(
         f'[BsonElement("{name}")] public {type_name} Field{index} {{ get; set; }}'
         if not type_name.startswith('Dictionary<') else

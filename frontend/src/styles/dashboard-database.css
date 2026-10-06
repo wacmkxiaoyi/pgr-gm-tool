@@ -539,28 +539,32 @@
   animation: equipIconShine 2.2s ease-in-out infinite;
 }
 
-.equip-management-icon.character-icon-tier-3 {
+.equip-management-icon.character-icon-tier-3,
+.character-partner-slot.character-icon-tier-3 {
   box-shadow:
     0 0 10px rgba(124, 58, 237, 0.22),
     0 0 5px rgba(124, 58, 237, 0.12),
     inset 0 0 7px rgba(124, 58, 237, 0.05);
 }
 
-.equip-management-icon.character-icon-tier-4 {
+.equip-management-icon.character-icon-tier-4,
+.character-partner-slot.character-icon-tier-4 {
   box-shadow:
     0 0 14px rgba(250, 204, 21, 0.3),
     0 0 8px rgba(250, 204, 21, 0.16),
     inset 0 0 10px rgba(250, 204, 21, 0.08);
 }
 
-.equip-management-icon.character-icon-tier-5 {
+.equip-management-icon.character-icon-tier-5,
+.character-partner-slot.character-icon-tier-5 {
   box-shadow:
     0 0 14px rgba(234, 88, 12, 0.28),
     0 0 8px rgba(234, 88, 12, 0.16),
     inset 0 0 10px rgba(234, 88, 12, 0.07);
 }
 
-.equip-management-icon.character-icon-tier-6 {
+.equip-management-icon.character-icon-tier-6,
+.character-partner-slot.character-icon-tier-6 {
   position: relative;
   overflow: hidden;
   box-shadow:
@@ -569,7 +573,8 @@
     inset 0 0 12px rgba(220, 38, 38, 0.08);
 }
 
-.equip-management-icon.character-icon-tier-6::after {
+.equip-management-icon.character-icon-tier-6::after,
+.character-partner-slot.character-icon-tier-6::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -3140,6 +3145,72 @@ button.character-equip-switch-current-card:focus-visible {
 .stage-description-tooltip {
   z-index: 1201;
 }
+
+.partner-description-tooltip { z-index: 1300; }
+.partner-management-table { table-layout: fixed; min-width: 820px; }
+.partner-add-table { table-layout: fixed; }
+.partner-add-col-description { width: 48%; }
+.partner-add-table col:first-child { width: 30%; }
+.partner-switch-table { table-layout: fixed; width: 100%; }
+.partner-switch-table td:first-child { overflow-wrap: anywhere; }
+.partner-detail-card[data-quality="2"] { --partner-glow: 37, 99, 235; }
+.partner-detail-card[data-quality="3"] { --partner-glow: 124, 58, 237; }
+.partner-detail-card[data-quality="4"] { --partner-glow: 202, 138, 4; }
+.partner-detail-card[data-quality="5"] { --partner-glow: 234, 88, 12; }
+.partner-detail-card[data-quality="6"] { --partner-glow: 220, 38, 38; }
+.partner-detail-card[data-quality] {
+  border-color: rgba(var(--partner-glow), 0.3);
+  box-shadow: 0 20px 80px rgba(22, 30, 60, 0.24), 0 0 100px rgba(var(--partner-glow), 0.25), 0 0 50px rgba(var(--partner-glow), 0.16), inset 0 0 60px rgba(var(--partner-glow), 0.07);
+}
+.partner-detail-card[data-quality] .equip-detail-icon {
+  border: 1px solid rgba(var(--partner-glow), 0.35);
+  box-shadow: 0 0 24px rgba(var(--partner-glow), 0.3), inset 0 0 14px rgba(var(--partner-glow), 0.08);
+}
+.partner-detail-card[data-bt-tier="2"] .equip-detail-enhancement,
+.partner-detail-card[data-bt-tier="3"] .equip-detail-enhancement {
+  box-shadow: 0 0 28px rgba(var(--partner-glow), 0.2), inset 0 0 18px rgba(var(--partner-glow), 0.07);
+}
+.partner-detail-quality { border: 0; background: transparent; padding: 0; font-size: 1.15rem; font-style: italic; cursor: pointer; text-align: left; }
+.partner-detail-quality:hover { text-decoration: underline; }
+.partner-active-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.character-partner-slot.character-icon-tier-2 { border-color: #2563eb; }
+.character-partner-slot.character-icon-tier-3 { border-color: #7c3aed; }
+.character-partner-slot.character-icon-tier-4 { border-color: #facc15; }
+.character-partner-slot.character-icon-tier-5 { border-color: #ea580c; }
+.character-partner-slot.character-icon-tier-6 { border-color: #dc2626; }
+.partner-active-heading .weapon-detail-skill-name { margin: 0; }
+.partner-active-level { display: inline-flex; align-items: baseline; white-space: nowrap; }
+.partner-detail-card [data-partner-edit="skill"] .equip-detail-inline-input { width: 3ch; min-width: 0; box-sizing: content-box; }
+.partner-active-heading .equip-detail-stat-value { font-size: 0.9rem; white-space: nowrap; }
+#partner-switch-open { flex: 0 0 auto; min-height: 0; padding: 4px 10px; font-size: 0.75rem; line-height: 1.4; }
+.partner-detail-card .partner-passive-table { table-layout: fixed; width: 100%; min-width: 0; }
+.partner-passive-table th { font-size: 0.72rem; color: var(--muted); }
+.partner-passive-table td { font-size: 0.78rem; padding: 10px 12px; }
+.partner-passive-table .equip-detail-stat-value { font-family: inherit; font-size: inherit; font-weight: inherit; line-height: inherit; }
+.partner-passive-table th:first-child { width: 40%; }
+.partner-passive-table th:nth-child(2) { width: 20%; }
+.partner-passive-table th:nth-child(2),
+.partner-passive-table td:nth-child(2) { text-align: center; }
+.partner-passive-table th:last-child,
+.partner-passive-table td:last-child { width: 40%; text-align: center; }
+.partner-passive-table .equip-detail-awake-toggle { vertical-align: middle; }
+.partner-passive-table .equip-detail-awake-toggle input { width: 100%; height: 100%; margin: 0; }
+.partner-passive-table .equip-detail-awake-toggle:has(input:disabled) { opacity: 0.5; cursor: not-allowed; }
+.partner-passive-table .equip-detail-awake-toggle input:disabled { cursor: not-allowed; }
+.partner-passive-table .equip-detail-awake-toggle:has(input:focus-visible) { outline: 2px solid #2563eb; outline-offset: 2px; }
+.partner-passive-table [data-partner-skill-description] { cursor: help; }
+.partner-edit-label { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; }
+#partner-quality-modal, #partner-skill-switch-modal { z-index: 1200; }
+.partner-add-description {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+.partner-add-table tbody tr { cursor: pointer; }
+.partner-add-table tbody tr.is-selected { background: rgba(37, 99, 235, 0.08); }
+.partner-add-table tbody td:last-child { text-align: center; }
 
 /* ── Star tier effects ── */
 

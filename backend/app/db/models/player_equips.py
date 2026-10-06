@@ -6,6 +6,26 @@ from pydantic import BaseModel, Field
 EQUIP_ITEM_SCHEMA_PATH = "equips.0"
 
 
+class PartnerItemRecord(BaseModel):
+    record_id: int
+    TemplateId: int
+    CharacterId: int = 0
+    Quality: int = 0
+    Star: int = 0
+    Level: int = 0
+    Exp: int = 0
+    BreakThrough: int = 0
+    EnhancementLevel: int = 0
+
+
+class PartnerListResponse(BaseModel):
+    items: list[PartnerItemRecord] = Field(default_factory=list)
+    page: int = 1
+    page_size: int = 10
+    total: int = 0
+    total_pages: int = 0
+
+
 class WeaponResonanceRecord(BaseModel):
     Slot: int | None = None
     Type: int | None = None

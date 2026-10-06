@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import copy
 import math
 import time
 from typing import Literal
@@ -13,6 +14,17 @@ from backend.app.db import create_mongo_client
 from backend.app.db.models import AddEquipResponse, CharacterMemoryCandidatesRecord, CharacterWeaponCandidatesRecord, ClearEquipsResponse, MemoryExtraInfoRecord, EquipListResponse, SwitchCharacterMemoryRequest, SwitchCharacterMemoryResponse, SwitchCharacterWeaponRequest, SwitchCharacterWeaponResponse, UpdateEquipRequest, WeaponExtraInfoRecord, WeaponItemRecord, WeaponOverrunExtraInfoRecord, WeaponOverrunRecord, WeaponResonanceExtraInfoRecord, WeaponResonanceRecord
 from backend.app.db.models.player_characters import CHARACTER_LIST_SCHEMA_PATH, CHARACTERS_COLLECTION_NAME, EQUIPS_SCHEMA_PATH, FASHIONS_SCHEMA_PATH
 from backend.app.db.models.player_equips import EQUIP_ITEM_SCHEMA_PATH
+from backend.app.db.models.player_equips import PartnerItemRecord, PartnerListResponse
+from backend.app.services.player.equips.partner import (
+    build_partner_item_record,
+    get_partner_entries_map, get_partner_breakthrough_level_limit_map,
+    get_partner_skill_config_map, get_partner_main_skill_group_skill_ids_map,
+    get_partner_passive_skill_groups_map,
+    get_partner_recommended_main_skill_entries_map, get_partner_star_schedule_options_map,
+    get_partner_quality_entries_map, get_partner_level_exp_map,
+    get_partner_skill_level_entries_map, get_partner_passive_skill_ids_map,
+    get_partner_main_skill_ids_map,
+)
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
@@ -879,6 +891,355 @@ class PlayerEquipsService:
 
     def _build_memory_document(self, template_id: int, raw_equips: list[Any]) -> dict[str, Any]:
         return self._build_weapon_document(template_id, raw_equips)
+
+    def _build_partner_document(self, template_id: int, record_id: int) -> dict[str, Any]:
+        entry = get_partner_entries_map().get(template_id)
+        config = get_partner_skill_config_map().get(template_id)
+        if entry is None or config is None:
+            raise ValueError("partner.template_invalid")
+        recommended = get_partner_recommended_main_skill_entries_map().get(template_id, [])
+        main_ids = [row["skill_id"] for row in recommended if row["skill_group_id"] == config["DefaultMainSkillGroupId"]]
+        if not main_ids:
+            main_ids = [row["skill_id"] for row in recommended]
+        passive_groups = get_partner_passive_skill_groups_map().get(template_id, [])
+        if not main_ids or not passive_groups or any(not group for group in passive_groups):
+            raise ValueError("partner.template_invalid")
+        return self._get_characters_schema().materialize_write({
+            "_id": record_id, "TemplateId": template_id, "Level": 1,
+            "Quality": entry["InitQuality"], "CreateTime": Int64(int(time.time())),
+            "SkillList": [
+                {"_id": main_ids[0], "Level": 1, "IsWear": True, "Type": 1},
+                *[{"_id": skill_id, "Level": 1, "IsWear": False, "Type": 2}
+                  for group in passive_groups for skill_id in group],
+            ],
+            "UnlockSkillGroup": config["MainSkillGroupId"],
+        }, "partners.0")
+
+    async def add_partners(self, uid: int, template_ids: list[int]) -> AddEquipResponse:
+        ids = list(dict.fromkeys(template_ids))
+        if not ids:
+            raise ValueError("partner.template_invalid")
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"partners": 1})
+            if not isinstance(document, dict):
+                raise ValueError("partner.data_missing")
+            raw = document.get("partners")
+            records = raw if isinstance(raw, list) else []
+            next_id = max((parse_optional_int(row.get("_id")) or 0 for row in records if isinstance(row, dict)), default=0) + 1
+            additions = [self._build_partner_document(template_id, next_id + index) for index, template_id in enumerate(ids)]
+            result = await collection.update_one(
+                {"_id": document["_id"], **matching_uid_query(uid),
+                 "partners": raw if "partners" in document else {"$exists": False}},
+                {"$push": {"partners": {"$each": additions}}},
+            )
+            if result.modified_count <= 0:
+                raise ValueError("partner.add_failed")
+            return AddEquipResponse(added=True, added_count=len(additions))
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def list_character_partners(
+        self, uid: int, page: int = 1, page_size: int = DEFAULT_LIST_PAGE_SIZE,
+        keyword: str | None = None, sort_by: str = "character", sort_order: str = "asc",
+    ) -> PartnerListResponse:
+        client = create_mongo_client(self._settings)
+        try:
+            document = await client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME].find_one(
+                matching_uid_query(uid), {"partners": 1},
+            )
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+        entries = get_partner_entries_map()
+        names = get_character_log_name_map()
+        limits = get_partner_breakthrough_level_limit_map()
+        star_options = get_partner_star_schedule_options_map()
+        search = normalize_search_keyword(keyword)
+        items = []
+        rows = document.get("partners", []) if isinstance(document, dict) else []
+        for row in rows if isinstance(rows, list) else []:
+            if not isinstance(row, dict):
+                continue
+            record_id = parse_optional_int(row.get("_id"))
+            template_id = parse_optional_int(row.get("TemplateId"))
+            if record_id is None or template_id is None:
+                continue
+            character_id = parse_optional_int(row.get("CharacterId")) or 0
+            entry = entries.get(template_id, {})
+            priority = _get_weapon_search_priority(search, str(entry.get("Name", "")), names.get(character_id, ""), str(entry.get("Desc", "")))
+            if priority is None:
+                continue
+            level = parse_optional_int(row.get("Level")) or 0
+            breakthrough = parse_optional_int(row.get("BreakThrough")) or 0
+            enhancement = max(0, level) + sum(limit for stage, limit in limits.get(template_id, {}).items() if stage < breakthrough)
+            quality = parse_optional_int(row.get("Quality")) or 0
+            schedule = parse_optional_int(row.get("StarSchedule")) or 0
+            thresholds = star_options.get(template_id, {}).get(quality, [])
+            star = max((index for index, threshold in enumerate(thresholds) if schedule >= threshold), default=0) if quality < 6 else 0
+            item = PartnerItemRecord(
+                record_id=record_id, TemplateId=template_id, CharacterId=character_id,
+                Quality=quality, Star=star, Level=level,
+                Exp=parse_optional_int(row.get("Exp")) or 0, BreakThrough=breakthrough,
+                EnhancementLevel=enhancement,
+            )
+            name = str(entry.get("Name", ""))
+            if sort_by == "character":
+                key = (priority, int(character_id == 0), ordered_text_key(names.get(character_id, ""), sort_order), ordered_text_key(name, sort_order), record_id)
+            elif sort_by in ("quality", "enhancement"):
+                key = (priority, ordered_number_key(item.Quality if sort_by == "quality" else enhancement, sort_order), ordered_text_key(name, sort_order), record_id)
+            else:
+                key = (priority, ordered_text_key(name, sort_order), record_id)
+            items.append((key, item))
+        items.sort(key=lambda pair: pair[0])
+        page = max(1, page)
+        size = max(1, min(page_size, DEFAULT_LIST_PAGE_SIZE))
+        total = len(items)
+        return PartnerListResponse(items=[item for _, item in items[(page - 1) * size:page * size]],
+                                   page=page, page_size=size, total=total, total_pages=math.ceil(total / size))
+
+    async def character_partners(self, uid: int, record_id: int, partner_record_id: int | None = None) -> dict:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"characters": 1, "partners": 1})
+            if not isinstance(document, dict):
+                raise ValueError("character.not_found")
+            characters = self._sanitize_character_list(document.get("characters"))
+            if not any(parse_optional_int(row.get("_id")) == record_id for row in characters):
+                raise ValueError("character.not_found")
+            original = document.get("partners", [])
+            rows = original if isinstance(original, list) else []
+            items = [item for row in rows if isinstance(row, dict) for item in [build_partner_item_record(row)] if item is not None]
+            current = [i for i, row in enumerate(rows) if isinstance(row, dict) and parse_optional_int(row.get("CharacterId")) == record_id]
+            if len(current) > 1 or len({item.record_id for item in items}) != len(items):
+                raise ValueError("partner.conflict")
+            if partner_record_id is None:
+                return {"character_record_id": record_id, "character_id": record_id,
+                        "current_partner": next((item for item in items if item.CharacterId == record_id), None), "items": items}
+            target = next((i for i, row in enumerate(rows) if isinstance(row, dict) and parse_optional_int(row.get("_id")) == partner_record_id), None)
+            if target is None:
+                raise ValueError("partner.not_found")
+            if parse_optional_int(rows[target].get("TemplateId")) not in get_partner_entries_map():
+                raise ValueError("partner.template_invalid")
+            owner = parse_optional_int(rows[target].get("CharacterId")) or 0
+            if owner and owner != record_id:
+                if not any(parse_optional_int(row.get("_id")) == owner for row in characters):
+                    raise ValueError("character.not_found")
+                if sum(isinstance(row, dict) and parse_optional_int(row.get("CharacterId")) == owner for row in rows) != 1:
+                    raise ValueError("partner.conflict")
+            updated = copy.deepcopy(rows)
+            changed = {target}
+            if current and current[0] != target:
+                changed.add(current[0])
+                updated[current[0]]["CharacterId"] = owner
+            updated[target]["CharacterId"] = record_id
+            if updated != rows:
+                updates = {f"partners.{index}.CharacterId": self._get_characters_schema().materialize_write(
+                    updated[index]["CharacterId"], f"partners.{index}.CharacterId") for index in changed}
+                result = await collection.update_one(
+                    {"_id": document["_id"], **matching_uid_query(uid), "partners": original, "characters": document.get("characters")},
+                    {"$set": updates},
+                )
+                if result.modified_count <= 0:
+                    raise ValueError("partner.conflict")
+            return {"updated": True, "current_partner": build_partner_item_record(updated[target])}
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def delete_unequipped_partner(self, uid: int, record_id: int) -> bool:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"partners": 1})
+            rows = document.get("partners", []) if isinstance(document, dict) else []
+            rows = rows if isinstance(rows, list) else []
+            target = next((row for row in rows if isinstance(row, dict) and parse_optional_int(row.get("_id")) == record_id), None)
+            if target is None:
+                return False
+            if parse_optional_int(target.get("CharacterId")) not in (None, 0):
+                raise ValueError("partner.equipped_delete_forbidden")
+            result = await collection.update_one(
+                {"_id": document["_id"], **matching_uid_query(uid),
+                 "partners": {"$elemMatch": {"_id": record_id, "CharacterId": {"$in": [0, None]}}}},
+                {"$pull": {"partners": {"_id": record_id, "CharacterId": {"$in": [0, None]}}}},
+            )
+            return result.modified_count > 0
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    async def clear_unequipped_partners_by_keyword(self, uid: int, keyword: str) -> ClearEquipsResponse:
+        search = normalize_search_keyword(keyword)
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"partners": 1})
+            rows = document.get("partners", []) if isinstance(document, dict) else []
+            rows = rows if isinstance(rows, list) else []
+            entries = get_partner_entries_map()
+            ids = [row["_id"] for row in rows if isinstance(row, dict)
+                   and parse_optional_int(row.get("CharacterId")) in (None, 0)
+                   and parse_optional_int(row.get("_id")) is not None
+                   and _get_weapon_search_priority(search,
+                       str(entries.get(parse_optional_int(row.get("TemplateId")), {}).get("Name", "")), "",
+                       str(entries.get(parse_optional_int(row.get("TemplateId")), {}).get("Desc", ""))) is not None]
+            if not ids:
+                return ClearEquipsResponse(keyword=search, deleted_count=0)
+            result = await collection.update_one(
+                {"_id": document["_id"], **matching_uid_query(uid), "partners": rows},
+                {"$pull": {"partners": {"_id": {"$in": ids}, "CharacterId": {"$in": [0, None]}}}},
+            )
+            return ClearEquipsResponse(keyword=search, deleted_count=len(ids) if result.modified_count else 0)
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
+
+    def _partner_detail(self, target: dict[str, Any]) -> dict[str, Any]:
+        pid = int(target["TemplateId"])
+        limits = get_partner_breakthrough_level_limit_map().get(pid, {})
+        levels = get_partner_skill_level_entries_map()
+        skills = []
+        for saved in target.get("SkillList", []):
+            skill_id = parse_optional_int(saved.get("_id"))
+            level = parse_optional_int(saved.get("Level")) or 1
+            entries = levels.get(skill_id, {})
+            skills.append({"skill_id": skill_id, "Level": level, "Type": saved.get("Type", 0),
+                           "IsWear": bool(saved.get("IsWear")), "MaxLevel": max(entries, default=0),
+                           **entries.get(level, entries.get(min(entries, default=0), {}))})
+        bt = int(target.get("BreakThrough", 0))
+        return {
+            "record": {"record_id": int(target["_id"]), **{key: int(target.get(key, 0)) for key in
+                       ("TemplateId", "CharacterId", "Quality", "StarSchedule", "Level", "Exp", "BreakThrough")},
+                       "EnhancementLevel": int(target.get("Level", 0)) + sum(cap for stage, cap in limits.items() if stage < bt)},
+            "skills": skills, "breakthrough_level_limit_map": limits,
+            "level_exp_map": get_partner_level_exp_map().get(pid, {}),
+            "quality_entries_map": get_partner_quality_entries_map().get(pid, {}),
+            "star_schedule_options_map": get_partner_star_schedule_options_map().get(pid, {}),
+        }
+
+    def _edit_partner(self, target: dict[str, Any], action: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Validate a target-only transformation, preserving unrelated/unknown save fields."""
+        updated = copy.deepcopy(target)
+        pid = int(target["TemplateId"])
+        if pid not in get_partner_entries_map():
+            raise ValueError("partner.template_invalid")
+        if action == "enhance":
+            field = payload["field"]
+            value = payload["value"]
+            limits = get_partner_breakthrough_level_limit_map()[pid]
+            bt = int(target.get("BreakThrough", 0))
+            level = int(target.get("Level", 1))
+            exp = int(target.get("Exp", 0))
+            if field == "breakthrough":
+                if value not in limits:
+                    raise ValueError("equips.breakthrough_out_of_range")
+                bt = value
+                level = min(max(1, level), limits[bt])
+            elif field == "level":
+                if value < 1 or value > limits.get(bt, 0):
+                    raise ValueError("equips.level_above_limit")
+                level = value
+            elif field != "exp":
+                raise ValueError("equips.invalid_field")
+            threshold = get_partner_level_exp_map()[pid].get(bt, {}).get(level)
+            if threshold is None:
+                raise ValueError("partner.template_invalid")
+            allowed = threshold if level == limits[bt] else max(0, threshold - 1)
+            if field == "exp":
+                if value < 0 or value > allowed:
+                    raise ValueError("equips.exp_above_limit")
+                exp = value
+            updated.update(BreakThrough=bt, Level=level, Exp=min(exp, allowed))
+        elif action == "quality":
+            quality, star = payload["quality"], payload["star"]
+            options = get_partner_star_schedule_options_map()[pid].get(quality, [])
+            if not 0 <= star < len(options):
+                raise ValueError("partner.value_invalid")
+            updated.update(Quality=quality, StarSchedule=options[star])
+            capacity = get_partner_quality_entries_map()[pid][quality]["SkillColumnCount"]
+            count = 0
+            for skill in updated.get("SkillList", []):
+                if skill.get("Type") == 2 and skill.get("IsWear"):
+                    count += 1
+                    if count > capacity:
+                        skill["IsWear"] = False
+        elif action == "main-skill":
+            skill_id = payload["skill_id"]
+            candidate = next((row for row in get_partner_recommended_main_skill_entries_map()[pid]
+                              if row["skill_id"] == skill_id), None)
+            if candidate is None:
+                raise ValueError("partner.skill_invalid")
+            previous = next((skill for skill in updated.get("SkillList", []) if skill.get("Type") == 1), {})
+            replacement = {**previous, "_id": skill_id, "Type": 1, "IsWear": True,
+                           "Level": int(previous.get("Level", 1))}
+            if replacement["Level"] not in get_partner_skill_level_entries_map().get(skill_id, {}):
+                raise ValueError("partner.value_invalid")
+            updated["SkillList"] = [replacement, *[skill for skill in updated.get("SkillList", []) if skill.get("Type") != 1]]
+            updated["UnlockSkillGroup"] = list(dict.fromkeys([*updated.get("UnlockSkillGroup", []), candidate["skill_group_id"]]))
+        elif action in ("skill-level", "passive"):
+            skill_id = payload["skill_id"]
+            matches = [skill for skill in updated.get("SkillList", []) if skill.get("_id") == skill_id]
+            if len(matches) != 1:
+                raise ValueError("partner.skill_invalid")
+            skill = matches[0]
+            if action == "skill-level":
+                if skill.get("Type") not in (1, 2):
+                    raise ValueError("partner.skill_invalid")
+                if skill.get("Type") == 1 and skill_id not in get_partner_main_skill_ids_map()[pid]:
+                    raise ValueError("partner.skill_invalid")
+                if payload["value"] not in get_partner_skill_level_entries_map().get(skill_id, {}):
+                    raise ValueError("partner.value_invalid")
+                if skill.get("Type") == 2 and skill_id not in get_partner_passive_skill_ids_map()[pid]:
+                    raise ValueError("partner.skill_invalid")
+                skill["Level"] = payload["value"]
+            else:
+                if skill.get("Type") != 2 or skill_id not in get_partner_passive_skill_ids_map()[pid]:
+                    raise ValueError("partner.skill_invalid")
+                skill["IsWear"] = payload["enabled"]
+                capacity = get_partner_quality_entries_map()[pid][int(updated["Quality"])]["SkillColumnCount"]
+                if sum(1 for row in updated["SkillList"] if row.get("Type") == 2 and row.get("IsWear")) > capacity:
+                    raise ValueError("partner.passive_limit")
+        else:
+            raise ValueError("equips.invalid_field")
+        return updated
+
+    async def partner_detail(self, uid: int, record_id: int, action: str | None = None,
+                             payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        client = create_mongo_client(self._settings)
+        try:
+            collection = client[self._settings.mongo_db][CHARACTERS_COLLECTION_NAME]
+            document = await collection.find_one(matching_uid_query(uid), {"partners": 1})
+            rows = document.get("partners", []) if isinstance(document, dict) else []
+            matches = [(index, row) for index, row in enumerate(rows) if isinstance(row, dict)
+                       and parse_optional_int(row.get("_id")) == record_id]
+            if not matches:
+                raise ValueError("partner.not_found")
+            if len(matches) != 1:
+                raise ValueError("partner.conflict")
+            index, target = matches[0]
+            if action is not None:
+                updated = self._edit_partner(target, action, payload or {})
+                if updated != target:
+                    changes = {key: value for key, value in updated.items() if target.get(key) != value}
+                    fields = self._get_characters_schema().materialize_update_fields(
+                        {f"partners.{index}.{key}": value for key, value in changes.items()})
+                    skill_path = f"partners.{index}.SkillList"
+                    if skill_path in fields:
+                        fields[skill_path] = [{**raw, **typed} for raw, typed in
+                                              zip(updated["SkillList"], fields[skill_path])]
+                    result = await collection.update_one(
+                        {"_id": document["_id"], **matching_uid_query(uid), "partners": rows}, {"$set": fields})
+                    if not result.modified_count:
+                        raise ValueError("partner.conflict")
+                target = updated
+            return self._partner_detail(target)
+        finally:
+            with contextlib.suppress(Exception):
+                client.close()
 
     async def add_weapons(self, uid: int, template_ids: list[int]) -> AddEquipResponse:
         normalized_template_ids = list(dict.fromkeys(int(template_id) for template_id in template_ids))

@@ -1,11 +1,22 @@
 from __future__ import annotations
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+from backend.app.db.models.player_equips import PartnerItemRecord
 
 
 class LoginRequest(BaseModel):
     username: str = Field(min_length=1)
     password: str = Field(min_length=1)
+
+
+class PartnerEditRequest(BaseModel):
+    field: Literal["breakthrough", "level", "exp"] | None = None
+    value: int | None = Field(default=None, strict=True)
+    quality: int | None = Field(default=None, strict=True)
+    star: int | None = Field(default=None, strict=True)
+    skill_id: int | None = Field(default=None, strict=True)
+    enabled: bool | None = Field(default=None, strict=True)
 
 
 class LoginResponse(BaseModel):
@@ -101,6 +112,9 @@ class AppInfoResponse(BaseModel):
     player_background_name_map: dict[int, str]
     item_name_map: dict[int, str]
     equip_name_map: dict[int, str]
+    partner_entries_map: dict[int, dict[str, int | str | list[int]]] = Field(default_factory=dict)
+    partner_element_skill_entiers_map: dict[int, list[dict[str, Any]]] = Field(default_factory=dict)
+    partner_main_skill_group_ids_map: dict[int, list[int]] = Field(default_factory=dict)
     weapon_type_name_map: dict[int, str]
     equip_star_map: dict[int, int]
     equip_site_map: dict[int, str]
@@ -332,6 +346,7 @@ class WeaponFashionResponse(BaseModel):
 
 
 class CharacterExtraInfoResponse(BaseModel):
+    Partner: PartnerItemRecord | None = None
     TrustLv: int | None = None
     TrustExp: int | None = None
     Exp: int | None = None
@@ -370,6 +385,22 @@ class CharacterMemoryCandidatesResponse(BaseModel):
 
 class SwitchCharacterWeaponRequest(BaseModel):
     WeaponRecordId: int
+
+
+class SwitchCharacterPartnerRequest(BaseModel):
+    PartnerRecordId: int = Field(strict=True, gt=0)
+
+
+class CharacterPartnerCandidatesResponse(BaseModel):
+    character_record_id: int
+    character_id: int
+    current_partner: PartnerItemRecord | None = None
+    items: list[PartnerItemRecord] = Field(default_factory=list)
+
+
+class SwitchCharacterPartnerResponse(BaseModel):
+    updated: bool
+    current_partner: PartnerItemRecord
 
 
 class SwitchCharacterMemoryRequest(BaseModel):

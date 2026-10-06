@@ -181,6 +181,11 @@ app.initNavigation = () => {
         return;
       }
 
+      if (tabId === 'database-partner-management-section' && app.canAccessPartnerManagement()) {
+        app.updatePartnerManagementAccess();
+        void app.loadSelectedAccountPartners();
+        return;
+      }
       if (tabId === 'database-memory-management-section' && app.canAccessMemoryManagement()) {
         app.updateMemoryManagementAccess();
         void app.loadSelectedAccountMemories(app.state.memoryManagementCurrentPage);

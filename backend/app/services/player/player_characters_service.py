@@ -1,4 +1,5 @@
 from __future__ import annotations
+from backend.app.services.player.equips.partner import build_partner_item_record
 
 import copy
 import contextlib
@@ -903,6 +904,44 @@ class PlayerCharactersService:
 
         return characters, fashions, equips, weapon_fashions, sorted(updated_gather_rewards)
 
+    def _apply_max_partner_template(self, partners: list[dict[str, Any]], character_id: int, template: dict[str, Any]) -> None:
+        target = template.get("partner")
+        if not isinstance(target, dict):
+            return
+        template_id = parse_optional_int(target.get("TemplateId"))
+        candidate = next((row for row in partners if parse_optional_int(row.get("TemplateId")) == template_id
+                          and parse_optional_int(row.get("CharacterId")) == character_id), None)
+        if candidate is None:
+            candidate = next((row for row in partners if parse_optional_int(row.get("TemplateId")) == template_id
+                              and parse_optional_int(row.get("CharacterId")) in (None, 0)), None)
+        if candidate is None:
+            next_id = max((parse_optional_int(row.get("_id")) or 0 for row in partners), default=0) + 1
+            candidate = self._get_characters_schema().materialize_write({
+                "_id": next_id, "CreateTime": Int64(int(time.time())),
+            }, "partners.0")
+            partners.append(candidate)
+        for row in partners:
+            if row is not candidate and parse_optional_int(row.get("CharacterId")) == character_id:
+                row["CharacterId"] = 0
+        patch = copy.deepcopy(target)
+        old_skills = candidate.get("SkillList", [])
+        old_skills = old_skills if isinstance(old_skills, list) else []
+        skills_by_id = {parse_optional_int(row.get("_id")): row for row in old_skills if isinstance(row, dict)}
+        patch["SkillList"] = [{**skills_by_id.get(skill["_id"], {}), **skill} for skill in patch["SkillList"]]
+        # Forward-compatible skills are retained but cannot exceed configured wear capacity.
+        known_ids = {skill["_id"] for skill in patch["SkillList"]}
+        patch["SkillList"].extend({**row, "IsWear": False} for row in old_skills
+                                 if isinstance(row, dict) and parse_optional_int(row.get("_id")) not in known_ids)
+        previous_groups = candidate.get("UnlockSkillGroup", [])
+        patch["UnlockSkillGroup"] = list(dict.fromkeys([
+            *(previous_groups if isinstance(previous_groups, list) else []), *patch["UnlockSkillGroup"],
+        ]))
+        candidate.update(patch)
+        candidate["CharacterId"] = character_id
+
+    def _build_partners_update(self, partners: list[dict[str, Any]]) -> dict[str, Any]:
+        return self._get_characters_schema().materialize_update_fields({"partners": partners})
+
     def _sanitize_players_document(self, document: Any) -> dict[str, Any]:
         sanitized = self._get_players_schema().sanitize_document(document)
         return sanitized if isinstance(sanitized, dict) else {}
@@ -1463,7 +1502,7 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1, "partners": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
 
             normalized_characters_document = self._sanitize_characters_document(characters_document)
@@ -1494,6 +1533,10 @@ class PlayerCharactersService:
             if not isinstance(template, dict):
                 raise ValueError("character.max_template_not_found")
 
+            raw_partners = normalized_characters_document.get("partners", [])
+            partners = [row for row in raw_partners if isinstance(row, dict)] if isinstance(raw_partners, list) else []
+            self._apply_max_partner_template(partners, character_id, template)
+
             updated_characters, updated_fashions, updated_equips, updated_weapon_fashions, updated_gather_rewards = self._apply_max_character_template(
                 target_character=target_character,
                 characters=characters,
@@ -1506,6 +1549,7 @@ class PlayerCharactersService:
 
             characters_update_payload = {
                 "characters": updated_characters,
+                **self._build_partners_update(partners),
                 **self._build_fashions_update(updated_fashions),
                 **self._build_equips_update(updated_equips),
                 "weaponFashions": updated_weapon_fashions,
@@ -1539,7 +1583,7 @@ class PlayerCharactersService:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
             players_collection = database[PLAYER_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1, "partners": 1})
             players_document = await players_collection.find_one(_matching_player_uid_query(uid), {"gather_rewards": 1})
 
             normalized_characters_document = self._sanitize_characters_document(characters_document)
@@ -1548,6 +1592,8 @@ class PlayerCharactersService:
                 raise ValueError("character.max_all_failed")
 
             # Preserve existing characters/ownership, especially those skipped for missing resources.
+            raw_partners = normalized_characters_document.get("partners", [])
+            partners = [row for row in raw_partners if isinstance(row, dict)] if isinstance(raw_partners, list) else []
             characters = self._sanitize_character_list(normalized_characters_document.get("characters"))
             fashions = self._sanitize_fashions(normalized_characters_document.get("fashions"))
             equips = self._sanitize_equips(normalized_characters_document.get("equips"))
@@ -1611,6 +1657,7 @@ class PlayerCharactersService:
                     template=template,
                 )
                 gather_rewards = set(updated_gather_rewards)
+                self._apply_max_partner_template(partners, character_id, template)
 
             gather_rewards = set(gather_rewards) | set(self._build_gather_rewards_from_characters(characters))
 
@@ -1622,6 +1669,7 @@ class PlayerCharactersService:
                 {
                     "$set": {
                         "characters": characters,
+                        **self._build_partners_update(partners),
                         **self._build_fashions_update(fashions),
                         **self._build_equips_update(equips),
                         "weaponFashions": weapon_fashions,
@@ -1913,7 +1961,7 @@ class PlayerCharactersService:
         try:
             database = client[self._settings.mongo_db]
             characters_collection = database[CHARACTERS_COLLECTION_NAME]
-            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1})
+            characters_document = await characters_collection.find_one(matching_uid_query(uid), {"characters": 1, "fashions": 1, "equips": 1, "weaponFashions": 1, "partners": 1})
         finally:
             with contextlib.suppress(Exception):
                 client.close()
@@ -2120,7 +2168,11 @@ class PlayerCharactersService:
             if normalized_memory is not None:
                 character_memories.append(normalized_memory)
 
+        partners = normalized_characters_document.get("partners", [])
+        partner = next((build_partner_item_record(row) for row in partners if isinstance(row, dict)
+                        and parse_optional_int(row.get("CharacterId")) == character_id), None) if isinstance(partners, list) else None
         return CharacterExtraInfoRecord(
+            Partner=partner,
             TrustLv=parse_optional_int(target_character.get("TrustLv")),
             TrustExp=parse_optional_int(target_character.get("TrustExp")),
             Exp=parse_optional_int(target_character.get("Exp")),

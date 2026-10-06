@@ -14,6 +14,15 @@ class AppError(Exception):
 
 
 ERROR_MESSAGES = {
+    'partner.template_invalid': {'zh-CN': '辅助机模板或默认技能配置无效。', 'en-US': 'Invalid CUB template or default skill configuration.'},
+    'partner.data_missing': {'zh-CN': '未找到当前用户的角色数据。', 'en-US': 'Character data was not found for the selected user.'},
+    'partner.add_failed': {'zh-CN': '新增辅助机失败。', 'en-US': 'Failed to add CUBs.'},
+    'partner.not_found': {'zh-CN': '未找到该辅助机。', 'en-US': 'The CUB was not found.'},
+    'partner.equipped_delete_forbidden': {'zh-CN': '不能删除已穿戴的辅助机。', 'en-US': 'Equipped CUBs cannot be deleted.'},
+    'partner.value_invalid': {'zh-CN': '数值不在允许范围内。', 'en-US': 'Value is outside the allowed range.'},
+    'partner.skill_invalid': {'zh-CN': '该辅助机不能选择此技能。', 'en-US': 'This skill is not available for this CUB.'},
+    'partner.passive_limit': {'zh-CN': '已达到当前进化的被动技能启用上限。', 'en-US': 'The passive skill limit for this evolution has been reached.'},
+    'partner.conflict': {'zh-CN': '辅助机数据已变化，请重新打开详情。', 'en-US': 'CUB data changed. Reopen its details.'},
     'auth.invalid_credentials': {
         'zh-CN': '账号或密码错误。',
         'en-US': 'Incorrect username or password.',

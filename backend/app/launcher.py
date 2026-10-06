@@ -7,6 +7,17 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
+def running_under_wine() -> bool:
+    """Use the same ntdll export probe as AscNet Launcher."""
+    if os.name != 'nt':
+        return False
+    import ctypes
+    try:
+        return getattr(ctypes.WinDLL('ntdll'), 'wine_get_version', None) is not None
+    except OSError:
+        return False
+
+
 def default_launcher_path() -> str:
     base = os.environ.get('LOCALAPPDATA')
     return str(Path(base) / 'AscNetLauncher' / 'local') if base else ''
@@ -41,8 +52,11 @@ class LauncherBuild:
 
     @property
     def mongo_command(self) -> list[str]:
-        return [str(self.mongod), '--bind_ip', '127.0.0.1', '--dbpath',
-                str(self.root / 'data' / 'mongo'), '--port', str(self.mongo_port)]
+        command = [str(self.mongod), '--bind_ip', '127.0.0.1', '--dbpath',
+                   str(self.root / 'data' / 'mongo'), '--port', str(self.mongo_port)]
+        if running_under_wine():
+            command.extend(['--setParameter', 'diagnosticDataCollectionEnabled=false'])
+        return command
 
     def validate_config(self, config: dict) -> None:
         if not isinstance(config, dict):

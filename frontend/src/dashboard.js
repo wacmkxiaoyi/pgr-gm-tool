@@ -29,6 +29,10 @@ const initGlobalKeyboardShortcuts = () => {
       app.closePlayerPortraitPicker();
       app.closeScoreTitlePicker?.();
       app.closeCharacterAddModal?.();
+      if (app.handlePartnerDetailEscape?.()) return;
+      if (app.handleCharacterPartnerSwitchEscape?.()) return;
+      app.closePartnerAddModal?.();
+      app.closePartnerDeleteModal?.();
       app.closeWeaponDetailModal?.();
       app.closeCharacterDetailModal?.();
       app.closeCharacterWeaponSwitchModal?.();

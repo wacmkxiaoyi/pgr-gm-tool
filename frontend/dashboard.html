@@ -114,6 +114,7 @@
                   <div class="database-subnav-menu" id="database-equipment-management-menu" data-i18n-aria-label="dashboard.equipmentManagementMenuAria" aria-label="装备管理菜单">
                     <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-equip-management-section" id="database-equip-management-subnav" aria-controls="database-equip-management-section" aria-selected="false" disabled data-i18n="dashboard.weaponManagementTab">武器管理</button>
                     <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-memory-management-section" id="database-memory-management-subnav" aria-controls="database-memory-management-section" aria-selected="false" disabled data-i18n="dashboard.memoryManagementTab">意识管理</button>
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-partner-management-section" id="database-partner-management-subnav" aria-controls="database-partner-management-section" aria-selected="false" disabled data-i18n="dashboard.partnerManagementTab">辅助机</button>
                   </div>
                 </div>
                 <div class="database-subnav-group" data-database-menu-group>
@@ -495,6 +496,34 @@
                 </div>
               </section>
 
+              <section class="database-panel database-item-panel database-tab-panel" id="database-partner-management-section" data-database-tab-panel="database-partner-management-section" aria-labelledby="database-partner-management-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header"><div><span class="section-tag">CUB</span><h2 id="database-partner-management-title" data-i18n="dashboard.partnerManagementTitle">辅助机管理</h2></div><small id="partner-summary"></small></div>
+                <div class="database-player-empty" id="partner-state" data-i18n="dashboard.partnerChooseAccount">请先选定用户。</div>
+                <div class="database-item-management-shell" id="partner-shell" hidden>
+                  <div class="database-item-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="partner-clear" data-i18n="dashboard.partnerClear">清空未穿戴辅助机</button>
+                    <div class="database-item-toolbar"><div class="database-item-search-shell"><input class="database-item-search-input" type="search" id="partner-search" data-i18n-placeholder="dashboard.partnerSearch" placeholder="输入名称或角色名后回车搜索"></div></div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="partner-add" data-i18n="dashboard.partnerAdd">新增辅助机</button>
+                  </div>
+                  <div class="accounts-table-shell"><div class="accounts-table-scroll">
+                    <table class="accounts-table partner-management-table" aria-describedby="partner-summary">
+                      <colgroup><col class="equip-management-col-row"><col class="equip-management-col-name"><col class="equip-management-col-star"><col class="equip-management-col-enhance"><col class="equip-management-col-character"><col class="equip-management-col-actions"></colgroup>
+                      <thead><tr>
+                        <th data-i18n="dashboard.equipManagementRowNumber">行号</th>
+                        <th><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                        <th><button class="column-sort-btn" data-sort-field="quality" type="button"><span data-i18n="dashboard.partnerEvolution">进化</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                        <th><button class="column-sort-btn" data-sort-field="enhancement" type="button"><span data-i18n="dashboard.equipManagementEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                        <th><button class="column-sort-btn" data-sort-field="character" type="button"><span data-i18n="dashboard.equipManagementCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                        <th data-i18n="dashboard.equipManagementAction">操作</th>
+                      </tr></thead><tbody id="partner-body"></tbody>
+                    </table>
+                  </div><div class="accounts-pagination database-item-pagination">
+                    <button class="status-action-button status-action-button-log" type="button" id="partner-prev" data-i18n="dashboard.accountsPrev">上一页</button><span id="partner-pagination"></span><button class="status-action-button status-action-button-log" type="button" id="partner-next" data-i18n="dashboard.accountsNext">下一页</button>
+                    <label class="accounts-pagination-jump"><input class="accounts-pagination-jump-input" id="partner-jump" type="number" min="1" step="1" inputmode="numeric" data-i18n-placeholder="dashboard.accountsJumpPlaceholder"></label><button class="status-action-button status-action-button-log" type="button" id="partner-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                  </div></div>
+                </div>
+              </section>
+
               <section class="database-panel database-item-panel database-tab-panel" id="database-equip-management-section" data-database-tab-panel="database-equip-management-section" aria-labelledby="database-equip-management-title" hidden>
                 <div class="database-panel-header database-panel-header-compact database-item-panel-header">
                   <div>
@@ -562,6 +591,36 @@
     </main>
 
     <!-- Shared modals -->
+    <div class="shared-modal" hidden id="partner-add-modal">
+      <div class="shared-modal-backdrop" data-partner-add-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="partner-add-title">
+        <div class="shared-modal-header"><span class="shared-modal-icon" aria-hidden="true">+</span><h3 id="partner-add-title" data-i18n="dashboard.partnerAddTitle">选择要新增的辅助机</h3></div>
+        <p class="shared-modal-message" data-i18n="dashboard.partnerAddDescription">搜索并勾选多个辅助机后批量提交。</p>
+        <div class="database-item-controls item-add-search-shell"><input class="database-item-search-input item-add-search-input" type="search" id="partner-add-search" data-i18n-placeholder="dashboard.partnerAddSearch" placeholder="输入名称或描述搜索"></div>
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table partner-add-table">
+            <colgroup><col><col class="partner-add-col-description"><col class="equip-management-col-star"><col class="weapon-add-col-select"></colgroup>
+            <thead><tr>
+              <th><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th><button class="column-sort-btn" data-sort-field="description" type="button"><span data-i18n="dashboard.partnerDescription">描述</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th><button class="column-sort-btn" data-sort-field="quality" type="button"><span data-i18n="dashboard.partnerEvolution">进化</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th data-i18n="runtime.weaponAddSelect">选择</th>
+            </tr></thead><tbody id="partner-add-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="partner-add-empty" data-i18n="dashboard.partnerEmpty">没有匹配的辅助机。</div>
+        </div>
+        <div class="shared-modal-actions item-add-actions"><button type="button" class="shared-modal-button shared-modal-button-secondary" data-partner-add-close data-i18n="common.cancel">取消</button><button type="button" class="shared-modal-button" id="partner-add-submit" data-i18n="runtime.weaponAddSubmit">确认新增</button></div>
+      </section>
+    </div>
+    <div class="shared-modal" hidden id="partner-delete-modal">
+      <div class="shared-modal-backdrop" data-partner-delete-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="partner-delete-title" aria-describedby="partner-delete-message">
+        <div class="shared-modal-header"><span class="shared-modal-icon" aria-hidden="true">!</span><h3 id="partner-delete-title" data-i18n="dashboard.partnerDeleteTitle">删除辅助机</h3></div>
+        <p class="shared-modal-message" id="partner-delete-message"></p>
+        <div class="shared-modal-actions"><button type="button" class="shared-modal-button shared-modal-button-secondary" data-partner-delete-close data-i18n="common.cancel">取消</button><button type="button" class="shared-modal-button" id="partner-delete-submit" data-i18n="common.confirm">确认</button></div>
+      </section>
+    </div>
+    <div class="equip-detail-tooltip partner-description-tooltip" id="partner-description-tooltip" role="tooltip" hidden></div>
     <div class="shared-modal" hidden id="notice-modal">
       <div class="shared-modal-backdrop" data-notice-modal-close></div>
       <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="notice-modal-title" aria-describedby="notice-modal-message">
@@ -868,6 +927,37 @@
 
     <div class="equip-detail-tooltip stage-description-tooltip" id="stage-description-tooltip" role="tooltip" hidden></div>
 
+    <div class="shared-modal" hidden id="partner-detail-modal">
+      <div class="shared-modal-backdrop" data-partner-detail-close></div>
+      <section class="equip-detail-card partner-detail-card" id="partner-detail-card" role="dialog" aria-modal="true" aria-labelledby="partner-detail-name" tabindex="-1">
+        <div class="equip-detail-header"><img class="equip-detail-icon" id="partner-detail-icon" src="" alt=""><div class="equip-detail-title"><h3 class="equip-detail-name" id="partner-detail-name"></h3><button type="button" class="partner-detail-quality character-quality" id="partner-detail-quality"></button></div></div>
+        <div class="equip-detail-description-section"><div class="equip-detail-description" id="partner-detail-description"></div></div>
+        <div id="partner-detail-content"></div>
+      </section>
+    </div>
+    <div class="shared-modal" hidden id="partner-quality-modal">
+      <div class="shared-modal-backdrop" data-partner-quality-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="partner-quality-title">
+        <h3 id="partner-quality-title" data-i18n="dashboard.partnerQualityEdit">进化与星级</h3>
+        <label class="partner-edit-label"><span data-i18n="dashboard.partnerEvolution">进化</span><select class="character-quality-edit-select" id="partner-quality-select"></select></label>
+        <label class="partner-edit-label"><span data-i18n="dashboard.partnerStar">星级</span><select class="character-quality-edit-select" id="partner-star-select"></select></label>
+        <div class="shared-modal-actions"><button type="button" class="shared-modal-button shared-modal-button-secondary" data-partner-quality-close data-i18n="common.cancel">取消</button><button type="button" class="shared-modal-button" id="partner-quality-confirm" data-i18n="common.confirm">确认</button></div>
+      </section>
+    </div>
+    <div class="shared-modal" hidden id="partner-skill-switch-modal">
+      <div class="shared-modal-backdrop" data-partner-switch-close></div>
+      <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="partner-switch-title">
+        <h3 id="partner-switch-title" data-i18n="dashboard.partnerSwitchTitle">切换主动技能</h3>
+        <div class="item-add-search-shell"><input type="search" class="database-item-search-input" id="partner-switch-search" data-i18n-placeholder="dashboard.partnerAddSearch"></div>
+        <div class="item-add-table-shell"><table class="accounts-table partner-switch-table"><colgroup><col style="width:30%"><col style="width:55%"><col style="width:15%"></colgroup><thead><tr>
+          <th><button type="button" class="column-sort-btn" data-partner-switch-sort="name"><span data-i18n="dashboard.equipManagementName">名称</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+          <th><button type="button" class="column-sort-btn" data-partner-switch-sort="Desc"><span data-i18n="dashboard.partnerDescription">描述</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+          <th data-i18n="dashboard.equipDetailResonanceAction">操作</th>
+        </tr></thead><tbody id="partner-switch-body"></tbody></table><div class="database-player-empty" hidden id="partner-switch-empty" data-i18n="dashboard.partnerEmpty">没有匹配的辅助机。</div></div>
+        <div class="shared-modal-actions item-add-actions"><button type="button" class="shared-modal-button shared-modal-button-secondary" data-partner-switch-close data-i18n="common.cancel">取消</button></div>
+      </section>
+    </div>
+
     <!-- Equipment detail card -->
     <div class="shared-modal" hidden id="equip-detail-modal">
       <div class="shared-modal-backdrop" data-equip-detail-modal-close></div>
@@ -919,7 +1009,7 @@
                 <th data-i18n="dashboard.equipDetailSlot">槽位</th>
                 <th data-i18n="dashboard.equipDetailEffect">效果</th>
                 <th data-i18n="dashboard.equipDetailBoundCharacter">绑定角色</th>
-                <th id="equip-detail-awake-header" data-i18n="dashboard.equipDetailHypertune" hidden>超调</th>
+                <th id="equip-detail-awake-header" data-i18n="dashboard.equipDetailHypertune" hidden>超频</th>
                 <th data-i18n="dashboard.equipDetailResonanceAction">操作</th>
               </tr>
             </thead>
@@ -1164,6 +1254,37 @@
         <div class="shared-modal-actions character-equip-switch-actions">
           <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-weapon-switch-modal-close data-i18n="dashboard.characterWeaponSwitchCancel">取消</button>
           <button type="button" class="shared-modal-button" id="character-weapon-switch-save" data-i18n="dashboard.characterWeaponSwitchSave">保存</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="character-partner-switch-modal">
+      <div class="shared-modal-backdrop" data-character-partner-close></div>
+      <section class="shared-modal-card character-weapon-switch-card" role="dialog" aria-modal="true" aria-labelledby="character-partner-switch-title">
+        <div class="shared-modal-header">
+          <span class="shared-modal-icon" aria-hidden="true">C</span>
+          <div><p class="shared-modal-eyebrow" data-i18n="dashboard.characterWeaponSwitchEyebrow">角色装备</p><h3 id="character-partner-switch-title" data-i18n="dashboard.characterPartnerSwitchTitle">切换辅助机</h3></div>
+        </div>
+        <div class="character-equip-switch-topbar">
+          <div class="character-equip-switch-current-panel"><div class="character-equip-switch-current-label" data-i18n="dashboard.characterEquipSwitchCurrent">当前穿戴</div><div class="character-equip-switch-current" id="character-partner-switch-current"></div></div>
+          <label class="database-item-control character-equip-switch-search" for="character-partner-switch-search"><input class="database-item-search-input item-add-search-input" type="search" id="character-partner-switch-search" data-i18n-placeholder="dashboard.characterPartnerSwitchSearch" placeholder="输入辅助机名称或穿戴角色名搜索"></label>
+        </div>
+        <div class="item-add-table-shell character-equip-switch-table-shell">
+          <table class="accounts-table item-add-table character-equip-switch-table">
+            <colgroup><col><col><col class="equip-management-col-star"><col class="equip-management-col-enhancement"><col class="equip-management-col-action"></colgroup>
+            <thead><tr>
+              <th scope="col"><button class="column-sort-btn" data-partner-candidate-sort="name" type="button"><span data-i18n="dashboard.characterWeaponSwitchName">名称</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th scope="col"><button class="column-sort-btn" data-partner-candidate-sort="character" type="button"><span data-i18n="dashboard.characterWeaponSwitchCharacter">穿戴角色</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th scope="col"><button class="column-sort-btn" data-partner-candidate-sort="quality" type="button"><span data-i18n="dashboard.partnerEvolution">进化</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th scope="col"><button class="column-sort-btn" data-partner-candidate-sort="enhancement" type="button"><span data-i18n="dashboard.characterWeaponSwitchEnhancement">综合强化等级</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+              <th scope="col" data-i18n="dashboard.characterWeaponSwitchAction">操作</th>
+            </tr></thead><tbody id="character-partner-switch-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="character-partner-switch-empty" data-i18n="dashboard.partnerEmpty">没有匹配的辅助机。</div>
+        </div>
+        <div class="shared-modal-actions character-equip-switch-actions">
+          <button type="button" class="shared-modal-button shared-modal-button-secondary" data-character-partner-close data-i18n="common.cancel">取消</button>
+          <button type="button" class="shared-modal-button" id="character-partner-switch-save" data-i18n="dashboard.characterWeaponSwitchSave">保存</button>
         </div>
       </section>
     </div>

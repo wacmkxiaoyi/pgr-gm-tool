@@ -467,6 +467,7 @@ app.confirmDeleteOrClearItems = async () => {
         app.translate('runtime.characterManagementMaxAllSuccessTitle'),
       );
       await app.loadSelectedAccountCharacters(1);
+      await app.loadSelectedAccountPartners?.();
       return;
     }
 
