@@ -5,7 +5,7 @@ const SUPPORTED_LOCALES = ['zh-CN', 'en-US'];
 const messages = {
   'zh-CN': {
     common: {
-      appName: 'WACMK 战双帕弥什 GM 工具',
+      appName: '战双帕弥什 GM 工具',
       localeZh: '中文',
       localeEn: 'English',
       confirm: '确认',
@@ -36,7 +36,7 @@ const messages = {
       switcherLabel: '语言',
     },
     dashboard: {
-      title: 'WACMK 战双帕弥什 GM 工具',
+      title: '战双帕弥什 GM 工具',
       sidebarAria: '后台导航',
       sidebarSubtitle: '管理后台',
       sidebarServerManagement: '游戏服务器管理',
@@ -869,7 +869,7 @@ const messages = {
   },
   'en-US': {
     common: {
-      appName: 'WACMK Punishing Gray Raven GM tool',
+      appName: 'Punishing Gray Raven GM tool',
       localeZh: '中文',
       localeEn: 'English',
       confirm: 'Confirm',

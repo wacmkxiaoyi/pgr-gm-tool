@@ -79,7 +79,10 @@ def test_max_template_preserves_independent_resonance_and_harmony_settings(monke
         template = characters.get_character_max_template_map()[character_id]
         assert template["weapon"]["TemplateId"] == recommendation["WeaponId"]
         assert [memory["TemplateId"] for memory in template["memories"]] == recommendation["Memories"]
-        resonance_source = FIXED_CHARACTER_MAX_MEMORY_RESONANCES if fixed else recommendation["MemoryResonances"]
+        career = characters.get_character_career_map()[character_id]
+        resonance_source = next(
+            resonances for careers, resonances in FIXED_CHARACTER_MAX_MEMORY_RESONANCES.items() if career in careers
+        ) if fixed else recommendation["MemoryResonances"]
         for site, memory in enumerate(template["memories"]):
             assert memory["ResonanceInfo"] == [
                 {**entries[site % len(entries)], "Slot": slot + 1, "CharacterId": character_id}
@@ -95,6 +98,51 @@ def test_max_template_preserves_independent_resonance_and_harmony_settings(monke
     finally:
         characters.get_character_max_template_map.cache_clear()
         resources.resource_language.reset(token)
+
+
+@pytest.mark.parametrize("language", ["CN", "EN"])
+def test_fixed_memory_resonances_follow_each_character_career(monkeypatch, language):
+    token = resources.resource_language.set(language)
+    monkeypatch.setattr(characters.settings, "max_character_use_fix_memory_resonance", True)
+    characters.get_character_max_template_map.cache_clear()
+    try:
+        careers = characters.get_character_career_map()
+        assert careers == TSVReader("assets/Character.tsv", typed=True).get_maps("Id", "Career")[0]
+        assert characters.get_character_career_map() is careers
+        covered_groups = set()
+        for character_id, template in characters.get_character_max_template_map().items():
+            group = next(group for group in FIXED_CHARACTER_MAX_MEMORY_RESONANCES if careers[character_id] in group)
+            covered_groups.add(group)
+            for memory in template["memories"]:
+                site = int(characters.get_equip_site_map()[memory["TemplateId"]]) - 1
+                assert memory["ResonanceInfo"] == [
+                    {**entries[site % len(entries)], "Slot": slot + 1, "CharacterId": character_id}
+                    for slot, entries in enumerate(FIXED_CHARACTER_MAX_MEMORY_RESONANCES[group])
+                ]
+        assert covered_groups == set(FIXED_CHARACTER_MAX_MEMORY_RESONANCES)
+    finally:
+        characters.get_character_max_template_map.cache_clear()
+        resources.resource_language.reset(token)
+
+
+@pytest.mark.parametrize("career", [None, 999])
+def test_fixed_memory_resonances_fall_back_to_recommendation_for_unknown_career(monkeypatch, career):
+    character_id = 1401003
+    recommendation = characters.get_character_recommend_equips_map()[character_id]
+    monkeypatch.setattr(characters, "get_character_recommend_equips_map", lambda: {character_id: recommendation})
+    monkeypatch.setattr(characters, "get_character_career_map", lambda: {} if career is None else {character_id: career})
+    monkeypatch.setattr(characters.settings, "max_character_use_fix_memory_resonance", True)
+    characters.get_character_max_template_map.cache_clear()
+    try:
+        template = characters.get_character_max_template_map()[character_id]
+        for memory in template["memories"]:
+            site = int(characters.get_equip_site_map()[memory["TemplateId"]]) - 1
+            assert memory["ResonanceInfo"] == [
+                {**entries[site % len(entries)], "Slot": slot + 1, "CharacterId": character_id}
+                for slot, entries in enumerate(recommendation["MemoryResonances"])
+            ]
+    finally:
+        characters.get_character_max_template_map.cache_clear()
 
 
 def test_zero_recommended_harmony_does_not_fall_back_to_automatic(monkeypatch):

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -67,6 +68,23 @@ class LauncherBuild:
                 raise ValueError(f'Launcher {name}.Host/Port must match build-state.json (127.0.0.1:{port})')
         if config.get('Database', {}).get('Name') != 'asc_net':
             raise ValueError('Launcher Database.Name must be asc_net')
+
+    def install_runtime_config(self) -> None:
+        source = self.root / 'config.json'
+        content = source.read_bytes()
+        self.validate_config(json.loads(content))
+        target = self.server_directory / 'Configs' / 'config.json'
+        if target.is_file() and target.read_bytes() == content:
+            return
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as file:
+                temporary = Path(file.name)
+                file.write(content)
+            temporary.replace(target)
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
 
 
 def load_launcher_build(path: str) -> LauncherBuild | None:

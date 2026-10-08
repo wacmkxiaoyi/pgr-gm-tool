@@ -36,21 +36,47 @@ CHAT_BOARD_TSV_PATH = Path("assets/ChatBoard.tsv")
 EMOJI_TSV_PATH = Path("assets/Emoji.tsv")
 SCORE_TITLE_TSV_PATH = Path("assets/ScoreTitle.tsv")
 
-FIXED_CHARACTER_MAX_MEMORY_RESONANCES = [
-    [
-        {
-            "Type": 1,
-            "TemplateId": 8
-        },
-        #{
-        #    "Type": 1,
-        #    "TemplateId": 6
-        #},
-        {
-            "Type": 1,
-            "TemplateId": 5
-        }
-    ]
-] * 2
+FIXED_CHARACTER_MAX_MEMORY_RESONANCES = {
+    (1, 2, 3, 4, 5, 6, 7, 8, 9): [
+        [
+            {
+                "Type": 1,
+                "TemplateId": 5
+            }
+        ]
+    ] * 2,
+    (5, 6, 9): [
+        [
+            {
+                "Type": 1,
+                "TemplateId": 5
+            },
+            {
+                "Type": 1,
+                "TemplateId": 8
+            }
+        ]
+    ] * 2,
+    (7,): [
+        [
+            {
+                "Type": 1,
+                "TemplateId": 8
+            },
+            {
+                "Type": 1,
+                "TemplateId": 5
+            }
+        ]
+    ] * 2,
+    (2, 3): [
+        [
+            {
+                "Type": 1,
+                "TemplateId": 8
+            }
+        ]
+    ] * 2
+}
 
 MAXIMUM_STAGE_ID = 30000000

@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `9a0ec0c2a8bed4bf4369d4dc37e796c33cd61f69`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `5890b79b1a380e08405b286ca600266331feb779`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
@@ -22,6 +22,7 @@ A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and
 ### Requirements
 
 - Python 3.12 or newer
+- Git (required for automatic downloads and updates)
 - A reachable MongoDB instance
 - A current Chrome or Edge browser
 
@@ -32,9 +33,10 @@ The frontend has no Node.js dependencies, build step, or separate development se
 Run `quick_start.bat` from the repository root. It:
 
 1. Finds `python` or `python3` (Python 3.12+).
-2. Creates `.venv` if necessary.
-3. Installs missing or incompatible packages from `backend/requirements.txt`.
-4. Starts the application at `http://127.0.0.1:8000/login`.
+2. Downloads or updates project code by default (see below).
+3. Creates `.venv` if necessary.
+4. Installs missing or incompatible packages from `backend/requirements.txt`.
+5. Starts the application at `http://127.0.0.1:8000/login`.
 
 On Windows, the application checks `%LOCALAPPDATA%\AscNetLauncher\local\build-state.json` automatically. When present, it uses the Launcher's actual build and random ports for server and database management. To use another local root:
 
@@ -61,6 +63,41 @@ bash quick_start.sh --MONGO_HOST 127.0.0.1 --MONGO_PORT 27017 --MONGO_DB asc_net
 ```
 
 Both quick-start scripts forward CLI arguments. Use Ctrl+C to exit.
+
+### Automatic Downloads And Updates
+
+Both scripts are self-contained: with Git and Python 3.12+ installed, even a directory containing only `quick_start.bat` or `quick_start.sh` can download and start the project.
+
+- **With `.git`**: runs `git pull --ff-only` against the current branch's configured upstream. Local uncommitted changes (including untracked files) cause the update to be skipped.
+- **Without `.git`**: shallow-clones `https://github.com/wacmkxiaoyi/pgr-gm-tool.git` into a temporary directory, then copies tracked files and `.git` into the launcher's directory. This also applies to partially populated directories and GitHub Release **Source code (zip/tar.gz)** archives, which do not contain `.git`.
+- During the first synchronization, different same-name local files are backed up under `.quick-start-backups/` before being overwritten. Extra local files such as `.env` and `.venv` are preserved. Failed or timed-out clones are not synchronized.
+- Git operations share a **10-second timeout** by default. Credential prompts are disabled, and timed-out Git processes and their children are terminated. Local copying and dependency installation are outside this Git timeout.
+- Missing Git, missing upstream, update errors and timeouts produce a message and continue with local files. If project files are still missing, the script explains that Git/network access is required before retrying.
+- After a successful code update, the launcher restarts once with the updated script and forwards the original application arguments.
+
+Set `AUTO_UPDATE=false` to disable downloads and updates, or adjust `AUTO_UPDATE_TIMEOUT` (positive seconds). These are launcher environment variables, not application CLI options; both scripts include editable defaults near the top.
+
+Windows CMD:
+
+```bat
+set "AUTO_UPDATE=false"
+quick_start.bat
+```
+
+PowerShell:
+
+```powershell
+$env:AUTO_UPDATE_TIMEOUT = "20"
+.\quick_start.bat
+```
+
+macOS / Linux:
+
+```bash
+AUTO_UPDATE=false bash quick_start.sh
+# Or allow more time for the initial download:
+AUTO_UPDATE_TIMEOUT=20 bash quick_start.sh
+```
 
 ### Login And Basic Workflow
 
@@ -118,11 +155,12 @@ The state provides `serverDirectory`, `resourceDirectory`, `dotnet`, `mongod`, `
 
 - Database and player management connect to the Launcher's loopback MongoDB port and the database specified by the running configuration.
 - Server **Start** first starts MongoDB with `<local root>/data/mongo`, then runs `dotnet <serverDirectory>/AscNet.dll --urls http://127.0.0.1:<sdkPort>` from `resourceDirectory`, with the same routing/bind/managed-stdin environment as Launcher. Startup waits for MongoDB, the game port and `/api/launcher/status`.
-- Exact existing Launcher server/MongoDB instances are reused. Occupied ports from other instances cause startup to fail. Logs append to `<local root>/logs/server.log` and `mongod.log`.
+- Exact existing Launcher server/MongoDB instances are reused. Occupied ports from other instances cause startup to fail. GM-started services write to `<local root>/logs/server.log` and `mongod.log`. Each start preserves the previous run as `server.previous.log` / `mongod.previous.log`; logs also rotate at 32 MiB during a run, retaining at most two files per service. The live-log view follows rotation automatically.
 - Launcher 1.0.12 uses native Rust Setup while retaining the same version-1 build state. When GM runs as a Windows process under Wine, its MongoDB command also disables diagnostic data collection, matching Launcher.
 - Launcher stops its local services when the game exits. With server management disabled in GM, keep the game and Launcher running while editing player data before login; if they stop, start the backend through Launcher again.
 - **Stop** shuts down the GM-started server before its MongoDB. A matching externally started server can be stopped explicitly; externally started MongoDB is left running. Exiting GM cleans up only the backend processes it started.
-- Configuration reads `resourceDirectory/Configs/config.json`. Saving also updates `<local root>/config.json`, the persistent source used by Launcher Setup. Game/MongoDB loopback settings and the `asc_net` database must remain consistent with the Launcher state; SDK HTTP uses `sdkPort` via the startup arguments.
+- Configuration reads `resourceDirectory/Configs/config.json`. Saving also updates `<local root>/config.json`, the persistent source used by Launcher. Before starting a new backend, GM validates and atomically copies this persistent configuration into `serverDirectory/Configs/config.json`, so external edits apply on the next start. Game/MongoDB loopback settings and the `asc_net` database must remain consistent with the Launcher state; SDK HTTP uses `sdkPort` via the startup arguments. Missing or invalid persistent configuration prevents startup.
+- Server packet logs omit heartbeats below `SuperDebug`. `Normal` logs packet names/sizes, while `Debug` also includes response/push content; changing `VerboseLevel` takes effect on the next server start.
 
 Launcher upgrades are picked up when GM is restarted. `ENABLE_SERVER_MANAGEMENT=false` disables server controls while retaining automatic database connection settings. With server management disabled, start MongoDB through Launcher or another method before using database management.
 

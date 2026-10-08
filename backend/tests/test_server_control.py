@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -120,3 +121,64 @@ def test_iter_matching_processes_does_not_use_cmdline_like_cli_argument_matching
     ])
 
     assert controller.iter_matching_processes() == []
+
+
+def test_log_stream_survives_rotation_gap(tmp_path, monkeypatch):
+    path = tmp_path / 'server.log'
+    path.write_text('old output\n', encoding='utf-8')
+    controller = server_control.ServerController(_settings(server_runtime_log_path=str(path)))
+    monkeypatch.setattr(controller, 'is_process_running', lambda: True)
+    monkeypatch.setattr(server_control, 'LOG_POLL_INTERVAL_SECONDS', 0.01)
+
+    class Request:
+        async def is_disconnected(self):
+            return False
+
+    async def check():
+        stream = controller.stream_logs(Request())
+        await anext(stream)  # retry
+        assert 'old output' in await anext(stream)
+        path.replace(path.with_suffix('.previous.log'))
+
+        async def replace_log():
+            await asyncio.sleep(0.04)
+            path.write_text('new output\n', encoding='utf-8')
+
+        task = asyncio.create_task(replace_log())
+        try:
+            event = await asyncio.wait_for(anext(stream), timeout=2)
+            assert 'log-reset' in event and 'new output' in event
+            with path.open('a', encoding='utf-8') as file:
+                file.write('more output\n')
+            event = await asyncio.wait_for(anext(stream), timeout=2)
+            assert 'log-append' in event and 'more output' in event
+        finally:
+            await task
+            await stream.aclose()
+
+    asyncio.run(check())
+
+
+def test_log_stream_reports_permanently_deleted_file(tmp_path, monkeypatch):
+    path = tmp_path / 'server.log'
+    path.write_text('output\n', encoding='utf-8')
+    controller = server_control.ServerController(_settings(server_runtime_log_path=str(path)))
+    monkeypatch.setattr(controller, 'is_process_running', lambda: True)
+    monkeypatch.setattr(server_control, 'LOG_ROTATION_GRACE_SECONDS', 0.02)
+    monkeypatch.setattr(server_control, 'LOG_POLL_INTERVAL_SECONDS', 0.01)
+
+    class Request:
+        async def is_disconnected(self):
+            return False
+
+    async def check():
+        stream = controller.stream_logs(Request())
+        await anext(stream)
+        await anext(stream)
+        path.unlink()
+        event = await asyncio.wait_for(anext(stream), timeout=2)
+        assert 'log-error' in event and 'server.log_file_deleted' in event
+        assert 'log-end' in await anext(stream)
+        await stream.aclose()
+
+    asyncio.run(check())

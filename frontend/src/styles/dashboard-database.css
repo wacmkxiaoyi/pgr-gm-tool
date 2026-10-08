@@ -1977,7 +1977,12 @@ button.character-equip-switch-current-card:focus-visible {
 }
 
 .character-quality-edit-actions {
+  gap: 12px;
   margin-top: 22px;
+}
+
+.character-quality-edit-actions .shared-modal-button-secondary:first-child {
+  margin-right: auto;
 }
 
 .character-detail-skill-level.is-editable {

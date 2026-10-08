@@ -220,6 +220,22 @@ def get_character_levelup_template_map() -> dict[int, int]:
     return normalized_map
 
 @lru_cache(maxsize=1)
+def get_character_career_map() -> dict[int, int]:
+    reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
+    raw_map = reader.get_maps("Id", "Career")[0]
+    normalized_map: dict[int, int] = {}
+
+    for character_id_raw, career_raw in raw_map.items():
+        character_id = parse_int(character_id_raw)
+        career = parse_int(career_raw)
+        if character_id is None or career is None:
+            continue
+        normalized_map[character_id] = career
+
+    return normalized_map
+
+
+@lru_cache(maxsize=1)
 def get_character_equip_type_map() -> dict[int, int]:
     reader = TSVReader(CHARACTER_TSV_PATH, typed=True)
     raw_map = reader.get_maps("Id", "EquipType")[0]
@@ -745,6 +761,7 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
     character_exhibitions_map = get_character_exhibitions_map()
     character_fashions_map = get_character_fashions_map()
     character_recommend_equips_map = get_character_recommend_equips_map()
+    character_career_map = get_character_career_map() if settings.max_character_use_fix_memory_resonance else {}
     character_enhance_skill_ids_map = get_character_enhance_skill_ids_map()
     character_enhance_skill_entries_map = get_character_enhance_skill_entries_map()
     equip_breakthrough_max_map = get_equip_breakthrough_max_map()
@@ -806,6 +823,12 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
 
         memories = recommend_equips.get("Memories") if isinstance(recommend_equips.get("Memories"), list) else []
         memory_resonances = recommend_equips.get("MemoryResonances") if isinstance(recommend_equips.get("MemoryResonances"), list) else []
+        if settings.max_character_use_fix_memory_resonance:
+            career = character_career_map.get(character_id)
+            memory_resonances = next(
+                (resonances for careers, resonances in FIXED_CHARACTER_MAX_MEMORY_RESONANCES.items() if career in careers),
+                memory_resonances,
+            )
         memory_templates: list[dict[str, Any]] = []
         resolved_memory_template_ids: list[int] = []
         memory_ids_by_site: dict[int, int] = {}
@@ -829,11 +852,7 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
 
             resonance_info: list[dict[str, int]] = []
             awake_slots: list[int] = []
-            for slot_index, raw_slot_entries in enumerate(
-                FIXED_CHARACTER_MAX_MEMORY_RESONANCES
-                if settings.max_character_use_fix_memory_resonance
-                else memory_resonances
-            ):
+            for slot_index, raw_slot_entries in enumerate(memory_resonances):
                 if not isinstance(raw_slot_entries, list) or not raw_slot_entries:
                     continue
 

@@ -9,3 +9,5 @@ dev/
 .DS_Store
 .vscode/
 *.excalidraw
+quick_start_dev.*
+.quick-start-backups/

@@ -1,4 +1,5 @@
 import json
+from io import BytesIO
 from pathlib import Path
 import socket
 from types import SimpleNamespace
@@ -131,6 +132,7 @@ class FakeChild:
         self.label = label
         self.events = events
         self.stdin = FakeStdin(events)
+        self.stdout = BytesIO()
         self.returncode = None
 
     def poll(self):
@@ -268,3 +270,84 @@ def test_status_response_is_bounded_and_complete(local_build, monkeypatch, body,
     monkeypatch.setattr(launcher_runtime.urllib.request, 'build_opener',
                         lambda *args: SimpleNamespace(open=lambda *args, **kwargs: response))
     assert LauncherRuntime(local_build)._server_ready() is expected
+
+
+def test_start_installs_persistent_config_before_spawning(local_build, monkeypatch):
+    config = json.loads((local_build.root / 'config.json').read_text())
+    config['VerboseLevel'] = 'Normal'
+    content = json.dumps(config).encode()
+    (local_build.root / 'config.json').write_bytes(content)
+    runtime = LauncherRuntime(local_build)
+    monkeypatch.setattr(launcher_runtime, 'matching_servers', lambda _: [])
+    monkeypatch.setattr(runtime, '_matching_mongo', lambda: True)
+    monkeypatch.setattr(launcher_runtime, '_tcp_ready', lambda _: True)
+    monkeypatch.setattr(runtime, '_wait', lambda *args: None)
+
+    def spawn(*args, **kwargs):
+        assert local_build.config_path.read_bytes() == content
+        return FakeChild('server', [])
+
+    monkeypatch.setattr(launcher_runtime.subprocess, 'Popen', spawn)
+    runtime.start()
+    runtime.stop()
+
+
+@pytest.mark.parametrize('content', [None, b'not json', b'[]',
+                                    b'{"GameServer":{"Host":"127.0.0.1","Port":1}}'])
+def test_invalid_persistent_config_prevents_launch(local_build, monkeypatch, content):
+    source = local_build.root / 'config.json'
+    original = local_build.config_path.read_bytes()
+    if content is None:
+        source.unlink()
+    else:
+        source.write_bytes(content)
+    monkeypatch.setattr(launcher_runtime, 'matching_servers', lambda _: [])
+    monkeypatch.setattr(launcher_runtime.subprocess, 'Popen', lambda *args, **kwargs: pytest.fail('must not spawn'))
+    with pytest.raises((OSError, ValueError)):
+        LauncherRuntime(local_build).start()
+    assert local_build.config_path.read_bytes() == original
+
+
+def test_rotating_log_drains_real_process_and_preserves_newest_output(tmp_path):
+    import subprocess
+    import sys
+
+    path = tmp_path / 'server.log'
+    path.write_bytes(b'last run')
+    log = launcher_runtime.RotatingLog(path, limit=4096)
+    assert log.previous.read_bytes() == b'last run'
+    child = subprocess.Popen([sys.executable, '-c',
+                              'import sys; sys.stdout.buffer.write(b"x" * 20000 + b"newest output")'],
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    log.pump(child.stdout)
+    assert child.wait(timeout=10) == 0
+    log.finish()
+    assert not log.thread.is_alive()
+    assert path.read_bytes().endswith(b'newest output')
+    assert path.stat().st_size <= 4096
+    assert log.previous.stat().st_size == 4096
+    assert b'last run' not in log.previous.read_bytes()
+    assert set(tmp_path.iterdir()) == {path, log.previous}
+
+
+def test_rotating_log_writes_before_process_exits(tmp_path):
+    import subprocess
+    import sys
+    import time
+
+    path = tmp_path / 'server.log'
+    log = launcher_runtime.RotatingLog(path)
+    child = subprocess.Popen([sys.executable, '-c',
+                              'import sys; print("ready", flush=True); sys.stdin.buffer.read()'],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    log.pump(child.stdout)
+    try:
+        deadline = time.monotonic() + 5
+        while not path.read_bytes() and time.monotonic() < deadline:
+            time.sleep(0.01)
+        assert b'ready' in path.read_bytes()
+        assert child.poll() is None
+    finally:
+        child.stdin.close()
+        child.wait(timeout=10)
+        log.finish()

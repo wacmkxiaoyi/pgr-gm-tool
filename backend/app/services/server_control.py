@@ -35,6 +35,7 @@ LOG_POLL_INTERVAL_SECONDS = 0.2
 LOG_KEEPALIVE_INTERVAL_SECONDS = 1
 LOG_SNAPSHOT_MAX_BYTES = 64 * 1024
 LOG_RETRY_INTERVAL_MS = 3000
+LOG_ROTATION_GRACE_SECONDS = 2
 WINDOWS_EXECUTABLE_SUFFIXES = {'.exe'}
 
 
@@ -499,8 +500,8 @@ class ServerController:
 
     def _read_log_tail_bytes(self, max_bytes: int = LOG_SNAPSHOT_MAX_BYTES) -> tuple[str, int, tuple[int, int]]:
         log_path = self.runtime_log_path
-        file_stat = log_path.stat()
         with log_path.open("rb") as file:
+            file_stat = os.fstat(file.fileno())
             file.seek(0, os.SEEK_END)
             file_size = file.tell()
             read_size = min(file_size, max_bytes)
@@ -516,8 +517,8 @@ class ServerController:
 
     def _read_log_bytes_from_offset(self, offset: int) -> tuple[str, int, tuple[int, int]]:
         log_path = self.runtime_log_path
-        file_stat = log_path.stat()
         with log_path.open("rb") as file:
+            file_stat = os.fstat(file.fileno())
             file.seek(0, os.SEEK_END)
             file_size = file.tell()
             if file_size < offset:
@@ -545,6 +546,7 @@ class ServerController:
 
         yield self._encode_sse_event("log-snapshot", {"text": snapshot_text})
         last_keepalive = asyncio.get_running_loop().time()
+        missing_since = None
 
         while True:
             if await request.is_disconnected():
@@ -554,27 +556,38 @@ class ServerController:
                 yield self._encode_sse_event("log-end", {"code": "server.log_stream_stopped"})
                 return
 
-            if not self.log_file_exists():
+            try:
+                chunk, next_offset, next_file_identity = await asyncio.to_thread(self._read_log_bytes_from_offset, offset)
+            except FileNotFoundError:
+                now = asyncio.get_running_loop().time()
+                if missing_since is None:
+                    missing_since = now
+                if now - missing_since < LOG_ROTATION_GRACE_SECONDS:
+                    await asyncio.sleep(LOG_POLL_INTERVAL_SECONDS)
+                    continue
                 yield self._encode_sse_event("log-error", {"code": "server.log_file_deleted"})
                 yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                 return
-
-            try:
-                chunk, next_offset, next_file_identity = await asyncio.to_thread(self._read_log_bytes_from_offset, offset)
             except OSError as error:
                 yield self._encode_sse_event("log-error", {"code": "server.log_file_read_failed", "details": {"reason": str(error)}})
                 yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                 return
 
-            if next_offset < offset or next_file_identity != file_identity:
+            if missing_since is not None or next_offset < offset or next_file_identity != file_identity:
                 try:
                     snapshot_text, offset, file_identity = await asyncio.to_thread(self._read_log_tail_bytes)
+                except FileNotFoundError:
+                    if missing_since is None:
+                        missing_since = asyncio.get_running_loop().time()
+                    await asyncio.sleep(LOG_POLL_INTERVAL_SECONDS)
+                    continue
                 except OSError as error:
                     yield self._encode_sse_event("log-error", {"code": "server.log_file_read_failed", "details": {"reason": str(error)}})
                     yield self._encode_sse_event("log-end", {"code": "server.log_stream_ended"})
                     return
 
                 yield self._encode_sse_event("log-reset", {"text": snapshot_text})
+                missing_since = None
                 last_keepalive = asyncio.get_running_loop().time()
                 await asyncio.sleep(LOG_POLL_INTERVAL_SECONDS)
                 continue

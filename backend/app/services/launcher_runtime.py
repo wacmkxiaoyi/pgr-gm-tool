@@ -16,6 +16,64 @@ import psutil
 from backend.app.launcher import LauncherBuild
 
 
+BACKEND_LOG_LIMIT = 32 * 1024 * 1024
+
+
+class RotatingLog:
+    """Drain a child's merged output, retaining only the current and previous log."""
+
+    def __init__(self, path: Path, limit: int = BACKEND_LOG_LIMIT):
+        self.path = path
+        self.previous = path.with_suffix('.previous.log')
+        self.limit = limit
+        self.written = 0
+        self.thread = None
+        if path.exists():
+            path.replace(self.previous)
+        self.file = path.open('wb', buffering=0)
+
+    def write(self, content: bytes) -> None:
+        if self.file.closed:
+            self.file = self.path.open('ab', buffering=0)
+            self.written = self.path.stat().st_size
+        while content:
+            if self.written >= self.limit:
+                self.file.close()
+                try:
+                    self.path.replace(self.previous)
+                except OSError:
+                    self.file = self.path.open('ab', buffering=0)
+                    raise
+                self.file = self.path.open('wb', buffering=0)
+                self.written = 0
+            chunk = content[:self.limit - self.written]
+            self.file.write(chunk)
+            self.written += len(chunk)
+            content = content[len(chunk):]
+
+    def pump(self, stream) -> None:
+        def drain():
+            try:
+                read = getattr(stream, 'read1', stream.read)
+                while content := read(64 * 1024):
+                    # Keep draining even if a locked file or full disk prevents
+                    # logging, so the child cannot block on a full output pipe.
+                    with contextlib.suppress(OSError):
+                        self.write(content)
+            finally:
+                stream.close()
+                self.file.close()
+
+        self.thread = threading.Thread(target=drain, daemon=True)
+        self.thread.start()
+
+    def finish(self) -> None:
+        if self.thread is not None:
+            self.thread.join(timeout=5)
+        else:
+            self.file.close()
+
+
 def matching_servers(build: LauncherBuild) -> list[psutil.Process]:
     result = []
     for process in psutil.process_iter(['pid', 'exe', 'cmdline']):
@@ -46,6 +104,18 @@ class LauncherRuntime:
         self.mongo = None
         self.lock = threading.Lock()
         self.cancel = threading.Event()
+        self.logs = []
+
+    def _spawn(self, command, log_path: Path, **kwargs):
+        log = RotatingLog(log_path)
+        try:
+            child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **kwargs)
+        except Exception:
+            log.finish()
+            raise
+        self.logs.append(log)
+        log.pump(child.stdout)
+        return child
 
     def _wait(self, child, ready, label: str) -> None:
         deadline = time.monotonic() + 60
@@ -95,6 +165,7 @@ class LauncherRuntime:
         with self.lock:
             if matching_servers(self.build):
                 return
+            self.build.install_runtime_config()
             # Reserve all ports before spawning, as the launcher does. An exact
             # existing MongoDB instance may be reused, but is never owned by GM.
             reuse_mongo = self._matching_mongo()
@@ -119,18 +190,16 @@ class LauncherRuntime:
             try:
                 if not reuse_mongo:
                     (self.build.root / 'data' / 'mongo').mkdir(parents=True, exist_ok=True)
-                    with (logs / 'mongod.log').open('a', encoding='utf-8') as log:
-                        self.mongo = subprocess.Popen(self.build.mongo_command, stdout=log, stderr=subprocess.STDOUT,
-                                                      stdin=subprocess.DEVNULL, **flags)
+                    self.mongo = self._spawn(self.build.mongo_command, logs / 'mongod.log',
+                                             stdin=subprocess.DEVNULL, **flags)
                     self._wait(self.mongo, lambda: _tcp_ready(self.build.mongo_port), 'MongoDB')
                 elif not _tcp_ready(self.build.mongo_port):
                     raise RuntimeError('Existing Launcher MongoDB is not ready')
                 env = dict(os.environ, ASCNET_GATE_FALLBACK_USERNAME='', ASCNET_PUBLIC_HTTP_ORIGIN=self.build.origin,
                            ASCNET_GAME_BIND_ADDRESS='127.0.0.1', ASCNET_MANAGED_STDIN='1')
-                with (logs / 'server.log').open('a', encoding='utf-8') as log:
-                    self.server = subprocess.Popen(self.build.server_command, cwd=str(self.build.resource_directory),
-                                                   env=env, stdin=subprocess.PIPE, stdout=log,
-                                                   stderr=subprocess.STDOUT, **flags)
+                self.server = self._spawn(self.build.server_command, logs / 'server.log',
+                                          cwd=str(self.build.resource_directory), env=env,
+                                          stdin=subprocess.PIPE, **flags)
                 self._wait(self.server, self._server_ready, 'AscNet')
             except Exception:
                 self._stop_owned()
@@ -164,6 +233,9 @@ class LauncherRuntime:
                     self.mongo.terminate()
                 self._wait_or_kill(self.mongo)
             self.mongo = None
+        for log in self.logs:
+            log.finish()
+        self.logs.clear()
 
     def stop(self, *, include_external: bool = False) -> None:
         self.cancel.set()
