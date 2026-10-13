@@ -18,12 +18,14 @@ const renderDashboardStaticState = () => {
 const initGlobalKeyboardShortcuts = () => {
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      if (app.handleFurnitureAddEscape?.()) return;
       app.closeNoticeModal();
       app.closeLogModal();
       app.closeConfigModal();
       app.closeAccountDeleteModal();
       app.closeItemAddModal();
       app.closeItemDeleteModal();
+      app.closeFurnitureDeleteModal();
       app.closeAccountPasswordModal();
       app.closeLogoutConfirmModal();
       app.closePlayerPortraitPicker();
@@ -178,6 +180,7 @@ const initDashboard = () => {
   app.updateDatabaseAccountsAccess(null);
   app.updateMemoryManagementAccess(null);
   app.updateItemManagementAccess(null);
+  app.updateFurnitureManagementAccess(null);
   renderDashboardStaticState();
 
   state.countdownTimerId = window.setInterval(() => {

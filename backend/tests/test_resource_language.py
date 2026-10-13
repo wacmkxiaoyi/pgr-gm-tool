@@ -83,4 +83,23 @@ def test_app_info_switches_real_tables_without_polluting_default_cache():
     assert en.status_code == cn.status_code == default.status_code == 200
     assert en.json()["item_name_map"] != cn.json()["item_name_map"]
     assert en.json()["character_log_name_map"] != cn.json()["character_log_name_map"]
+    for field in (
+        "furniture_entries_map",
+        "dorm_template_entries_map",
+        "furniture_type_entires_map",
+        "furniture_suit_name_map",
+        "furniture_additional_attr_entries_map",
+    ):
+        assert en.json()[field]
+        assert cn.json()[field]
+        assert en.json()[field] != cn.json()[field]
+    assert cn.json()["furniture_entries_map"]["8301004"]["Desc"] == "非常普通的制式天花板，看久了让人昏昏欲睡。"
+    assert "furniture_create_max_attr_map" not in cn.json()
+    assert cn.json()["furniture_type_entires_map"]["25001"] == {"CategoryName": "地板", "MajorType": 1}
+    assert en.json()["furniture_type_entires_map"]["25001"]["MajorType"] == 1
+    assert cn.json()["dorm_template_entries_map"]["20"] == {
+        "Name": "空宿舍", "FurnitureId": [8101004, 8301004, 8201004],
+    }
+    assert en.json()["dorm_template_entries_map"]["20"]["Name"] == "Empty Dormitory"
+    assert cn.json()["dorm_template_entries_map"]["201"]["FurnitureId"].count(8612002) == 6
     assert default.json() == en.json()

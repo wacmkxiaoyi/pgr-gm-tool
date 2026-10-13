@@ -121,6 +121,7 @@
                   <button class="subnav-link database-subnav-group-trigger" type="button" aria-controls="database-other-information-menu" aria-expanded="false" data-i18n="dashboard.otherInformationTab">其它信息</button>
                   <div class="database-subnav-menu" id="database-other-information-menu" data-i18n-aria-label="dashboard.otherInformationMenuAria" aria-label="其它信息菜单">
                     <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-item-management-section" id="database-item-management-subnav" aria-controls="database-item-management-section" aria-selected="false" disabled data-i18n="dashboard.itemManagementTab">道具管理</button>
+                    <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-furniture-management-section" id="database-furniture-management-subnav" aria-controls="database-furniture-management-section" aria-selected="false" disabled data-i18n="dashboard.furnitureManagementTab">家具管理</button>
                     <button class="subnav-link database-subnav-menu-item" type="button" data-database-tab="database-stage-management-section" id="database-stage-management-subnav" aria-controls="database-stage-management-section" aria-selected="false" disabled data-i18n="dashboard.stageManagementTab">通关战斗</button>
                   </div>
                 </div>
@@ -436,6 +437,47 @@
                         <input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="database-item-management-jump-input" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码">
                       </label>
                       <button class="status-action-button status-action-button-log" type="button" id="database-item-management-jump-button" data-i18n="dashboard.accountsJumpButton">跳转</button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="database-panel database-item-panel database-tab-panel" id="database-furniture-management-section" data-database-tab-panel="database-furniture-management-section" aria-labelledby="furniture-title" hidden>
+                <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+                  <div><span class="section-tag">Furnitures</span><h2 id="furniture-title" data-i18n="dashboard.furnitureManagementTab">家具管理</h2></div>
+                  <small class="database-item-management-summary" id="furniture-summary"></small>
+                </div>
+                <div class="database-player-empty" id="furniture-state" data-i18n="dashboard.furnitureChooseAccount">请先在账号管理中选定一个用户。</div>
+                <div class="database-item-management-shell" id="furniture-shell" hidden>
+                  <div class="database-item-actions">
+                    <button class="status-action-button status-action-button-stop" type="button" id="furniture-clear" data-i18n="dashboard.furnitureClear">清理未使用家具</button>
+                    <div class="database-item-toolbar"><div class="database-item-search-shell"><input class="database-item-search-input" type="search" id="furniture-search" data-i18n-placeholder="dashboard.furnitureSearch" data-i18n-aria-label="dashboard.furnitureSearch" placeholder="输入关键词后回车搜索"></div></div>
+                    <button class="status-action-button status-action-button-config database-item-action-add" type="button" id="furniture-add" data-i18n="dashboard.furnitureAdd">新增家具</button>
+                  </div>
+                  <div class="accounts-table-shell">
+                    <div class="accounts-table-scroll">
+                      <table class="accounts-table furniture-management-table" aria-describedby="furniture-summary">
+                        <colgroup><col class="furniture-col-id"><col class="furniture-col-name"><col class="furniture-col-type"><col class="furniture-col-description"><col class="furniture-col-suit"><col class="furniture-col-stat"><col class="furniture-col-stat"><col class="furniture-col-stat"><col class="furniture-col-addition"><col class="furniture-col-actions"></colgroup>
+                        <thead><tr>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="record_id"><span data-i18n="dashboard.furnitureRow">行号</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="name"><span data-i18n="dashboard.itemManagementItemName">名称</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="type"><span data-i18n="dashboard.furnitureType">类型</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="description"><span data-i18n="dashboard.furnitureDescription">简介</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="suit"><span data-i18n="dashboard.furnitureSuit">套装</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="beauty"><span data-i18n="dashboard.furnitureBeauty">美观值</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="comfort"><span data-i18n="dashboard.furnitureComfort">舒适值</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col"><button class="column-sort-btn" type="button" data-sort-field="utility"><span data-i18n="dashboard.furnitureUtility">实用值</span> <span class="column-sort-arrow" hidden>▲</span></button></th>
+                          <th scope="col" data-i18n="dashboard.furnitureAddition">附加属性</th><th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
+                        </tr></thead>
+                        <tbody id="furniture-body"></tbody>
+                      </table>
+                    </div>
+                    <div class="accounts-pagination database-item-pagination">
+                      <button class="status-action-button status-action-button-log" type="button" id="furniture-prev" data-i18n="dashboard.accountsPrev">上一页</button>
+                      <span id="furniture-pagination"></span>
+                      <button class="status-action-button status-action-button-log" type="button" id="furniture-next" data-i18n="dashboard.accountsNext">下一页</button>
+                      <label class="accounts-pagination-jump" for="furniture-jump"><input class="accounts-pagination-jump-input" type="number" min="1" step="1" inputmode="numeric" id="furniture-jump" data-i18n-placeholder="dashboard.accountsJumpPlaceholder" placeholder="页码"></label>
+                      <button class="status-action-button status-action-button-log" type="button" id="furniture-jump-submit" data-i18n="dashboard.accountsJumpButton">跳转</button>
                     </div>
                   </div>
                 </div>
@@ -801,6 +843,76 @@
       </section>
     </div>
 
+    <div class="shared-modal" hidden id="furniture-add-modal">
+      <div class="shared-modal-backdrop" data-furniture-add-close></div>
+      <section class="shared-modal-card furniture-add-card" role="dialog" aria-modal="true" aria-labelledby="furniture-add-title">
+        <div class="shared-modal-header"><span class="shared-modal-icon" aria-hidden="true">+</span><h3 id="furniture-add-title" data-i18n="dashboard.furnitureAddTitle">选择要新增的家具</h3></div>
+        <div class="furniture-add-content">
+          <div class="furniture-add-topbar">
+            <div class="furniture-add-modes">
+              <label class="furniture-option"><input class="weapon-add-checkbox" type="checkbox" id="furniture-unlock-all"><span data-i18n="dashboard.furnitureUnlockAll">解锁全部家具</span></label>
+              <label class="furniture-option"><input class="weapon-add-checkbox" type="checkbox" id="furniture-by-template"><span data-i18n="dashboard.furnitureByTemplate">按模板</span></label>
+              <label class="furniture-option"><input class="weapon-add-checkbox" type="checkbox" id="furniture-by-suit"><span data-i18n="dashboard.furnitureBySuit">按套装</span></label>
+            </div>
+            <input class="database-item-search-input item-add-search-input" type="search" id="furniture-add-search" data-i18n-placeholder="dashboard.furnitureAddSearch" placeholder="搜索名称、类型或套装">
+          </div>
+          <p class="shared-modal-message" id="furniture-unlock-description" hidden data-i18n="dashboard.furnitureUnlockDescription">重建全部家具及解锁列表，并为每个现有房间分配地板、墙和天花板。</p>
+          <div class="item-add-table-shell" id="furniture-add-table-shell">
+            <table class="accounts-table item-add-table furniture-add-table">
+              <colgroup><col><col><col><col class="weapon-add-col-select"></colgroup>
+              <thead><tr>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="name" type="button"><span data-i18n="dashboard.itemManagementItemName">名称</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="type" type="button"><span data-i18n="dashboard.furnitureType">类型</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col"><button class="column-sort-btn" data-sort-field="suit" type="button"><span data-i18n="dashboard.furnitureSuit">套装</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+                <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+              </tr></thead><tbody id="furniture-add-body"></tbody>
+            </table>
+            <div class="database-player-empty" id="furniture-add-empty" hidden data-i18n="dashboard.furnitureEmpty">当前没有匹配的家具。</div>
+          </div>
+          <details class="furniture-advanced" id="furniture-advanced">
+            <summary><span data-i18n="dashboard.furnitureAdvanced">高级选项</span><span class="furniture-advanced-arrow" aria-hidden="true">⌄</span></summary>
+            <fieldset class="furniture-attributes">
+              <legend data-i18n="dashboard.furnitureBaseAttributes">基础属性</legend>
+              <div class="furniture-attr-row">
+                <label class="furniture-option"><input type="radio" name="furniture-attr-mode" value="auto" checked><span data-i18n="dashboard.furnitureAuto">自动</span></label>
+                <span id="furniture-auto-description" class="furniture-attr-description" data-i18n="dashboard.furnitureAutoDescription">按类型最大属性值均分，余数依次分给美观和舒适。</span>
+              </div>
+              <div class="furniture-attr-row">
+                <label class="furniture-option"><input type="radio" name="furniture-attr-mode" value="custom"><span data-i18n="dashboard.furnitureCustom">自定义</span></label>
+                <div class="furniture-custom-inputs" id="furniture-custom-inputs">
+                  <label><span data-i18n="dashboard.furnitureBeauty">美观值</span><input class="database-item-search-input" type="number" id="furniture-attr-beauty" min="0" max="9999999" step="1" value="0" disabled></label>
+                  <label><span data-i18n="dashboard.furnitureComfort">舒适值</span><input class="database-item-search-input" type="number" id="furniture-attr-comfort" min="0" max="9999999" step="1" value="0" disabled></label>
+                  <label><span data-i18n="dashboard.furnitureUtility">实用值</span><input class="database-item-search-input" type="number" id="furniture-attr-utility" min="0" max="9999999" step="1" value="0" disabled></label>
+                </div>
+              </div>
+            </fieldset>
+            <div class="furniture-additions"><span data-i18n="dashboard.furnitureExtraAttributes">扩展属性</span><button class="shared-modal-button shared-modal-button-secondary" type="button" id="furniture-additions-open"></button></div>
+          </details>
+        </div>
+        <div class="shared-modal-actions item-add-actions"><button class="shared-modal-button shared-modal-button-secondary" type="button" data-furniture-add-close data-i18n="common.cancel">取消</button><button class="shared-modal-button" type="button" id="furniture-add-submit" data-i18n="dashboard.furnitureAddSubmit">确认新增</button></div>
+      </section>
+    </div>
+
+    <div class="shared-modal" hidden id="furniture-additions-modal">
+      <div class="shared-modal-backdrop" data-furniture-additions-close></div>
+      <section class="shared-modal-card furniture-add-card" role="dialog" aria-modal="true" aria-labelledby="furniture-additions-title">
+        <div class="shared-modal-header"><h3 id="furniture-additions-title" data-i18n="dashboard.furnitureExtraTitle">选择扩展属性</h3></div>
+        <input class="database-item-search-input" type="search" id="furniture-additions-search" data-i18n-placeholder="dashboard.furnitureExtraSearch" placeholder="搜索 Id 或介绍">
+        <div class="item-add-table-shell">
+          <table class="accounts-table item-add-table furniture-additions-table">
+            <colgroup><col class="item-management-col-id"><col><col class="weapon-add-col-select"></colgroup>
+            <thead><tr>
+              <th scope="col"><button class="column-sort-btn" data-sort-field="id" type="button">Id <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+              <th scope="col"><button class="column-sort-btn" data-sort-field="description" type="button"><span data-i18n="dashboard.furnitureDescription">简介</span> <span class="column-sort-arrow" hidden>&#x25B2;</span></button></th>
+              <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+            </tr></thead><tbody id="furniture-additions-body"></tbody>
+          </table>
+          <div class="database-player-empty" id="furniture-additions-empty" hidden data-i18n="dashboard.furnitureExtraEmpty">当前没有匹配的扩展属性。</div>
+        </div>
+        <div class="shared-modal-actions item-add-actions"><button class="shared-modal-button shared-modal-button-secondary" type="button" data-furniture-additions-close data-i18n="common.cancel">取消</button><button class="shared-modal-button" type="button" id="furniture-additions-submit" data-i18n="common.confirm">确认</button></div>
+      </section>
+    </div>
+
     <div class="shared-modal" hidden id="weapon-add-modal">
       <div class="shared-modal-backdrop" data-weapon-add-modal-close></div>
       <section class="shared-modal-card item-add-modal-card" role="dialog" aria-modal="true" aria-labelledby="weapon-add-title" aria-describedby="weapon-add-description">
@@ -925,6 +1037,17 @@
       </section>
     </div>
 
+    <div class="shared-modal" id="furniture-delete-modal" hidden>
+      <div class="shared-modal-backdrop" data-furniture-modal-close></div>
+      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="furniture-delete-title" aria-describedby="furniture-delete-message">
+        <div class="shared-modal-header"><span class="shared-modal-icon" aria-hidden="true">!</span><div><p class="shared-modal-eyebrow" data-i18n="dashboard.furnitureManagementTab">家具管理</p><h3 id="furniture-delete-title"></h3></div></div>
+        <p class="shared-modal-message" id="furniture-delete-message"></p>
+        <div class="shared-modal-actions shared-modal-actions-split">
+          <button class="shared-modal-button shared-modal-button-secondary" type="button" data-furniture-modal-close data-i18n="common.cancel">取消</button>
+          <button class="shared-modal-button" type="button" id="furniture-delete-submit" data-i18n="common.confirm">确认</button>
+        </div>
+      </section>
+    </div>
     <div class="equip-detail-tooltip stage-description-tooltip" id="stage-description-tooltip" role="tooltip" hidden></div>
 
     <div class="shared-modal" hidden id="partner-detail-modal">

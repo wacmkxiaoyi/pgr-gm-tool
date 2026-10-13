@@ -57,6 +57,8 @@ app.setSelectedAccountUid = (uid) => {
     app.resetMemoryManagementView();
     app.clearItemManagementKeyword();
     app.resetItemManagementView();
+    app.clearFurnitureManagementKeyword();
+    app.resetFurnitureManagementView();
     app.clearStageManagementKeyword();
     app.resetStageManagementView();
   }
@@ -66,6 +68,7 @@ app.setSelectedAccountUid = (uid) => {
   app.updatePartnerManagementAccess();
   app.updateMemoryManagementAccess();
   app.updateItemManagementAccess();
+  app.updateFurnitureManagementAccess();
   app.updateStageManagementAccess();
   if (app.isDatabasePlayerProfileSectionActive() && app.canAccessPlayerProfile()) {
     void app.loadSelectedPlayerProfile();
@@ -87,6 +90,9 @@ app.setSelectedAccountUid = (uid) => {
   }
   if (app.isDatabaseStageManagementSectionActive() && app.canAccessStageManagement()) {
     void app.loadSelectedAccountStages(1);
+  }
+  if (app.isDatabaseFurnitureManagementSectionActive() && app.canAccessFurnitureManagement()) {
+    void app.loadSelectedAccountFurnitures(1);
   }
 };
 
@@ -308,6 +314,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
     app.updatePartnerManagementAccess(payload);
     app.updateMemoryManagementAccess(payload);
     app.updateItemManagementAccess(payload);
+    app.updateFurnitureManagementAccess(payload);
     app.updateStageManagementAccess(payload);
     return;
   }
@@ -319,6 +326,7 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
   app.updatePartnerManagementAccess(payload);
   app.updateMemoryManagementAccess(payload);
   app.updateItemManagementAccess(payload);
+  app.updateFurnitureManagementAccess(payload);
   app.updateStageManagementAccess(payload);
 };
 

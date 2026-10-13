@@ -6,6 +6,10 @@ from typing import Literal
 
 from fastapi import APIRouter, Cookie, Query, Request, Response
 from fastapi.responses import StreamingResponse
+from backend.app.db.models.player_dorm import (
+    AddFurnitureRequest, AddFurnitureResponse, ClearFurnitureResponse, DeleteFurnitureResponse,
+    FurnitureListResponse, FurnitureSortField,
+)
 
 from backend.app.apis.schemas import (
     AddCharacterRequest,
@@ -119,6 +123,13 @@ from backend.app.services.player.player_characters import (
     get_character_trust_exp_map,
 )
 from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.player_dorm import (
+    get_dorm_template_entries_map,
+    get_furniture_additional_attr_entries_map,
+    get_furniture_entries_map,
+    get_furniture_suit_name_map,
+    get_furniture_type_entires_map,
+)
 from backend.app.services.player.nameplates import get_nameplate_entires_map
 from backend.app.services.player.medals import get_medal_entires_map
 from backend.app.services.player.chat_boards import get_chat_board_entires_map
@@ -192,6 +203,11 @@ async def app_info(request: Request) -> AppInfoResponse:
         "player_background_url_map": get_player_background_url_map(),
         "player_background_name_map": get_player_background_name_map(),
         "item_name_map": get_item_name_map(),
+        "furniture_entries_map": get_furniture_entries_map(),
+        "dorm_template_entries_map": get_dorm_template_entries_map(),
+        "furniture_type_entires_map": get_furniture_type_entires_map(),
+        "furniture_suit_name_map": get_furniture_suit_name_map(),
+        "furniture_additional_attr_entries_map": get_furniture_additional_attr_entries_map(),
         "equip_name_map": get_equip_name_map(),
         "partner_entries_map": get_partner_entries_map(),
         "partner_element_skill_entiers_map": get_partner_element_skill_entiers_map(),
@@ -696,6 +712,67 @@ async def update_selected_database_player_profile(
         "current_wear_nameplate": current_wear_nameplate,
         "unlock_nameplates": unlock_nameplates,
     })
+
+
+@router.get("/database-furnitures/selected", response_model=FurnitureListResponse)
+async def get_selected_database_furnitures(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=10),
+    keyword: str | None = Query(default=None),
+    sort_by: FurnitureSortField = Query(default="record_id"),
+    sort_order: Literal["asc", "desc"] = Query(default="asc"),
+    login_session_token: str | None = Cookie(default=None),
+) -> FurnitureListResponse:
+    active_session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_view")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    return await request.app.state.player_dorm_service.list_furniture(
+        selected_uid, page=page, page_size=page_size, keyword=keyword,
+        sort_by=sort_by, sort_order=sort_order,
+    )
+
+
+@router.post("/database-furnitures/selected", response_model=AddFurnitureResponse)
+async def add_selected_database_furnitures(
+    payload: AddFurnitureRequest,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> AddFurnitureResponse:
+    active_session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    return await request.app.state.player_dorm_service.add_furniture(selected_uid, payload)
+
+
+@router.delete("/database-furnitures/selected/unused", response_model=ClearFurnitureResponse)
+async def clear_selected_unused_furnitures(
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> ClearFurnitureResponse:
+    active_session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    count = await request.app.state.player_dorm_service.clear_unused_furniture(selected_uid)
+    return ClearFurnitureResponse(deleted_count=count)
+
+
+@router.delete("/database-furnitures/selected/{record_id}", response_model=DeleteFurnitureResponse)
+async def delete_selected_database_furniture(
+    record_id: int,
+    request: Request,
+    login_session_token: str | None = Cookie(default=None),
+) -> DeleteFurnitureResponse:
+    active_session = _get_active_session(login_session_token)
+    if not is_database_snapshot_healthy(get_database_health_snapshot(request.app.state.settings)):
+        raise_http_error(409, "database.unhealthy_player_update")
+    selected_uid = await _get_selected_uid_or_error(request, active_session)
+    if not await request.app.state.player_dorm_service.delete_furniture(selected_uid, record_id):
+        raise_http_error(404, "furniture.not_found", {"record_id": record_id})
+    return DeleteFurnitureResponse(record_id=record_id, deleted=True)
 
 
 @router.get("/database-items/selected", response_model=InventoryListResponse)

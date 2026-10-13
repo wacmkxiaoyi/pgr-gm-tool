@@ -14,6 +14,12 @@ class AppError(Exception):
 
 
 ERROR_MESSAGES = {
+    'furniture.not_found': {'zh-CN': '未找到该家具。', 'en-US': 'The furniture was not found.'},
+    'furniture.config_invalid': {'zh-CN': '家具配置或自动属性配置无效。', 'en-US': 'Invalid furniture or automatic attribute configuration.'},
+    'furniture.addition_invalid': {'zh-CN': '扩展属性配置无效。', 'en-US': 'Invalid additional attribute configuration.'},
+    'furniture.basic_config_missing': {'zh-CN': '空宿舍模板缺少有效的基础家具配置，无法为全部房间分配基础家具。', 'en-US': 'The empty dormitory template lacks valid basic furniture; not all rooms can be furnished.'},
+    'furniture.conflict': {'zh-CN': '家具或房间数据已发生变化，请刷新后重试。', 'en-US': 'Furniture or room data has changed. Refresh and try again.'},
+    'furniture.in_use_delete_protected': {'zh-CN': '正在使用的地板、墙和天花板等基础家具不能删除。', 'en-US': 'In-use floors, walls, ceilings and other basic furnishings cannot be deleted.'},
     'partner.template_invalid': {'zh-CN': '辅助机模板或默认技能配置无效。', 'en-US': 'Invalid CUB template or default skill configuration.'},
     'partner.data_missing': {'zh-CN': '未找到当前用户的角色数据。', 'en-US': 'Character data was not found for the selected user.'},
     'partner.add_failed': {'zh-CN': '新增辅助机失败。', 'en-US': 'Failed to add CUBs.'},

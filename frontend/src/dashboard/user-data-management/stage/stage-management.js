@@ -354,6 +354,7 @@ app.hideStageDescriptionTooltip = () => {
     }
     stageDescriptionTooltip.hidden = true;
     stageDescriptionTooltip.textContent = '';
+    stageDescriptionTooltip.classList.remove('furniture-additions-summary-tooltip');
   }
 
   state.stageDescriptionTooltipTarget = null;
@@ -408,6 +409,12 @@ app.showStageDescriptionTooltip = (target) => {
   }
 
   stageDescriptionTooltip.textContent = text;
+  const isFurnitureSummary = target.id === 'furniture-additions-open';
+  stageDescriptionTooltip.classList.toggle('furniture-additions-summary-tooltip', isFurnitureSummary);
+  if (isFurnitureSummary) {
+    const height = Math.min(300, window.innerHeight * 0.4);
+    stageDescriptionTooltip.style.setProperty('--tooltip-lines', String(Math.max(1, Math.floor((height - 20) / 19.2))));
+  }
   stageDescriptionTooltip.hidden = false;
   stageDescriptionTooltip.style.left = '0px';
   stageDescriptionTooltip.style.top = '0px';

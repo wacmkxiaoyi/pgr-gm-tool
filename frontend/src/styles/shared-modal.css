@@ -15,12 +15,14 @@
 #account-delete-modal,
 #account-password-modal,
 #item-delete-modal,
+#furniture-delete-modal,
 #logout-confirm-modal,
 #player-mutation-risk-modal {
   z-index: 900;
 }
 
 #item-add-modal,
+#furniture-add-modal,
 #weapon-add-modal,
 #stage-skip-modal,
 #memory-add-modal,
@@ -38,6 +40,7 @@
 }
 
 #weapon-resonance-character-picker-modal,
+#furniture-additions-modal,
 #weapon-overrun-picker-modal {
   z-index: 230;
 }

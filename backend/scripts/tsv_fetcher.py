@@ -77,6 +77,12 @@ ASSET_MAP = {
     "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
     "TeamRecommendCharacterTarget.tsv": "cn/bytes/share/teamrecommend/teamrecommendcharactertarget.json",
     "TeamRecommendBaseCharacter.tsv": "cn/bytes/share/teamrecommend/teamrecommendbasecharacter.json",
+    "Furniture.tsv": "en/bytes/share/dormitory/furniture/Furniture.json",
+    "FurnitureSuit.tsv": "en/bytes/share/dormitory/furniture/FurnitureSuit.json",
+    "FurnitureType.tsv": "en/bytes/share/dormitory/furniture/FurnitureType.json",
+    "FurnitureAdditionalAttr.tsv": "en/bytes/share/dormitory/furniture/FurnitureAdditionalAttr.json",
+    "FurnitureCreateAttr.tsv": "en/bytes/share/dormitory/furniture/FurnitureCreateAttr.json",
+    "DormTemplate.tsv": "en/bytes/share/dormitory/DormTemplate.json",
     **{
         f"leveluptemplate/{template_id}.tsv": (
             f"cn/bytes/share/equip/leveluptemplate/{template_id}.json"

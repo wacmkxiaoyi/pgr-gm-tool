@@ -111,6 +111,11 @@ class AppInfoResponse(BaseModel):
     player_background_url_map: dict[int, str]
     player_background_name_map: dict[int, str]
     item_name_map: dict[int, str]
+    furniture_entries_map: dict[int, dict[str, int | str]] = Field(default_factory=dict)
+    dorm_template_entries_map: dict[int, dict[str, str | list[int]]] = Field(default_factory=dict)
+    furniture_type_entires_map: dict[int, dict[str, int | str]] = Field(default_factory=dict)
+    furniture_suit_name_map: dict[int, str] = Field(default_factory=dict)
+    furniture_additional_attr_entries_map: dict[int, dict[str, int | str]] = Field(default_factory=dict)
     equip_name_map: dict[int, str]
     partner_entries_map: dict[int, dict[str, int | str | list[int]]] = Field(default_factory=dict)
     partner_element_skill_entiers_map: dict[int, list[dict[str, Any]]] = Field(default_factory=dict)

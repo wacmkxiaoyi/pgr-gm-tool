@@ -250,6 +250,10 @@ app.renderDatabaseSnapshot = (payload) => {
       void app.loadSelectedAccountStages(state.stageManagementCurrentPage);
     }
   }
+  if (app.isDatabaseFurnitureManagementSectionActive()) {
+    app.updateFurnitureManagementAccess(payload);
+    if (app.canAccessFurnitureManagement(payload)) void app.loadSelectedAccountFurnitures();
+  }
   window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
 };
 
@@ -302,6 +306,11 @@ app.loadAppInfo = async () => {
     state.playerBackgroundUrlMap = payload?.player_background_url_map && typeof payload.player_background_url_map === 'object' ? payload.player_background_url_map : {};
     state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
     state.itemNameMap = payload?.item_name_map && typeof payload.item_name_map === 'object' ? payload.item_name_map : {};
+    state.furnitureEntriesMap = payload?.furniture_entries_map && typeof payload.furniture_entries_map === 'object' ? payload.furniture_entries_map : {};
+    state.furnitureTypeEntiresMap = payload?.furniture_type_entires_map && typeof payload.furniture_type_entires_map === 'object' ? payload.furniture_type_entires_map : {};
+    state.furnitureSuitNameMap = payload?.furniture_suit_name_map && typeof payload.furniture_suit_name_map === 'object' ? payload.furniture_suit_name_map : {};
+    state.furnitureAdditionalAttrEntriesMap = payload?.furniture_additional_attr_entries_map && typeof payload.furniture_additional_attr_entries_map === 'object' ? payload.furniture_additional_attr_entries_map : {};
+    state.dormTemplateEntriesMap = payload?.dorm_template_entries_map && typeof payload.dorm_template_entries_map === 'object' ? payload.dorm_template_entries_map : {};
     state.equipNameMap = payload?.equip_name_map && typeof payload.equip_name_map === 'object' ? payload.equip_name_map : {};
     state.partnerEntriesMap = payload?.partner_entries_map && typeof payload.partner_entries_map === 'object' ? payload.partner_entries_map : {};
     state.partnerElementSkillEntiersMap = payload?.partner_element_skill_entiers_map ?? {};
@@ -345,6 +354,11 @@ app.loadAppInfo = async () => {
     state.playerHonorLevelMax = 0;
     state.playerHonorLevelMaxExpMap = {};
     state.itemNameMap = {};
+    state.furnitureEntriesMap = {};
+    state.furnitureTypeEntiresMap = {};
+    state.furnitureSuitNameMap = {};
+    state.furnitureAdditionalAttrEntriesMap = {};
+    state.dormTemplateEntriesMap = {};
     state.equipNameMap = {};
     state.partnerEntriesMap = {};
     state.partnerElementSkillEntiersMap = {};

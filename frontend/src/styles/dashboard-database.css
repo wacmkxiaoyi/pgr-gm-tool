@@ -1197,6 +1197,79 @@ button.character-equip-switch-current-card:focus-visible {
   font: inherit;
 }
 
+.furniture-add-card {
+  width: min(100%, 860px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow: hidden;
+}
+.furniture-add-content { min-height: 0; overflow: auto; }
+.furniture-add-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.furniture-add-modes { display: flex; align-items: center; gap: 16px; }
+.furniture-add-modes .furniture-option { font-size: 13px; }
+.furniture-add-topbar .item-add-search-input { flex: 1 1 180px; width: auto; min-width: 160px; }
+.furniture-add-table.is-group-mode col:first-child { width: auto; }
+.furniture-add-table.is-group-mode col:last-child { width: 90px; }
+.furniture-add-table [hidden] { display: none; }
+.furniture-option { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.accounts-table.furniture-add-table, .accounts-table.furniture-additions-table { min-width: 600px; table-layout: fixed; }
+.furniture-add-card .shared-modal-actions, .furniture-add-card .shared-modal-header { flex-shrink: 0; }
+.furniture-advanced { margin-top: 20px; }
+.furniture-advanced summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid rgba(148, 163, 184, 0.3); cursor: pointer; list-style: none; font-weight: 600; }
+.furniture-advanced summary::-webkit-details-marker { display: none; }
+.furniture-advanced-arrow { transition: transform .2s; font-size: 24px; }
+.furniture-advanced[open] .furniture-advanced-arrow { transform: rotate(180deg); }
+.furniture-attributes { border: 0; margin: 0; padding: 10px 0; min-width: 0; }
+.furniture-attributes legend { font-weight: 600; }
+.furniture-attr-row { display: flex; align-items: center; gap: 18px; padding: 10px 0; flex-wrap: wrap; }
+.furniture-attr-description { color: var(--muted); font-size: 13px; }
+.furniture-custom-inputs { display: flex; gap: 12px; flex-wrap: wrap; }
+.furniture-custom-inputs label { display: grid; gap: 6px; font-size: 13px; }
+.furniture-custom-inputs input { width: 140px; }
+.furniture-custom-inputs.is-disabled, .furniture-attr-description.is-disabled { opacity: .45; }
+.furniture-additions { display: grid; gap: 10px; padding: 12px 0; }
+#furniture-additions-open {
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: var(--text);
+  box-shadow: none;
+}
+#furniture-additions-open:hover {
+  background: rgba(148, 163, 184, 0.2);
+  border-color: rgba(100, 116, 139, 0.5);
+  box-shadow: none;
+  transform: none;
+  filter: none;
+}
+#furniture-additions-open:focus-visible {
+  outline: 2px solid rgba(124, 92, 246, 0.8);
+  outline-offset: 3px;
+  box-shadow: none;
+}
+.furniture-add-table [data-furniture-select], .furniture-additions-table [data-furniture-select] { cursor: pointer; }
+
+.accounts-table.furniture-management-table { table-layout: fixed; width: 100%; min-width: 1500px; }
+.furniture-col-id { width: 70px; }
+.furniture-col-name { width: 170px; }
+.furniture-col-type { width: 110px; }
+.furniture-col-description { width: 260px; }
+.furniture-col-suit { width: 150px; }
+.furniture-col-stat { width: 100px; }
+.furniture-col-addition { width: 240px; }
+.furniture-col-actions { width: 110px; }
+.furniture-management-table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.furniture-management-table [data-furniture-delete]:disabled {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.24);
+  box-shadow: none;
+}
+
 .character-detail-main-icon-shell-button {
   padding: 0;
   overflow: hidden;
@@ -3150,6 +3223,22 @@ button.character-equip-switch-current-card:focus-visible {
 .stage-description-tooltip {
   z-index: 1201;
 }
+
+.furniture-additions-summary-tooltip {
+  box-sizing: border-box;
+  width: max-content;
+  min-width: min(180px, calc(100vw - 24px));
+  max-width: min(560px, calc(100vw - 24px));
+  max-height: min(300px, 40vh);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--tooltip-lines, 12);
+  line-clamp: var(--tooltip-lines, 12);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.furniture-additions-summary-tooltip[hidden] { display: none; }
 
 .partner-description-tooltip { z-index: 1300; }
 .partner-management-table { table-layout: fixed; min-width: 820px; }

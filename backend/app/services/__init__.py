@@ -18,6 +18,7 @@ from backend.app.services.database_control import database_health_check_loop
 from backend.app.services.player.player_equips_service import PlayerEquipsService
 from backend.app.services.player.player_characters_service import PlayerCharactersService
 from backend.app.services.player.player_items_service import PlayerItemsService
+from backend.app.services.player.player_dorm_service import PlayerDormService
 from backend.app.services.player.player_profile_service import PlayerProfileService
 from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.server_control import ServerController, health_check_loop
@@ -53,6 +54,7 @@ def init_app(app, settings):
     app.state.pgr_server_controller = ServerController(settings)
     app.state.database_accounts_service = DatabaseAccountsService(settings, app.state.db_schema_runtime)
     app.state.player_items_service = PlayerItemsService(settings, app.state.db_schema_runtime)
+    app.state.player_dorm_service = PlayerDormService(settings, app.state.db_schema_runtime)
     app.state.player_profile_service = PlayerProfileService(settings, app.state.player_items_service, app.state.db_schema_runtime)
     app.state.player_characters_service = PlayerCharactersService(settings, app.state.db_schema_runtime)
     app.state.player_equips_service = PlayerEquipsService(settings, app.state.db_schema_runtime)

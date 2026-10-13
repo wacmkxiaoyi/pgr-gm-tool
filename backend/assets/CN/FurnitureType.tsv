@@ -1,0 +1,14 @@
+﻿Id	Priority	MajorType	MajorName	MinorType	MinorName	Category	CategoryName	TypeIcon	BtnIcon
+25001	10	1	改造	1	地板	1	地板	Assets/Product/Texture/Image/IconTools/IconDormBasisfloor001.png	Assets/Product/Texture/Image/IconTools/IconDormBasisfloor001.png
+25002	11	1	改造	2	墙	2	墙	Assets/Product/Texture/Image/IconTools/IconDormBasiswall001.png	Assets/Product/Texture/Image/IconTools/IconDormBasiswall001.png
+25003	12	1	改造	3	天花板	3	天花板	Assets/Product/Texture/Image/IconTools/IconDormBasisceiling001.png	Assets/Product/Texture/Image/IconTools/IconDormBasisceiling001.png
+25004	1	2	家具	4	大件	4	沙发	Assets/Product/Texture/Image/IconTools/IconDormBasissofa001.png	Assets/Product/Texture/Image/IconTools/IconDormBasissofa001.png
+25005	2	2	家具	4	大件	5	床	Assets/Product/Texture/Image/IconTools/IconDormBasisbed001.png	Assets/Product/Texture/Image/IconTools/IconDormBasissofa001.png
+25006	3	2	家具	4	大件	6	柜子	Assets/Product/Texture/Image/IconTools/IconDormBasiswardrobe001.png	Assets/Product/Texture/Image/IconTools/IconDormBasissofa001.png
+25007	4	2	家具	4	大件	7	桌子	Assets/Product/Texture/Image/IconTools/IconDormBasistable001.png	Assets/Product/Texture/Image/IconTools/IconDormBasissofa001.png
+25008	5	2	家具	5	小件	8	椅子	Assets/Product/Texture/Image/IconTools/IconDormBasischair001.png	Assets/Product/Texture/Image/IconTools/IconDormBasischair001.png
+25009	6	2	家具	5	小件	9	板凳	Assets/Product/Texture/Image/IconTools/IconDormBasisstool001.png	Assets/Product/Texture/Image/IconTools/IconDormBasischair001.png
+25010	7	2	家具	5	小件	10	矮柜	Assets/Product/Texture/Image/IconTools/IconDormBasiscabinet001.png	Assets/Product/Texture/Image/IconTools/IconDormBasischair001.png
+25011	8	2	家具	5	小件	11	物件	Assets/Product/Texture/Image/IconTools/IconDormBasisterminal001.png	Assets/Product/Texture/Image/IconTools/IconDormBasischair001.png
+25012	9	2	家具	6	挂饰	12	挂饰	Assets/Product/Texture/Image/IconTools/IconDormBasisairconditioning001.png	Assets/Product/Texture/Image/IconTools/IconDormBasisairconditioning001.png
+25013	13	2	家具	8	隔离墙	13	隔离墙	Assets/Product/Texture/Image/IconTools/IconDormBasiswall2.png	Assets/Product/Texture/Image/IconTools/IconDormBasiswall2.png

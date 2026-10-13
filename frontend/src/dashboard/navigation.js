@@ -14,6 +14,7 @@ app.closeSidebar = () => {
 };
 
 app.setActiveDashboardPage = (pageKey) => {
+  app.hideStageDescriptionTooltip?.();
   let matched = false;
   const serverManagementAvailable = app.state.serverManagementEnabled;
   const isAvailablePage = (key) => key !== 'server-management' || serverManagementAvailable;
@@ -70,6 +71,7 @@ app.focusContentStart = () => {
 };
 
 app.setActiveDatabaseTab = (tabId) => {
+  app.hideStageDescriptionTooltip?.();
   let matched = false;
 
   databaseTabButtons.forEach((button) => {
@@ -201,6 +203,10 @@ app.initNavigation = () => {
       if (tabId === 'database-stage-management-section' && app.canAccessStageManagement()) {
         app.updateStageManagementAccess();
         void app.loadSelectedAccountStages(app.state.stageManagementCurrentPage);
+      }
+      if (tabId === 'database-furniture-management-section' && app.canAccessFurnitureManagement()) {
+        app.updateFurnitureManagementAccess();
+        void app.loadSelectedAccountFurnitures();
       }
     });
   });

@@ -33,6 +33,8 @@ import { initDatabaseCharacterManagementFeature } from './character/character-ma
 import { initDatabaseCharacterAddModalFeature } from './character/character-add-modal.js';
 import { initDatabaseEquipResonanceSharedFeature } from './shared/equip-resonance-shared.js';
 import { initDatabaseItemManagementFeature } from './item/item-management.js';
+import { initDatabaseFurnitureManagementFeature } from './furniture/furniture-management.js';
+import { initDatabaseFurnitureAddModalFeature } from './furniture/furniture-add-modal.js';
 import { initDatabaseStageManagementFeature } from './stage/stage-management.js';
 import { initDatabaseStageSkipModalFeature } from './stage/stage-skip-modal.js';
 import { initDatabaseMemoryManagementFeature } from './memory/memory-management.js';
@@ -58,6 +60,8 @@ export const initDatabaseFeature = () => {
   initDatabaseCharacterAddModalFeature();
   initDatabaseEquipResonanceSharedFeature();
   initDatabaseItemManagementFeature();
+  initDatabaseFurnitureManagementFeature();
+  initDatabaseFurnitureAddModalFeature();
   initDatabaseStageManagementFeature();
   initDatabaseStageSkipModalFeature();
   initDatabaseMemoryManagementFeature();

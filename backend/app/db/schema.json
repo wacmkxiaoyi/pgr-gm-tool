@@ -6792,7 +6792,264 @@
     },
     "dorm": {
       "type": "object",
-      "default": {}
+      "default": {},
+      "schema": {
+        "rooms": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "name": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        },
+        "characters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "character_id": {
+              "type": "number",
+              "default": 0
+            },
+            "dormitory_id": {
+              "type": "number",
+              "default": -1
+            },
+            "mood": {
+              "type": "number",
+              "default": 0
+            },
+            "vitality": {
+              "type": "number",
+              "default": 0
+            },
+            "mood_speed": {
+              "type": "number",
+              "default": 0
+            },
+            "vitality_speed": {
+              "type": "number",
+              "default": 0
+            },
+            "last_fondle_recovery_time": {
+              "type": "number",
+              "default": 0
+            },
+            "left_fondle_count": {
+              "type": "number",
+              "default": 0
+            },
+            "last_recovery_time": {
+              "type": "number",
+              "default": 0
+            },
+            "event_list": {
+              "type": "array",
+              "default": []
+            }
+          }
+        },
+        "work_list": {
+          "type": "array",
+          "default": []
+        },
+        "pending_rewards": {
+          "type": "array",
+          "default": []
+        },
+        "furniture": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "config_id": {
+              "type": "number",
+              "default": 0
+            },
+            "x": {
+              "type": "number",
+              "default": 0
+            },
+            "y": {
+              "type": "number",
+              "default": 0
+            },
+            "angle": {
+              "type": "number",
+              "default": 0
+            },
+            "dormitory_id": {
+              "type": "number",
+              "default": -1
+            },
+            "addition": {
+              "type": "number",
+              "default": 0
+            },
+            "attr_list": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "base_attr_list": {
+              "type": "array",
+              "default": [
+                3,
+                3,
+                3
+              ],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "is_locked": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "furniture_create_list": {
+          "type": "array",
+          "default": []
+        },
+        "furniture_unlocks": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "layouts": {
+          "type": "array",
+          "default": []
+        },
+        "bind_relations": {
+          "type": "array",
+          "default": []
+        },
+        "shares": {
+          "type": "array",
+          "default": []
+        },
+        "visits": {
+          "type": "array",
+          "default": []
+        },
+        "quest": {
+          "type": "object",
+          "default": {},
+          "schema": {
+            "reset_count": {
+              "type": "number",
+              "default": 0
+            },
+            "next_refresh_time": {
+              "type": "number",
+              "default": 0
+            },
+            "terminal_lv": {
+              "type": "number",
+              "default": 1
+            },
+            "terminal_upgrade_exp": {
+              "type": "number",
+              "default": 0
+            },
+            "finish_quest_count": {
+              "type": "number",
+              "default": 0
+            },
+            "terminal_upgrade_time": {
+              "type": "number",
+              "default": 0
+            },
+            "terminal_upgrade_status": {
+              "type": "number",
+              "default": 0
+            },
+            "finish_quests": {
+              "type": "array",
+              "default": []
+            },
+            "trigger_limited_quest": {
+              "type": "array",
+              "default": []
+            },
+            "total_quest": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "quest_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "file_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "index": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_special_quest": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "reset_count": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "quest_accept": {
+              "type": "array",
+              "default": []
+            },
+            "collect_files": {
+              "type": "array",
+              "default": []
+            }
+          }
+        },
+        "next_furniture_id": {
+          "type": "number",
+          "default": 1
+        },
+        "next_layout_id": {
+          "type": "number",
+          "default": 10001
+        },
+        "last_snapshot_time": {
+          "type": "number",
+          "default": 0
+        },
+        "last_recommend_time": {
+          "type": "number",
+          "default": 0
+        },
+        "work_next_refresh_time": {
+          "type": "number",
+          "default": 0
+        },
+        "event_next_refresh_time": {
+          "type": "number",
+          "default": 0
+        },
+        "snapshot_times": {
+          "type": "number",
+          "default": 0
+        }
+      }
     },
     "draw_state": {
       "type": "object",
