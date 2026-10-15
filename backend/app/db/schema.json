@@ -84,6 +84,24 @@
       "type": "number",
       "default": 0
     },
+    "accumulated_pay_money": {
+      "type": "number",
+      "default": 0
+    },
+    "accumulated_pay_reward_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "accumulated_extra_pay_reward_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
     "pending_partner_decompose": {
       "type": "object",
       "default": null,
@@ -7470,6 +7488,13 @@
         "RecycleTime": {
           "type": "number",
           "default": 0
+        },
+        "SelectRewardIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
         },
         "Goods": {
           "type": "array",

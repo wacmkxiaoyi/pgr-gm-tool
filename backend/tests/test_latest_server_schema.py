@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 from bson import BSON, Binary, json_util
@@ -13,6 +14,9 @@ from bson.int64 import Int64
 
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime
 from backend.app.services.player import player_stages_service
+from backend.app.services.player import player_profile_service
+from backend.app.db.models import UpdatePlayerProfilePayload
+from backend.app.services.player.player_profile_service import PlayerProfileService
 from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.player.player_equips_service import PlayerEquipsService
 from backend.app.services.player.player_characters_service import PlayerCharactersService
@@ -30,6 +34,11 @@ def test_latest_state_defaults_and_removed_fields():
     assert schema.build_default('pending_partner_decompose') is None
     assert schema.build_default('pending_recharge') is None
     assert schema.build_default('recharge_sequence') == 0
+    assert schema.build_default('accumulated_pay_money') == 0
+    assert schema.build_default('accumulated_pay_reward_ids') == []
+    assert schema.build_default('accumulated_extra_pay_reward_ids') == []
+    assert schema.build_default('pending_item_use') is None
+    assert schema.build_default('pending_item_use.SelectRewardIds') == []
     world = schema.build_default('big_world_state')
     for field in ('last_self_runtime_id', 'big_world_course_read_element_ids', 'big_world_course_task_progress'):
         assert field not in world
@@ -116,6 +125,57 @@ def test_stage_edit_does_not_reset_boss_period(monkeypatch):
     assert updates[1] == {'$set': {'stages': []}}
 
 
+@pytest.mark.parametrize('money,selections', [(0, []), (2**40 + 60, [101, 102, 101])])
+def test_accumulated_pay_and_pending_choice_survive_bson(money, selections):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    state = {
+        'accumulated_pay_money': Int64(money),
+        'accumulated_pay_reward_ids': [1, 3],
+        'accumulated_extra_pay_reward_ids': [2],
+        'pending_item_use': {'ClaimKey': 'item-use:42:1', 'ItemId': 7, 'Count': 3, 'RecycleTime': 0,
+                             'SelectRewardIds': selections,
+                             'Goods': [{'_id': 101, 'TemplateId': 60, 'Count': 3, 'Params': []}]},
+    }
+    normalized = schema.sanitize_document(state, fill_defaults=False)
+    assert normalized == state
+    decoded = BSON.encode(normalized).decode()
+    assert decoded == state
+    assert isinstance(decoded['accumulated_pay_money'], Int64)
+    legacy = dict(state['pending_item_use'])
+    del legacy['SelectRewardIds']
+    assert schema.materialize_subpath('pending_item_use', legacy)['SelectRewardIds'] == []
+
+
+def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch):
+    runtime = DatabaseSchemaRuntime()
+    writes = []
+
+    class Collection:
+        def __init__(self, name):
+            self.name = name
+
+        async def find_one(self, *args):
+            return {'_id': 'inventory', 'items': [{'_id': 5, 'Count': Int64(60)}]}
+
+        async def update_one(self, query, update):
+            writes.append((self.name, update))
+            return SimpleNamespace(matched_count=1)
+
+    class Client:
+        def __getitem__(self, name):
+            return self if name == 'test' else Collection(name)
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(player_profile_service, 'create_mongo_client', lambda _: Client())
+    service = PlayerProfileService(SimpleNamespace(mongo_db='test'), SimpleNamespace(), runtime)
+    monkeypatch.setattr(service, 'get_player_profile', AsyncMock(return_value=None))
+    asyncio.run(service.update_player_profile(42, UpdatePlayerProfilePayload(name='updated', rainbow_card=120)))
+    assert writes == [('players', {'$set': {'player_data.Name': 'updated'}}),
+                      ('inventory', {'$set': {'items.$.Count': Int64(120)}})]
+
+
 def _read_persisted_classes(server):
     """Extract actual C# auto-properties/BSON attributes; ignore protocol-only attributes.
 
@@ -124,6 +184,7 @@ def _read_persisted_classes(server):
     """
     files = list((server / 'AscNet.Common/Database/BigWorld').glob('*.cs')) + [
         server / 'AscNet.Common/Database/Player.Purchases.cs',
+        server / 'AscNet.Common/Database/Player.ItemUse.cs',
         server / 'AscNet.Common/Database/Player.PartnerArchive.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SkyGarden.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SgStreet.cs',
@@ -160,6 +221,10 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'pending_purchase': 'PlayerPendingPurchase', 'pending_recharge': 'PlayerPendingRecharge',
         'pending_partner_decompose': 'PartnerDecomposePendingOperation',
         'partner_decompose_completions': 'List<PartnerDecomposeCompletion>',
+        'pending_item_use': 'ItemUsePendingOperation',
+        'accumulated_pay_money': 'long',
+        'accumulated_pay_reward_ids': 'List<int>',
+        'accumulated_extra_pay_reward_ids': 'List<int>',
         'partners': 'List<PartnerData>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
@@ -236,6 +301,10 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         return characters_schema if name == 'partners' else schema
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
+    payload['accumulated_pay_money'] = Int64(2**40 + 60)
+    payload['accumulated_pay_reward_ids'] = [1, 3]
+    payload['accumulated_extra_pay_reward_ids'] = [2]
+    payload['pending_item_use']['SelectRewardIds'] = [101, 102, 101]
     # Verify actual new-feature writes, not only synthetic schema defaults:
     # every language-local add/max template and representative detail edits.
     equips = PlayerEquipsService(SimpleNamespace(), runtime)
