@@ -1211,6 +1211,178 @@
         }
       }
     },
+    "cerberus_game": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "pass_story_points": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "passed": {
+              "type": "boolean",
+              "default": false
+            },
+            "star_mark": {
+              "type": "number",
+              "default": 0
+            },
+            "got_star_reward_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "stage_params": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "team_info": {
+              "type": "object",
+              "schema": {
+                "CharacterIdList": {
+                  "type": "array",
+                  "default": [0, 0, 0],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "RobotIdList": {
+                  "type": "array",
+                  "default": [0, 0, 0],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 1
+                },
+                "FirstFightPos": {
+                  "type": "number",
+                  "default": 1
+                }
+              }
+            }
+          }
+        },
+        "chapter_teams": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "chapter_id": {
+              "type": "number",
+              "default": 0
+            },
+            "team_info": {
+              "type": "object",
+              "schema": {
+                "CharacterIdList": {
+                  "type": "array",
+                  "default": [0, 0, 0],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "RobotIdList": {
+                  "type": "array",
+                  "default": [0, 0, 0],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 1
+                },
+                "FirstFightPos": {
+                  "type": "number",
+                  "default": 1
+                }
+              }
+            }
+          }
+        },
+        "fight": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "fight_id": {
+              "type": "number",
+              "default": 0
+            },
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "pre_fight": {
+              "type": "binary"
+            },
+            "result": {
+              "type": "binary",
+              "default": null
+            },
+            "stage_data": {
+              "type": "binary",
+              "default": null
+            },
+            "is_first_clear": {
+              "type": "boolean",
+              "default": false
+            },
+            "reward_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "fight_receipts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "result_hash": {
+                  "type": "binary"
+                },
+                "response": {
+                  "type": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "same_color_game": {
       "type": "object",
       "schema": {

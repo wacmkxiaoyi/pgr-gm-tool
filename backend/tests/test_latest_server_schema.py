@@ -176,6 +176,50 @@ def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch):
                       ('inventory', {'$set': {'items.$.Count': Int64(120)}})]
 
 
+def test_cerberus_defaults_and_team_slots():
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('cerberus_game') == {
+        'activity_id': 0, 'pass_story_points': [], 'stages': [], 'chapter_teams': [],
+        'fight': None, 'fight_receipts': [],
+    }
+    for path in ('cerberus_game.stages.0.team_info', 'cerberus_game.chapter_teams.0.team_info'):
+        assert schema.build_default(path) == {
+            'CharacterIdList': [0, 0, 0], 'RobotIdList': [0, 0, 0], 'CaptainPos': 1, 'FirstFightPos': 1,
+        }
+    assert schema.materialize_subpath('cerberus_game.fight', None) is None
+
+
+def _cerberus_sample(settled):
+    team = {'CharacterIdList': [1011002, 0, 0], 'RobotIdList': [0, 12, 13],
+            'CaptainPos': 2, 'FirstFightPos': 3}
+    return {
+        'activity_id': 2, 'pass_story_points': [11, 12],
+        'stages': [{'stage_id': 90001, 'passed': True, 'star_mark': 7,
+                    'got_star_reward_ids': [21, 22], 'stage_params': [2, 1], 'team_info': team}],
+        'chapter_teams': [{'chapter_id': 1, 'team_info': copy.deepcopy(team)}],
+        'fight': {'fight_id': 12345, 'stage_id': 90001, 'pre_fight': b'\x81\xff\x00',
+                  'result': b'\x92\x01\x02' if settled else None,
+                  'stage_data': b'\x80' if settled else None,
+                  'is_first_clear': True, 'reward_ids': [21, 22]},
+        'fight_receipts': [{'k': 12344, 'v': {'stage_id': 90002,
+                            'result_hash': bytes(range(32)), 'response': b'\x81\x00\xff'}}],
+    }
+
+
+@pytest.mark.parametrize('settled', [False, True])
+def test_cerberus_progress_and_recovery_binary_survive_bson(settled):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    state = _cerberus_sample(settled)
+    normalized = schema.materialize_subpath('cerberus_game', state)
+    assert normalized == state
+    decoded = BSON.encode(normalized).decode()
+    assert decoded == state
+    assert decoded['fight']['pre_fight'] == b'\x81\xff\x00'
+    assert decoded['fight_receipts'][0]['v']['result_hash'] == bytes(range(32))
+    assert schema.allows_update_path('cerberus_game.fight_receipts.0.v.response')
+    assert schema.allows_update_path('cerberus_game.stages.$[stage].team_info.CaptainPos')
+
+
 def _read_persisted_classes(server):
     """Extract actual C# auto-properties/BSON attributes; ignore protocol-only attributes.
 
@@ -186,6 +230,9 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/Database/Player.Purchases.cs',
         server / 'AscNet.Common/Database/Player.ItemUse.cs',
         server / 'AscNet.Common/Database/Player.PartnerArchive.cs',
+        server / 'AscNet.Common/Database/Player.CerberusGame.cs',
+        server / 'AscNet.Common/Database/Player.CerberusGame.Combat.cs',
+        server / 'AscNet.Common/MsgPack/CerberusGame.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SkyGarden.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SgStreet.cs',
         server / 'AscNet.Common/MsgPack/Theatre5.cs',
@@ -197,7 +244,7 @@ def _read_persisted_classes(server):
         text = file.read_text(encoding='utf-8-sig')
         # Match property bodies with a single brace pair; class body ends at a
         # line with the class's own indentation (nested Types.cs classes included).
-        for match in re.finditer(r'(?m)^(?P<indent> *)public (?:sealed |partial )?class (?P<name>\w+)[^\n]*\n *\{', text):
+        for match in re.finditer(r'(?m)^(?P<indent> *)public (?:sealed |partial )*class (?P<name>\w+)[^\n]*\n *\{', text):
             end = re.search(r'(?m)^' + re.escape(match['indent']) + r'\}', text[match.end():])
             if not end:
                 continue
@@ -225,6 +272,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'accumulated_pay_money': 'long',
         'accumulated_pay_reward_ids': 'List<int>',
         'accumulated_extra_pay_reward_ids': 'List<int>',
+        'cerberus_game': 'CerberusGameState',
         'partners': 'List<PartnerData>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
@@ -305,6 +353,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
     payload['accumulated_pay_reward_ids'] = [1, 3]
     payload['accumulated_extra_pay_reward_ids'] = [2]
     payload['pending_item_use']['SelectRewardIds'] = [101, 102, 101]
+    payload['cerberus_game'] = _cerberus_sample(settled=True)
     # Verify actual new-feature writes, not only synthetic schema defaults:
     # every language-local add/max template and representative detail edits.
     equips = PlayerEquipsService(SimpleNamespace(), runtime)
