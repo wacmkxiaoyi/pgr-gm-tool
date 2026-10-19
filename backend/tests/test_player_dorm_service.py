@@ -243,7 +243,7 @@ def test_add_by_suits_adds_one_of_each_configuration(dorm_service):
         asyncio.run(service.add_furniture(42, AddFurnitureRequest(suit_ids=[999], addition_ids=[])))
 
 
-@pytest.mark.parametrize("room_count", [0, 1, 7])
+@pytest.mark.parametrize("room_count", [0, 1, 7, 30])
 def test_unlock_all_rebuilds_template_counts_and_fills_rooms_from_empty_template(dorm_service, monkeypatch, room_count):
     service, collection = dorm_service
     entries = {10: {"TypeId": 1, "SuitId": 4}, 20: {"TypeId": 2, "SuitId": 4},

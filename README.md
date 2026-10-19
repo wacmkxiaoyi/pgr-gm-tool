@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `3785269e4582f1da560e9dc6684996e273604e90`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `cda8c6c46095af122d49564a8dc2edd3f3bd0ebf`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
@@ -110,6 +110,8 @@ AUTO_UPDATE_TIMEOUT=20 bash quick_start.sh
 Changing the rainbow-card balance in GM does not increase Total Recharge progress. The server tracks accumulated recharge separately from the item balance and credits it only for completed recharge products.
 
 Stage management edits raw completion records only. It does not synchronize CerberusGame story points, route choices, star-reward claims, or activity teams; those are separate server-owned activity state.
+
+It also does not resolve MaintainerAction (Operation Guardians) board nodes, change action counts, or grant activity rewards.
 
 When login is disabled, anyone who can reach the application can operate the GM tool. Use this mode only on a trusted local machine or protected network.
 

@@ -119,7 +119,12 @@ def test_fixed_memory_resonances_follow_each_character_career(monkeypatch, langu
                     {**entries[site % len(entries)], "Slot": slot + 1, "CharacterId": character_id}
                     for slot, entries in enumerate(FIXED_CHARACTER_MAX_MEMORY_RESONANCES[group])
                 ]
-        assert covered_groups == set(FIXED_CHARACTER_MAX_MEMORY_RESONANCES)
+        # Configured career groups may overlap; the first matching group wins.
+        assert covered_groups == {
+            next(group for group in FIXED_CHARACTER_MAX_MEMORY_RESONANCES if career in group)
+            for career in careers.values()
+            if any(career in group for group in FIXED_CHARACTER_MAX_MEMORY_RESONANCES)
+        }
     finally:
         characters.get_character_max_template_map.cache_clear()
         resources.resource_language.reset(token)

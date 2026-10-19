@@ -20,6 +20,7 @@ from backend.app.services.player.player_profile_service import PlayerProfileServ
 from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.player.player_equips_service import PlayerEquipsService
 from backend.app.services.player.player_characters_service import PlayerCharactersService
+from backend.app.services.player.player_characters import get_character_max_template_map
 from backend.app.services.player.equips.partner import build_partner_max_save_template, get_partner_entries_map
 from backend.app.utils.resource_language import resource_language
 
@@ -220,6 +221,67 @@ def test_cerberus_progress_and_recovery_binary_survive_bson(settled):
     assert schema.allows_update_path('cerberus_game.stages.$[stage].team_info.CaptainPos')
 
 
+def test_maintainer_action_defaults():
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('maintainer_action') == {
+        'config_id': 0, 'week': 0, 'day': 0, 'seed': 0, 'draws': 0, 'player_node_id': 0,
+        'reverse': False, 'triggered': True, 'landing': 0, 'cards': [], 'fight_win_count': 0,
+        'box_count': 0, 'used_action_count': 0, 'extra_action_count': 0, 'has_warehouse_node': False,
+        'warehouse_finish_count': 0, 'start_bonus_claimed': False, 'nodes': [], 'records': [], 'last_event': None,
+    }
+    assert schema.build_default('maintainer_action.nodes.0.value') is None
+    assert schema.materialize_subpath('maintainer_action.last_event', None) is None
+
+
+def _maintainer_sample(seed, value):
+    return {
+        'config_id': 1, 'week': Int64(2000), 'day': Int64(20001), 'seed': Int64(seed),
+        'draws': 83, 'player_node_id': 3, 'reverse': True, 'triggered': False, 'landing': 7,
+        'cards': [3, 1, 3], 'fight_win_count': 2, 'box_count': 1, 'used_action_count': 4,
+        'extra_action_count': 2, 'has_warehouse_node': True, 'warehouse_finish_count': 1,
+        'start_bonus_claimed': True,
+        'nodes': [{'node_id': 3, 'node_type': 3, 'event_id': 3, 'value': value, 'revealed': False}],
+        'records': [{'time': Int64(2**40), 'event_id': 1, 'values': [3, 1, 3]}],
+        'last_event': {'landing': 6, 'node_id': 2, 'node_type': 3, 'event_id': 3, 'value': value},
+    }
+
+
+@pytest.mark.parametrize('seed,value', [(-(2**63), None), (2**63 - 1, '{ "RewardId": 7, "label": "补给" }')])
+def test_maintainer_action_seed_and_receipts_survive_bson(seed, value):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    state = _maintainer_sample(seed, value)
+    normalized = schema.materialize_subpath('maintainer_action', state)
+    assert normalized == state
+    decoded = BSON.encode(normalized).decode()
+    assert decoded == state
+    for field in ('week', 'day', 'seed'):
+        assert isinstance(decoded[field], Int64)
+    assert isinstance(decoded['records'][0]['time'], Int64)
+    assert decoded['nodes'][0]['value'] == value
+    assert decoded['last_event']['value'] == value
+    assert schema.allows_update_path('maintainer_action.nodes.$[node].value')
+
+
+@pytest.mark.parametrize('language', ['CN', 'EN'])
+def test_max_weapon_documents_keep_real_resonance_and_harmonization(language):
+    service = PlayerCharactersService(SimpleNamespace(), DatabaseSchemaRuntime())
+    token = resource_language.set(language)
+    try:
+        weapons = [template['weapon'] for template in get_character_max_template_map().values()]
+        assert weapons
+        for weapon in weapons:
+            document = service._build_equip_document([], weapon)
+            decoded = BSON.encode(document).decode()
+            assert len(decoded['ResonanceInfo']) == len(weapon['ResonanceInfo'])
+            for actual, expected in zip(decoded['ResonanceInfo'], weapon['ResonanceInfo']):
+                assert {field: actual[field] for field in expected} == expected
+            assert decoded['CharacterId'] == weapon['CharacterId']
+            for field, value in weapon['WeaponOverrunData'].items():
+                assert decoded['WeaponOverrunData'][field] == value
+    finally:
+        resource_language.reset(token)
+
+
 def _read_persisted_classes(server):
     """Extract actual C# auto-properties/BSON attributes; ignore protocol-only attributes.
 
@@ -232,6 +294,7 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/Database/Player.PartnerArchive.cs',
         server / 'AscNet.Common/Database/Player.CerberusGame.cs',
         server / 'AscNet.Common/Database/Player.CerberusGame.Combat.cs',
+        server / 'AscNet.Common/Database/Player.MaintainerAction.cs',
         server / 'AscNet.Common/MsgPack/CerberusGame.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SkyGarden.cs',
         server / 'AscNet.Common/MsgPack/BigWorld/SgStreet.cs',
@@ -273,6 +336,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'accumulated_pay_reward_ids': 'List<int>',
         'accumulated_extra_pay_reward_ids': 'List<int>',
         'cerberus_game': 'CerberusGameState',
+        'maintainer_action': 'MaintainerActionState',
         'partners': 'List<PartnerData>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
@@ -354,6 +418,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
     payload['accumulated_extra_pay_reward_ids'] = [2]
     payload['pending_item_use']['SelectRewardIds'] = [101, 102, 101]
     payload['cerberus_game'] = _cerberus_sample(settled=True)
+    payload['maintainer_action'] = _maintainer_sample(-(2**63), '{ "RewardId": 7 }')
     # Verify actual new-feature writes, not only synthetic schema defaults:
     # every language-local add/max template and representative detail edits.
     equips = PlayerEquipsService(SimpleNamespace(), runtime)

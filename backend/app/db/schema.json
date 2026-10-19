@@ -1211,6 +1211,155 @@
         }
       }
     },
+    "maintainer_action": {
+      "type": "object",
+      "schema": {
+        "config_id": {
+          "type": "number",
+          "default": 0
+        },
+        "week": {
+          "type": "number",
+          "default": 0
+        },
+        "day": {
+          "type": "number",
+          "default": 0
+        },
+        "seed": {
+          "type": "number",
+          "default": 0
+        },
+        "draws": {
+          "type": "number",
+          "default": 0
+        },
+        "player_node_id": {
+          "type": "number",
+          "default": 0
+        },
+        "reverse": {
+          "type": "boolean",
+          "default": false
+        },
+        "triggered": {
+          "type": "boolean",
+          "default": true
+        },
+        "landing": {
+          "type": "number",
+          "default": 0
+        },
+        "cards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "fight_win_count": {
+          "type": "number",
+          "default": 0
+        },
+        "box_count": {
+          "type": "number",
+          "default": 0
+        },
+        "used_action_count": {
+          "type": "number",
+          "default": 0
+        },
+        "extra_action_count": {
+          "type": "number",
+          "default": 0
+        },
+        "has_warehouse_node": {
+          "type": "boolean",
+          "default": false
+        },
+        "warehouse_finish_count": {
+          "type": "number",
+          "default": 0
+        },
+        "start_bonus_claimed": {
+          "type": "boolean",
+          "default": false
+        },
+        "nodes": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "node_id": {
+              "type": "number",
+              "default": 0
+            },
+            "node_type": {
+              "type": "number",
+              "default": 0
+            },
+            "event_id": {
+              "type": "number",
+              "default": 0
+            },
+            "value": {
+              "type": "string",
+              "default": null
+            },
+            "revealed": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        },
+        "records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "time": {
+              "type": "number",
+              "default": 0
+            },
+            "event_id": {
+              "type": "number",
+              "default": 0
+            },
+            "values": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "last_event": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "landing": {
+              "type": "number",
+              "default": 0
+            },
+            "node_id": {
+              "type": "number",
+              "default": 0
+            },
+            "node_type": {
+              "type": "number",
+              "default": 0
+            },
+            "event_id": {
+              "type": "number",
+              "default": 0
+            },
+            "value": {
+              "type": "string",
+              "default": null
+            }
+          }
+        }
+      }
+    },
     "cerberus_game": {
       "type": "object",
       "schema": {
