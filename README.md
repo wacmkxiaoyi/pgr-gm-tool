@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `cda8c6c46095af122d49564a8dc2edd3f3bd0ebf`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `723ce3c59596bbb8084eb5d3e1bff1b439de5df9`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
@@ -117,6 +117,8 @@ When login is disabled, anyone who can reach the application can operate the GM 
 
 When server management is enabled, the Server Management page also shows SDK and game-server health. If the configured executable is available, it provides start, stop, live-log, and server configuration controls.
 
+The server configuration editor supports InfiniteLoop's optional `"Client": { "Debug": true, "ShowInspector": true }` settings. Both default to `false`; the client inspector requires both to be enabled. These are local research settings: Debug enables the client's debug environment and external Lua/table loading. Save while the server is stopped, then start the server and restart the game to fetch the updated remote configuration. Launcher integration preserves these settings in both the persistent and runtime server configuration files.
+
 ### Configuration
 
 The application accepts configuration in this precedence order:
@@ -220,6 +222,21 @@ The frontend is plain HTML, CSS, and ES modules. It requests `/api/app-info` at 
 ### Game Resource Tables
 
 `backend/assets/EN/` and `backend/assets/CN/` contain independent TSV datasets. All APIs select the complete dataset using the request's `Accept-Language` header (`en-US` → EN, `zh-CN` → CN; default EN), including names, search, available IDs, and upgrade rules. Parsed and derived tables are cached independently in memory for each language. Changing the dashboard language reloads the page to refresh tables and discard old requests and dialog state.
+
+#### Manual EN resource supplements (2026-10-24)
+
+The EN dataset includes **74 manually supplemented records across 10 TSV tables**, based on the corresponding CN records. IDs, numeric values, references, and asset paths are preserved from CN. English text is manually translated using existing EN terminology, or reuses existing EN skill, coating, and nameplate text; these supplements are not an official upstream EN export.
+
+| Supplement | EN tables | Records |
+| --- | --- | --- |
+| Kurumi Tokisaki (`1411003`) and Adelyde: Anabasis (`1421003`): S–SSS+ evolution and 14 promotion grades each | `CharacterQuality.tsv`, `CharacterGrade.tsv` | 8 + 28 |
+| Zafkiel (`16420000`) and Kelpie (`16430000`): definitions, breakthrough, evolution, and skill bindings | `Partner.tsv`, `PartnerBreakThrough.tsv`, `PartnerQuality.tsv`, `PartnerSkill.tsv`, `PartnerMainSkillGroup.tsv`, `PartnerPassiveSkillGroup.tsv` | 34 |
+| Scorching Torrent (`12530003`), Sacrament of Ruin (`12630002`), and Pale Pyre (`12690001`): functional coating definitions paired with existing EN display text | `WeaponFashion.tsv` | 3 |
+| Nightshroud Covenant (`17064707`): nameplate definition using existing EN content-map text | `Nameplate.tsv` | 1 |
+
+**Resource refreshes overwrite these manual supplements.** After refreshing, check whether upstream EN now provides these records; otherwise reapply the CN-based supplements and English translations. Restart the backend after updating tables to clear its in-memory caches. Validate both languages with `get_resource_issues()` from `backend.app.services.player.resource_validation`, and check that both characters have quality bounds `[3, 6]`, 14 promotion grades, and complete max templates, that both CUB max templates resolve, and that the coating/nameplate IDs remain selectable.
+
+#### Refreshing resource tables
 
 Refresh both datasets together (the former `--cn` option has been removed):
 

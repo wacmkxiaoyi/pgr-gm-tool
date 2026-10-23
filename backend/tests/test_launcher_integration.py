@@ -86,16 +86,32 @@ def test_present_invalid_state_reports_error(local_build, change):
         Settings()
 
 
-def test_config_save_updates_running_and_persistent_copies(local_build):
+@pytest.mark.parametrize('client', [None,
+                                   {'Debug': False, 'ShowInspector': False},
+                                   {'Debug': True, 'ShowInspector': False},
+                                   {'Debug': False, 'ShowInspector': True},
+                                   {'Debug': True, 'ShowInspector': True}],
+                         ids=['defaults', 'disabled', 'debug', 'inspector', 'both'])
+def test_config_save_updates_running_and_persistent_copies(local_build, client):
     settings = Settings()
     config = json.loads(settings.read_server_config_text())
     config['VerboseLevel'] = 'Information'
+    if client is not None:
+        config['Client'] = client
     text = json.dumps(config)
     settings.write_server_config_text(text)
     settings.reload_server_runtime_config()
     assert settings.read_server_config_text() == text
     assert (local_build.root / 'config.json').read_text() == text
     assert settings.sdk_server_port == local_build.sdk_port
+    assert Settings().read_server_config_text() == text
+    if client is not None:
+        config['Client'] = {key: not value for key, value in client.items()}
+        text = json.dumps(config)
+        settings.write_server_config_text(text)
+        settings.reload_server_runtime_config()
+        assert settings.read_server_config_text() == text
+        assert (local_build.root / 'config.json').read_text() == text
     config['Database']['Port'] = 27017
     with pytest.raises(ValueError, match='must match'):
         settings.write_server_config_text(json.dumps(config))
@@ -272,9 +288,17 @@ def test_status_response_is_bounded_and_complete(local_build, monkeypatch, body,
     assert LauncherRuntime(local_build)._server_ready() is expected
 
 
-def test_start_installs_persistent_config_before_spawning(local_build, monkeypatch):
+@pytest.mark.parametrize('client', [None,
+                                   {'Debug': False, 'ShowInspector': False},
+                                   {'Debug': True, 'ShowInspector': False},
+                                   {'Debug': False, 'ShowInspector': True},
+                                   {'Debug': True, 'ShowInspector': True}],
+                         ids=['defaults', 'disabled', 'debug', 'inspector', 'both'])
+def test_start_installs_persistent_config_before_spawning(local_build, monkeypatch, client):
     config = json.loads((local_build.root / 'config.json').read_text())
     config['VerboseLevel'] = 'Normal'
+    if client is not None:
+        config['Client'] = client
     content = json.dumps(config).encode()
     (local_build.root / 'config.json').write_bytes(content)
     runtime = LauncherRuntime(local_build)
