@@ -15,6 +15,8 @@ from bson.int64 import Int64
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime
 from backend.app.services.player import player_stages_service
 from backend.app.services.player import player_profile_service
+from backend.app.services.player import player_equips_service
+from backend.app.db.models.player_equips import SwitchCharacterMemoryRequest, UpdateEquipRequest
 from backend.app.db.models import UpdatePlayerProfilePayload
 from backend.app.services.player.player_profile_service import PlayerProfileService
 from backend.app.services.player.player_stages_service import PlayerStagesService
@@ -23,6 +25,113 @@ from backend.app.services.player.player_characters_service import PlayerCharacte
 from backend.app.services.player.player_characters import get_character_max_template_map
 from backend.app.services.player.equips.partner import build_partner_max_save_template, get_partner_entries_map
 from backend.app.utils.resource_language import resource_language
+
+
+def _everyday_sample():
+    return {
+        'social': {'Friends': [{'k': 2000000000, 'v': 1900000000}],
+                   'Remarks': [{'k': 2000000000, 'v': '好友备注'}], 'ApplicationDay': Int64(-1)},
+        'chat_social': {'GiftReceiveDay': Int64(-1), 'ReportDay': Int64(20001),
+                        'GiftSentDays': [{'k': 2000000000, 'v': Int64(20001)}],
+                        'Gifts': [{'GiftId': 7, 'SenderId': 2000000000, 'ItemId': 60,
+                                   'Count': 2, 'CreateTime': Int64(2**40), 'Status': 1}],
+                        'Reports': [{'TargetId': Int64(2**40), 'TargetName': '测试玩家',
+                                     'Message': '消息', 'ReportMessage': '说明', 'Time': Int64(2**40)}]},
+        'profile': {'LikePeriod': Int64(-(2**63)), 'NextDiaryId': Int64(2**40),
+                    'Diaries': [{'_id': Int64(2**40), 'PlayerId': Int64(42), 'Name': '指挥官',
+                                 'Content': '日记正文', 'LikedPlayerIds': [Int64(2**40 + 1)],
+                                 'Msgs': [{'_id': Int64(2**40 + 2), 'DailyId': Int64(2**40),
+                                           'Content': '留言', 'LeaveMsgTime': Int64(2**40)}]}],
+                    'Walls': [{'_id': 1, 'IsShow': True,
+                               'CollectionSetInfos': [{'_id': 13019636, 'X': -3, 'Y': 4, 'SizeId': 1}]}]},
+        'random_background': {'enabled': True, 'fashion_enabled': True,
+                              'pool': [{'background_id': 1, 'chars': [
+                                  {'char_id': 1011002, 'is_random': True, 'fashions': [6110101, 6110102]}]}]},
+        'auto_fight_records': [{'stage_id': 1, 'card_ids': [Int64(2**40)],
+                                'times': 3, 'complete_time': Int64(2**40)}],
+        'movie_options': [{'movie_id': '剧情/001', 'option_ids': [1, 3]}],
+        'total_pay_money': Int64(2**40 + 100),
+        'pending_purchase_combo': {'_id': 7, 'BuyTime': Int64(2**40), 'Subs': [
+            {'_id': 8, 'Count': 1, 'BuyTime': Int64(2**40),
+             'Goods': [{'_id': 1, 'TemplateId': 60, 'Count': 2}],
+             'DailyPasses': [{'k': 8, 'v': {'FirstDay': Int64(20000),
+                                          'ClaimedDays': [Int64(20000), Int64(20002)]}}]}]},
+        'shop_manual_refresh_periods': [{'k': 1, 'v': Int64(2**40)}],
+        'archive_unlocks': [{'Kind': 'weapon', '_id': 101}],
+        'weekly_task_activeness_progress': [1, 3],
+        'extra_chapter_treasures': [11], 'short_story_treasures': [12],
+        'received_favorite_mail_ids': [13],
+    }
+
+
+def test_everyday_defaults_and_populated_bson():
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('profile')['LikePeriod'] == -(2**63)
+    assert schema.build_default('social')['ApplicationDay'] == -1
+    assert schema.build_default('chat_social')['GiftReceiveDay'] == -1
+    assert schema.build_default('chat_social')['ReportDay'] == -1
+    assert schema.build_default('pending_purchase_combo') is None
+    assert schema.build_default('player_data.NewPlayerTaskActiveUi') == 0
+    for path in ('purchase_daily_passes.0.v', 'pending_purchase.DailyPasses.0.v',
+                 'pending_purchase_combo.Subs.0.DailyPasses.0.v'):
+        assert schema.build_default(path)['FirstDay'] == 0
+        assert schema.build_default(path)['ClaimedDays'] == []
+        normalized = schema.materialize_subpath(path, {'FirstDay': Int64(20000),
+                                                      'ClaimedDays': [Int64(20000), Int64(20002)]})
+        decoded = BSON.encode(normalized).decode()
+        assert decoded['ClaimedDays'] == [20000, 20002]
+        assert all(isinstance(day, Int64) for day in decoded['ClaimedDays'])
+    for path, value in _everyday_sample().items():
+        normalized = schema.materialize_subpath(path, value)
+        assert schema.sanitize_subpath(path, value, fill_defaults=False) == value
+        assert BSON.encode({'value': normalized}).decode()['value'] == normalized
+
+
+@pytest.mark.parametrize('operation', ['wear', 'level', 'exp', 'breakthrough'])
+def test_memory_edits_clear_only_target_recycle_mark(monkeypatch, operation):
+    runtime = DatabaseSchemaRuntime()
+    service = PlayerEquipsService(SimpleNamespace(mongo_db='test'), runtime)
+    template_id = next(template_id for template_id in player_equips_service.get_equip_breakthrough_max_map()
+                       if player_equips_service._is_memory_template_id(template_id)
+                       and player_equips_service.get_equip_breakthrough_max_map()[template_id]['max_breakthrough'] > 0)
+    slot = player_equips_service._get_memory_slot_id(template_id)
+    rows = [service._build_memory_document(template_id, [])]
+    rows.append(service._build_memory_document(template_id, rows))
+    for row in rows:
+        row['IsRecycle'] = True
+    document = {'_id': 'character', 'characters': [{'_id': 1011002}], 'equips': rows}
+    writes = []
+
+    class Collection:
+        async def find_one(self, *args, **kwargs):
+            return copy.deepcopy(document)
+
+        async def update_one(self, query, update):
+            writes.append(update)
+            return SimpleNamespace(modified_count=1)
+
+    collection = Collection()
+
+    class Client:
+        def __getitem__(self, name):
+            return self if name == 'test' else collection
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(player_equips_service, 'create_mongo_client', lambda _: Client())
+    if operation == 'wear':
+        asyncio.run(service.switch_character_memory(42, 1011002,
+                    SwitchCharacterMemoryRequest(Slot=slot, MemoryRecordId=rows[0]['_id'])))
+    else:
+        asyncio.run(service.update_memory(42, rows[0]['_id'],
+                    UpdateEquipRequest(field=operation, value=2 if operation == 'level' else 1)))
+    updated = writes[0]['$set']['equips']
+    assert updated[0]['IsRecycle'] is False
+    assert updated[1]['IsRecycle'] is True
+    assert updated[1] == rows[1]
+    if operation == 'wear':
+        assert updated[0]['CharacterId'] == 1011002
 
 
 def test_latest_state_defaults_and_removed_fields():
@@ -97,7 +206,8 @@ def test_purchase_and_decompose_receipts_preserve_current_shapes():
 
 
 def test_stage_edit_does_not_reset_boss_period(monkeypatch):
-    document = {'_id': 'stage', 'boss_single_activity_no': 2950, 'stages': []}
+    document = {'_id': 'stage', 'boss_single_activity_no': 2950, 'stages': [],
+                'experiment_star_claims': [{'k': 1, 'v': [2, 3]}]}
     updates = []
 
     class Collection:
@@ -289,6 +399,17 @@ def _read_persisted_classes(server):
     by GM materialization so they can be verified against the original source.
     """
     files = list((server / 'AscNet.Common/Database/BigWorld').glob('*.cs')) + [
+        server / 'AscNet.Common/Database/Player.Archive.cs',
+        server / 'AscNet.Common/Database/Player.ChatSocial.cs',
+        server / 'AscNet.Common/Database/Player.CollectionMisc.cs',
+        server / 'AscNet.Common/Database/Player.FunctionalEntrance.cs',
+        server / 'AscNet.Common/Database/Player.MiscPlayer.cs',
+        server / 'AscNet.Common/Database/Player.Photograph.cs',
+        server / 'AscNet.Common/Database/Player.Profile.cs',
+        server / 'AscNet.Common/Database/Player.PurchaseExtras.cs',
+        server / 'AscNet.Common/Database/Player.ShopRefresh.cs',
+        server / 'AscNet.Common/Database/Player.Social.cs',
+        server / 'AscNet.Common/MsgPack/ProfileSocial.cs',
         server / 'AscNet.Common/Database/Player.Purchases.cs',
         server / 'AscNet.Common/Database/Player.ItemUse.cs',
         server / 'AscNet.Common/Database/Player.PartnerArchive.cs',
@@ -302,13 +423,19 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/MsgPack/Types.cs',
     ]
     classes = {}
-    pattern = re.compile(r'(?P<attrs>(?:\[[^\n]+?\]\s*)*)public\s+(?P<type>[\w.<>?, \[\]]+)\s+(?P<name>\w+)\s*\{\s*get;\s*set;\s*\}(?P<init>[^\n]*)')
+    pattern = re.compile(r'(?P<attrs>(?:\[[^\n]+?\]\s*)*)public\s+(?P<type>[\w.<>?, \[\]]+)\s+(?P<name>\w+)\s*\{\s*get;\s*set;\s*\}')
     for file in files:
         text = file.read_text(encoding='utf-8-sig')
-        # Match property bodies with a single brace pair; class body ends at a
-        # line with the class's own indentation (nested Types.cs classes included).
-        for match in re.finditer(r'(?m)^(?P<indent> *)public (?:sealed |partial )*class (?P<name>\w+)[^\n]*\n *\{', text):
+        # Match property bodies with a single brace pair; also handle the new
+        # one-line profile DTO. Multiline classes end at their own indentation.
+        for match in re.finditer(r'(?m)^(?P<indent> *)public (?:sealed |partial )*class (?P<name>\w+)[^\n{]*\s*\{', text):
             end = re.search(r'(?m)^' + re.escape(match['indent']) + r'\}', text[match.end():])
+            if text[match.end():].split('\n', 1)[0].strip():
+                end = re.search(r'\} *\}', text[match.end():])
+                if end:
+                    body = text[match.end():match.end() + end.start() + 1]
+                    classes.setdefault(match['name'], []).extend(pattern.finditer(body))
+                continue
             if not end:
                 continue
             body = text[match.end():match.end() + end.start()]
@@ -337,6 +464,27 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'accumulated_extra_pay_reward_ids': 'List<int>',
         'cerberus_game': 'CerberusGameState',
         'maintainer_action': 'MaintainerActionState',
+        'archive_unlocks': 'List<ArchiveUnlockRecord>',
+        'archive_equipment': 'List<ArchiveEquipmentRecord>',
+        'archive_evaluations': 'List<ArchiveEvaluationRecord>',
+        'social': 'SocialPlayerState',
+        'chat_social': 'ChatSocialState',
+        'profile': 'PlayerProfileState',
+        'random_background': 'RandomBackgroundState',
+        'auto_fight_records': 'List<AutoFightRecordState>',
+        'movie_options': 'List<MovieOptionsState>',
+        'total_pay_money': 'long',
+        'first_pay_reward_ids': 'List<int>',
+        'purchase_combo_buy_times': 'Dictionary<uint, int>',
+        'pending_purchase_combo': 'PlayerPendingCombo',
+        'shop_manual_refresh_times': 'Dictionary<uint, int>',
+        'shop_manual_refresh_periods': 'Dictionary<uint, long>',
+        'functional_entrance_red_points': 'Dictionary<int, int>',
+        'received_favorite_mail_ids': 'List<int>',
+        'weekly_task_activeness_progress': 'List<int>',
+        'extra_chapter_treasures': 'List<int>',
+        'short_story_treasures': 'List<int>',
+        'experiment_star_claims': 'Dictionary<int, List<int>>',
         'partners': 'List<PartnerData>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
@@ -410,9 +558,18 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
     characters_schema = runtime.get_collection_schema('characters')
 
     def root_schema(name):
-        return characters_schema if name == 'partners' else schema
+        if name == 'partners':
+            return characters_schema
+        if name == 'experiment_star_claims':
+            return runtime.get_collection_schema('stages')
+        return schema
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
+    for name, value in _everyday_sample().items():
+        if isinstance(value, dict):
+            payload[name].update(value)
+        else:
+            payload[name] = value
     payload['accumulated_pay_money'] = Int64(2**40 + 60)
     payload['accumulated_pay_reward_ids'] = [1, 3]
     payload['accumulated_extra_pay_reward_ids'] = [2]

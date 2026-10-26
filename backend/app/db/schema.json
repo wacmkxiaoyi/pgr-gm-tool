@@ -17,6 +17,780 @@
     }
   },
   "players[*]": {
+    "weekly_task_activeness_progress": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "extra_chapter_treasures": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "short_story_treasures": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "received_favorite_mail_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "functional_entrance_red_points": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "shop_manual_refresh_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "shop_manual_refresh_periods": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "total_pay_money": {
+      "type": "number",
+      "default": 0
+    },
+    "first_pay_reward_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "purchase_combo_buy_times": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "number"
+        }
+      }
+    },
+    "pending_purchase_combo": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "_id": {
+          "type": "number",
+          "default": 0
+        },
+        "PreviousBuyTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "BuyTime": {
+          "type": "number",
+          "default": 0
+        },
+        "ConsumeId": {
+          "type": "number",
+          "default": 0
+        },
+        "ConsumeCount": {
+          "type": "number",
+          "default": 0
+        },
+        "Subs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "PreviousBuyTimes": {
+              "type": "number",
+              "default": 0
+            },
+            "PeriodBuyTimes": {
+              "type": "number",
+              "default": 0
+            },
+            "BuyTime": {
+              "type": "number",
+              "default": 0
+            },
+            "ConsumeId": {
+              "type": "number",
+              "default": 0
+            },
+            "ConsumeCount": {
+              "type": "number",
+              "default": 0
+            },
+            "Goods": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "TemplateId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RewardType": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Level": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Quality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Grade": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Breakthrough": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ConvertFrom": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ShowQuality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "IsGift": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "RewardMulti": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "DailyPasses": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "k": {
+                  "type": "number"
+                },
+                "v": {
+                  "type": "object",
+                  "schema": {
+                    "EndDay": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "StartDay": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RewardIndexList": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    },
+                    "LastClaimDay": {
+                      "type": "number",
+                      "default": -1
+                    },
+                    "FirstDay": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "ClaimedDays": {
+                      "type": "array",
+                      "default": [],
+                      "schema": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "archive_unlocks": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "Kind": {
+          "type": "string",
+          "default": ""
+        },
+        "_id": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "archive_equipment": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": {
+          "type": "number",
+          "default": 0
+        },
+        "Level": {
+          "type": "number",
+          "default": 0
+        },
+        "Breakthrough": {
+          "type": "number",
+          "default": 0
+        },
+        "ResonanceCount": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "archive_evaluations": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "_id": {
+          "type": "number",
+          "default": 0
+        },
+        "Type": {
+          "type": "number",
+          "default": 0
+        },
+        "Score": {
+          "type": "number",
+          "default": 0
+        },
+        "Difficulty": {
+          "type": "number",
+          "default": 0
+        },
+        "Tags": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "LikeStatus": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "social": {
+      "type": "object",
+      "schema": {
+        "Friends": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "Applications": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "Remarks": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "string"
+            }
+          }
+        },
+        "Blocked": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "Refused": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "Deleted": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "ApplicationDay": {
+          "type": "number",
+          "default": -1
+        },
+        "DailyApplications": {
+          "type": "number",
+          "default": 0
+        },
+        "RecommendTime": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "chat_social": {
+      "type": "object",
+      "schema": {
+        "EmojiPackOrder": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "Gifts": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "GiftId": {
+              "type": "number",
+              "default": 0
+            },
+            "SenderId": {
+              "type": "number",
+              "default": 0
+            },
+            "ItemId": {
+              "type": "number",
+              "default": 0
+            },
+            "Count": {
+              "type": "number",
+              "default": 0
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            },
+            "Status": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "LastGiftId": {
+          "type": "number",
+          "default": 0
+        },
+        "GiftReceiveDay": {
+          "type": "number",
+          "default": -1
+        },
+        "GiftReceivedToday": {
+          "type": "number",
+          "default": 0
+        },
+        "GiftSentDays": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "ReportDay": {
+          "type": "number",
+          "default": -1
+        },
+        "ReportTimes": {
+          "type": "number",
+          "default": 0
+        },
+        "LastReportTime": {
+          "type": "number",
+          "default": 0
+        },
+        "Reports": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Kind": {
+              "type": "number",
+              "default": 0
+            },
+            "TargetId": {
+              "type": "number",
+              "default": 0
+            },
+            "TargetName": {
+              "type": "string",
+              "default": ""
+            },
+            "TargetLevel": {
+              "type": "number",
+              "default": 0
+            },
+            "Entry": {
+              "type": "number",
+              "default": 0
+            },
+            "Tags": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "Message": {
+              "type": "string",
+              "default": ""
+            },
+            "ReportMessage": {
+              "type": "string",
+              "default": ""
+            },
+            "ChatChannel": {
+              "type": "number",
+              "default": 0
+            },
+            "Time": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "random_background": {
+      "type": "object",
+      "schema": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "fashion_enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "pool": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "background_id": {
+              "type": "number",
+              "default": 0
+            },
+            "chars": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "char_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_random": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "fashions": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "auto_fight_records": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "stage_id": {
+          "type": "number",
+          "default": 0
+        },
+        "card_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "times": {
+          "type": "number",
+          "default": 0
+        },
+        "complete_time": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "movie_options": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "movie_id": {
+          "type": "string",
+          "default": ""
+        },
+        "option_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "schema": {
+        "HiddenTitleTypes": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "HideCollection": {
+          "type": "boolean",
+          "default": false
+        },
+        "Walls": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "PedestalId": {
+              "type": "number",
+              "default": 0
+            },
+            "BackgroundId": {
+              "type": "number",
+              "default": 0
+            },
+            "IsShow": {
+              "type": "boolean",
+              "default": false
+            },
+            "CollectionSetInfos": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "X": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Y": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SizeId": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "UnlockedDecorationIds": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "Diaries": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "PlayerId": {
+              "type": "number",
+              "default": 0
+            },
+            "Name": {
+              "type": "string",
+              "default": ""
+            },
+            "CurrHeadPortraitId": {
+              "type": "number",
+              "default": 0
+            },
+            "Content": {
+              "type": "string",
+              "default": ""
+            },
+            "CreateTime": {
+              "type": "number",
+              "default": 0
+            },
+            "IsBanMsg": {
+              "type": "boolean",
+              "default": false
+            },
+            "LikedPlayerIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "Msgs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "DailyId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "PlayerId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Name": {
+                  "type": "string",
+                  "default": ""
+                },
+                "CurrHeadPortraitId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "Content": {
+                  "type": "string",
+                  "default": ""
+                },
+                "LeaveMsgTime": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "NextDiaryId": {
+          "type": "number",
+          "default": 0
+        },
+        "NextMessageId": {
+          "type": "number",
+          "default": 0
+        },
+        "LikePeriod": {
+          "type": "number",
+          "default": -9223372036854775808
+        },
+        "LikesGiven": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
     "purchase_daily_passes": {
       "type": "array",
       "default": [],
@@ -45,6 +819,17 @@
             "LastClaimDay": {
               "type": "number",
               "default": -1
+            },
+            "FirstDay": {
+              "type": "number",
+              "default": 0
+            },
+            "ClaimedDays": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
             }
           }
         }
@@ -1409,14 +2194,22 @@
               "schema": {
                 "CharacterIdList": {
                   "type": "array",
-                  "default": [0, 0, 0],
+                  "default": [
+                    0,
+                    0,
+                    0
+                  ],
                   "schema": {
                     "type": "number"
                   }
                 },
                 "RobotIdList": {
                   "type": "array",
-                  "default": [0, 0, 0],
+                  "default": [
+                    0,
+                    0,
+                    0
+                  ],
                   "schema": {
                     "type": "number"
                   }
@@ -1446,14 +2239,22 @@
               "schema": {
                 "CharacterIdList": {
                   "type": "array",
-                  "default": [0, 0, 0],
+                  "default": [
+                    0,
+                    0,
+                    0
+                  ],
                   "schema": {
                     "type": "number"
                   }
                 },
                 "RobotIdList": {
                   "type": "array",
-                  "default": [0, 0, 0],
+                  "default": [
+                    0,
+                    0,
+                    0
+                  ],
                   "schema": {
                     "type": "number"
                   }
@@ -2574,6 +3375,10 @@
           "default": 25000001
         },
         "NewPlayerTaskActiveDay": {
+          "type": "number",
+          "default": 0
+        },
+        "NewPlayerTaskActiveUi": {
           "type": "number",
           "default": 0
         },
@@ -8010,6 +8815,17 @@
                 "LastClaimDay": {
                   "type": "number",
                   "default": -1
+                },
+                "FirstDay": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ClaimedDays": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
                 }
               }
             }
@@ -9604,6 +10420,22 @@
     }
   },
   "stages[*]": {
+    "experiment_star_claims": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "k": {
+          "type": "number"
+        },
+        "v": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
     "boss_single_activity_no": {
       "type": "number",
       "default": null

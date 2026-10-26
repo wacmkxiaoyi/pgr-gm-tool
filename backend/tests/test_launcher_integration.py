@@ -295,12 +295,15 @@ def test_status_response_is_bounded_and_complete(local_build, monkeypatch, body,
                                    {'Debug': True, 'ShowInspector': True}],
                          ids=['defaults', 'disabled', 'debug', 'inspector', 'both'])
 def test_start_installs_persistent_config_before_spawning(local_build, monkeypatch, client):
+    settings = Settings()
     config = json.loads((local_build.root / 'config.json').read_text())
     config['VerboseLevel'] = 'Normal'
     if client is not None:
         config['Client'] = client
     content = json.dumps(config).encode()
     (local_build.root / 'config.json').write_bytes(content)
+    # Launcher mod toggles change the persistent copy after GM settings were loaded.
+    assert settings.read_server_config_text().encode() != content
     runtime = LauncherRuntime(local_build)
     monkeypatch.setattr(launcher_runtime, 'matching_servers', lambda _: [])
     monkeypatch.setattr(runtime, '_matching_mongo', lambda: True)

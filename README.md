@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `723ce3c59596bbb8084eb5d3e1bff1b439de5df9`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `99e2f62976d769b10a221b1ed4ed0342cb24aca3`.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
@@ -109,15 +109,21 @@ AUTO_UPDATE_TIMEOUT=20 bash quick_start.sh
 
 Changing the rainbow-card balance in GM does not increase Total Recharge progress. The server tracks accumulated recharge separately from the item balance and credits it only for completed recharge products.
 
+First-pay progress is also separate: `total_pay_money` records completed recharge amounts in hundredths of `Pay.ShowAmount`, while `accumulated_pay_money` counts credited rainbow cards. Editing the GM balance does not advance either counter or claim first-pay rewards.
+
 Stage management edits raw completion records only. It does not synchronize CerberusGame story points, route choices, star-reward claims, or activity teams; those are separate server-owned activity state.
 
 It also does not resolve MaintainerAction (Operation Guardians) board nodes, change action counts, or grant activity rewards.
+
+Adding or clearing stage records does not claim or reset chapter treasures, experiment star rewards, weekly activeness rewards, or auto-fight rewards; those have separate server-owned records.
 
 When login is disabled, anyone who can reach the application can operate the GM tool. Use this mode only on a trusted local machine or protected network.
 
 When server management is enabled, the Server Management page also shows SDK and game-server health. If the configured executable is available, it provides start, stop, live-log, and server configuration controls.
 
 The server configuration editor supports InfiniteLoop's optional `"Client": { "Debug": true, "ShowInspector": true }` settings. Both default to `false`; the client inspector requires both to be enabled. These are local research settings: Debug enables the client's debug environment and external Lua/table loading. Save while the server is stopped, then start the server and restart the game to fetch the updated remote configuration. Launcher integration preserves these settings in both the persistent and runtime server configuration files.
+
+The Launcher's **SETTINGS → CLIENT MODS** master switch also writes `Client.Debug` in its persistent configuration and reapplies it during Setup and Play. Use that switch when managing Launcher-installed mods. GM installs the latest persistent configuration before starting its managed server; restart the server and game after changing the switch.
 
 ### Configuration
 

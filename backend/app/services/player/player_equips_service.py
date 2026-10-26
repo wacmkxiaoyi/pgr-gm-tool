@@ -638,6 +638,7 @@ class PlayerEquipsService:
 
         updated_target = dict(target_equip)
         updated_target["CharacterId"] = character_id
+        updated_target["IsRecycle"] = False
         raw_equips[target_index] = updated_target
 
         if self._sanitize_equips(normalized_document.get("equips")) == self._sanitize_equips(raw_equips):
@@ -812,9 +813,11 @@ class PlayerEquipsService:
 
         if swap_source_index is not None:
             raw_equips[swap_source_index]["CharacterId"] = target_original_character_id
+            raw_equips[swap_source_index]["IsRecycle"] = False
 
         updated_target = dict(target_equip)
         updated_target["CharacterId"] = character_id
+        updated_target["IsRecycle"] = False
         raw_equips[target_index] = updated_target
 
         if self._sanitize_equips(normalized_document.get("equips")) == self._sanitize_equips(raw_equips):
@@ -1555,6 +1558,7 @@ class PlayerEquipsService:
             target_equip["Level"] = current_level
             target_equip["Exp"] = current_exp
             target_equip["Breakthrough"] = current_breakthrough
+            target_equip["IsRecycle"] = False
 
             raw_equips[target_index] = target_equip
             normalized_update = self._build_equips_update(raw_equips)
@@ -1699,6 +1703,7 @@ class PlayerEquipsService:
             target_equip["Level"] = current_level
             target_equip["Exp"] = current_exp
             target_equip["Breakthrough"] = current_breakthrough
+            target_equip["IsRecycle"] = False
 
             raw_equips[target_index] = target_equip
             normalized_update = self._build_equips_update(raw_equips)
