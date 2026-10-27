@@ -6,7 +6,7 @@ A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good chose to use "Chat with Copilot"
->（如果你在部署使用时遇到任何问题，你可以使用 Github 官方的 AgenticRAG 功能 - "Chat with Copilot"
+>（如果你在部署使用时遇到任何问题，你可以使用 Github 官方的 AgenticRAG 功能 - "Chat with Copilot"）
 >
 >Otherwise you can join to [our discord channel](https://discord.gg/fbsRYc7bBA) for futher help.
 
