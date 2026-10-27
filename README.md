@@ -5,7 +5,8 @@ A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and
 > Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `0425ea6d046778fdd6289a9976989dc48c293c40`.
 
 >[!TIP]
->If you have any setup question about this tool, it is a good chose to use "Chat with Copilot"
+>If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
+>
 >（如果你在部署使用时遇到任何问题，你可以使用 Github 官方的 AgenticRAG 功能 - "Chat with Copilot"）
 >
 >Otherwise you can join to [our discord channel](https://discord.gg/fbsRYc7bBA) for futher help.
