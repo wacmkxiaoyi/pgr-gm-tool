@@ -16,15 +16,104 @@ from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime
 from backend.app.services.player import player_stages_service
 from backend.app.services.player import player_profile_service
 from backend.app.services.player import player_equips_service
+from backend.app.services.player import player_items_service
 from backend.app.db.models.player_equips import SwitchCharacterMemoryRequest, UpdateEquipRequest
 from backend.app.db.models import UpdatePlayerProfilePayload
 from backend.app.services.player.player_profile_service import PlayerProfileService
 from backend.app.services.player.player_stages_service import PlayerStagesService
 from backend.app.services.player.player_equips_service import PlayerEquipsService
+from backend.app.services.player.player_items_service import PlayerItemsService
 from backend.app.services.player.player_characters_service import PlayerCharactersService
 from backend.app.services.player.player_characters import get_character_max_template_map
 from backend.app.services.player.equips.partner import build_partner_max_save_template, get_partner_entries_map
 from backend.app.utils.resource_language import resource_language
+
+
+def _small_rewards_sample():
+    return {
+        'birthday_single_story_ids': [1, 3],
+        'stage_memory_claims': [{'activity_id': 2, 'indices': [1, 3]}],
+        'board_effect_last_trigger': Int64(2**40),
+        'version_gift': {'activity_id': 9, 'daily_claimed_until': Int64(2**40 + 1),
+                         'version_claimed': True, 'progress_indexes': [1, 3]},
+        'accumulate_expend_shop': {'activity_id': 1, 'spent_baseline': Int64(2**40 + 2),
+                                  'converted_count': 60, 'sign_count': 2, 'signed_until': Int64(2**40 + 3)},
+    }
+
+
+def test_small_rewards_defaults_and_populated_bson():
+    runtime = DatabaseSchemaRuntime()
+    schema = runtime.get_collection_schema('players')
+    assert schema.build_default('birthday_single_story_ids') == []
+    assert schema.build_default('stage_memory_claims') == []
+    assert schema.build_default('stage_memory_claims.0') == {'activity_id': 0, 'indices': []}
+    assert schema.build_default('board_effect_last_trigger') == 0
+    assert schema.build_default('version_gift') == {
+        'activity_id': 0, 'daily_claimed_until': 0, 'version_claimed': False, 'progress_indexes': [],
+    }
+    assert schema.build_default('accumulate_expend_shop') == {
+        'activity_id': 0, 'spent_baseline': 0, 'converted_count': 0, 'sign_count': 0, 'signed_until': 0,
+    }
+    for path, value in _small_rewards_sample().items():
+        normalized = schema.materialize_subpath(path, value)
+        assert normalized == value
+        assert BSON.encode({'value': normalized}).decode()['value'] == value
+    inventory = runtime.get_collection_schema('inventory')
+    assert inventory.build_default('spent_totals') == {}
+    totals = {'5': Int64(2**40 + 60), '6': Int64(0)}
+    decoded = BSON.encode(inventory.materialize_document({'spent_totals': totals})).decode()
+    assert decoded['spent_totals'] == totals
+    assert all(isinstance(value, Int64) for value in decoded['spent_totals'].values())
+    for path, value in {
+        'boss_inshot.characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}],
+        'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]},
+    }.items():
+        assert schema.sanitize_subpath(path, value, fill_defaults=False) == value
+
+
+@pytest.mark.parametrize('operation', ['quantity', 'delete', 'clear', 'add'])
+def test_inventory_edits_do_not_record_spending_or_reset_receipts(monkeypatch, operation):
+    document = {'_id': 'inventory', 'uid': Int64(42),
+                'items': [{'_id': 60, 'Count': Int64(60)}],
+                'spent_totals': {'60': Int64(2**40)},
+                'applied_reward_claims': ['accumulate-expend-shop:1:sign:0'],
+                'reward_claim_times': {'accumulate-expend-shop:1:sign:0': Int64(2**40)}}
+    writes = []
+
+    class Collection:
+        async def find_one(self, *args, **kwargs):
+            return copy.deepcopy(document)
+
+        async def update_one(self, query, update, **kwargs):
+            writes.append(update)
+            return SimpleNamespace(modified_count=1)
+
+    collection = Collection()
+
+    class Client:
+        def __getitem__(self, name):
+            return self if name == 'test' else collection
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(player_items_service, 'create_mongo_client', lambda _: Client())
+    service = PlayerItemsService(SimpleNamespace(mongo_db='test'), DatabaseSchemaRuntime())
+    if operation == 'quantity':
+        assert asyncio.run(service.update_inventory_item_quantity(42, 60, 30))
+        expected = {'$set': {'items.$.Count': Int64(30)}}
+    elif operation == 'delete':
+        assert asyncio.run(service.delete_inventory_item(42, 60))
+        expected = {'$pull': {'items': {'_id': 60}}}
+    elif operation == 'clear':
+        assert asyncio.run(service.clear_inventory_items_by_keyword(42, '')) == 1
+        expected = {'$pull': {'items': {'_id': {'$in': [60]}}}}
+    else:
+        asyncio.run(service.add_inventory_items(42, [{'item_id': 60, 'quantity': 30}]))
+        expected = {'$set': {'items.$[item_60].Count': Int64(90)}}
+    # Only item mutations may reach MongoDB; the spend ledger and once-only
+    # reward receipts must remain untouched even when the balance decreases.
+    assert writes == [expected]
 
 
 def _everyday_sample():
@@ -260,16 +349,30 @@ def test_accumulated_pay_and_pending_choice_survive_bson(money, selections):
 def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch):
     runtime = DatabaseSchemaRuntime()
     writes = []
+    players = {'_id': 'player', 'player_data': {'Name': 'original'},
+               **_everyday_sample(), **_small_rewards_sample(),
+               'boss_inshot': {'characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}]},
+               'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]}}
+    inventory = {'_id': 'inventory', 'items': [{'_id': 5, 'Count': Int64(60)}],
+                 'spent_totals': {'5': Int64(2**40)}}
+    original_players = copy.deepcopy(players)
+    original_inventory = copy.deepcopy(inventory)
 
     class Collection:
         def __init__(self, name):
             self.name = name
 
         async def find_one(self, *args):
-            return {'_id': 'inventory', 'items': [{'_id': 5, 'Count': Int64(60)}]}
+            return copy.deepcopy(inventory if self.name == 'inventory' else players)
 
         async def update_one(self, query, update):
             writes.append((self.name, update))
+            for path, value in update['$set'].items():
+                target = inventory if self.name == 'inventory' else players
+                segments = path.split('.')
+                for segment in segments[:-1]:
+                    target = target[0] if segment == '$' else target[segment]
+                target[segments[-1]] = value
             return SimpleNamespace(matched_count=1)
 
     class Client:
@@ -285,6 +388,10 @@ def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch):
     asyncio.run(service.update_player_profile(42, UpdatePlayerProfilePayload(name='updated', rainbow_card=120)))
     assert writes == [('players', {'$set': {'player_data.Name': 'updated'}}),
                       ('inventory', {'$set': {'items.$.Count': Int64(120)}})]
+    original_players['player_data']['Name'] = 'updated'
+    original_inventory['items'][0]['Count'] = Int64(120)
+    assert players == original_players
+    assert inventory == original_inventory
 
 
 def test_cerberus_defaults_and_team_slots():
@@ -399,7 +506,10 @@ def _read_persisted_classes(server):
     by GM materialization so they can be verified against the original source.
     """
     files = list((server / 'AscNet.Common/Database/BigWorld').glob('*.cs')) + [
+        server / 'AscNet.Common/Database/Inventory.cs',
         server / 'AscNet.Common/Database/Player.Archive.cs',
+        server / 'AscNet.Common/Database/Player.FavorMemory.cs',
+        server / 'AscNet.Common/Database/Player.SmallRewards.cs',
         server / 'AscNet.Common/Database/Player.ChatSocial.cs',
         server / 'AscNet.Common/Database/Player.CollectionMisc.cs',
         server / 'AscNet.Common/Database/Player.FunctionalEntrance.cs',
@@ -451,6 +561,9 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
     if not powershell or not driver.is_file() or not (server / 'AscNet.Common/Database/BigWorld').is_dir():
         pytest.skip('Requires InfiniteLoop source, Windows PowerShell and MongoDB.Bson 2.21.0')
     classes = _read_persisted_classes(server)
+    spent_totals = next(prop for prop in classes['Inventory'] if prop['name'] == 'SpentTotals')
+    assert spent_totals['type'].strip() == 'Dictionary<string, long>'
+    assert 'BsonElement("spent_totals")' in spent_totals['attrs']
     runtime = DatabaseSchemaRuntime()
     schema = runtime.get_collection_schema('players')
     roots = {
@@ -486,6 +599,12 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'short_story_treasures': 'List<int>',
         'experiment_star_claims': 'Dictionary<int, List<int>>',
         'partners': 'List<PartnerData>',
+        'birthday_single_story_ids': 'List<int>',
+        'stage_memory_claims': 'List<StageMemoryClaimState>',
+        'board_effect_last_trigger': 'long',
+        'version_gift': 'VersionGiftState',
+        'accumulate_expend_shop': 'AccumulateExpendShopState',
+        'spent_totals': 'Dictionary<string, long>',
     }
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
     emitted = set()
@@ -562,9 +681,13 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
             return characters_schema
         if name == 'experiment_star_claims':
             return runtime.get_collection_schema('stages')
+        if name == 'spent_totals':
+            return runtime.get_collection_schema('inventory')
         return schema
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
+    payload.update(_small_rewards_sample())
+    payload['spent_totals'] = {'5': Int64(2**40 + 60), '6': Int64(0)}
     for name, value in _everyday_sample().items():
         if isinstance(value, dict):
             payload[name].update(value)
@@ -601,7 +724,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
     normalized = {name: root_schema(name).materialize_subpath(name, value) for name, value in payload.items()}
     declarations.append('public class LatestDocument {' + ''.join(
         f'[BsonElement("{name}")] public {type_name} Field{index} {{ get; set; }}'
-        if not type_name.startswith('Dictionary<') else
+        if not type_name.startswith('Dictionary<') or root_schema(name).resolve(name)['type'] == 'object' else
         f'[BsonElement("{name}")][BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public {type_name} Field{index} {{ get; set; }}'
         for index, (name, type_name) in enumerate(roots.items())
     ) + '}')

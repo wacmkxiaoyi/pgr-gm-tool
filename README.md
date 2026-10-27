@@ -2,11 +2,20 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `99e2f62976d769b10a221b1ed4ed0342cb24aca3`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `0425ea6d046778fdd6289a9976989dc48c293c40`.
+
+>[!TIP]
+>If you have any setup question about this tool, it is a good chose to use "Chat with Copilot"
+>（如果你在部署使用时遇到任何问题，你可以使用 Github 官方的 AgenticRAG 功能 - "Chat with Copilot"
+>
+>Otherwise you can join to [our discord channel](https://discord.gg/fbsRYc7bBA) for futher help.
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
-1. Install Python (> 3.12)
+1. Install Python (> 3.12), and clone the GM tool repo:
+    ```sh
+    git clone git@github.com:wacmkxiaoyi/pgr-gm-tool.git
+    ```
 2. Start AscNet Launcher, and click 'Play' (**do not login**).
     > If you have logined, please close your game, and click 'play' again (>= 1.0.12)
 3. Run `quick_start.bat` or `quick_start.sh`, according to your system
@@ -111,11 +120,13 @@ Changing the rainbow-card balance in GM does not increase Total Recharge progres
 
 First-pay progress is also separate: `total_pay_money` records completed recharge amounts in hundredths of `Pay.ShowAmount`, while `accumulated_pay_money` counts credited rainbow cards. Editing the GM balance does not advance either counter or claim first-pay rewards.
 
+Accumulated consumption is tracked separately in `inventory.spent_totals`, a BSON document keyed by item ID strings with Int64 totals. The server counts in-game debits after the accumulate-expend shop's saved baseline. GM balance changes and item deletion do not count as consumption, convert shop tokens, or reset shop sign-in and version-gift claim records.
+
 Stage management edits raw completion records only. It does not synchronize CerberusGame story points, route choices, star-reward claims, or activity teams; those are separate server-owned activity state.
 
 It also does not resolve MaintainerAction (Operation Guardians) board nodes, change action counts, or grant activity rewards.
 
-Adding or clearing stage records does not claim or reset chapter treasures, experiment star rewards, weekly activeness rewards, or auto-fight rewards; those have separate server-owned records.
+Adding or clearing stage records does not claim or reset chapter treasures, experiment star rewards, weekly activeness rewards, auto-fight rewards, or Stage Memory milestones; those have separate server-owned records. It also does not settle Concert Pre-Heating stages or advance their tasks. Profile edits preserve birthday single-story records, board-effect cooldowns, version-gift claims, and BossInshot talent selections.
 
 When login is disabled, anyone who can reach the application can operate the GM tool. Use this mode only on a trusted local machine or protected network.
 

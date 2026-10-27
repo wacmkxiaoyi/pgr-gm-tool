@@ -17,6 +17,83 @@
     }
   },
   "players[*]": {
+    "birthday_single_story_ids": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "type": "number"
+      }
+    },
+    "stage_memory_claims": {
+      "type": "array",
+      "default": [],
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "indices": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "board_effect_last_trigger": {
+      "type": "number",
+      "default": 0
+    },
+    "version_gift": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "daily_claimed_until": {
+          "type": "number",
+          "default": 0
+        },
+        "version_claimed": {
+          "type": "boolean",
+          "default": false
+        },
+        "progress_indexes": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "accumulate_expend_shop": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "spent_baseline": {
+          "type": "number",
+          "default": 0
+        },
+        "converted_count": {
+          "type": "number",
+          "default": 0
+        },
+        "sign_count": {
+          "type": "number",
+          "default": 0
+        },
+        "signed_until": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
     "weekly_task_activeness_progress": {
       "type": "array",
       "default": [],
@@ -10323,6 +10400,10 @@
       }
     },
     "reward_claim_times": {
+      "type": "object",
+      "default": {}
+    },
+    "spent_totals": {
       "type": "object",
       "default": {}
     },
