@@ -29,6 +29,64 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.utils.resource_language import resource_language
 
 
+def _reset_cycle_sample(epoch=1):
+    team = {'_id': 1, 'CaptainPos': 1, 'FirstPos': 2,
+            'CharacterInfos': [{'_id': 1011002, 'PlayerId': Int64(2**40), 'Pos': 1}],
+            'PluginInfos': [{'_id': 7, 'Count': 2}]}
+    return {
+        'mission_progress': {'reset_epoch': epoch, 'daily_reset_day': Int64(2**40),
+                             'weekly_reset_week': Int64(2**40 + 1),
+                             'weekly_task_activeness_progress': [1, 3],
+                             'condition_counters': [{'k': 15223, 'v': 60}],
+                             'day_task_condition_counters': [{'k': 11203, 'v': 100}],
+                             'claimed_task_ids': [51, 79]},
+        'passport': {'activity_id': 9, 'login_days': 3, 'last_login_period': Int64(2**40),
+                     'passport_infos': [{'_id': 1, 'got_reward_list': [1, 3]}],
+                     'last_time_base_info': {'level': 7, 'exp': Int64(2**40)}},
+        'stronghold': {'activity_id': 1, 'begin_time': 1900000000, 'fight_begin_time': 1900000000,
+                       'cur_day': 3, 'settled_period': Int64(2**40), 'level_id': 1,
+                       'stay_days': [3], 'mine_records': [{'Day': 1, 'MinerCount': 10, 'MineralCount': 20}],
+                       'mineral_left': 20, 'total_mineral': 40,
+                       'reward_ids': [1], 'claimed_reward_ids': [1], 'finish_group_ids': [2],
+                       'finish_group_infos': [{'_id': 2, 'UsedElectricEnergy': 3}],
+                       'history_finish_group_infos': [{'_id': 1, 'NeedElectricEnergy': 4}],
+                       'group_infos': [{'_id': 3, 'FinishStageIds': [101]}],
+                       'group_stage_datas': [{'_id': 3, 'StageIds': [101, 102], 'StageBuffId': {'101': 7}}],
+                       'team_infos': [{'k': 1, 'v': team}], 'fight_team_infos': [{'k': 3, 'v': [team]}],
+                       'last_result_record': {'_id': 1, 'MineralCount': 40},
+                       'current_result_record': {'_id': 2, 'FinishCount': 1},
+                       'pending_group_id': 3, 'pending_stage_id': 102},
+    }
+
+
+@pytest.mark.parametrize('epoch', [0, 1])
+def test_reset_cycle_defaults_and_populated_bson(epoch):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('mission_progress.reset_epoch') == 0
+    assert schema.build_default('mission_progress.daily_reset_day') == -1
+    assert schema.build_default('mission_progress.weekly_reset_week') == -1
+    assert schema.build_default('mission_progress.weekly_task_activeness_progress') == []
+    assert not schema.allows_update_path('weekly_task_activeness_progress')
+    assert schema.build_default('passport.login_days') == 0
+    assert schema.build_default('passport.last_login_period') == 0
+    assert schema.build_default('stronghold.settled_period') == 0
+    assert schema.build_default('stronghold.cur_day') == 0
+    assert schema.build_default('stronghold.current_result_record') is None
+    for path, state in _reset_cycle_sample(epoch).items():
+        normalized = schema.materialize_subpath(path, state)
+        assert schema.sanitize_subpath(path, state, fill_defaults=False) == state
+        assert BSON.encode(normalized).decode() == normalized
+    legacy = schema.materialize_subpath('mission_progress', {'claimed_task_ids': [51]})
+    assert legacy['reset_epoch'] == 0 and legacy['claimed_task_ids'] == [51]
+    passport = schema.materialize_subpath('passport', {'activity_id': 9})
+    assert passport['login_days'] == passport['last_login_period'] == 0
+    stronghold = schema.materialize_subpath('stronghold', {'cur_day': 2, 'stay_days': [2], 'future': {'nonce': 7}})
+    assert stronghold['settled_period'] == 0
+    assert stronghold['cur_day'] == 2 and stronghold['stay_days'] == [2]
+    assert stronghold['future'] == {'nonce': 7}
+    assert schema.materialize_subpath('stronghold.current_result_record', None) is None
+
+
 def _small_rewards_sample():
     return {
         'birthday_single_story_ids': [1, 3],
@@ -147,7 +205,6 @@ def _everyday_sample():
                                           'ClaimedDays': [Int64(20000), Int64(20002)]}}]}]},
         'shop_manual_refresh_periods': [{'k': 1, 'v': Int64(2**40)}],
         'archive_unlocks': [{'Kind': 'weapon', '_id': 101}],
-        'weekly_task_activeness_progress': [1, 3],
         'extra_chapter_treasures': [11], 'short_story_treasures': [12],
         'received_favorite_mail_ids': [13],
     }
@@ -346,11 +403,12 @@ def test_accumulated_pay_and_pending_choice_survive_bson(money, selections):
     assert schema.materialize_subpath('pending_item_use', legacy)['SelectRewardIds'] == []
 
 
-def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch):
+@pytest.mark.parametrize('epoch', [0, 1])
+def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch, epoch):
     runtime = DatabaseSchemaRuntime()
     writes = []
     players = {'_id': 'player', 'player_data': {'Name': 'original'},
-               **_everyday_sample(), **_small_rewards_sample(),
+               **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch),
                'boss_inshot': {'characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}]},
                'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]}}
     inventory = {'_id': 'inventory', 'items': [{'_id': 5, 'Count': Int64(60)}],
@@ -507,6 +565,9 @@ def _read_persisted_classes(server):
     """
     files = list((server / 'AscNet.Common/Database/BigWorld').glob('*.cs')) + [
         server / 'AscNet.Common/Database/Inventory.cs',
+        server / 'AscNet.Common/Database/Player.cs',
+        server / 'AscNet.Common/Database/Player.Passport.cs',
+        server / 'AscNet.Common/Database/Player.Stronghold.cs',
         server / 'AscNet.Common/Database/Player.Archive.cs',
         server / 'AscNet.Common/Database/Player.FavorMemory.cs',
         server / 'AscNet.Common/Database/Player.SmallRewards.cs',
@@ -594,7 +655,9 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'shop_manual_refresh_periods': 'Dictionary<uint, long>',
         'functional_entrance_red_points': 'Dictionary<int, int>',
         'received_favorite_mail_ids': 'List<int>',
-        'weekly_task_activeness_progress': 'List<int>',
+        'mission_progress': 'MissionProgressState',
+        'passport': 'PassportState',
+        'stronghold': 'StrongholdState',
         'extra_chapter_treasures': 'List<int>',
         'short_story_treasures': 'List<int>',
         'experiment_star_claims': 'Dictionary<int, List<int>>',
@@ -687,6 +750,12 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
     payload.update(_small_rewards_sample())
+    for name, value in _reset_cycle_sample().items():
+        payload[name] = root_schema(name).materialize_subpath(name, value)
+    # The server currently leaves StageBuffId empty. Its int-key dictionary has
+    # no BSON representation attribute, so nonempty values cannot be saved by
+    # the actual driver; preserve forward data in GM without inventing a format.
+    payload['stronghold']['group_stage_datas'][0]['StageBuffId'] = {}
     payload['spent_totals'] = {'5': Int64(2**40 + 60), '6': Int64(0)}
     for name, value in _everyday_sample().items():
         if isinstance(value, dict):

@@ -94,13 +94,6 @@
         }
       }
     },
-    "weekly_task_activeness_progress": {
-      "type": "array",
-      "default": [],
-      "schema": {
-        "type": "number"
-      }
-    },
     "extra_chapter_treasures": {
       "type": "array",
       "default": [],
@@ -4082,6 +4075,17 @@
     "mission_progress": {
       "type": "object",
       "schema": {
+        "reset_epoch": {
+          "type": "number",
+          "default": 0
+        },
+        "weekly_task_activeness_progress": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
         "day_task_condition_counters": {
           "type": "array",
           "default": [],
@@ -8853,6 +8857,14 @@
         "is_activate_newbie_task": {
           "type": "boolean",
           "default": false
+        },
+        "login_days": {
+          "type": "number",
+          "default": 0
+        },
+        "last_login_period": {
+          "type": "number",
+          "default": 0
         }
       }
     },
@@ -8997,7 +9009,466 @@
     },
     "stronghold": {
       "type": "object",
-      "default": {}
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "begin_time": {
+          "type": "number",
+          "default": 0
+        },
+        "fight_begin_time": {
+          "type": "number",
+          "default": 0
+        },
+        "cur_day": {
+          "type": "number",
+          "default": 0
+        },
+        "settled_period": {
+          "type": "number",
+          "default": 0
+        },
+        "level_id": {
+          "type": "number",
+          "default": 0
+        },
+        "assist_character_id": {
+          "type": "number",
+          "default": 0
+        },
+        "set_assist_character_time": {
+          "type": "number",
+          "default": 0
+        },
+        "borrow_count": {
+          "type": "number",
+          "default": 0
+        },
+        "electric_energy": {
+          "type": "number",
+          "default": 0
+        },
+        "endurance": {
+          "type": "number",
+          "default": 0
+        },
+        "mineral_left": {
+          "type": "number",
+          "default": 0
+        },
+        "total_mineral": {
+          "type": "number",
+          "default": 0
+        },
+        "electric_character_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "finish_group_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "finish_group_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "UsedElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "NeedElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "UsedSystemElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "NeedSystemElectricEnergy": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "history_finish_group_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "UsedElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "NeedElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "UsedSystemElectricEnergy": {
+              "type": "number",
+              "default": 0
+            },
+            "NeedSystemElectricEnergy": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "group_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "FinishStageIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "group_stage_datas": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "StageIds": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "StageBuffId": {
+              "type": "object",
+              "default": {}
+            },
+            "SupportId": {
+              "type": "number",
+              "default": 0
+            },
+            "ExtendBuffId": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "team_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ElementId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FirstPos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "EnterCgIndex": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SettleCgIndex": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RuneId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SubRuneId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SelectedGeneralSkill": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CharacterInfos": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PlayerId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RobotId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Ability": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Pos": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "PluginInfos": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Count": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "fight_team_infos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "ElementId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CaptainPos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "FirstPos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "EnterCgIndex": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SettleCgIndex": {
+                  "type": "number",
+                  "default": 0
+                },
+                "RuneId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SubRuneId": {
+                  "type": "number",
+                  "default": 0
+                },
+                "SelectedGeneralSkill": {
+                  "type": "number",
+                  "default": 0
+                },
+                "CharacterInfos": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "PlayerId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "RobotId": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Ability": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Pos": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "PluginInfos": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "Count": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "rune_list": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "stay_days": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "mine_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "Day": {
+              "type": "number",
+              "default": 0
+            },
+            "MinerCount": {
+              "type": "number",
+              "default": 0
+            },
+            "MineralCount": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "claimed_reward_ids": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "last_result_record": {
+          "type": "object",
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "FinishCount": {
+              "type": "number",
+              "default": 0
+            },
+            "MinerCount": {
+              "type": "number",
+              "default": 0
+            },
+            "MineralCount": {
+              "type": "number",
+              "default": 0
+            },
+            "AssistCount": {
+              "type": "number",
+              "default": 0
+            },
+            "AssistRewardValue": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "current_result_record": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "FinishCount": {
+              "type": "number",
+              "default": 0
+            },
+            "MinerCount": {
+              "type": "number",
+              "default": 0
+            },
+            "MineralCount": {
+              "type": "number",
+              "default": 0
+            },
+            "AssistCount": {
+              "type": "number",
+              "default": 0
+            },
+            "AssistRewardValue": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "pending_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "pending_stage_id": {
+          "type": "number",
+          "default": 0
+        }
+      }
     },
     "theatre": {
       "type": "object",

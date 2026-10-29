@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `0425ea6d046778fdd6289a9976989dc48c293c40`.
+> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `137e8995e48bc13341e363b7855c88094898be3a`.
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -122,6 +122,8 @@ Changing the rainbow-card balance in GM does not increase Total Recharge progres
 First-pay progress is also separate: `total_pay_money` records completed recharge amounts in hundredths of `Pay.ShowAmount`, while `accumulated_pay_money` counts credited rainbow cards. Editing the GM balance does not advance either counter or claim first-pay rewards.
 
 Accumulated consumption is tracked separately in `inventory.spent_totals`, a BSON document keyed by item ID strings with Int64 totals. The server counts in-game debits after the accumulate-expend shop's saved baseline. GM balance changes and item deletion do not count as consumption, convert shop tokens, or reset shop sign-in and version-gift claim records.
+
+Daily and weekly task resets follow the server's configured reset boundaries. The server owns the `mission_progress.reset_epoch` migration marker, Passport season login counters, and Norman Revival Plan (Stronghold) daily settlement periods. GM profile and balance edits preserve these records. Direct balance or stage edits do not replay gameplay events to credit Passport tasks, settle Norman cycles, or award Clash Reflection (Transfinite) achievements.
 
 Stage management edits raw completion records only. It does not synchronize CerberusGame story points, route choices, star-reward claims, or activity teams; those are separate server-owned activity state.
 
