@@ -1,0 +1,54 @@
+<div class="shared-modal character-skill-edit-modal" hidden id="character-skill-edit-modal">
+  <div class="shared-modal-backdrop" data-character-skill-edit-modal-close></div>
+  <section
+    class="shared-modal-card character-quality-edit-card"
+    id="character-skill-edit-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-skill-edit-title"
+    tabindex="-1"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">S</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailSkillEditEyebrow">
+          编辑
+        </p>
+        <h3 id="character-skill-edit-title" data-i18n="dashboard.characterDetailSkillEditTitle">
+          技能
+        </h3>
+      </div>
+    </div>
+    <div class="character-quality-edit-form">
+      <label class="character-quality-edit-row" for="character-skill-edit-level">
+        <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailSkillLevel">
+          等级
+        </span>
+        <input
+          class="character-quality-edit-select"
+          id="character-skill-edit-level"
+          type="number"
+          inputmode="numeric"
+        />
+      </label>
+    </div>
+    <div class="shared-modal-actions character-quality-edit-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-skill-edit-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-skill-edit-confirm"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

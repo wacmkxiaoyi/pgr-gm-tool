@@ -98,7 +98,9 @@ app.getCharacterGradeOptions = (characterId) => {
     return [];
   }
 
-  const gradeNames = state.characterGradeNameMap?.[normalizedCharacterId] ?? state.characterGradeNameMap?.[String(normalizedCharacterId)];
+  const gradeNames =
+    state.characterGradeNameMap?.[normalizedCharacterId] ??
+    state.characterGradeNameMap?.[String(normalizedCharacterId)];
   if (!Array.isArray(gradeNames)) {
     return [];
   }
@@ -112,12 +114,16 @@ app.getCharacterGradeOptions = (characterId) => {
 };
 
 app.resolveCharacterGradeName = (characterId, grade, fallback = '--') => {
-  const normalizedGrade = Number.isFinite(Number(grade)) ? Math.max(0, Math.floor(Number(grade))) : 0;
+  const normalizedGrade = Number.isFinite(Number(grade))
+    ? Math.max(0, Math.floor(Number(grade)))
+    : 0;
   if (normalizedGrade <= 0) {
     return fallback;
   }
 
-  const matchedOption = app.getCharacterGradeOptions(characterId).find((option) => option.value === normalizedGrade);
+  const matchedOption = app
+    .getCharacterGradeOptions(characterId)
+    .find((option) => option.value === normalizedGrade);
   return matchedOption?.label || fallback;
 };
 
@@ -160,7 +166,9 @@ app.getCharacterQualitySelectableOptions = (extraInfo) => {
   }
 
   const [minQuality, maxQuality] = qualityBound;
-  return CHARACTER_QUALITY_EDIT_OPTIONS.filter((quality) => quality >= minQuality && quality <= maxQuality);
+  return CHARACTER_QUALITY_EDIT_OPTIONS.filter(
+    (quality) => quality >= minQuality && quality <= maxQuality,
+  );
 };
 
 app.getCharacterQualityEditState = () => {
@@ -195,9 +203,11 @@ app.renderCharacterQualityStarOptions = (quality) => {
   const normalizedQuality = Number.isFinite(Number(quality)) ? Number(quality) : 0;
   const isSssPlus = normalizedQuality === 6;
   const starOptions = isSssPlus ? [0] : Array.from({ length: 10 }, (_, index) => index);
-  characterQualityEditStarSelect.innerHTML = starOptions.map((starValue) => (
-    `<option value="${starValue}">${app.escapeHtml(String(starValue))}</option>`
-  )).join('');
+  characterQualityEditStarSelect.innerHTML = starOptions
+    .map(
+      (starValue) => `<option value="${starValue}">${app.escapeHtml(String(starValue))}</option>`,
+    )
+    .join('');
   characterQualityEditStarSelect.disabled = isSssPlus || state.characterQualityEditPending;
 };
 
@@ -210,7 +220,10 @@ app.syncCharacterQualityEditControls = () => {
     characterDetailEvolution.tabIndex = isEditable ? 0 : -1;
     characterDetailEvolution.setAttribute('role', isEditable ? 'button' : 'status');
     if (isEditable) {
-      characterDetailEvolution.setAttribute('aria-label', app.translate('dashboard.characterDetailQualityEditTrigger'));
+      characterDetailEvolution.setAttribute(
+        'aria-label',
+        app.translate('dashboard.characterDetailQualityEditTrigger'),
+      );
       characterDetailEvolution.title = app.translate('dashboard.characterDetailQualityEditTrigger');
     } else {
       characterDetailEvolution.removeAttribute('aria-label');
@@ -229,9 +242,12 @@ app.populateCharacterQualityEditModal = () => {
 
   if (characterQualityEditQualitySelect instanceof HTMLSelectElement) {
     characterQualityEditQualitySelect.className = `character-quality-edit-select ${app.getCharacterQualityClass(editState.quality)}`;
-    characterQualityEditQualitySelect.innerHTML = editState.options.map((qualityOption) => (
-      `<option value="${qualityOption}">${app.escapeHtml(app.getCharacterQualityLabel(qualityOption))}</option>`
-    )).join('');
+    characterQualityEditQualitySelect.innerHTML = editState.options
+      .map(
+        (qualityOption) =>
+          `<option value="${qualityOption}">${app.escapeHtml(app.getCharacterQualityLabel(qualityOption))}</option>`,
+      )
+      .join('');
     characterQualityEditQualitySelect.value = String(editState.quality);
     characterQualityEditQualitySelect.disabled = state.characterQualityEditPending;
   }
@@ -279,7 +295,8 @@ app.openCharacterQualityEditModal = (trigger = null) => {
     return;
   }
 
-  state.lastCharacterQualityEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterQualityEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterQualityEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -334,7 +351,10 @@ app.getCharacterLevelEditState = () => {
   const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
   const exp = Number.isFinite(Number(extraInfo?.Exp)) ? Math.max(0, Number(extraInfo.Exp)) : 0;
-  const levelExpMap = extraInfo?.LevelExpMap && typeof extraInfo.LevelExpMap === 'object' ? extraInfo.LevelExpMap : null;
+  const levelExpMap =
+    extraInfo?.LevelExpMap && typeof extraInfo.LevelExpMap === 'object'
+      ? extraInfo.LevelExpMap
+      : null;
   const bounds = app.getCharacterLevelBounds(levelExpMap);
   if (recordId === null || level === null || !bounds) {
     return null;
@@ -351,7 +371,10 @@ app.getCharacterLevelEditState = () => {
 };
 
 app.syncCharacterLevelEditExpInput = () => {
-  if (!(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+  if (
+    !(characterLevelEditLevelInput instanceof HTMLInputElement) ||
+    !(characterLevelEditExpInput instanceof HTMLInputElement)
+  ) {
     return;
   }
 
@@ -392,7 +415,10 @@ app.syncCharacterLevelEditControls = () => {
     characterDetailLevel.tabIndex = isEditable ? 0 : -1;
     characterDetailLevel.setAttribute('role', isEditable ? 'button' : 'status');
     if (isEditable) {
-      characterDetailLevel.setAttribute('aria-label', app.translate('dashboard.characterDetailLevelEditTrigger'));
+      characterDetailLevel.setAttribute(
+        'aria-label',
+        app.translate('dashboard.characterDetailLevelEditTrigger'),
+      );
       characterDetailLevel.title = app.translate('dashboard.characterDetailLevelEditTrigger');
     } else {
       characterDetailLevel.removeAttribute('aria-label');
@@ -405,7 +431,11 @@ app.syncCharacterLevelEditControls = () => {
 
 app.populateCharacterLevelEditModal = () => {
   const editState = app.getCharacterLevelEditState();
-  if (!editState || !(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+  if (
+    !editState ||
+    !(characterLevelEditLevelInput instanceof HTMLInputElement) ||
+    !(characterLevelEditExpInput instanceof HTMLInputElement)
+  ) {
     return false;
   }
 
@@ -455,7 +485,8 @@ app.openCharacterLevelEditModal = (trigger = null) => {
     return;
   }
 
-  state.lastCharacterLevelEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterLevelEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterLevelEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -504,9 +535,12 @@ app.getCharacterTrustEditState = () => {
   const item = state.currentCharacterDetailItem;
   const extraInfo = state.currentCharacterDetailExtraInfo;
   const characterId = Number.isFinite(Number(item?.CharacterId)) ? Number(item.CharacterId) : null;
-  const trustExpMap = characterId !== null && state.characterTrustExpMap && typeof state.characterTrustExpMap === 'object'
-    ? state.characterTrustExpMap[characterId]
-    : null;
+  const trustExpMap =
+    characterId !== null &&
+    state.characterTrustExpMap &&
+    typeof state.characterTrustExpMap === 'object'
+      ? state.characterTrustExpMap[characterId]
+      : null;
   if (!item || !extraInfo || typeof extraInfo !== 'object' || !trustExpMap) {
     return null;
   }
@@ -517,14 +551,18 @@ app.getCharacterTrustEditState = () => {
     return null;
   }
 
-  const rawTrustLv = Number.isFinite(Number(extraInfo?.TrustLv)) ? Math.max(0, Math.floor(Number(extraInfo.TrustLv))) : 0;
+  const rawTrustLv = Number.isFinite(Number(extraInfo?.TrustLv))
+    ? Math.max(0, Math.floor(Number(extraInfo.TrustLv)))
+    : 0;
   const trustLv = Math.min(Math.max(rawTrustLv, bounds.minTrustLv), bounds.maxTrustLv);
   const trustExpLimit = app.getCharacterTrustExpLimit(trustExpMap, trustLv);
   if (!Number.isFinite(trustExpLimit)) {
     return null;
   }
 
-  const rawTrustExp = Number.isFinite(Number(extraInfo?.TrustExp)) ? Math.max(0, Number(extraInfo.TrustExp)) : 0;
+  const rawTrustExp = Number.isFinite(Number(extraInfo?.TrustExp))
+    ? Math.max(0, Number(extraInfo.TrustExp))
+    : 0;
 
   return {
     recordId,
@@ -570,11 +608,17 @@ app.renderCharacterTrustEditHearts = (selectedTrustLv) => {
     `;
   }).join('');
 
-  characterTrustEditHearts.setAttribute('aria-label', app.translate('dashboard.characterDetailTrustEditTrigger'));
+  characterTrustEditHearts.setAttribute(
+    'aria-label',
+    app.translate('dashboard.characterDetailTrustEditTrigger'),
+  );
 };
 
 app.syncCharacterTrustEditExpInput = () => {
-  if (!(characterTrustEditHearts instanceof HTMLElement) || !(characterTrustEditExpInput instanceof HTMLInputElement)) {
+  if (
+    !(characterTrustEditHearts instanceof HTMLElement) ||
+    !(characterTrustEditExpInput instanceof HTMLInputElement)
+  ) {
     return;
   }
 
@@ -583,10 +627,13 @@ app.syncCharacterTrustEditExpInput = () => {
     return;
   }
 
-  const selectedButton = characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]');
-  const selectedTrustLv = selectedButton instanceof HTMLButtonElement
-    ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
-    : editState.trustLv;
+  const selectedButton = characterTrustEditHearts.querySelector(
+    '[data-character-trust-level][aria-pressed="true"]',
+  );
+  const selectedTrustLv =
+    selectedButton instanceof HTMLButtonElement
+      ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
+      : editState.trustLv;
   const effectiveTrustLv = Number.isFinite(selectedTrustLv)
     ? Math.min(Math.max(selectedTrustLv, editState.minTrustLv), editState.maxTrustLv)
     : editState.trustLv;
@@ -620,7 +667,10 @@ app.syncCharacterTrustEditControls = () => {
     characterDetailTrust.tabIndex = isEditable ? 0 : -1;
     characterDetailTrust.setAttribute('role', isEditable ? 'button' : 'status');
     if (isEditable) {
-      characterDetailTrust.setAttribute('aria-label', app.translate('dashboard.characterDetailTrustEditTrigger'));
+      characterDetailTrust.setAttribute(
+        'aria-label',
+        app.translate('dashboard.characterDetailTrustEditTrigger'),
+      );
       characterDetailTrust.title = app.translate('dashboard.characterDetailTrustEditTrigger');
     } else {
       characterDetailTrust.removeAttribute('aria-label');
@@ -680,13 +730,15 @@ app.openCharacterTrustEditModal = (trigger = null) => {
     return;
   }
 
-  state.lastCharacterTrustEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterTrustEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterTrustEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
-  const selectedButton = characterTrustEditHearts instanceof HTMLElement
-    ? characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]')
-    : null;
+  const selectedButton =
+    characterTrustEditHearts instanceof HTMLElement
+      ? characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]')
+      : null;
   if (selectedButton instanceof HTMLButtonElement) {
     selectedButton.focus();
   } else if (characterTrustEditExpInput instanceof HTMLInputElement) {
@@ -703,10 +755,20 @@ app.getCharacterGradeEditState = () => {
   }
 
   const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
-  const characterId = Number.isFinite(Number(item?.CharacterId ?? item?.record_id)) ? Number(item.CharacterId ?? item.record_id) : null;
-  const grade = Number.isFinite(Number(item?.Grade)) ? Math.max(1, Math.floor(Number(item.Grade))) : 0;
+  const characterId = Number.isFinite(Number(item?.CharacterId ?? item?.record_id))
+    ? Number(item.CharacterId ?? item.record_id)
+    : null;
+  const grade = Number.isFinite(Number(item?.Grade))
+    ? Math.max(1, Math.floor(Number(item.Grade)))
+    : 0;
   const options = app.getCharacterGradeOptions(characterId);
-  if (recordId === null || characterId === null || grade <= 0 || options.length === 0 || !options.some((option) => option.value === grade)) {
+  if (
+    recordId === null ||
+    characterId === null ||
+    grade <= 0 ||
+    options.length === 0 ||
+    !options.some((option) => option.value === grade)
+  ) {
     return null;
   }
 
@@ -727,7 +789,10 @@ app.syncCharacterGradeEditControls = () => {
     characterDetailGrade.tabIndex = isEditable ? 0 : -1;
     characterDetailGrade.setAttribute('role', isEditable ? 'button' : 'status');
     if (isEditable) {
-      characterDetailGrade.setAttribute('aria-label', app.translate('dashboard.characterDetailGradeEditTrigger'));
+      characterDetailGrade.setAttribute(
+        'aria-label',
+        app.translate('dashboard.characterDetailGradeEditTrigger'),
+      );
       characterDetailGrade.title = app.translate('dashboard.characterDetailGradeEditTrigger');
     } else {
       characterDetailGrade.removeAttribute('aria-label');
@@ -744,9 +809,9 @@ app.populateCharacterGradeEditModal = () => {
     return false;
   }
 
-  characterGradeEditSelect.innerHTML = editState.options.map((option) => (
-    `<option value="${option.value}">${app.escapeHtml(option.label)}</option>`
-  )).join('');
+  characterGradeEditSelect.innerHTML = editState.options
+    .map((option) => `<option value="${option.value}">${app.escapeHtml(option.label)}</option>`)
+    .join('');
   characterGradeEditSelect.value = String(editState.grade);
   characterGradeEditSelect.className = `character-quality-edit-select ${app.getCharacterGradeClass(editState.grade)}`;
   characterGradeEditSelect.disabled = state.characterGradeEditPending;
@@ -788,7 +853,8 @@ app.openCharacterGradeEditModal = (trigger = null) => {
     return;
   }
 
-  state.lastCharacterGradeEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterGradeEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterGradeEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -815,32 +881,43 @@ app.updateCharacterGrade = async () => {
   app.populateCharacterGradeEditModal();
 
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/grade`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/grade`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Grade: grade,
+        }),
       },
-      body: JSON.stringify({
-        Grade: grade,
-      }),
-    });
+    );
 
-    const updatedGrade = Number.isFinite(Number(payload?.Grade)) ? Math.max(1, Math.floor(Number(payload.Grade))) : grade;
-    const updatedGradeName = app.resolveCharacterGradeName(editState.characterId, updatedGrade, '--');
+    const updatedGrade = Number.isFinite(Number(payload?.Grade))
+      ? Math.max(1, Math.floor(Number(payload.Grade)))
+      : grade;
+    const updatedGradeName = app.resolveCharacterGradeName(
+      editState.characterId,
+      updatedGrade,
+      '--',
+    );
     const currentRecordId = editState.recordId;
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
-        if (entryRecordId !== currentRecordId) {
-          return entry;
-        }
-        return {
-          ...entry,
-          Grade: updatedGrade,
-          GradeName: updatedGradeName,
-        };
-      })
+          const entryRecordId = Number.isFinite(Number(entry?.record_id))
+            ? Number(entry.record_id)
+            : null;
+          if (entryRecordId !== currentRecordId) {
+            return entry;
+          }
+          return {
+            ...entry,
+            Grade: updatedGrade,
+            GradeName: updatedGradeName,
+          };
+        })
       : state.characterManagementItems;
 
     if (state.currentCharacterDetailItem) {
@@ -857,7 +934,10 @@ app.updateCharacterGrade = async () => {
     }
 
     app.closeCharacterGradeEditModal();
-    app.openSuccessModal(app.translate('runtime.characterGradeUpdateSuccess'), app.translate('runtime.characterGradeUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterGradeUpdateSuccess'),
+      app.translate('runtime.characterGradeUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -884,7 +964,9 @@ app.getCharacterAwakenEditState = () => {
   }
 
   const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
-  const rawAwakenLevel = Number.isFinite(Number(item?.AwakenLevel)) ? Math.max(0, Math.floor(Number(item.AwakenLevel))) : 0;
+  const rawAwakenLevel = Number.isFinite(Number(item?.AwakenLevel))
+    ? Math.max(0, Math.floor(Number(item.AwakenLevel)))
+    : 0;
   const awakenLevel = Math.min(Math.max(rawAwakenLevel, 1), 5);
   const options = app.getCharacterAwakenSelectableOptions(extraInfo);
   if (recordId === null) {
@@ -911,7 +993,10 @@ app.syncCharacterAwakenEditControls = () => {
     characterDetailAwaken.tabIndex = isEditable ? 0 : -1;
     characterDetailAwaken.setAttribute('role', isEditable ? 'button' : 'status');
     if (isEditable) {
-      characterDetailAwaken.setAttribute('aria-label', app.translate('dashboard.characterDetailAwakenEditTrigger'));
+      characterDetailAwaken.setAttribute(
+        'aria-label',
+        app.translate('dashboard.characterDetailAwakenEditTrigger'),
+      );
       characterDetailAwaken.title = app.translate('dashboard.characterDetailAwakenEditTrigger');
     } else {
       characterDetailAwaken.removeAttribute('aria-label');
@@ -928,9 +1013,12 @@ app.populateCharacterAwakenEditModal = () => {
     return false;
   }
 
-  characterAwakenEditLevelSelect.innerHTML = editState.options.map((awakenOption) => (
-    `<option value="${awakenOption}">${app.escapeHtml(app.getCharacterAwakenDisplay(awakenOption))}</option>`
-  )).join('');
+  characterAwakenEditLevelSelect.innerHTML = editState.options
+    .map(
+      (awakenOption) =>
+        `<option value="${awakenOption}">${app.escapeHtml(app.getCharacterAwakenDisplay(awakenOption))}</option>`,
+    )
+    .join('');
   characterAwakenEditLevelSelect.value = String(editState.awakenLevel);
   characterAwakenEditLevelSelect.className = `character-quality-edit-select ${app.getCharacterAwakenClass(editState.awakenLevel)}`;
   characterAwakenEditLevelSelect.disabled = state.characterAwakenEditPending;
@@ -972,7 +1060,8 @@ app.openCharacterAwakenEditModal = (trigger = null) => {
     return;
   }
 
-  state.lastCharacterAwakenEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterAwakenEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterAwakenEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -999,30 +1088,37 @@ app.updateCharacterAwaken = async () => {
   app.populateCharacterAwakenEditModal();
 
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/awaken`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/awaken`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          AwakenLevel: awakenLevel,
+        }),
       },
-      body: JSON.stringify({
-        AwakenLevel: awakenLevel,
-      }),
-    });
+    );
 
-    const updatedAwakenLevel = Number.isFinite(Number(payload?.AwakenLevel)) ? Number(payload.AwakenLevel) : awakenLevel;
+    const updatedAwakenLevel = Number.isFinite(Number(payload?.AwakenLevel))
+      ? Number(payload.AwakenLevel)
+      : awakenLevel;
     const currentRecordId = editState.recordId;
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
-        if (entryRecordId !== currentRecordId) {
-          return entry;
-        }
-        return {
-          ...entry,
-          AwakenLevel: updatedAwakenLevel,
-        };
-      })
+          const entryRecordId = Number.isFinite(Number(entry?.record_id))
+            ? Number(entry.record_id)
+            : null;
+          if (entryRecordId !== currentRecordId) {
+            return entry;
+          }
+          return {
+            ...entry,
+            AwakenLevel: updatedAwakenLevel,
+          };
+        })
       : state.characterManagementItems;
 
     if (state.currentCharacterDetailItem) {
@@ -1038,7 +1134,10 @@ app.updateCharacterAwaken = async () => {
     }
 
     app.closeCharacterAwakenEditModal();
-    app.openSuccessModal(app.translate('runtime.characterAwakenUpdateSuccess'), app.translate('runtime.characterAwakenUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterAwakenUpdateSuccess'),
+      app.translate('runtime.characterAwakenUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -1055,14 +1154,21 @@ app.updateCharacterAwaken = async () => {
 
 app.updateCharacterTrust = async () => {
   const editState = app.getCharacterTrustEditState();
-  if (!editState || !(characterTrustEditHearts instanceof HTMLElement) || !(characterTrustEditExpInput instanceof HTMLInputElement)) {
+  if (
+    !editState ||
+    !(characterTrustEditHearts instanceof HTMLElement) ||
+    !(characterTrustEditExpInput instanceof HTMLInputElement)
+  ) {
     return;
   }
 
-  const selectedButton = characterTrustEditHearts.querySelector('[data-character-trust-level][aria-pressed="true"]');
-  const trustLv = selectedButton instanceof HTMLButtonElement
-    ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
-    : NaN;
+  const selectedButton = characterTrustEditHearts.querySelector(
+    '[data-character-trust-level][aria-pressed="true"]',
+  );
+  const trustLv =
+    selectedButton instanceof HTMLButtonElement
+      ? Number.parseInt(selectedButton.dataset.characterTrustLevel ?? '', 10)
+      : NaN;
   const trustExp = Number.parseInt(characterTrustEditExpInput.value, 10);
   if (!Number.isFinite(trustLv) || !Number.isFinite(trustExp) || trustExp < 0) {
     app.openNoticeModal(app.translate('runtime.characterTrustUpdateInvalid'));
@@ -1084,21 +1190,31 @@ app.updateCharacterTrust = async () => {
   app.populateCharacterTrustEditModal();
 
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/trust`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/trust`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          TrustLv: trustLv,
+          TrustExp: trustExp,
+        }),
       },
-      body: JSON.stringify({
-        TrustLv: trustLv,
-        TrustExp: trustExp,
-      }),
-    });
+    );
 
-    const updatedTrustLv = Number.isFinite(Number(payload?.TrustLv)) ? Number(payload.TrustLv) : trustLv;
-    const updatedTrustExp = Number.isFinite(Number(payload?.TrustExp)) ? Number(payload.TrustExp) : trustExp;
+    const updatedTrustLv = Number.isFinite(Number(payload?.TrustLv))
+      ? Number(payload.TrustLv)
+      : trustLv;
+    const updatedTrustExp = Number.isFinite(Number(payload?.TrustExp))
+      ? Number(payload.TrustExp)
+      : trustExp;
 
-    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+    if (
+      state.currentCharacterDetailExtraInfo &&
+      typeof state.currentCharacterDetailExtraInfo === 'object'
+    ) {
       state.currentCharacterDetailExtraInfo = {
         ...state.currentCharacterDetailExtraInfo,
         TrustLv: updatedTrustLv,
@@ -1111,7 +1227,10 @@ app.updateCharacterTrust = async () => {
     }
 
     app.closeCharacterTrustEditModal();
-    app.openSuccessModal(app.translate('runtime.characterTrustUpdateSuccess'), app.translate('runtime.characterTrustUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterTrustUpdateSuccess'),
+      app.translate('runtime.characterTrustUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -1133,22 +1252,30 @@ app.handleCharacterQualityEditQualityChange = () => {
 
   const quality = Number.parseInt(characterQualityEditQualitySelect.value, 10);
   const normalizedQuality = Number.isFinite(quality) ? quality : 0;
-  const previousStar = characterQualityEditStarSelect instanceof HTMLSelectElement
-    ? Number.parseInt(characterQualityEditStarSelect.value, 10)
-    : 0;
+  const previousStar =
+    characterQualityEditStarSelect instanceof HTMLSelectElement
+      ? Number.parseInt(characterQualityEditStarSelect.value, 10)
+      : 0;
   characterQualityEditQualitySelect.className = `character-quality-edit-select ${app.getCharacterQualityClass(normalizedQuality)}`;
   app.renderCharacterQualityStarOptions(normalizedQuality);
   if (characterQualityEditStarSelect instanceof HTMLSelectElement) {
-    const nextStar = normalizedQuality === 6
-      ? 0
-      : (Number.isFinite(previousStar) ? Math.min(Math.max(previousStar, 0), 9) : 0);
+    const nextStar =
+      normalizedQuality === 6
+        ? 0
+        : Number.isFinite(previousStar)
+          ? Math.min(Math.max(previousStar, 0), 9)
+          : 0;
     characterQualityEditStarSelect.value = String(nextStar);
   }
 };
 
 app.updateCharacterQualityStar = async () => {
   const editState = app.getCharacterQualityEditState();
-  if (!editState || !(characterQualityEditQualitySelect instanceof HTMLSelectElement) || !(characterQualityEditStarSelect instanceof HTMLSelectElement)) {
+  if (
+    !editState ||
+    !(characterQualityEditQualitySelect instanceof HTMLSelectElement) ||
+    !(characterQualityEditStarSelect instanceof HTMLSelectElement)
+  ) {
     return;
   }
 
@@ -1171,33 +1298,44 @@ app.updateCharacterQualityStar = async () => {
   app.populateCharacterQualityEditModal();
 
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/evolution`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/evolution`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Quality: normalizedQuality,
+          Star: normalizedQuality === 6 ? 0 : normalizedStar,
+        }),
       },
-      body: JSON.stringify({
-        Quality: normalizedQuality,
-        Star: normalizedQuality === 6 ? 0 : normalizedStar,
-      }),
-    });
+    );
 
-    const updatedQuality = Number.isFinite(Number(payload?.Quality)) ? Number(payload.Quality) : normalizedQuality;
-    const updatedStar = Number.isFinite(Number(payload?.Star)) ? Number(payload.Star) : (updatedQuality === 6 ? 0 : normalizedStar);
+    const updatedQuality = Number.isFinite(Number(payload?.Quality))
+      ? Number(payload.Quality)
+      : normalizedQuality;
+    const updatedStar = Number.isFinite(Number(payload?.Star))
+      ? Number(payload.Star)
+      : updatedQuality === 6
+        ? 0
+        : normalizedStar;
     const currentRecordId = editState.recordId;
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
-        if (entryRecordId !== currentRecordId) {
-          return entry;
-        }
-        return {
-          ...entry,
-          Quality: updatedQuality,
-          Star: updatedStar,
-        };
-      })
+          const entryRecordId = Number.isFinite(Number(entry?.record_id))
+            ? Number(entry.record_id)
+            : null;
+          if (entryRecordId !== currentRecordId) {
+            return entry;
+          }
+          return {
+            ...entry,
+            Quality: updatedQuality,
+            Star: updatedStar,
+          };
+        })
       : state.characterManagementItems;
 
     if (state.currentCharacterDetailItem) {
@@ -1214,7 +1352,10 @@ app.updateCharacterQualityStar = async () => {
     }
 
     app.closeCharacterQualityEditModal();
-    app.openSuccessModal(app.translate('runtime.characterQualityUpdateSuccess'), app.translate('runtime.characterQualityUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterQualityUpdateSuccess'),
+      app.translate('runtime.characterQualityUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -1231,7 +1372,11 @@ app.updateCharacterQualityStar = async () => {
 
 app.updateCharacterLevelExp = async () => {
   const editState = app.getCharacterLevelEditState();
-  if (!editState || !(characterLevelEditLevelInput instanceof HTMLInputElement) || !(characterLevelEditExpInput instanceof HTMLInputElement)) {
+  if (
+    !editState ||
+    !(characterLevelEditLevelInput instanceof HTMLInputElement) ||
+    !(characterLevelEditExpInput instanceof HTMLInputElement)
+  ) {
     return;
   }
 
@@ -1243,10 +1388,12 @@ app.updateCharacterLevelExp = async () => {
   }
 
   if (level < editState.minLevel || level > editState.maxLevel) {
-    app.openNoticeModal(app.translate('runtime.characterLevelMaxExceeded', {
-      min: editState.minLevel,
-      max: editState.maxLevel,
-    }));
+    app.openNoticeModal(
+      app.translate('runtime.characterLevelMaxExceeded', {
+        min: editState.minLevel,
+        max: editState.maxLevel,
+      }),
+    );
     return;
   }
 
@@ -1265,16 +1412,19 @@ app.updateCharacterLevelExp = async () => {
   app.populateCharacterLevelEditModal();
 
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/levelup`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/levelup`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Level: level,
+          Exp: exp,
+        }),
       },
-      body: JSON.stringify({
-        Level: level,
-        Exp: exp,
-      }),
-    });
+    );
 
     const updatedLevel = Number.isFinite(Number(payload?.Level)) ? Number(payload.Level) : level;
     const updatedExp = Number.isFinite(Number(payload?.Exp)) ? Number(payload.Exp) : exp;
@@ -1282,15 +1432,17 @@ app.updateCharacterLevelExp = async () => {
 
     state.characterManagementItems = Array.isArray(state.characterManagementItems)
       ? state.characterManagementItems.map((entry) => {
-        const entryRecordId = Number.isFinite(Number(entry?.record_id)) ? Number(entry.record_id) : null;
-        if (entryRecordId !== currentRecordId) {
-          return entry;
-        }
-        return {
-          ...entry,
-          Level: updatedLevel,
-        };
-      })
+          const entryRecordId = Number.isFinite(Number(entry?.record_id))
+            ? Number(entry.record_id)
+            : null;
+          if (entryRecordId !== currentRecordId) {
+            return entry;
+          }
+          return {
+            ...entry,
+            Level: updatedLevel,
+          };
+        })
       : state.characterManagementItems;
 
     if (state.currentCharacterDetailItem) {
@@ -1300,7 +1452,10 @@ app.updateCharacterLevelExp = async () => {
       };
     }
 
-    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+    if (
+      state.currentCharacterDetailExtraInfo &&
+      typeof state.currentCharacterDetailExtraInfo === 'object'
+    ) {
       state.currentCharacterDetailExtraInfo = {
         ...state.currentCharacterDetailExtraInfo,
         Exp: updatedExp,
@@ -1316,7 +1471,10 @@ app.updateCharacterLevelExp = async () => {
     }
 
     app.closeCharacterLevelEditModal();
-    app.openSuccessModal(app.translate('runtime.characterLevelUpdateSuccess'), app.translate('runtime.characterLevelUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterLevelUpdateSuccess'),
+      app.translate('runtime.characterLevelUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -1369,7 +1527,9 @@ app.getCharacterGradeClass = (grade) => {
 };
 
 app.getCharacterAwakenClass = (awakenLevel) => {
-  const normalizedAwakenLevel = Number.isFinite(Number(awakenLevel)) ? Math.max(0, Number(awakenLevel)) : 0;
+  const normalizedAwakenLevel = Number.isFinite(Number(awakenLevel))
+    ? Math.max(0, Number(awakenLevel))
+    : 0;
   return `character-awaken-tier-${Math.min(normalizedAwakenLevel, 5)}`;
 };
 
@@ -1400,24 +1560,26 @@ app.normalizeCharacterFashions = (extraInfo) => {
   return extraInfo.Fashions.map((fashion) => {
     const id = Number.isFinite(Number(fashion?.Id)) ? Number(fashion.Id) : null;
     const quality = Number.isFinite(Number(fashion?.Quality)) ? Number(fashion.Quality) : 0;
-    const bigIcon = typeof fashion?.BigIcon === 'string' && fashion.BigIcon.trim()
-      ? fashion.BigIcon.trim()
-      : '';
-    const bigHeadIcon = typeof fashion?.BigHeadIcon === 'string' && fashion.BigHeadIcon.trim()
-      ? fashion.BigHeadIcon.trim()
-      : '';
-    const bigHeadIconFashion = typeof fashion?.BigHeadIconFashion === 'string' && fashion.BigHeadIconFashion.trim()
-      ? fashion.BigHeadIconFashion.trim()
-      : '';
-    const bigHeadIconLiberation = typeof fashion?.BigHeadIconLiberation === 'string' && fashion.BigHeadIconLiberation.trim()
-      ? fashion.BigHeadIconLiberation.trim()
-      : bigHeadIcon;
-    const name = typeof fashion?.Name === 'string' && fashion.Name.trim()
-      ? fashion.Name.trim()
-      : '--';
-    const description = typeof fashion?.Description === 'string' && fashion.Description.trim()
-      ? fashion.Description.trim()
-      : '--';
+    const bigIcon =
+      typeof fashion?.BigIcon === 'string' && fashion.BigIcon.trim() ? fashion.BigIcon.trim() : '';
+    const bigHeadIcon =
+      typeof fashion?.BigHeadIcon === 'string' && fashion.BigHeadIcon.trim()
+        ? fashion.BigHeadIcon.trim()
+        : '';
+    const bigHeadIconFashion =
+      typeof fashion?.BigHeadIconFashion === 'string' && fashion.BigHeadIconFashion.trim()
+        ? fashion.BigHeadIconFashion.trim()
+        : '';
+    const bigHeadIconLiberation =
+      typeof fashion?.BigHeadIconLiberation === 'string' && fashion.BigHeadIconLiberation.trim()
+        ? fashion.BigHeadIconLiberation.trim()
+        : bigHeadIcon;
+    const name =
+      typeof fashion?.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--';
+    const description =
+      typeof fashion?.Description === 'string' && fashion.Description.trim()
+        ? fashion.Description.trim()
+        : '--';
 
     if (id === null || !bigIcon || !bigHeadIcon || !bigHeadIconFashion) {
       return null;
@@ -1445,51 +1607,64 @@ app.getCharacterDetailFashionTooltipText = (fashion) => {
   return JSON.stringify({
     type: 'fashion',
     name: typeof fashion.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--',
-    description: typeof fashion.Description === 'string' && fashion.Description.trim() ? fashion.Description.trim() : '--',
+    description:
+      typeof fashion.Description === 'string' && fashion.Description.trim()
+        ? fashion.Description.trim()
+        : '--',
     quality: Number.isFinite(Number(fashion.Quality)) ? Math.max(0, Number(fashion.Quality)) : 0,
   });
 };
 
-app.normalizeCharacterWeaponFashions = (extraInfo) => (Array.isArray(extraInfo?.WeaponFashions) ? extraInfo.WeaponFashions : [])
-  .map((fashion) => {
-    const id = Number(fashion?.Id);
-    if (!Number.isFinite(id)) return null;
-    const bigIcon = typeof fashion?.BigIcon === 'string' ? fashion.BigIcon.trim() : '';
-    if (!bigIcon) return null;
-    return {
-      Id: id,
-      Quality: Number.isFinite(Number(fashion?.Quality)) ? Math.max(0, Number(fashion.Quality)) : 0,
-      IsLock: Boolean(fashion?.IsLock),
-      BigIcon: bigIcon,
-      Name: typeof fashion?.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--',
-      Description: typeof fashion?.Description === 'string' && fashion.Description.trim() ? fashion.Description.trim() : '--',
-    };
-  }).filter(Boolean);
+app.normalizeCharacterWeaponFashions = (extraInfo) =>
+  (Array.isArray(extraInfo?.WeaponFashions) ? extraInfo.WeaponFashions : [])
+    .map((fashion) => {
+      const id = Number(fashion?.Id);
+      if (!Number.isFinite(id)) return null;
+      const bigIcon = typeof fashion?.BigIcon === 'string' ? fashion.BigIcon.trim() : '';
+      if (!bigIcon) return null;
+      return {
+        Id: id,
+        Quality: Number.isFinite(Number(fashion?.Quality))
+          ? Math.max(0, Number(fashion.Quality))
+          : 0,
+        IsLock: Boolean(fashion?.IsLock),
+        BigIcon: bigIcon,
+        Name: typeof fashion?.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--',
+        Description:
+          typeof fashion?.Description === 'string' && fashion.Description.trim()
+            ? fashion.Description.trim()
+            : '--',
+      };
+    })
+    .filter(Boolean);
 
-app.getCharacterWeaponFashionTooltipText = (fashion) => app.getCharacterDetailFashionTooltipText(fashion);
+app.getCharacterWeaponFashionTooltipText = (fashion) =>
+  app.getCharacterDetailFashionTooltipText(fashion);
 
 app.normalizeCharacterSkillList = (value) => {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  const normalizedItems = value.map((entry) => {
-    const skillId = Number.isFinite(Number(entry?.SkillId)) ? Number(entry.SkillId) : null;
-    if (skillId === null) {
-      return null;
-    }
+  const normalizedItems = value
+    .map((entry) => {
+      const skillId = Number.isFinite(Number(entry?.SkillId)) ? Number(entry.SkillId) : null;
+      if (skillId === null) {
+        return null;
+      }
 
-    const name = typeof entry?.Name === 'string' && entry.Name.trim()
-      ? entry.Name.trim()
-      : '--';
+      const name = typeof entry?.Name === 'string' && entry.Name.trim() ? entry.Name.trim() : '--';
 
-    return {
-      SkillId: skillId,
-      Name: name,
-      Level: Number.isFinite(Number(entry?.Level)) ? Math.max(0, Number(entry.Level)) : 0,
-      MaxLevel: Number.isFinite(Number(entry?.MaxLevel)) ? Math.max(0, Number(entry.MaxLevel)) : 0,
-    };
-  }).filter((entry) => Boolean(entry));
+      return {
+        SkillId: skillId,
+        Name: name,
+        Level: Number.isFinite(Number(entry?.Level)) ? Math.max(0, Number(entry.Level)) : 0,
+        MaxLevel: Number.isFinite(Number(entry?.MaxLevel))
+          ? Math.max(0, Number(entry.MaxLevel))
+          : 0,
+      };
+    })
+    .filter((entry) => Boolean(entry));
 
   const nameCounts = new Map();
   for (const entry of normalizedItems) {
@@ -1501,9 +1676,10 @@ app.normalizeCharacterSkillList = (value) => {
     nameIndexes.set(entry.Name, index);
     return {
       ...entry,
-      DisplayName: nameCounts.get(entry.Name) > 1
-        ? app.translate('dashboard.characterDetailSkillVariantName', { name: entry.Name, index })
-        : entry.Name,
+      DisplayName:
+        nameCounts.get(entry.Name) > 1
+          ? app.translate('dashboard.characterDetailSkillVariantName', { name: entry.Name, index })
+          : entry.Name,
     };
   });
 };
@@ -1520,7 +1696,11 @@ app.getCharacterSkillSectionType = (tableBody) => {
   return null;
 };
 
-app.renderCharacterSkillTableRows = (items, tableBody, sectionType = app.getCharacterSkillSectionType(tableBody)) => {
+app.renderCharacterSkillTableRows = (
+  items,
+  tableBody,
+  sectionType = app.getCharacterSkillSectionType(tableBody),
+) => {
   if (!(tableBody instanceof HTMLElement)) {
     return;
   }
@@ -1535,19 +1715,33 @@ app.renderCharacterSkillTableRows = (items, tableBody, sectionType = app.getChar
   for (let index = 0; index < normalizedItems.length; index += 2) {
     const left = normalizedItems[index] ?? null;
     const right = normalizedItems[index + 1] ?? null;
-    const renderNameCell = (entry) => `<td>${entry ? app.escapeHtml(entry.DisplayName) : '--'}</td>`;
+    const renderNameCell = (entry) =>
+      `<td>${entry ? app.escapeHtml(entry.DisplayName) : '--'}</td>`;
     const renderLevelCell = (entry) => {
       if (!entry) {
         return '<td>--</td>';
       }
 
-      const levelText = entry.MaxLevel > 0
-        ? `${entry.Level} / ${entry.MaxLevel}`
-        : String(entry.Level);
-      return `<td class="character-detail-skill-level is-editable" tabindex="0" role="button" data-character-skill-edit="${app.escapeHtml(sectionType || '')}" data-character-skill-id="${entry.SkillId}" aria-label="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}" title="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}">${app.escapeHtml(levelText)}</td>`;
+      const levelText =
+        entry.MaxLevel > 0 ? `${entry.Level} / ${entry.MaxLevel}` : String(entry.Level);
+      return /* HTML */ `
+        <td
+          class="character-detail-skill-level is-editable"
+          tabindex="0"
+          role="button"
+          data-character-skill-edit="${app.escapeHtml(sectionType || '')}"
+          data-character-skill-id="${entry.SkillId}"
+          aria-label="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}"
+          title="${app.escapeHtml(app.translate('dashboard.characterDetailSkillEditTrigger'))}"
+        >
+          ${app.escapeHtml(levelText)}
+        </td>
+      `;
     };
 
-    rows.push(`<tr>${renderNameCell(left)}${renderLevelCell(left)}${renderNameCell(right)}${renderLevelCell(right)}</tr>`);
+    rows.push(
+      `<tr>${renderNameCell(left)}${renderLevelCell(left)}${renderNameCell(right)}${renderLevelCell(right)}</tr>`,
+    );
   }
 
   tableBody.innerHTML = rows.join('');
@@ -1562,9 +1756,10 @@ app.getCharacterSkillEditState = () => {
   }
 
   const sectionType = modalState.sectionType === 'enhance' ? 'enhance' : 'normal';
-  const list = sectionType === 'enhance'
-    ? app.normalizeCharacterSkillList(extraInfo?.EnhanceSkillList)
-    : app.normalizeCharacterSkillList(extraInfo?.SkillsList);
+  const list =
+    sectionType === 'enhance'
+      ? app.normalizeCharacterSkillList(extraInfo?.EnhanceSkillList)
+      : app.normalizeCharacterSkillList(extraInfo?.SkillsList);
   const skillId = Number.isFinite(Number(modalState.skillId)) ? Number(modalState.skillId) : null;
   const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   if (skillId === null || recordId === null) {
@@ -1593,9 +1788,10 @@ app.populateCharacterSkillEditModal = () => {
   }
 
   if (characterSkillEditTitle instanceof HTMLElement) {
-    const titleKey = editState.sectionType === 'enhance'
-      ? 'dashboard.characterDetailEnhanceSkillEditTitle'
-      : 'dashboard.characterDetailSkillEditTitle';
+    const titleKey =
+      editState.sectionType === 'enhance'
+        ? 'dashboard.characterDetailEnhanceSkillEditTitle'
+        : 'dashboard.characterDetailSkillEditTitle';
     const titleSeparator = String(state.locale || '').startsWith('zh') ? '：' : ': ';
     characterSkillEditTitle.textContent = `${app.translate(titleKey)}${titleSeparator}${editState.name || '--'}`;
   }
@@ -1649,7 +1845,8 @@ app.openCharacterSkillEditModal = (sectionType, skillId, trigger = null) => {
     return;
   }
 
-  state.lastCharacterSkillEditTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterSkillEditTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterSkillEditModal.hidden = false;
   app.setBodyModalOpen(true);
 
@@ -1678,28 +1875,36 @@ app.updateCharacterSkillLevel = async () => {
 
   try {
     const endpoint = editState.sectionType === 'enhance' ? 'enhance-skill' : 'skill';
-    const payload = await app.apiFetch(`/api/database-characters/selected/${editState.recordId}/${endpoint}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${editState.recordId}/${endpoint}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          SkillId: editState.skillId,
+          Level: level,
+        }),
       },
-      body: JSON.stringify({
-        SkillId: editState.skillId,
-        Level: level,
-      }),
-    });
+    );
 
-    const updatedLevel = Number.isFinite(Number(payload?.Level)) ? Math.max(0, Number(payload.Level)) : level;
+    const updatedLevel = Number.isFinite(Number(payload?.Level))
+      ? Math.max(0, Number(payload.Level))
+      : level;
     const listKey = editState.sectionType === 'enhance' ? 'EnhanceSkillList' : 'SkillsList';
-    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
-      const currentList = app.normalizeCharacterSkillList(state.currentCharacterDetailExtraInfo[listKey]);
+    if (
+      state.currentCharacterDetailExtraInfo &&
+      typeof state.currentCharacterDetailExtraInfo === 'object'
+    ) {
+      const currentList = app.normalizeCharacterSkillList(
+        state.currentCharacterDetailExtraInfo[listKey],
+      );
       state.currentCharacterDetailExtraInfo = {
         ...state.currentCharacterDetailExtraInfo,
-        [listKey]: currentList.map((entry) => (
-          entry.SkillId === editState.skillId
-            ? { ...entry, Level: updatedLevel }
-            : entry
-        )),
+        [listKey]: currentList.map((entry) =>
+          entry.SkillId === editState.skillId ? { ...entry, Level: updatedLevel } : entry,
+        ),
       };
     }
 
@@ -1708,7 +1913,10 @@ app.updateCharacterSkillLevel = async () => {
     }
 
     app.closeCharacterSkillEditModal();
-    app.openSuccessModal(app.translate('runtime.characterSkillUpdateSuccess'), app.translate('runtime.characterSkillUpdateSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterSkillUpdateSuccess'),
+      app.translate('runtime.characterSkillUpdateSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
@@ -1734,7 +1942,12 @@ app.handleCharacterSkillEditActivate = (event) => {
     return;
   }
 
-  if (event.type === 'keydown' && event instanceof KeyboardEvent && event.key !== 'Enter' && event.key !== ' ') {
+  if (
+    event.type === 'keydown' &&
+    event instanceof KeyboardEvent &&
+    event.key !== 'Enter' &&
+    event.key !== ' '
+  ) {
     return;
   }
 
@@ -1756,7 +1969,9 @@ app.renderCharacterFashionSlots = (fashions) => {
     return;
   }
 
-  const currentFashionId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId))
+  const currentFashionId = Number.isFinite(
+    Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId),
+  )
     ? Number(state.currentCharacterDetailExtraInfo.CurrentFahionId)
     : null;
   const selectedFashionId = Number.isFinite(Number(state.characterFashionSwitchSelectedId))
@@ -1764,37 +1979,69 @@ app.renderCharacterFashionSlots = (fashions) => {
     : currentFashionId;
   const isPending = state.characterFashionSwitchPending;
 
-  characterDetailFashions.innerHTML = Array.isArray(fashions) ? fashions.map((fashion, index) => {
-    const qualityEffectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
-    const lockClass = fashion.IsLock ? ' is-locked' : '';
-    const isSelected = selectedFashionId !== null && fashion.Id === selectedFashionId;
-    const selectedClass = isSelected ? ' is-selected' : '';
-    const pendingClass = isPending ? ' is-pending' : '';
-    const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
-    const previewClassName = [
-      'character-fashion-picker-preview',
-      'character-detail-fashion-slot',
-      lockClass.trim(),
-      selectedClass,
-      pendingClass,
-      qualityEffectClass,
-    ].filter(Boolean).join(' ');
-    const fashionName = typeof fashion.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--';
-    const actionText = fashion.IsLock
-      ? app.translate('dashboard.characterDetailFashionUnlockAndSwitchAction', { name: fashionName })
-      : app.translate('dashboard.characterDetailFashionSwitchAction', { name: fashionName });
+  characterDetailFashions.innerHTML = Array.isArray(fashions)
+    ? fashions
+        .map((fashion, index) => {
+          const qualityEffectClass = !fashion.IsLock
+            ? app.getFashionQualityEffectClass(fashion.Quality)
+            : '';
+          const lockClass = fashion.IsLock ? ' is-locked' : '';
+          const isSelected = selectedFashionId !== null && fashion.Id === selectedFashionId;
+          const selectedClass = isSelected ? ' is-selected' : '';
+          const pendingClass = isPending ? ' is-pending' : '';
+          const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
+          const previewClassName = [
+            'character-fashion-picker-preview',
+            'character-detail-fashion-slot',
+            lockClass.trim(),
+            selectedClass,
+            pendingClass,
+            qualityEffectClass,
+          ]
+            .filter(Boolean)
+            .join(' ');
+          const fashionName =
+            typeof fashion.Name === 'string' && fashion.Name.trim() ? fashion.Name.trim() : '--';
+          const actionText = fashion.IsLock
+            ? app.translate('dashboard.characterDetailFashionUnlockAndSwitchAction', {
+                name: fashionName,
+              })
+            : app.translate('dashboard.characterDetailFashionSwitchAction', { name: fashionName });
 
-    return `
-      <button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-fashion-index="${index}" data-fashion-id="${fashion.Id}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${isSelected ? 'true' : 'false'}" aria-busy="${isPending ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}>
-        <span class="${previewClassName}">
-          <img class="character-fashion-picker-preview-image" src=".${fashion.BigIcon}" alt="">
-        ${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}
-        ${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
-        </span>
-        <strong class="character-fashion-picker-name">${app.escapeHtml(fashionName)}</strong>
-      </button>
-    `;
-  }).join('') : '';
+          return /* HTML */ `
+            <button
+              type="button"
+              class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending
+                ? ' is-pending'
+                : ''}"
+              data-fashion-index="${index}"
+              data-fashion-id="${fashion.Id}"
+              data-character-detail-equip-slot
+              data-equip-tooltip-text="${tooltipText}"
+              aria-label="${app.escapeHtml(actionText)}"
+              aria-pressed="${isSelected ? 'true' : 'false'}"
+              aria-busy="${isPending ? 'true' : 'false'}"
+              ${isPending ? 'disabled' : ''}
+            >
+              <span class="${previewClassName}">
+                <img
+                  class="character-fashion-picker-preview-image"
+                  src=".${fashion.BigIcon}"
+                  alt=""
+                />
+                ${isSelected
+                  ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>`
+                  : ''}
+                ${fashion.IsLock
+                  ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>'
+                  : ''}
+              </span>
+              <strong class="character-fashion-picker-name">${app.escapeHtml(fashionName)}</strong>
+            </button>
+          `;
+        })
+        .join('')
+    : '';
 };
 
 app.getCharacterHeadFashionPreviewUrl = (fashion, headFashionType) => {
@@ -1813,11 +2060,18 @@ app.getCharacterHeadFashionType = (fashionId) => {
   const extraInfo = state.currentCharacterDetailExtraInfo;
   const currentFashionId = Number(extraInfo?.HeadFashionId);
   if (fashionId === currentFashionId) {
-    return Number.isFinite(Number(extraInfo?.HeadFashionType)) ? Number(extraInfo.HeadFashionType) : 0;
+    return Number.isFinite(Number(extraInfo?.HeadFashionType))
+      ? Number(extraInfo.HeadFashionType)
+      : 0;
   }
 
   const defaultFashionId = Number(extraInfo?.DefaultFashionId);
-  return fashionId === defaultFashionId && Number(state.currentCharacterDetailItem?.AwakenLevel) >= 4 ? 1 : fashionId === defaultFashionId ? 0 : 2;
+  return fashionId === defaultFashionId &&
+    Number(state.currentCharacterDetailItem?.AwakenLevel) >= 4
+    ? 1
+    : fashionId === defaultFashionId
+      ? 0
+      : 2;
 };
 
 app.renderCharacterHeadFashionSlots = (fashions) => {
@@ -1825,29 +2079,58 @@ app.renderCharacterHeadFashionSlots = (fashions) => {
     return;
   }
 
-  const currentFashionId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.HeadFashionId))
+  const currentFashionId = Number.isFinite(
+    Number(state.currentCharacterDetailExtraInfo?.HeadFashionId),
+  )
     ? Number(state.currentCharacterDetailExtraInfo.HeadFashionId)
     : null;
   const selectedFashionId = Number.isFinite(Number(state.characterHeadFashionSwitchSelectedId))
     ? Number(state.characterHeadFashionSwitchSelectedId)
     : currentFashionId;
   const isPending = state.characterHeadFashionSwitchPending;
-  characterDetailHeadFashions.innerHTML = fashions.map((fashion, index) => {
-    const isSelected = fashion.Id === selectedFashionId;
-    const qualityEffectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
-    const previewUrl = app.getCharacterHeadFashionPreviewUrl(fashion, app.getCharacterHeadFashionType(fashion.Id));
-    const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
-    return `
-      <button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-head-fashion-index="${index}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-pressed="${isSelected ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}>
-        <span class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock ? ' is-locked' : ''}${isSelected ? ' is-selected' : ''}${qualityEffectClass ? ` ${qualityEffectClass}` : ''}">
-          <img class="character-fashion-picker-preview-image" src=".${previewUrl}" alt="">
-          ${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}
-          ${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
-        </span>
-        <strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong>
-      </button>
-    `;
-  }).join('');
+  characterDetailHeadFashions.innerHTML = fashions
+    .map((fashion, index) => {
+      const isSelected = fashion.Id === selectedFashionId;
+      const qualityEffectClass = !fashion.IsLock
+        ? app.getFashionQualityEffectClass(fashion.Quality)
+        : '';
+      const previewUrl = app.getCharacterHeadFashionPreviewUrl(
+        fashion,
+        app.getCharacterHeadFashionType(fashion.Id),
+      );
+      const tooltipText = app.escapeHtml(app.getCharacterDetailFashionTooltipText(fashion));
+      return /* HTML */ `
+        <button
+          type="button"
+          class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending
+            ? ' is-pending'
+            : ''}"
+          data-head-fashion-index="${index}"
+          data-character-detail-equip-slot
+          data-equip-tooltip-text="${tooltipText}"
+          aria-pressed="${isSelected ? 'true' : 'false'}"
+          ${isPending ? 'disabled' : ''}
+        >
+          <span
+            class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock
+              ? ' is-locked'
+              : ''}${isSelected ? ' is-selected' : ''}${qualityEffectClass
+              ? ` ${qualityEffectClass}`
+              : ''}"
+          >
+            <img class="character-fashion-picker-preview-image" src=".${previewUrl}" alt="" />
+            ${isSelected
+              ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>`
+              : ''}
+            ${fashion.IsLock
+              ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>'
+              : ''}
+          </span>
+          <strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong>
+        </button>
+      `;
+    })
+    .join('');
 };
 
 app.renderCharacterHeadFashionSwitchPicker = () => {
@@ -1856,19 +2139,42 @@ app.renderCharacterHeadFashionSwitchPicker = () => {
   const currentFashion = fashions.find((fashion) => fashion.Id === headFashionId) ?? null;
   if (characterHeadFashionSwitchCurrent instanceof HTMLElement) {
     const name = currentFashion?.Name || '--';
-    const previewUrl = app.getCharacterHeadFashionPreviewUrl(currentFashion, Number(state.currentCharacterDetailExtraInfo?.HeadFashionType));
-    characterHeadFashionSwitchCurrent.innerHTML = `<div class="character-fashion-picker-summary-row"><span class="character-fashion-picker-summary-key">${app.escapeHtml(app.translate('runtime.portraitPickerCurrent'))}</span><span class="character-fashion-picker-summary-value"><span class="character-fashion-picker-summary-value-media"><span class="character-fashion-picker-summary-value-label">${app.escapeHtml(name)}</span>${previewUrl ? `<img class="character-fashion-picker-summary-value-icon" src=".${previewUrl}" alt="${app.escapeHtml(name)}">` : ''}</span></span></div>`;
+    const previewUrl = app.getCharacterHeadFashionPreviewUrl(
+      currentFashion,
+      Number(state.currentCharacterDetailExtraInfo?.HeadFashionType),
+    );
+    characterHeadFashionSwitchCurrent.innerHTML = /* HTML */ `
+      <div class="character-fashion-picker-summary-row">
+        <span class="character-fashion-picker-summary-key">
+          ${app.escapeHtml(app.translate('runtime.portraitPickerCurrent'))}
+        </span>
+        <span class="character-fashion-picker-summary-value">
+          <span class="character-fashion-picker-summary-value-media">
+            <span class="character-fashion-picker-summary-value-label">
+              ${app.escapeHtml(name)}
+            </span>
+            ${previewUrl
+              ? `<img class="character-fashion-picker-summary-value-icon" src=".${previewUrl}" alt="${app.escapeHtml(name)}">`
+              : ''}
+          </span>
+        </span>
+      </div>
+    `;
   }
   app.renderCharacterHeadFashionSlots(fashions);
   if (characterHeadFashionSwitchConfirmButton instanceof HTMLButtonElement) {
-    characterHeadFashionSwitchConfirmButton.disabled = state.characterHeadFashionSwitchPending
-      || !Number.isFinite(Number(state.characterHeadFashionSwitchSelectedId))
-      || Number(state.characterHeadFashionSwitchSelectedId) === headFashionId;
+    characterHeadFashionSwitchConfirmButton.disabled =
+      state.characterHeadFashionSwitchPending ||
+      !Number.isFinite(Number(state.characterHeadFashionSwitchSelectedId)) ||
+      Number(state.characterHeadFashionSwitchSelectedId) === headFashionId;
   }
 };
 
 app.closeCharacterHeadFashionSwitchModal = () => {
-  if (!(characterHeadFashionSwitchModal instanceof HTMLElement) || characterHeadFashionSwitchModal.hidden) {
+  if (
+    !(characterHeadFashionSwitchModal instanceof HTMLElement) ||
+    characterHeadFashionSwitchModal.hidden
+  ) {
     return;
   }
   characterHeadFashionSwitchModal.hidden = true;
@@ -1878,12 +2184,17 @@ app.closeCharacterHeadFashionSwitchModal = () => {
 };
 
 app.openCharacterHeadFashionSwitchModal = () => {
-  if (!(characterHeadFashionSwitchModal instanceof HTMLElement) || !state.currentCharacterDetailItem) {
+  if (
+    !(characterHeadFashionSwitchModal instanceof HTMLElement) ||
+    !state.currentCharacterDetailItem
+  ) {
     return;
   }
   characterHeadFashionSwitchModal.hidden = false;
   app.setBodyModalOpen(true);
-  state.characterHeadFashionSwitchSelectedId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.HeadFashionId))
+  state.characterHeadFashionSwitchSelectedId = Number.isFinite(
+    Number(state.currentCharacterDetailExtraInfo?.HeadFashionId),
+  )
     ? Number(state.currentCharacterDetailExtraInfo.HeadFashionId)
     : null;
   app.renderCharacterHeadFashionSwitchPicker();
@@ -1908,14 +2219,23 @@ app.confirmCharacterHeadFashionSwitch = async () => {
   state.characterHeadFashionSwitchPending = true;
   app.renderCharacterHeadFashionSwitchPicker();
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/head-fashion`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ FashionId: fashionId }),
-    });
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${recordId}/head-fashion`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ FashionId: fashionId }),
+      },
+    );
     state.currentCharacterDetailExtraInfo = {
       ...state.currentCharacterDetailExtraInfo,
       HeadFashionId: Number(payload?.HeadFashionId) || fashionId,
-      HeadFashionType: Number.isFinite(Number(payload?.HeadFashionType)) ? Number(payload.HeadFashionType) : 2,
-      Fashions: fashions.map((entry) => entry.Id === fashionId ? { ...entry, IsLock: false } : entry),
+      HeadFashionType: Number.isFinite(Number(payload?.HeadFashionType))
+        ? Number(payload.HeadFashionType)
+        : 2,
+      Fashions: fashions.map((entry) =>
+        entry.Id === fashionId ? { ...entry, IsLock: false } : entry,
+      ),
     };
     app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     app.closeCharacterHeadFashionSwitchModal();
@@ -1925,7 +2245,10 @@ app.confirmCharacterHeadFashionSwitch = async () => {
     }
   } finally {
     state.characterHeadFashionSwitchPending = false;
-    if (characterHeadFashionSwitchModal instanceof HTMLElement && !characterHeadFashionSwitchModal.hidden) {
+    if (
+      characterHeadFashionSwitchModal instanceof HTMLElement &&
+      !characterHeadFashionSwitchModal.hidden
+    ) {
       app.renderCharacterHeadFashionSwitchPicker();
     }
   }
@@ -1933,7 +2256,11 @@ app.confirmCharacterHeadFashionSwitch = async () => {
 
 app.handleCharacterHeadFashionSlotActivate = (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLElement) || event.type === 'keydown' || state.characterHeadFashionSwitchPending) {
+  if (
+    !(target instanceof HTMLElement) ||
+    event.type === 'keydown' ||
+    state.characterHeadFashionSwitchPending
+  ) {
     return;
   }
   const slot = target.closest('[data-head-fashion-index]');
@@ -1956,8 +2283,14 @@ app.switchCharacterFashion = async (fashionIndex) => {
   const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
   const fashions = Array.isArray(extraInfo?.Fashions) ? extraInfo.Fashions : [];
   const targetFashion = Number.isInteger(fashionIndex) ? fashions[fashionIndex] : null;
-  const currentFashionId = Number.isFinite(Number(extraInfo?.CurrentFahionId)) ? Number(extraInfo.CurrentFahionId) : null;
-  if (recordId === null || !targetFashion || (targetFashion.Id === currentFashionId && targetFashion.IsLock === false)) {
+  const currentFashionId = Number.isFinite(Number(extraInfo?.CurrentFahionId))
+    ? Number(extraInfo.CurrentFahionId)
+    : null;
+  if (
+    recordId === null ||
+    !targetFashion ||
+    (targetFashion.Id === currentFashionId && targetFashion.IsLock === false)
+  ) {
     return;
   }
 
@@ -1978,7 +2311,10 @@ app.switchCharacterFashion = async (fashionIndex) => {
       }),
     });
 
-    if (state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object') {
+    if (
+      state.currentCharacterDetailExtraInfo &&
+      typeof state.currentCharacterDetailExtraInfo === 'object'
+    ) {
       state.currentCharacterDetailExtraInfo = {
         ...state.currentCharacterDetailExtraInfo,
         CurrentFahionId: Number.isFinite(Number(payload?.CurrentFahionId))
@@ -1989,9 +2325,7 @@ app.switchCharacterFashion = async (fashionIndex) => {
             return fashion;
           }
 
-          return fashion.Id === targetFashion.Id
-            ? { ...fashion, IsLock: false }
-            : fashion;
+          return fashion.Id === targetFashion.Id ? { ...fashion, IsLock: false } : fashion;
         }),
       };
     }
@@ -2002,7 +2336,10 @@ app.switchCharacterFashion = async (fashionIndex) => {
 
     app.openSuccessModal(
       app.translate('runtime.characterFashionUpdateSuccess', {
-        name: typeof targetFashion.Name === 'string' && targetFashion.Name.trim() ? targetFashion.Name.trim() : '--',
+        name:
+          typeof targetFashion.Name === 'string' && targetFashion.Name.trim()
+            ? targetFashion.Name.trim()
+            : '--',
       }),
       app.translate('runtime.characterFashionUpdateSuccessTitle'),
     );
@@ -2064,9 +2401,10 @@ app.renderCharacterFashionSwitchPicker = () => {
   app.renderCharacterFashionSlots(fashions);
   const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId);
   if (characterFashionSwitchConfirmButton instanceof HTMLButtonElement) {
-    characterFashionSwitchConfirmButton.disabled = state.characterFashionSwitchPending
-      || !Number.isFinite(Number(state.characterFashionSwitchSelectedId))
-      || Number(state.characterFashionSwitchSelectedId) === currentFashionId;
+    characterFashionSwitchConfirmButton.disabled =
+      state.characterFashionSwitchPending ||
+      !Number.isFinite(Number(state.characterFashionSwitchSelectedId)) ||
+      Number(state.characterFashionSwitchSelectedId) === currentFashionId;
   }
 };
 
@@ -2092,7 +2430,9 @@ app.openCharacterFashionSwitchModal = () => {
 
   characterFashionSwitchModal.hidden = false;
   app.setBodyModalOpen(true);
-  state.characterFashionSwitchSelectedId = Number.isFinite(Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId))
+  state.characterFashionSwitchSelectedId = Number.isFinite(
+    Number(state.currentCharacterDetailExtraInfo?.CurrentFahionId),
+  )
     ? Number(state.currentCharacterDetailExtraInfo.CurrentFahionId)
     : null;
   app.renderCharacterFashionSwitchPicker();
@@ -2113,7 +2453,9 @@ app.maxCurrentCharacterDetail = async () => {
 
   app.openCharacterMaxAllModal({
     recordId,
-    characterName: app.getCharacterNameByCharacterId(item?.CharacterId ?? item?.record_id ?? recordId),
+    characterName: app.getCharacterNameByCharacterId(
+      item?.CharacterId ?? item?.record_id ?? recordId,
+    ),
   });
 };
 
@@ -2136,7 +2478,9 @@ app.executeCharacterMaxAll = async (recordId) => {
     await app.loadSelectedAccountCharacters(state.characterManagementCurrentPage || 1);
 
     const updatedItem = Array.isArray(state.characterManagementItems)
-      ? state.characterManagementItems.find((entry) => Number(entry?.record_id) === normalizedRecordId) || null
+      ? state.characterManagementItems.find(
+          (entry) => Number(entry?.record_id) === normalizedRecordId,
+        ) || null
       : null;
 
     if (updatedItem) {
@@ -2151,7 +2495,11 @@ app.executeCharacterMaxAll = async (recordId) => {
 
     app.openSuccessModal(
       app.translate('runtime.characterDetailMaxAllSuccess', {
-        characterName: app.getCharacterNameByCharacterId(state.currentCharacterDetailItem?.CharacterId ?? state.currentCharacterDetailItem?.record_id ?? normalizedRecordId),
+        characterName: app.getCharacterNameByCharacterId(
+          state.currentCharacterDetailItem?.CharacterId ??
+            state.currentCharacterDetailItem?.record_id ??
+            normalizedRecordId,
+        ),
       }),
       app.translate('runtime.characterDetailMaxAllSuccessTitle'),
     );
@@ -2216,12 +2564,16 @@ app.normalizeCharacterDetailEquip = (equip) => {
   return {
     _id: recordId,
     TemplateId: templateId,
-    Breakthrough: Number.isFinite(Number(equip?.Breakthrough)) ? Math.max(0, Number(equip.Breakthrough)) : 0,
+    Breakthrough: Number.isFinite(Number(equip?.Breakthrough))
+      ? Math.max(0, Number(equip.Breakthrough))
+      : 0,
     Level: Number.isFinite(Number(equip?.Level)) ? Math.max(0, Number(equip.Level)) : null,
     Description: typeof equip?.Description === 'string' ? equip.Description.trim() : '',
     resonance_info: Array.isArray(equip?.resonance_info) ? equip.resonance_info : [],
     weapon_overrun_data: Object.prototype.hasOwnProperty.call(equip || {}, 'weapon_overrun_data')
-      ? (equip.weapon_overrun_data && typeof equip.weapon_overrun_data === 'object' ? equip.weapon_overrun_data : null)
+      ? equip.weapon_overrun_data && typeof equip.weapon_overrun_data === 'object'
+        ? equip.weapon_overrun_data
+        : null
       : undefined,
   };
 };
@@ -2232,7 +2584,9 @@ app.getCharacterDetailEquipIconClass = (templateId) => {
 };
 
 app.getCharacterDetailMemorySlotCount = () => {
-  const count = Number.isFinite(Number(state.equippableMemoryNums)) ? Math.max(0, Number(state.equippableMemoryNums)) : 0;
+  const count = Number.isFinite(Number(state.equippableMemoryNums))
+    ? Math.max(0, Number(state.equippableMemoryNums))
+    : 0;
   if (count === 8) {
     return 8;
   }
@@ -2251,10 +2605,18 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
 
   const name = app.getEquipNameByTemplateId(normalizedEquip.TemplateId);
   const star = app.getEquipStarByTemplateId(normalizedEquip.TemplateId);
-  const breakthrough = Number.isFinite(Number(normalizedEquip.Breakthrough)) ? Number(normalizedEquip.Breakthrough) : 0;
-  const level = Number.isFinite(Number(normalizedEquip.Level)) ? Number(normalizedEquip.Level) : null;
-  const supportsWeaponOverrun = Object.prototype.hasOwnProperty.call(equip || {}, 'weapon_overrun_data');
-  const isMemory = typeof isMemoryOverride === 'boolean' ? isMemoryOverride : !supportsWeaponOverrun;
+  const breakthrough = Number.isFinite(Number(normalizedEquip.Breakthrough))
+    ? Number(normalizedEquip.Breakthrough)
+    : 0;
+  const level = Number.isFinite(Number(normalizedEquip.Level))
+    ? Number(normalizedEquip.Level)
+    : null;
+  const supportsWeaponOverrun = Object.prototype.hasOwnProperty.call(
+    equip || {},
+    'weapon_overrun_data',
+  );
+  const isMemory =
+    typeof isMemoryOverride === 'boolean' ? isMemoryOverride : !supportsWeaponOverrun;
   const supportsResonance = app.hasEquipResonanceConfig(normalizedEquip.TemplateId);
 
   return JSON.stringify({
@@ -2263,11 +2625,14 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
     breakthrough,
     level,
     description: normalizedEquip.Description || '--',
-    resonanceInfo: Array.isArray(normalizedEquip.resonance_info) ? normalizedEquip.resonance_info : [],
+    resonanceInfo: Array.isArray(normalizedEquip.resonance_info)
+      ? normalizedEquip.resonance_info
+      : [],
     supportsResonance,
-    weaponOverrunData: normalizedEquip.weapon_overrun_data && typeof normalizedEquip.weapon_overrun_data === 'object'
-      ? normalizedEquip.weapon_overrun_data
-      : null,
+    weaponOverrunData:
+      normalizedEquip.weapon_overrun_data && typeof normalizedEquip.weapon_overrun_data === 'object'
+        ? normalizedEquip.weapon_overrun_data
+        : null,
     supportsWeaponOverrun,
     isMemory,
   });
@@ -2276,74 +2641,174 @@ app.getCharacterDetailEquipTooltipText = (equip, isMemoryOverride = null) => {
 app.getCharacterDetailEquipTooltipLines = (payload) => {
   const lines = [];
   if (payload?.type === 'partner') {
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(payload.name)}</div>`);
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.partnerEvolution'))} <span class="character-quality ${app.getCharacterQualityClass(payload.Quality)}">${app.escapeHtml(app.getCharacterQualityDisplayLabel(payload.Quality, payload.Star))}</span></div>`);
-    for (const [label, value] of [['equipDetailBreakthrough', payload.BreakThrough], ['equipDetailLevel', payload.Level], ['characterWeaponSwitchEnhancement', payload.EnhancementLevel]]) {
-      lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate(`dashboard.${label}`))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(String(value ?? 0))}</span></div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(payload.name)}</div>`,
+    );
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('dashboard.partnerEvolution'))}
+        <span class="character-quality ${app.getCharacterQualityClass(payload.Quality)}">
+          ${app.escapeHtml(app.getCharacterQualityDisplayLabel(payload.Quality, payload.Star))}
+        </span>
+      </div>
+    `);
+    for (const [label, value] of [
+      ['equipDetailBreakthrough', payload.BreakThrough],
+      ['equipDetailLevel', payload.Level],
+      ['characterWeaponSwitchEnhancement', payload.EnhancementLevel],
+    ]) {
+      lines.push(/* HTML */ `
+        <div class="character-detail-equip-tooltip-line">
+          ${app.escapeHtml(app.translate(`dashboard.${label}`))}
+          <span class="character-detail-equip-tooltip-value">
+            ${app.escapeHtml(String(value ?? 0))}
+          </span>
+        </div>
+      `);
     }
-    lines.push(`<div class="character-detail-equip-tooltip-spacer"></div><div class="character-detail-equip-tooltip-description">${app.escapeHtml(payload.description)}</div>`);
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-spacer"></div>
+      <div class="character-detail-equip-tooltip-description">
+        ${app.escapeHtml(payload.description)}
+      </div>
+    `);
     return lines;
   }
   if (payload?.type === 'fashion') {
-    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const quality = Number.isFinite(Number(payload?.quality))
+      ? Math.max(0, Number(payload.quality))
+      : 0;
     const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
-    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+    const starClass =
+      quality > 0
+        ? `fashion-star-tier-${Math.min(quality, 6)}`
+        : 'character-detail-equip-tooltip-value-muted';
 
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('dashboard.characterDetailTooltipStar'))}
+        <span
+          class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}"
+        >
+          ${app.escapeHtml(starDisplay)}
+        </span>
+      </div>
+    `);
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   if (payload?.type === 'nameplate') {
-    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const quality = Number.isFinite(Number(payload?.quality))
+      ? Math.max(0, Number(payload.quality))
+      : 0;
     const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
-    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+    const starClass =
+      quality > 0
+        ? `fashion-star-tier-${Math.min(quality, 6)}`
+        : 'character-detail-equip-tooltip-value-muted';
 
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.nameplateTooltipTitle'))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(String(payload?.title || '--'))}</span></div>`);
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.nameplateTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('runtime.nameplateTooltipTitle'))}
+        <span class="character-detail-equip-tooltip-value">
+          ${app.escapeHtml(String(payload?.title || '--'))}
+        </span>
+      </div>
+    `);
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('runtime.nameplateTooltipStar'))}
+        <span
+          class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}"
+        >
+          ${app.escapeHtml(starDisplay)}
+        </span>
+      </div>
+    `);
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   if (payload?.type === 'medal') {
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   if (payload?.type === 'chatBoard') {
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   if (payload?.type === 'chatEmoji') {
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   if (payload?.type === 'scoreTitle') {
-    const quality = Number.isFinite(Number(payload?.quality)) ? Math.max(0, Number(payload.quality)) : 0;
+    const quality = Number.isFinite(Number(payload?.quality))
+      ? Math.max(0, Number(payload.quality))
+      : 0;
     const starDisplay = quality > 0 ? '★'.repeat(quality) : '--';
-    const starClass = quality > 0 ? `fashion-star-tier-${Math.min(quality, 6)}` : 'character-detail-equip-tooltip-value-muted';
+    const starClass =
+      quality > 0
+        ? `fashion-star-tier-${Math.min(quality, 6)}`
+        : 'character-detail-equip-tooltip-value-muted';
 
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('runtime.scoreTitleTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}">${app.escapeHtml(starDisplay)}</span></div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+    );
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('runtime.scoreTitleTooltipStar'))}
+        <span
+          class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${starClass}"
+        >
+          ${app.escapeHtml(starDisplay)}
+        </span>
+      </div>
+    `);
     lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-    lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+    lines.push(
+      `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+    );
     return lines;
   }
 
   const star = Number.isFinite(Number(payload?.star)) ? Math.max(0, Number(payload.star)) : 0;
-  const breakthrough = Number.isFinite(Number(payload?.breakthrough)) ? Math.max(0, Number(payload.breakthrough)) : 0;
+  const breakthrough = Number.isFinite(Number(payload?.breakthrough))
+    ? Math.max(0, Number(payload.breakthrough))
+    : 0;
   const level = Number.isFinite(Number(payload?.level)) ? Math.max(0, Number(payload.level)) : null;
   const starClass = `equip-star-tier-${Math.max(1, star)}`;
   const breakthroughClass = `equip-detail-bt-tier-${Math.min(Math.max(breakthrough, 0), 4)}`;
@@ -2354,10 +2819,39 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
   const supportsWeaponOverrun = Boolean(payload?.supportsWeaponOverrun);
   const resonanceSlots = isMemory ? [1, 2] : [1, 2, 3];
 
-  lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`);
-  lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipStar'))} <span class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${star <= 1 ? 'character-detail-equip-tooltip-value-muted' : starClass}">${starDisplay}</span></div>`);
-  lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipBreakthrough'))} <span class="character-detail-equip-tooltip-value ${breakthrough <= 0 ? 'character-detail-equip-tooltip-value-muted' : breakthroughClass}">${breakthrough}</span></div>`);
-  lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipLevel'))} <span class="character-detail-equip-tooltip-value">${level ?? '--'}</span></div>`);
+  lines.push(
+    `<div class="character-detail-equip-tooltip-line">${app.escapeHtml(String(payload?.name || '--'))}</div>`,
+  );
+  lines.push(/* HTML */ `
+    <div class="character-detail-equip-tooltip-line">
+      ${app.escapeHtml(app.translate('dashboard.characterDetailTooltipStar'))}
+      <span
+        class="character-detail-equip-tooltip-value character-detail-equip-tooltip-star ${star <= 1
+          ? 'character-detail-equip-tooltip-value-muted'
+          : starClass}"
+      >
+        ${starDisplay}
+      </span>
+    </div>
+  `);
+  lines.push(/* HTML */ `
+    <div class="character-detail-equip-tooltip-line">
+      ${app.escapeHtml(app.translate('dashboard.characterDetailTooltipBreakthrough'))}
+      <span
+        class="character-detail-equip-tooltip-value ${breakthrough <= 0
+          ? 'character-detail-equip-tooltip-value-muted'
+          : breakthroughClass}"
+      >
+        ${breakthrough}
+      </span>
+    </div>
+  `);
+  lines.push(/* HTML */ `
+    <div class="character-detail-equip-tooltip-line">
+      ${app.escapeHtml(app.translate('dashboard.characterDetailTooltipLevel'))}
+      <span class="character-detail-equip-tooltip-value">${level ?? '--'}</span>
+    </div>
+  `);
 
   if (supportsResonance) {
     resonanceSlots.forEach((slot) => {
@@ -2365,20 +2859,36 @@ app.getCharacterDetailEquipTooltipLines = (payload) => {
       const effectInfo = entry ? app.resolveResonanceEffectInfo(entry) : null;
       const effectName = effectInfo?.Name ? effectInfo.Name : '--';
       const slotLabel = app.getEquipResonanceSlotLabel(slot, isMemory);
-      lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipResonanceSlot', { slot: slotLabel }))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(effectName)}</span></div>`);
+      lines.push(/* HTML */ `
+        <div class="character-detail-equip-tooltip-line">
+          ${app.escapeHtml(
+            app.translate('dashboard.characterDetailTooltipResonanceSlot', { slot: slotLabel }),
+          )}
+          <span class="character-detail-equip-tooltip-value">${app.escapeHtml(effectName)}</span>
+        </div>
+      `);
     });
   }
 
   if (!isMemory && supportsWeaponOverrun) {
-    const overrunSelection = app.getWeaponOverrunSelection({ weapon_overrun_data: payload.weaponOverrunData });
+    const overrunSelection = app.getWeaponOverrunSelection({
+      weapon_overrun_data: payload.weaponOverrunData,
+    });
     const harmonyText = overrunSelection?.suitEntry?.Name
       ? `${String(overrunSelection.suitEntry.Name).trim()} (Lv. ${Number.isFinite(Number(overrunSelection.level)) ? Number(overrunSelection.level) : 0})`
       : app.translate('dashboard.weaponDetailOverrunInactive');
-    lines.push(`<div class="character-detail-equip-tooltip-line">${app.escapeHtml(app.translate('dashboard.characterDetailTooltipHarmony'))} <span class="character-detail-equip-tooltip-value">${app.escapeHtml(harmonyText)}</span></div>`);
+    lines.push(/* HTML */ `
+      <div class="character-detail-equip-tooltip-line">
+        ${app.escapeHtml(app.translate('dashboard.characterDetailTooltipHarmony'))}
+        <span class="character-detail-equip-tooltip-value">${app.escapeHtml(harmonyText)}</span>
+      </div>
+    `);
   }
 
   lines.push('<div class="character-detail-equip-tooltip-spacer" aria-hidden="true"></div>');
-  lines.push(`<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`);
+  lines.push(
+    `<div class="character-detail-equip-tooltip-description">${app.escapeHtml(String(payload?.description || '--'))}</div>`,
+  );
 
   return lines;
 };
@@ -2395,8 +2905,15 @@ app.renderCharacterDetailEquipSlot = (equip, sizeClass, site = null, isMemory = 
   const tooltipText = app.escapeHtml(app.getCharacterDetailEquipTooltipText(equip, isMemory));
   const siteAttr = Number.isFinite(Number(site)) ? ` data-memory-site="${Number(site)}"` : '';
 
-  return `
-    <div class="character-detail-slot ${sizeClass} character-detail-equip-slot${iconClass ? ` ${iconClass}` : ''}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}"${siteAttr}>
+  return /* HTML */ `
+    <div
+      class="character-detail-slot ${sizeClass} character-detail-equip-slot${iconClass
+        ? ` ${iconClass}`
+        : ''}"
+      data-character-detail-equip-slot
+      data-equip-tooltip-text="${tooltipText}"
+      ${siteAttr}
+    >
       ${iconUrl
         ? `<img class="character-detail-equip-icon" src=".${iconUrl}" alt="${app.escapeHtml(equipName)}">`
         : '<span class="character-detail-equip-icon character-detail-equip-icon-fallback" aria-hidden="true"></span>'}
@@ -2406,8 +2923,14 @@ app.renderCharacterDetailEquipSlot = (equip, sizeClass, site = null, isMemory = 
 
 app.renderCharacterDetailMemorySlot = (memory, site) => {
   const actionText = app.translate('dashboard.characterDetailMemorySwitchAction', { slot: site });
-  return `
-    <button class="character-detail-memory-trigger" type="button" data-character-detail-memory-trigger data-memory-slot="${Number(site)}" aria-label="${app.escapeHtml(actionText)}">
+  return /* HTML */ `
+    <button
+      class="character-detail-memory-trigger"
+      type="button"
+      data-character-detail-memory-trigger
+      data-memory-slot="${Number(site)}"
+      aria-label="${app.escapeHtml(actionText)}"
+    >
       ${app.renderCharacterDetailEquipSlot(memory, 'character-detail-slot-small', site, true)}
     </button>
   `;
@@ -2419,21 +2942,51 @@ app.renderCharacterDetailWeaponSlot = (weapon) => {
   }
 
   const actionText = app.translate('dashboard.characterDetailWeaponSwitchAction');
-  const weaponFashions = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo);
+  const weaponFashions = app.normalizeCharacterWeaponFashions(
+    state.currentCharacterDetailExtraInfo,
+  );
   const currentFashionId = Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId);
   const currentFashion = weaponFashions.find((fashion) => fashion.Id === currentFashionId) ?? null;
-  const fashionTooltipText = currentFashion ? app.escapeHtml(app.getCharacterWeaponFashionTooltipText(currentFashion)) : '';
-  const fashionClass = currentFashion ? app.getFashionQualityEffectClass(currentFashion.Quality) : '';
+  const fashionTooltipText = currentFashion
+    ? app.escapeHtml(app.getCharacterWeaponFashionTooltipText(currentFashion))
+    : '';
+  const fashionClass = currentFashion
+    ? app.getFashionQualityEffectClass(currentFashion.Quality)
+    : '';
   const fashionActionText = app.translate('dashboard.characterDetailWeaponFashionSwitchAction');
-  characterDetailWeapon.innerHTML = `
+  characterDetailWeapon.innerHTML = /* HTML */ `
     <div class="character-detail-weapon-slots">
-      <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-trigger aria-label="${app.escapeHtml(actionText)}">
+      <button
+        class="character-detail-weapon-trigger"
+        type="button"
+        data-character-detail-weapon-trigger
+        aria-label="${app.escapeHtml(actionText)}"
+      >
         ${app.renderCharacterDetailEquipSlot(weapon, 'character-detail-slot-medium', null, false)}
       </button>
       <span class="character-detail-weapon-fashion-guide" aria-hidden="true">&gt;&gt;&gt;</span>
-      <button class="character-detail-weapon-trigger" type="button" data-character-detail-weapon-fashion-trigger aria-label="${app.escapeHtml(fashionActionText)}">
+      <button
+        class="character-detail-weapon-trigger"
+        type="button"
+        data-character-detail-weapon-fashion-trigger
+        aria-label="${app.escapeHtml(fashionActionText)}"
+      >
         ${currentFashion
-          ? `<div class="character-detail-slot character-detail-slot-medium character-detail-equip-slot${fashionClass ? ` ${fashionClass}` : ''}" data-character-detail-equip-slot data-equip-tooltip-text="${fashionTooltipText}"><img class="character-detail-equip-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(currentFashion.Name)}"></div>`
+          ? /* HTML */ `
+              <div
+                class="character-detail-slot character-detail-slot-medium character-detail-equip-slot${fashionClass
+                  ? ` ${fashionClass}`
+                  : ''}"
+                data-character-detail-equip-slot
+                data-equip-tooltip-text="${fashionTooltipText}"
+              >
+                <img
+                  class="character-detail-equip-icon"
+                  src=".${currentFashion.BigIcon}"
+                  alt="${app.escapeHtml(currentFashion.Name)}"
+                />
+              </div>
+            `
           : '<div class="character-detail-slot character-detail-slot-medium is-empty"></div>'}
       </button>
     </div>
@@ -2449,45 +3002,116 @@ app.renderCharacterWeaponFashionSwitchPicker = () => {
 
   if (characterWeaponFashionSwitchCurrent instanceof HTMLElement) {
     const name = currentFashion?.Name || '--';
-    characterWeaponFashionSwitchCurrent.innerHTML = `<div class="character-fashion-picker-summary-row"><span class="character-fashion-picker-summary-key">${app.escapeHtml(app.translate('dashboard.characterDetailWeaponFashionCurrent'))}</span><span class="character-fashion-picker-summary-value"><span class="character-fashion-picker-summary-value-media"><span class="character-fashion-picker-summary-value-label">${app.escapeHtml(name)}</span>${currentFashion ? `<img class="character-fashion-picker-summary-value-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(name)}">` : ''}</span></span></div>`;
+    characterWeaponFashionSwitchCurrent.innerHTML = /* HTML */ `
+      <div class="character-fashion-picker-summary-row">
+        <span class="character-fashion-picker-summary-key">
+          ${app.escapeHtml(app.translate('dashboard.characterDetailWeaponFashionCurrent'))}
+        </span>
+        <span class="character-fashion-picker-summary-value">
+          <span class="character-fashion-picker-summary-value-media">
+            <span class="character-fashion-picker-summary-value-label">
+              ${app.escapeHtml(name)}
+            </span>
+            ${currentFashion
+              ? `<img class="character-fashion-picker-summary-value-icon" src=".${currentFashion.BigIcon}" alt="${app.escapeHtml(name)}">`
+              : ''}
+          </span>
+        </span>
+      </div>
+    `;
   }
 
   if (characterDetailWeaponFashions instanceof HTMLElement) {
-    characterDetailWeaponFashions.innerHTML = fashions.map((fashion, index) => {
-      const isSelected = fashion.Id === selectedFashionId;
-      const effectClass = !fashion.IsLock ? app.getFashionQualityEffectClass(fashion.Quality) : '';
-      const tooltipText = app.escapeHtml(app.getCharacterWeaponFashionTooltipText(fashion));
-      const actionText = fashion.IsLock
-        ? app.translate('dashboard.characterDetailWeaponFashionUnlockAndSwitchAction', { name: fashion.Name })
-        : isSelected && fashion.Id === currentFashionId
-          ? app.translate('dashboard.characterDetailWeaponFashionUnequipAction', { name: fashion.Name })
-          : app.translate('dashboard.characterDetailWeaponFashionSwitchAction', { name: fashion.Name });
-      return `<button type="button" class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending ? ' is-pending' : ''}" data-weapon-fashion-index="${index}" data-character-detail-equip-slot data-equip-tooltip-text="${tooltipText}" aria-label="${app.escapeHtml(actionText)}" aria-pressed="${isSelected ? 'true' : 'false'}" ${isPending ? 'disabled' : ''}><span class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock ? ' is-locked' : ''}${isSelected ? ' is-selected' : ''}${effectClass ? ` ${effectClass}` : ''}"><img class="character-fashion-picker-preview-image" src=".${fashion.BigIcon}" alt="">${isSelected ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>` : ''}${fashion.IsLock ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}</span><strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong></button>`;
-    }).join('');
+    characterDetailWeaponFashions.innerHTML = fashions
+      .map((fashion, index) => {
+        const isSelected = fashion.Id === selectedFashionId;
+        const effectClass = !fashion.IsLock
+          ? app.getFashionQualityEffectClass(fashion.Quality)
+          : '';
+        const tooltipText = app.escapeHtml(app.getCharacterWeaponFashionTooltipText(fashion));
+        const actionText = fashion.IsLock
+          ? app.translate('dashboard.characterDetailWeaponFashionUnlockAndSwitchAction', {
+              name: fashion.Name,
+            })
+          : isSelected && fashion.Id === currentFashionId
+            ? app.translate('dashboard.characterDetailWeaponFashionUnequipAction', {
+                name: fashion.Name,
+              })
+            : app.translate('dashboard.characterDetailWeaponFashionSwitchAction', {
+                name: fashion.Name,
+              });
+        return /* HTML */ `
+          <button
+            type="button"
+            class="character-fashion-picker-item${isSelected ? ' is-selected' : ''}${isPending
+              ? ' is-pending'
+              : ''}"
+            data-weapon-fashion-index="${index}"
+            data-character-detail-equip-slot
+            data-equip-tooltip-text="${tooltipText}"
+            aria-label="${app.escapeHtml(actionText)}"
+            aria-pressed="${isSelected ? 'true' : 'false'}"
+            ${isPending ? 'disabled' : ''}
+          >
+            <span
+              class="character-fashion-picker-preview character-detail-fashion-slot${fashion.IsLock
+                ? ' is-locked'
+                : ''}${isSelected ? ' is-selected' : ''}${effectClass ? ` ${effectClass}` : ''}"
+            >
+              <img
+                class="character-fashion-picker-preview-image"
+                src=".${fashion.BigIcon}"
+                alt=""
+              />
+              ${isSelected
+                ? `<span class="character-detail-fashion-slot-selected-label">${app.escapeHtml(app.translate('dashboard.characterDetailFashionSelected'))}</span>`
+                : ''}${fashion.IsLock
+                ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>'
+                : ''}
+            </span>
+            <strong class="character-fashion-picker-name">${app.escapeHtml(fashion.Name)}</strong>
+          </button>
+        `;
+      })
+      .join('');
   }
 
   if (characterWeaponFashionSwitchConfirmButton instanceof HTMLButtonElement) {
-    characterWeaponFashionSwitchConfirmButton.disabled = isPending
-      || (Number.isFinite(selectedFashionId) && selectedFashionId === currentFashionId)
-      || (!Number.isFinite(selectedFashionId) && !Number.isFinite(currentFashionId));
+    characterWeaponFashionSwitchConfirmButton.disabled =
+      isPending ||
+      (Number.isFinite(selectedFashionId) && selectedFashionId === currentFashionId) ||
+      (!Number.isFinite(selectedFashionId) && !Number.isFinite(currentFashionId));
   }
 };
 
 app.closeCharacterWeaponFashionSwitchModal = () => {
-  if (!(characterWeaponFashionSwitchModal instanceof HTMLElement) || characterWeaponFashionSwitchModal.hidden) return;
+  if (
+    !(characterWeaponFashionSwitchModal instanceof HTMLElement) ||
+    characterWeaponFashionSwitchModal.hidden
+  )
+    return;
   characterWeaponFashionSwitchModal.hidden = true;
   app.hideCharacterDetailEquipTooltip();
   state.characterWeaponFashionSwitchSelectedId = null;
-  if (characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden) app.setBodyModalOpen(true);
+  if (characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden)
+    app.setBodyModalOpen(true);
 };
 
 app.openCharacterWeaponFashionSwitchModal = (trigger = null) => {
-  if (!(characterWeaponFashionSwitchModal instanceof HTMLElement) || !state.currentCharacterDetailItem) return;
+  if (
+    !(characterWeaponFashionSwitchModal instanceof HTMLElement) ||
+    !state.currentCharacterDetailItem
+  )
+    return;
   const currentFashionId = state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId;
-  state.characterWeaponFashionSwitchSelectedId = currentFashionId !== null && currentFashionId !== undefined && Number.isFinite(Number(currentFashionId))
-    ? Number(currentFashionId)
-    : null;
-  state.lastCharacterWeaponFashionSwitchTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.characterWeaponFashionSwitchSelectedId =
+    currentFashionId !== null &&
+    currentFashionId !== undefined &&
+    Number.isFinite(Number(currentFashionId))
+      ? Number(currentFashionId)
+      : null;
+  state.lastCharacterWeaponFashionSwitchTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   characterWeaponFashionSwitchModal.hidden = false;
   app.setBodyModalOpen(true);
   app.renderCharacterWeaponFashionSwitchPicker();
@@ -2504,22 +3128,36 @@ app.confirmCharacterWeaponFashionSwitch = async () => {
   state.characterWeaponFashionSwitchPending = true;
   app.renderCharacterWeaponFashionSwitchPicker();
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/weapon-fashion`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ FashionId: fashionId }),
-    });
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${recordId}/weapon-fashion`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ FashionId: fashionId }),
+      },
+    );
     const fashions = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo);
     state.currentCharacterDetailExtraInfo = {
       ...state.currentCharacterDetailExtraInfo,
-      CurrentWeaponFashionId: Number.isFinite(Number(payload?.CurrentWeaponFashionId)) ? Number(payload.CurrentWeaponFashionId) : null,
-      WeaponFashions: fashions.map((fashion) => fashion.Id === fashionId ? { ...fashion, IsLock: false } : fashion),
+      CurrentWeaponFashionId: Number.isFinite(Number(payload?.CurrentWeaponFashionId))
+        ? Number(payload.CurrentWeaponFashionId)
+        : null,
+      WeaponFashions: fashions.map((fashion) =>
+        fashion.Id === fashionId ? { ...fashion, IsLock: false } : fashion,
+      ),
     };
     app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     app.closeCharacterWeaponFashionSwitchModal();
   } catch (error) {
-    if (!app.isMutationRiskCancelled(error)) app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterWeaponFashionUpdateFailed'));
+    if (!app.isMutationRiskCancelled(error))
+      app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterWeaponFashionUpdateFailed'));
   } finally {
     state.characterWeaponFashionSwitchPending = false;
-    if (characterWeaponFashionSwitchModal instanceof HTMLElement && !characterWeaponFashionSwitchModal.hidden) app.renderCharacterWeaponFashionSwitchPicker();
+    if (
+      characterWeaponFashionSwitchModal instanceof HTMLElement &&
+      !characterWeaponFashionSwitchModal.hidden
+    )
+      app.renderCharacterWeaponFashionSwitchPicker();
   }
 };
 
@@ -2528,11 +3166,14 @@ app.handleCharacterWeaponFashionSlotActivate = (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement) || state.characterWeaponFashionSwitchPending) return;
   const slot = target.closest('[data-weapon-fashion-index]');
-  const fashion = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo)[Number(slot?.dataset.weaponFashionIndex)];
+  const fashion = app.normalizeCharacterWeaponFashions(state.currentCharacterDetailExtraInfo)[
+    Number(slot?.dataset.weaponFashionIndex)
+  ];
   if (!fashion) return;
-  state.characterWeaponFashionSwitchSelectedId = fashion.Id === Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId)
-    ? null
-    : fashion.Id;
+  state.characterWeaponFashionSwitchSelectedId =
+    fashion.Id === Number(state.currentCharacterDetailExtraInfo?.CurrentWeaponFashionId)
+      ? null
+      : fashion.Id;
   app.renderCharacterWeaponFashionSwitchPicker();
 };
 
@@ -2549,7 +3190,10 @@ app.renderCharacterDetailMemorySlots = (memories) => {
     if (!normalizedMemory) {
       return;
     }
-    const site = Number.parseInt(app.getMemoryPositionByTemplateId(normalizedMemory.TemplateId), 10);
+    const site = Number.parseInt(
+      app.getMemoryPositionByTemplateId(normalizedMemory.TemplateId),
+      10,
+    );
     if (!Number.isFinite(site) || site < 1 || site > slotCount || siteToMemoryMap.has(site)) {
       return;
     }
@@ -2592,7 +3236,7 @@ app.positionCharacterDetailEquipTooltip = (target) => {
   const margin = 12;
   const gap = 10;
   let left = targetRect.right + gap;
-  let top = targetRect.top + ((targetRect.height - tooltipRect.height) / 2);
+  let top = targetRect.top + (targetRect.height - tooltipRect.height) / 2;
 
   if (left + tooltipRect.width > viewportWidth - margin) {
     left = targetRect.left - tooltipRect.width - gap;
@@ -2611,7 +3255,11 @@ app.positionCharacterDetailEquipTooltip = (target) => {
 };
 
 app.syncCharacterDetailEquipTooltipPosition = () => {
-  if (!(state.characterDetailEquipTooltipTarget instanceof HTMLElement) || !(characterDetailEquipTooltip instanceof HTMLElement) || characterDetailEquipTooltip.hidden) {
+  if (
+    !(state.characterDetailEquipTooltipTarget instanceof HTMLElement) ||
+    !(characterDetailEquipTooltip instanceof HTMLElement) ||
+    characterDetailEquipTooltip.hidden
+  ) {
     return;
   }
 
@@ -2623,13 +3271,16 @@ app.showCharacterDetailEquipTooltip = (target) => {
     return;
   }
 
-  const rawTooltipText = typeof target.dataset.equipTooltipText === 'string' ? target.dataset.equipTooltipText.trim() : '';
+  const rawTooltipText =
+    typeof target.dataset.equipTooltipText === 'string'
+      ? target.dataset.equipTooltipText.trim()
+      : '';
   if (!rawTooltipText) {
     app.hideCharacterDetailEquipTooltip();
     return;
   }
 
-  let payload = null;
+  let payload;
   try {
     payload = JSON.parse(rawTooltipText);
   } catch {
@@ -2681,7 +3332,12 @@ app.handleCharacterDetailEquipTooltipEvent = (event) => {
   }
 
   if (event.type === 'mousemove') {
-    if (tooltipTarget instanceof HTMLElement && state.characterDetailEquipTooltipTarget === tooltipTarget && characterDetailEquipTooltip instanceof HTMLElement && !characterDetailEquipTooltip.hidden) {
+    if (
+      tooltipTarget instanceof HTMLElement &&
+      state.characterDetailEquipTooltipTarget === tooltipTarget &&
+      characterDetailEquipTooltip instanceof HTMLElement &&
+      !characterDetailEquipTooltip.hidden
+    ) {
       app.syncCharacterDetailEquipTooltipPosition();
     }
     return;
@@ -2716,7 +3372,9 @@ app.getCharacterDetailGradeTier = (grade) => {
 };
 
 app.getCharacterAwakenDisplay = (awakenLevel) => {
-  const normalizedAwakenLevel = Number.isFinite(Number(awakenLevel)) ? Math.max(0, Number(awakenLevel)) : 0;
+  const normalizedAwakenLevel = Number.isFinite(Number(awakenLevel))
+    ? Math.max(0, Number(awakenLevel))
+    : 0;
   const awakenKeyMap = {
     0: 'dashboard.characterAwakenLevel1',
     1: 'dashboard.characterAwakenLevel1',
@@ -2756,7 +3414,9 @@ app.getCharacterTrustSymbol = (trustLv) => {
 };
 
 app.getCharacterTrustDisplay = (trustLv) => {
-  const normalizedTrustLv = Number.isFinite(Number(trustLv)) ? Math.max(0, Math.floor(Number(trustLv))) : 0;
+  const normalizedTrustLv = Number.isFinite(Number(trustLv))
+    ? Math.max(0, Math.floor(Number(trustLv)))
+    : 0;
   const symbol = app.getCharacterTrustSymbol(normalizedTrustLv);
   if (!symbol || normalizedTrustLv <= 0) {
     return '--';
@@ -2780,13 +3440,9 @@ app.getMaxNumericMapKey = (source) => {
   return Math.max(...numericKeys);
 };
 
-app.renderCompositeStatValue = ({
-  currentValue,
-  maxValue,
-  currentClass = '',
-  maxClass = '',
-}) => {
-  const currentText = currentValue === null || currentValue === undefined ? '--' : String(currentValue);
+app.renderCompositeStatValue = ({ currentValue, maxValue, currentClass = '', maxClass = '' }) => {
+  const currentText =
+    currentValue === null || currentValue === undefined ? '--' : String(currentValue);
   const maxText = maxValue === null || maxValue === undefined ? '--' : String(maxValue);
 
   return `
@@ -2833,21 +3489,35 @@ app.showCharacterManagementTable = () => {
 
 app.updateCharacterManagementPagination = () => {
   if (databaseCharacterManagementPaginationLabel instanceof HTMLElement) {
-    databaseCharacterManagementPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
-      page: state.characterManagementTotalPages === 0 ? 0 : state.characterManagementCurrentPage,
-      totalPages: state.characterManagementTotalPages,
-    });
+    databaseCharacterManagementPaginationLabel.textContent = app.translate(
+      'dashboard.accountsPagination',
+      {
+        page: state.characterManagementTotalPages === 0 ? 0 : state.characterManagementCurrentPage,
+        totalPages: state.characterManagementTotalPages,
+      },
+    );
   }
 
   if (databaseCharacterManagementPrevButton instanceof HTMLButtonElement) {
-    databaseCharacterManagementPrevButton.disabled = state.characterManagementLoading || state.characterManagementCurrentPage <= 1 || state.characterManagementTotalPages === 0 || !app.canAccessCharacterManagement();
+    databaseCharacterManagementPrevButton.disabled =
+      state.characterManagementLoading ||
+      state.characterManagementCurrentPage <= 1 ||
+      state.characterManagementTotalPages === 0 ||
+      !app.canAccessCharacterManagement();
   }
 
   if (databaseCharacterManagementNextButton instanceof HTMLButtonElement) {
-    databaseCharacterManagementNextButton.disabled = state.characterManagementLoading || state.characterManagementTotalPages === 0 || state.characterManagementCurrentPage >= state.characterManagementTotalPages || !app.canAccessCharacterManagement();
+    databaseCharacterManagementNextButton.disabled =
+      state.characterManagementLoading ||
+      state.characterManagementTotalPages === 0 ||
+      state.characterManagementCurrentPage >= state.characterManagementTotalPages ||
+      !app.canAccessCharacterManagement();
   }
 
-  const jumpDisabled = state.characterManagementLoading || state.characterManagementTotalPages === 0 || !app.canAccessCharacterManagement();
+  const jumpDisabled =
+    state.characterManagementLoading ||
+    state.characterManagementTotalPages === 0 ||
+    !app.canAccessCharacterManagement();
 
   if (databaseCharacterManagementJumpInput instanceof HTMLInputElement) {
     databaseCharacterManagementJumpInput.disabled = jumpDisabled;
@@ -2858,11 +3528,13 @@ app.updateCharacterManagementPagination = () => {
   }
 
   if (dom.databaseCharacterAddButton instanceof HTMLButtonElement) {
-    dom.databaseCharacterAddButton.disabled = state.characterManagementLoading || !app.canAccessCharacterManagement();
+    dom.databaseCharacterAddButton.disabled =
+      state.characterManagementLoading || !app.canAccessCharacterManagement();
   }
 
   if (dom.databaseCharacterFillButton instanceof HTMLButtonElement) {
-    dom.databaseCharacterFillButton.disabled = state.characterManagementLoading || !app.canAccessCharacterManagement();
+    dom.databaseCharacterFillButton.disabled =
+      state.characterManagementLoading || !app.canAccessCharacterManagement();
   }
 };
 
@@ -2871,7 +3543,10 @@ app.submitCharacterManagementPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseCharacterManagementJumpInput.value, state.characterManagementTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseCharacterManagementJumpInput.value,
+    state.characterManagementTotalPages,
+  );
   databaseCharacterManagementJumpInput.value = '';
 
   if (targetPage === null || targetPage === state.characterManagementCurrentPage) {
@@ -2886,47 +3561,97 @@ app.renderCharacterRows = (items) => {
     return;
   }
 
-  databaseCharacterManagementBody.innerHTML = Array.isArray(items) ? items.map((item) => {
-    const characterId = item?.CharacterId ?? null;
-    const characterName = app.getCharacterNameByCharacterId(characterId);
-    const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
-    const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
-    const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
-    const star = Number.isFinite(Number(item?.Star)) ? Number(item.Star) : 0;
-    const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
-    const grade = Number.isFinite(Number(item?.Grade)) ? Number(item.Grade) : 0;
-    const awakenLevel = Number.isFinite(Number(item?.AwakenLevel)) ? Number(item.AwakenLevel) : 0;
-    const sequence = Number.isFinite(Number(item?.Sequence)) ? Number(item.Sequence) : null;
-    const gradeName = typeof item?.GradeName === 'string' && item.GradeName.trim() ? item.GradeName.trim() : '--';
-    const iconExtraClass = app.getCharacterIconEffectClass(quality);
-    const isSupport = sequence === 1;
-    const supportDisabled = state.characterManagementActionPendingRecordId === recordId
-      || isSupport
-      || recordId === null;
+  databaseCharacterManagementBody.innerHTML = Array.isArray(items)
+    ? items
+        .map((item) => {
+          const characterId = item?.CharacterId ?? null;
+          const characterName = app.getCharacterNameByCharacterId(characterId);
+          const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
+          const recordId = Number.isFinite(Number(item?.record_id)) ? Number(item.record_id) : null;
+          const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
+          const star = Number.isFinite(Number(item?.Star)) ? Number(item.Star) : 0;
+          const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
+          const grade = Number.isFinite(Number(item?.Grade)) ? Number(item.Grade) : 0;
+          const awakenLevel = Number.isFinite(Number(item?.AwakenLevel))
+            ? Number(item.AwakenLevel)
+            : 0;
+          const sequence = Number.isFinite(Number(item?.Sequence)) ? Number(item.Sequence) : null;
+          const gradeName =
+            typeof item?.GradeName === 'string' && item.GradeName.trim()
+              ? item.GradeName.trim()
+              : '--';
+          const iconExtraClass = app.getCharacterIconEffectClass(quality);
+          const isSupport = sequence === 1;
+          const supportDisabled =
+            state.characterManagementActionPendingRecordId === recordId ||
+            isSupport ||
+            recordId === null;
 
-    return `
-      <tr>
-        <td>${sequence ?? '--'}</td>
-        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, true, iconExtraClass)}</td>
-        <td><span class="character-quality ${app.getCharacterQualityClass(quality)}">${app.escapeHtml(app.getCharacterQualityDisplayLabel(quality, star))}</span></td>
-        <td>${level ?? '--'}</td>
-        <td><span class="character-grade ${app.getCharacterGradeClass(grade)}">${app.escapeHtml(gradeName)}</span></td>
-        <td><span class="character-awaken ${app.getCharacterAwakenClass(awakenLevel)}">${app.getCharacterAwakenDisplay(awakenLevel)}</span></td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-config" type="button" ${supportDisabled ? 'disabled' : ''} data-character-management-action="preferred" data-character-record-id="${recordId ?? ''}" data-character-sequence="${sequence ?? ''}" data-character-name="${app.escapeHtml(characterName)}">${app.translate('dashboard.characterManagementSetPreferred')}</button>
-            <button class="status-action-button status-action-button-log" type="button" data-character-management-action="detail" data-character-record-id="${recordId ?? ''}">${app.translate('dashboard.characterManagementDetail')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('') : '';
+          return /* HTML */ `
+            <tr>
+              <td>${sequence ?? '--'}</td>
+              <td>
+                ${app.renderEquipMediaCell(characterIconUrl, characterName, true, iconExtraClass)}
+              </td>
+              <td>
+                <span class="character-quality ${app.getCharacterQualityClass(quality)}">
+                  ${app.escapeHtml(app.getCharacterQualityDisplayLabel(quality, star))}
+                </span>
+              </td>
+              <td>${level ?? '--'}</td>
+              <td>
+                <span class="character-grade ${app.getCharacterGradeClass(grade)}">
+                  ${app.escapeHtml(gradeName)}
+                </span>
+              </td>
+              <td>
+                <span class="character-awaken ${app.getCharacterAwakenClass(awakenLevel)}">
+                  ${app.getCharacterAwakenDisplay(awakenLevel)}
+                </span>
+              </td>
+              <td>
+                <div class="accounts-row-actions">
+                  <button
+                    class="status-action-button status-action-button-config"
+                    type="button"
+                    ${supportDisabled ? 'disabled' : ''}
+                    data-character-management-action="preferred"
+                    data-character-record-id="${recordId ?? ''}"
+                    data-character-sequence="${sequence ?? ''}"
+                    data-character-name="${app.escapeHtml(characterName)}"
+                  >
+                    ${app.translate('dashboard.characterManagementSetPreferred')}
+                  </button>
+                  <button
+                    class="status-action-button status-action-button-log"
+                    type="button"
+                    data-character-management-action="detail"
+                    data-character-record-id="${recordId ?? ''}"
+                  >
+                    ${app.translate('dashboard.characterManagementDetail')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('')
+    : '';
 };
 
-app._characterManagementSortFields = ['sequence', 'name', 'quality', 'level', 'grade', 'awaken_level'];
+app._characterManagementSortFields = [
+  'sequence',
+  'name',
+  'quality',
+  'level',
+  'grade',
+  'awaken_level',
+];
 
 app._syncCharacterManagementSortArrows = () => {
-  const table = document.querySelector('#database-character-management-section .character-management-table');
+  const table = document.querySelector(
+    '#database-character-management-section .character-management-table',
+  );
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -2946,7 +3671,8 @@ app._syncCharacterManagementSortArrows = () => {
 app._handleCharacterManagementSortClick = (sortField) => {
   if (!app._characterManagementSortFields.includes(sortField)) return;
   if (state.characterManagementSortBy === sortField) {
-    state.characterManagementSortOrder = state.characterManagementSortOrder === 'asc' ? 'desc' : 'asc';
+    state.characterManagementSortOrder =
+      state.characterManagementSortOrder === 'asc' ? 'desc' : 'asc';
   } else {
     state.characterManagementSortBy = sortField;
     state.characterManagementSortOrder = 'asc';
@@ -3029,7 +3755,10 @@ app.loadSelectedAccountCharacters = async (page = 1) => {
   state.characterManagementLoading = true;
   state.characterManagementCurrentPage = Math.max(1, page);
   app.updateCharacterManagementPagination();
-  app.setCharacterManagementState(app.translate('dashboard.characterManagementLoading'), 'is-loading');
+  app.setCharacterManagementState(
+    app.translate('dashboard.characterManagementLoading'),
+    'is-loading',
+  );
 
   try {
     const search = new URLSearchParams({
@@ -3045,13 +3774,18 @@ app.loadSelectedAccountCharacters = async (page = 1) => {
     const payload = await app.apiFetch(`/api/database-characters/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.characterManagementItems = items;
-    state.characterManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.characterManagementCurrentPage;
-    state.characterManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    state.characterManagementCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.characterManagementCurrentPage;
+    state.characterManagementTotalPages =
+      typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.characterManagementHasLoaded = true;
 
     if (databaseCharacterManagementSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseCharacterManagementSummary.textContent = app.translate('dashboard.characterManagementSummaryTotal', { total });
+      databaseCharacterManagementSummary.textContent = app.translate(
+        'dashboard.characterManagementSummaryTotal',
+        { total },
+      );
       databaseCharacterManagementSummary.hidden = false;
     }
 
@@ -3059,7 +3793,10 @@ app.loadSelectedAccountCharacters = async (page = 1) => {
       if (databaseCharacterManagementBody instanceof HTMLElement) {
         databaseCharacterManagementBody.innerHTML = '';
       }
-      app.setCharacterManagementState(app.translate('dashboard.characterManagementEmpty'), 'is-empty');
+      app.setCharacterManagementState(
+        app.translate('dashboard.characterManagementEmpty'),
+        'is-empty',
+      );
     } else {
       app.renderCharacterRows(items);
       app.showCharacterManagementTable();
@@ -3069,7 +3806,10 @@ app.loadSelectedAccountCharacters = async (page = 1) => {
     if (databaseCharacterManagementBody instanceof HTMLElement) {
       databaseCharacterManagementBody.innerHTML = '';
     }
-    app.setCharacterManagementState(app.apiErrorMessage(error, 'runtime.characterManagementLoadFailed'), 'is-error');
+    app.setCharacterManagementState(
+      app.apiErrorMessage(error, 'runtime.characterManagementLoadFailed'),
+      'is-error',
+    );
   } finally {
     state.characterManagementLoading = false;
     app.updateCharacterManagementPagination();
@@ -3086,9 +3826,13 @@ app.updateCharacterManagementAccess = (payload = state.databaseHealthSnapshot) =
   if (databaseCharacterManagementSubnavButton instanceof HTMLButtonElement) {
     databaseCharacterManagementSubnavButton.disabled = !accessible;
     if (!healthy) {
-      databaseCharacterManagementSubnavButton.title = app.translate('runtime.characterManagementAccessTitle');
+      databaseCharacterManagementSubnavButton.title = app.translate(
+        'runtime.characterManagementAccessTitle',
+      );
     } else if (state.selectedAccountUid === null) {
-      databaseCharacterManagementSubnavButton.title = app.translate('runtime.characterManagementNeedAccountTitle');
+      databaseCharacterManagementSubnavButton.title = app.translate(
+        'runtime.characterManagementNeedAccountTitle',
+      );
     } else {
       databaseCharacterManagementSubnavButton.title = '';
     }
@@ -3110,7 +3854,10 @@ app.updateCharacterManagementAccess = (payload = state.databaseHealthSnapshot) =
 
   if (!healthy) {
     app.resetCharacterManagementView();
-    app.setCharacterManagementState(app.translate('dashboard.characterManagementUnavailable'), 'is-muted');
+    app.setCharacterManagementState(
+      app.translate('dashboard.characterManagementUnavailable'),
+      'is-muted',
+    );
     if (app.isDatabaseCharacterManagementSectionActive()) {
       app.setActiveDatabaseTab('database-service-status-section');
     }
@@ -3119,7 +3866,10 @@ app.updateCharacterManagementAccess = (payload = state.databaseHealthSnapshot) =
 
   if (state.selectedAccountUid === null) {
     app.resetCharacterManagementView();
-    app.setCharacterManagementState(app.translate('dashboard.characterManagementChooseAccount'), 'is-muted');
+    app.setCharacterManagementState(
+      app.translate('dashboard.characterManagementChooseAccount'),
+      'is-muted',
+    );
     if (app.isDatabaseCharacterManagementSectionActive()) {
       app.setActiveDatabaseTab('database-accounts-section');
     }
@@ -3130,7 +3880,10 @@ app.updateCharacterManagementAccess = (payload = state.databaseHealthSnapshot) =
     if (databaseCharacterManagementBody instanceof HTMLElement) {
       databaseCharacterManagementBody.innerHTML = '';
     }
-    app.setCharacterManagementState(app.translate('dashboard.characterManagementReady'), 'is-muted');
+    app.setCharacterManagementState(
+      app.translate('dashboard.characterManagementReady'),
+      'is-muted',
+    );
     app.updateCharacterManagementPagination();
     return;
   }
@@ -3189,32 +3942,51 @@ app.handleCharacterManagementActionClick = (event) => {
 };
 
 app.populateCharacterDetailCard = (item) => {
-  const extraInfo = state.currentCharacterDetailExtraInfo && typeof state.currentCharacterDetailExtraInfo === 'object'
-    ? state.currentCharacterDetailExtraInfo
-    : {};
+  const extraInfo =
+    state.currentCharacterDetailExtraInfo &&
+    typeof state.currentCharacterDetailExtraInfo === 'object'
+      ? state.currentCharacterDetailExtraInfo
+      : {};
   const characterId = item?.CharacterId ?? null;
   const quality = Number.isFinite(Number(item?.Quality)) ? Number(item.Quality) : 0;
   const star = Number.isFinite(Number(item?.Star)) ? Math.max(0, Number(item.Star)) : 0;
   const grade = Number.isFinite(Number(item?.Grade)) ? Math.max(0, Number(item.Grade)) : 0;
-  const awakenLevel = Number.isFinite(Number(item?.AwakenLevel)) ? Math.max(0, Number(item.AwakenLevel)) : 0;
+  const awakenLevel = Number.isFinite(Number(item?.AwakenLevel))
+    ? Math.max(0, Number(item.AwakenLevel))
+    : 0;
   const level = Number.isFinite(Number(item?.Level)) ? Number(item.Level) : null;
-  const trustLv = Number.isFinite(Number(extraInfo?.TrustLv)) ? Math.max(0, Number(extraInfo.TrustLv)) : null;
-  const currentFahionId = Number.isFinite(Number(extraInfo?.CurrentFahionId)) ? Number(extraInfo.CurrentFahionId) : null;
-  const headFashionId = Number.isFinite(Number(extraInfo?.HeadFashionId)) ? Number(extraInfo.HeadFashionId) : null;
-  const headFashionType = Number.isFinite(Number(extraInfo?.HeadFashionType)) ? Number(extraInfo.HeadFashionType) : 0;
+  const trustLv = Number.isFinite(Number(extraInfo?.TrustLv))
+    ? Math.max(0, Number(extraInfo.TrustLv))
+    : null;
+  const currentFahionId = Number.isFinite(Number(extraInfo?.CurrentFahionId))
+    ? Number(extraInfo.CurrentFahionId)
+    : null;
+  const headFashionId = Number.isFinite(Number(extraInfo?.HeadFashionId))
+    ? Number(extraInfo.HeadFashionId)
+    : null;
+  const headFashionType = Number.isFinite(Number(extraInfo?.HeadFashionType))
+    ? Number(extraInfo.HeadFashionType)
+    : 0;
   const fashions = app.normalizeCharacterFashions(extraInfo);
-  const weapon = extraInfo?.Weapon && typeof extraInfo.Weapon === 'object' ? extraInfo.Weapon : null;
+  const weapon =
+    extraInfo?.Weapon && typeof extraInfo.Weapon === 'object' ? extraInfo.Weapon : null;
   const memories = Array.isArray(extraInfo?.Memories) ? extraInfo.Memories : [];
   const skills = Array.isArray(extraInfo?.SkillsList) ? extraInfo.SkillsList : [];
-  const enhanceSkills = Array.isArray(extraInfo?.EnhanceSkillList) ? extraInfo.EnhanceSkillList : [];
-  const currentFashion = currentFahionId === null
-    ? null
-    : fashions.find((fashion) => fashion.Id === currentFahionId) ?? null;
-  const unlockedCurrentFashion = currentFashion && currentFashion.IsLock === false ? currentFashion : null;
-  const headFashion = headFashionId === null ? null : fashions.find((fashion) => fashion.Id === headFashionId) ?? null;
-  const introText = typeof extraInfo?.Intro === 'string' && extraInfo.Intro.trim()
-    ? extraInfo.Intro.trim()
-    : '--';
+  const enhanceSkills = Array.isArray(extraInfo?.EnhanceSkillList)
+    ? extraInfo.EnhanceSkillList
+    : [];
+  const currentFashion =
+    currentFahionId === null
+      ? null
+      : (fashions.find((fashion) => fashion.Id === currentFahionId) ?? null);
+  const unlockedCurrentFashion =
+    currentFashion && currentFashion.IsLock === false ? currentFashion : null;
+  const headFashion =
+    headFashionId === null
+      ? null
+      : (fashions.find((fashion) => fashion.Id === headFashionId) ?? null);
+  const introText =
+    typeof extraInfo?.Intro === 'string' && extraInfo.Intro.trim() ? extraInfo.Intro.trim() : '--';
   const characterName = app.getCharacterNameByCharacterId(characterId);
   const iconUrl = app.getCharacterIconByCharacterId(characterId);
   const displayMainIconUrl = headFashion
@@ -3224,14 +3996,18 @@ app.populateCharacterDetailCard = (item) => {
         ? headFashion.BigHeadIconFashion
         : headFashion.BigHeadIcon
     : iconUrl;
-  const gradeName = typeof item?.GradeName === 'string' && item.GradeName.trim() ? item.GradeName.trim() : '--';
+  const gradeName =
+    typeof item?.GradeName === 'string' && item.GradeName.trim() ? item.GradeName.trim() : '--';
   const qualityText = app.getCharacterQualityDisplayLabel(quality, star);
   const awakenText = app.getCharacterAwakenDisplay(awakenLevel);
   const trustText = app.getCharacterTrustDisplay(trustLv);
   const gradeTier = app.getCharacterDetailGradeTier(grade);
   const maxLevel = app.getMaxNumericMapKey(extraInfo?.LevelExpMap);
-  const currentExp = Number.isFinite(Number(extraInfo?.Exp)) ? Math.max(0, Number(extraInfo.Exp)) : null;
-  const currentExpLimit = level !== null ? app.getCharacterExpLimit(extraInfo?.LevelExpMap, level) : null;
+  const currentExp = Number.isFinite(Number(extraInfo?.Exp))
+    ? Math.max(0, Number(extraInfo.Exp))
+    : null;
+  const currentExpLimit =
+    level !== null ? app.getCharacterExpLimit(extraInfo?.LevelExpMap, level) : null;
   state.currentCharacterDetailItem = item;
   state.currentCharacterDetailExtraInfo = extraInfo;
 
@@ -3266,10 +4042,13 @@ app.populateCharacterDetailCard = (item) => {
     characterDetailMainIconShell.className = [
       'character-detail-main-icon-shell-button',
       headFashionEffectClass,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
     if (headFashion) {
       characterDetailMainIconShell.dataset.characterDetailEquipSlot = '';
-      characterDetailMainIconShell.dataset.equipTooltipText = app.getCharacterDetailFashionTooltipText(headFashion);
+      characterDetailMainIconShell.dataset.equipTooltipText =
+        app.getCharacterDetailFashionTooltipText(headFashion);
     } else {
       delete characterDetailMainIconShell.dataset.characterDetailEquipSlot;
       delete characterDetailMainIconShell.dataset.equipTooltipText;
@@ -3277,16 +4056,21 @@ app.populateCharacterDetailCard = (item) => {
   }
 
   if (characterDetailMainFashionShell instanceof HTMLElement) {
-    const fashionEffectClass = unlockedCurrentFashion ? app.getFashionQualityEffectClass(unlockedCurrentFashion.Quality) : '';
+    const fashionEffectClass = unlockedCurrentFashion
+      ? app.getFashionQualityEffectClass(unlockedCurrentFashion.Quality)
+      : '';
     characterDetailMainFashionShell.className = [
       'character-detail-main-fashion-shell',
       unlockedCurrentFashion ? 'is-filled' : '',
       fashionEffectClass,
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
     characterDetailMainFashionShell.hidden = false;
     if (unlockedCurrentFashion) {
       characterDetailMainFashionShell.dataset.characterDetailEquipSlot = '';
-      characterDetailMainFashionShell.dataset.equipTooltipText = app.getCharacterDetailFashionTooltipText(unlockedCurrentFashion);
+      characterDetailMainFashionShell.dataset.equipTooltipText =
+        app.getCharacterDetailFashionTooltipText(unlockedCurrentFashion);
     } else {
       delete characterDetailMainFashionShell.dataset.characterDetailEquipSlot;
       delete characterDetailMainFashionShell.dataset.equipTooltipText;
@@ -3316,9 +4100,10 @@ app.populateCharacterDetailCard = (item) => {
   app.renderCharacterSkillTableRows(skills, characterDetailSkillsBody, 'normal');
   app.renderCharacterSkillTableRows(enhanceSkills, characterDetailEnhanceSkillsBody, 'enhance');
 
-  const enhanceSkillsSection = characterDetailEnhanceSkillsBody instanceof HTMLElement
-    ? characterDetailEnhanceSkillsBody.closest('.character-detail-section')
-    : null;
+  const enhanceSkillsSection =
+    characterDetailEnhanceSkillsBody instanceof HTMLElement
+      ? characterDetailEnhanceSkillsBody.closest('.character-detail-section')
+      : null;
   if (enhanceSkillsSection instanceof HTMLElement) {
     enhanceSkillsSection.hidden = enhanceSkills.length === 0;
   }
@@ -3408,13 +4193,19 @@ app.loadCharacterDetailExtraInfo = async (recordId) => {
   state.characterDetailLoading = true;
   try {
     const extraInfo = await app.getCharacterDetailExtraInfo(recordId);
-    if (uid !== state.selectedAccountUid || state.currentCharacterDetailItem !== item || item?.record_id !== recordId) return;
+    if (
+      uid !== state.selectedAccountUid ||
+      state.currentCharacterDetailItem !== item ||
+      item?.record_id !== recordId
+    )
+      return;
     state.currentCharacterDetailExtraInfo = extraInfo;
     if (state.currentCharacterDetailItem) {
       app.populateCharacterDetailCard(state.currentCharacterDetailItem);
     }
   } finally {
-    if (uid === state.selectedAccountUid && state.currentCharacterDetailItem === item) state.characterDetailLoading = false;
+    if (uid === state.selectedAccountUid && state.currentCharacterDetailItem === item)
+      state.characterDetailLoading = false;
   }
 };
 
@@ -3423,14 +4214,13 @@ app.openCharacterDetailModal = (recordId, triggerButton) => {
     return;
   }
 
-  const item = state.characterManagementItems?.find(
-    (i) => i?.record_id === recordId
-  );
+  const item = state.characterManagementItems?.find((i) => i?.record_id === recordId);
   if (!item) {
     return;
   }
 
-  state.lastCharacterDetailTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state.lastCharacterDetailTrigger =
+    triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
   state.currentCharacterDetailItem = item;
   state.currentCharacterDetailExtraInfo = null;
   state.characterFashionSwitchPending = false;
@@ -3457,7 +4247,10 @@ export const initDatabaseCharacterManagementFeature = () => {
   app._syncCharacterManagementSortArrows();
 
   if (databaseCharacterManagementShell instanceof HTMLElement) {
-    databaseCharacterManagementShell.addEventListener('click', app.handleCharacterManagementActionClick);
+    databaseCharacterManagementShell.addEventListener(
+      'click',
+      app.handleCharacterManagementActionClick,
+    );
   }
 
   if (databaseCharacterSearchInput instanceof HTMLInputElement) {
@@ -3475,7 +4268,9 @@ export const initDatabaseCharacterManagementFeature = () => {
     });
   }
 
-  const characterManagementTable = document.querySelector('#database-character-management-section .character-management-table');
+  const characterManagementTable = document.querySelector(
+    '#database-character-management-section .character-management-table',
+  );
   if (characterManagementTable instanceof HTMLElement) {
     characterManagementTable.addEventListener('click', (event) => {
       const target = event.target;
@@ -3520,7 +4315,10 @@ export const initDatabaseCharacterManagementFeature = () => {
   }
 
   if (databaseCharacterManagementJumpButton instanceof HTMLButtonElement) {
-    databaseCharacterManagementJumpButton.addEventListener('click', app.submitCharacterManagementPageJump);
+    databaseCharacterManagementJumpButton.addEventListener(
+      'click',
+      app.submitCharacterManagementPageJump,
+    );
   }
 
   characterDetailCloseTargets.forEach((target) => {
@@ -3535,13 +4333,19 @@ export const initDatabaseCharacterManagementFeature = () => {
 
   if (characterFashionSwitchModal instanceof HTMLElement) {
     ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
-      characterFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+      characterFashionSwitchModal.addEventListener(
+        eventName,
+        app.handleCharacterDetailEquipTooltipEvent,
+      );
     });
   }
 
   if (characterHeadFashionSwitchModal instanceof HTMLElement) {
     ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
-      characterHeadFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+      characterHeadFashionSwitchModal.addEventListener(
+        eventName,
+        app.handleCharacterDetailEquipTooltipEvent,
+      );
     });
     characterHeadFashionSwitchModal.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
@@ -3552,7 +4356,10 @@ export const initDatabaseCharacterManagementFeature = () => {
 
   if (characterWeaponFashionSwitchModal instanceof HTMLElement) {
     ['mouseover', 'mousemove', 'mouseout', 'focusin', 'focusout'].forEach((eventName) => {
-      characterWeaponFashionSwitchModal.addEventListener(eventName, app.handleCharacterDetailEquipTooltipEvent);
+      characterWeaponFashionSwitchModal.addEventListener(
+        eventName,
+        app.handleCharacterDetailEquipTooltipEvent,
+      );
     });
     characterWeaponFashionSwitchModal.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') app.closeCharacterWeaponFashionSwitchModal();
@@ -3591,12 +4398,21 @@ export const initDatabaseCharacterManagementFeature = () => {
   }
 
   if (characterDetailHeadFashions instanceof HTMLElement) {
-    characterDetailHeadFashions.addEventListener('click', app.handleCharacterHeadFashionSlotActivate);
-    characterDetailHeadFashions.addEventListener('keydown', app.handleCharacterHeadFashionSlotActivate);
+    characterDetailHeadFashions.addEventListener(
+      'click',
+      app.handleCharacterHeadFashionSlotActivate,
+    );
+    characterDetailHeadFashions.addEventListener(
+      'keydown',
+      app.handleCharacterHeadFashionSlotActivate,
+    );
   }
 
   if (characterDetailWeaponFashions instanceof HTMLElement) {
-    characterDetailWeaponFashions.addEventListener('click', app.handleCharacterWeaponFashionSlotActivate);
+    characterDetailWeaponFashions.addEventListener(
+      'click',
+      app.handleCharacterWeaponFashionSlotActivate,
+    );
   }
 
   if (characterDetailMainIconShell instanceof HTMLButtonElement) {
@@ -3746,8 +4562,14 @@ export const initDatabaseCharacterManagementFeature = () => {
   }
 
   if (characterDetailEnhanceSkillsBody instanceof HTMLElement) {
-    characterDetailEnhanceSkillsBody.addEventListener('click', app.handleCharacterSkillEditActivate);
-    characterDetailEnhanceSkillsBody.addEventListener('keydown', app.handleCharacterSkillEditActivate);
+    characterDetailEnhanceSkillsBody.addEventListener(
+      'click',
+      app.handleCharacterSkillEditActivate,
+    );
+    characterDetailEnhanceSkillsBody.addEventListener(
+      'keydown',
+      app.handleCharacterSkillEditActivate,
+    );
   }
 
   characterQualityEditCloseTargets.forEach((target) => {
@@ -3755,7 +4577,10 @@ export const initDatabaseCharacterManagementFeature = () => {
   });
 
   if (characterQualityEditQualitySelect instanceof HTMLSelectElement) {
-    characterQualityEditQualitySelect.addEventListener('change', app.handleCharacterQualityEditQualityChange);
+    characterQualityEditQualitySelect.addEventListener(
+      'change',
+      app.handleCharacterQualityEditQualityChange,
+    );
   }
 
   if (characterQualityEditConfirmButton instanceof HTMLButtonElement) {
@@ -3802,7 +4627,9 @@ export const initDatabaseCharacterManagementFeature = () => {
 
       app.renderCharacterTrustEditHearts(trustLv);
       app.syncCharacterTrustEditExpInput();
-      const nextSelectedButton = characterTrustEditHearts.querySelector(`[data-character-trust-level="${trustLv}"]`);
+      const nextSelectedButton = characterTrustEditHearts.querySelector(
+        `[data-character-trust-level="${trustLv}"]`,
+      );
       if (nextSelectedButton instanceof HTMLButtonElement) {
         nextSelectedButton.focus();
       }
@@ -3830,7 +4657,9 @@ export const initDatabaseCharacterManagementFeature = () => {
 
       app.renderCharacterTrustEditHearts(trustLv);
       app.syncCharacterTrustEditExpInput();
-      const nextSelectedButton = characterTrustEditHearts.querySelector(`[data-character-trust-level="${trustLv}"]`);
+      const nextSelectedButton = characterTrustEditHearts.querySelector(
+        `[data-character-trust-level="${trustLv}"]`,
+      );
       if (nextSelectedButton instanceof HTMLButtonElement) {
         nextSelectedButton.focus();
       }

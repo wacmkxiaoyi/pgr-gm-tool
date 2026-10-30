@@ -1,0 +1,134 @@
+<section
+  class="database-panel database-item-panel database-tab-panel"
+  id="database-partner-management-section"
+  data-database-tab-panel="database-partner-management-section"
+  aria-labelledby="database-partner-management-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+    <div>
+      <span class="section-tag">CUB</span>
+      <h2 id="database-partner-management-title" data-i18n="dashboard.partnerManagementTitle">
+        辅助机管理
+      </h2>
+    </div>
+    <small id="partner-summary"></small>
+  </div>
+  <div class="database-player-empty" id="partner-state" data-i18n="dashboard.partnerChooseAccount">
+    请先选定用户。
+  </div>
+  <div class="database-item-management-shell" id="partner-shell" hidden>
+    <div class="database-item-actions">
+      <button
+        class="status-action-button status-action-button-stop"
+        type="button"
+        id="partner-clear"
+        data-i18n="dashboard.partnerClear"
+      >
+        清空未穿戴辅助机
+      </button>
+      <div class="database-item-toolbar">
+        <div class="database-item-search-shell">
+          <input
+            class="database-item-search-input"
+            type="search"
+            id="partner-search"
+            data-i18n-placeholder="dashboard.partnerSearch"
+            placeholder="输入名称或角色名后回车搜索"
+          />
+        </div>
+      </div>
+      <button
+        class="status-action-button status-action-button-config database-item-action-add"
+        type="button"
+        id="partner-add"
+        data-i18n="dashboard.partnerAdd"
+      >
+        新增辅助机
+      </button>
+    </div>
+    <div class="accounts-table-shell">
+      <div class="accounts-table-scroll">
+        <table class="accounts-table partner-management-table" aria-describedby="partner-summary">
+          <colgroup>
+            <col class="equip-management-col-row" />
+            <col class="equip-management-col-name" />
+            <col class="equip-management-col-star" />
+            <col class="equip-management-col-enhance" />
+            <col class="equip-management-col-character" />
+            <col class="equip-management-col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th data-i18n="dashboard.equipManagementRowNumber">行号</th>
+              <th>
+                <button class="column-sort-btn" data-sort-field="name" type="button">
+                  <span data-i18n="dashboard.equipManagementName">名称</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th>
+                <button class="column-sort-btn" data-sort-field="quality" type="button">
+                  <span data-i18n="dashboard.partnerEvolution">进化</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th>
+                <button class="column-sort-btn" data-sort-field="enhancement" type="button">
+                  <span data-i18n="dashboard.equipManagementEnhancement">综合强化等级</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th>
+                <button class="column-sort-btn" data-sort-field="character" type="button">
+                  <span data-i18n="dashboard.equipManagementCharacter">穿戴角色</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th data-i18n="dashboard.equipManagementAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="partner-body"></tbody>
+        </table>
+      </div>
+      <div class="accounts-pagination database-item-pagination">
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="partner-prev"
+          data-i18n="dashboard.accountsPrev"
+        >
+          上一页
+        </button>
+        <span id="partner-pagination"></span>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="partner-next"
+          data-i18n="dashboard.accountsNext"
+        >
+          下一页
+        </button>
+        <label class="accounts-pagination-jump">
+          <input
+            class="accounts-pagination-jump-input"
+            id="partner-jump"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            data-i18n-placeholder="dashboard.accountsJumpPlaceholder"
+          />
+        </label>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="partner-jump-button"
+          data-i18n="dashboard.accountsJumpButton"
+        >
+          跳转
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

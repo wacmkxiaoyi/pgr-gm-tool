@@ -1,0 +1,64 @@
+<div class="shared-modal" hidden id="partner-skill-switch-modal">
+  <div class="shared-modal-backdrop" data-partner-switch-close></div>
+  <section
+    class="shared-modal-card item-add-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="partner-switch-title"
+  >
+    <h3 id="partner-switch-title" data-i18n="dashboard.partnerSwitchTitle">切换主动技能</h3>
+    <div class="item-add-search-shell">
+      <input
+        type="search"
+        class="database-item-search-input"
+        id="partner-switch-search"
+        data-i18n-placeholder="dashboard.partnerAddSearch"
+      />
+    </div>
+    <div class="item-add-table-shell">
+      <table class="accounts-table partner-switch-table">
+        <colgroup>
+          <col style="width: 30%" />
+          <col style="width: 55%" />
+          <col style="width: 15%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>
+              <button type="button" class="column-sort-btn" data-partner-switch-sort="name">
+                <span data-i18n="dashboard.equipManagementName">名称</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th>
+              <button type="button" class="column-sort-btn" data-partner-switch-sort="Desc">
+                <span data-i18n="dashboard.partnerDescription">描述</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th data-i18n="dashboard.equipDetailResonanceAction">操作</th>
+          </tr>
+        </thead>
+        <tbody id="partner-switch-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        hidden
+        id="partner-switch-empty"
+        data-i18n="dashboard.partnerEmpty"
+      >
+        没有匹配的辅助机。
+      </div>
+    </div>
+    <div class="shared-modal-actions item-add-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-partner-switch-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,37 @@
+<div class="shared-modal nameplate-picker-modal" hidden id="nameplate-picker-modal">
+  <div class="shared-modal-backdrop" data-nameplate-picker-modal-close></div>
+  <section
+    class="shared-modal-card nameplate-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="nameplate-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">N</span>
+      <div>
+        <p class="shared-modal-eyebrow" id="nameplate-picker-eyebrow"></p>
+        <h3 id="nameplate-picker-title"></h3>
+      </div>
+    </div>
+    <div class="nameplate-picker-current" id="nameplate-picker-current"></div>
+    <div class="nameplate-picker-grid" id="nameplate-picker-grid"></div>
+    <div class="shared-modal-actions nameplate-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary nameplate-picker-cancel"
+        data-nameplate-picker-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="nameplate-picker-confirm"
+        data-i18n="runtime.nameplatePickerConfirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

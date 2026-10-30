@@ -1,0 +1,37 @@
+<div class="shared-modal" id="furniture-delete-modal" hidden>
+  <div class="shared-modal-backdrop" data-furniture-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="furniture-delete-title"
+    aria-describedby="furniture-delete-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.furnitureManagementTab">家具管理</p>
+        <h3 id="furniture-delete-title"></h3>
+      </div>
+    </div>
+    <p class="shared-modal-message" id="furniture-delete-message"></p>
+    <div class="shared-modal-actions shared-modal-actions-split">
+      <button
+        class="shared-modal-button shared-modal-button-secondary"
+        type="button"
+        data-furniture-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        class="shared-modal-button"
+        type="button"
+        id="furniture-delete-submit"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,54 @@
+<aside
+  class="dashboard-sidebar"
+  id="dashboard-sidebar"
+  aria-label="后台导航"
+  data-i18n-aria-label="dashboard.sidebarAria"
+>
+  <div class="sidebar-brand">
+    <div>
+      <strong data-i18n="common.gameName">Punishing Gray Raven</strong>
+      <span data-i18n="dashboard.sidebarSubtitle">管理后台</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a
+      class="sidebar-link is-active"
+      href="#server-management"
+      data-dashboard-page="server-management"
+      data-i18n="dashboard.sidebarServerManagement"
+    >
+      游戏服务器管理
+    </a>
+    <a
+      class="sidebar-link"
+      href="#database-management"
+      data-dashboard-page="database-management"
+      data-i18n="dashboard.sidebarDatabaseManagement"
+    >
+      用户数据管理
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-language">
+      <label for="dashboard-language" data-i18n="dashboard.languageSwitcherLabel">Language</label>
+      <select id="dashboard-language" data-locale-switcher>
+        <option value="en-US">English</option>
+        <option value="zh-CN">中文</option>
+      </select>
+    </div>
+    <button class="logout-button sidebar-logout" type="button" hidden data-i18n="dashboard.logout">
+      退出登录
+    </button>
+    <button
+      class="risk-reset-button"
+      id="player-mutation-risk-reset"
+      type="button"
+      hidden
+      data-i18n="runtime.playerEditConfirmRiskReset"
+    >
+      恢复风险提示
+    </button>
+  </div>
+</aside>

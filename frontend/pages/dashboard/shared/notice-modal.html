@@ -1,0 +1,35 @@
+<div class="shared-modal" hidden id="notice-modal">
+  <div class="shared-modal-backdrop" data-notice-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="notice-modal-title"
+    aria-describedby="notice-modal-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" id="notice-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p
+          class="shared-modal-eyebrow"
+          id="notice-modal-eyebrow"
+          data-i18n="dashboard.modalEyebrowDefault"
+        >
+          提示
+        </p>
+        <h3 id="notice-modal-title" data-i18n="dashboard.modalTitleDefault">操作提示</h3>
+      </div>
+    </div>
+    <p id="notice-modal-message" class="shared-modal-message"></p>
+    <div class="shared-modal-actions">
+      <button
+        type="button"
+        class="shared-modal-button"
+        data-notice-modal-close
+        data-i18n="dashboard.controlAcknowledge"
+      >
+        知道了
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,43 @@
+<div class="shared-modal" hidden id="logout-confirm-modal">
+  <div class="shared-modal-backdrop" data-logout-confirm-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="logout-confirm-title"
+    aria-describedby="logout-confirm-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.logoutConfirmEyebrow">退出确认</p>
+        <h3 id="logout-confirm-title" data-i18n="dashboard.logoutConfirmTitle">确认退出登录</h3>
+      </div>
+    </div>
+    <p
+      id="logout-confirm-message"
+      class="shared-modal-message"
+      data-i18n="dashboard.logoutConfirmMessage"
+    >
+      确认退出当前登录状态吗？
+    </p>
+    <div class="shared-modal-actions shared-modal-actions-split logout-confirm-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-logout-confirm-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="logout-confirm-submit"
+        data-i18n="dashboard.logoutConfirmSubmit"
+      >
+        确认退出
+      </button>
+    </div>
+  </section>
+</div>

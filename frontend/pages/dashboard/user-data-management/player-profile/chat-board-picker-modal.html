@@ -1,0 +1,37 @@
+<div class="shared-modal chat-board-picker-modal" hidden id="chat-board-picker-modal">
+  <div class="shared-modal-backdrop" data-chat-board-picker-modal-close></div>
+  <section
+    class="shared-modal-card chat-board-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="chat-board-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">C</span>
+      <div>
+        <p class="shared-modal-eyebrow" id="chat-board-picker-eyebrow"></p>
+        <h3 id="chat-board-picker-title"></h3>
+      </div>
+    </div>
+    <div class="chat-board-picker-current" id="chat-board-picker-current"></div>
+    <div class="chat-board-picker-grid" id="chat-board-picker-grid"></div>
+    <div class="shared-modal-actions chat-board-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary chat-board-picker-cancel"
+        data-chat-board-picker-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="chat-board-picker-confirm"
+        data-i18n="runtime.chatBoardPickerConfirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

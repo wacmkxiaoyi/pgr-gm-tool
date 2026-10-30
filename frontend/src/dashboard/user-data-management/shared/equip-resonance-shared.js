@@ -63,12 +63,13 @@ app.buildEquipResonanceResolveIndices = () => {
         const key = `${charId}_${sid}`;
         if (weaponSkillByCharTemplate[key]) continue;
         const entry = weaponSkillEntriesMap[sid];
-        weaponSkillByCharTemplate[key] = entry && typeof entry === 'object'
-          ? {
-              Name: String(entry.Name || '').trim(),
-              Description: String(entry.Description || '').trim(),
-            }
-          : { Name: '', Description: '' };
+        weaponSkillByCharTemplate[key] =
+          entry && typeof entry === 'object'
+            ? {
+                Name: String(entry.Name || '').trim(),
+                Description: String(entry.Description || '').trim(),
+              }
+            : { Name: '', Description: '' };
       }
     }
   }
@@ -151,8 +152,8 @@ app.hasEquipResonanceSlotData = (slot) => {
     return false;
   }
 
-  const hasEffect = Number.isFinite(Number(entry.type))
-    && Number.isFinite(Number(entry.template_id));
+  const hasEffect =
+    Number.isFinite(Number(entry.type)) && Number.isFinite(Number(entry.template_id));
   const characterId = Number(entry.character_id);
   const hasCharacter = Number.isFinite(characterId) && characterId > 0;
 
@@ -169,37 +170,43 @@ app.canSaveEquipResonanceSlot = (slot) => {
     : [];
   const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
   const pendingCharacterId = state._equipResonancePendingCharacter?.[slot];
-  const characterId = pendingCharacterId != null
-    ? Number(pendingCharacterId)
-    : Number(entry?.character_id);
+  const characterId =
+    pendingCharacterId != null ? Number(pendingCharacterId) : Number(entry?.character_id);
   if (!Number.isFinite(characterId)) {
     return false;
   }
 
   const effectState = app.getEffectiveEquipResonanceEffectSelection(slot);
-  return Number.isFinite(Number(effectState.effect?.type))
-    && Number.isFinite(Number(effectState.effect?.template_id));
+  return (
+    Number.isFinite(Number(effectState.effect?.type)) &&
+    Number.isFinite(Number(effectState.effect?.template_id))
+  );
 };
 
 app.getEquipAwakeSlotList = (extraInfo = state.currentEquipDetailExtraInfo) => {
   return Array.isArray(extraInfo?.awake_slot_list)
-    ? extraInfo.awake_slot_list
-      .map((slot) => Number(slot))
-      .filter((slot) => Number.isFinite(slot))
+    ? extraInfo.awake_slot_list.map((slot) => Number(slot)).filter((slot) => Number.isFinite(slot))
     : [];
 };
 
-app.hasEquipAwakeSlotConfig = (extraInfo = state.currentEquipDetailExtraInfo) => Object.prototype.hasOwnProperty.call(extraInfo || {}, 'awake_slot_list');
+app.hasEquipAwakeSlotConfig = (extraInfo = state.currentEquipDetailExtraInfo) =>
+  Object.prototype.hasOwnProperty.call(extraInfo || {}, 'awake_slot_list');
 
 app.getEffectiveEquipResonanceAwakeState = (slot) => {
-  if (state._equipResonancePendingAwake && Object.prototype.hasOwnProperty.call(state._equipResonancePendingAwake, slot)) {
+  if (
+    state._equipResonancePendingAwake &&
+    Object.prototype.hasOwnProperty.call(state._equipResonancePendingAwake, slot)
+  ) {
     return Boolean(state._equipResonancePendingAwake[slot]);
   }
 
   return app.getEquipAwakeSlotList().includes(Number(slot));
 };
 
-app.getEquipResonanceSlotLabel = (slot, isMemoryMode = state.currentEquipDetailMode === 'memory') => {
+app.getEquipResonanceSlotLabel = (
+  slot,
+  isMemoryMode = state.currentEquipDetailMode === 'memory',
+) => {
   const normalizedSlot = Number(slot);
 
   if (isMemoryMode) {
@@ -232,14 +239,31 @@ app.renderEquipResonanceAwakeCellContent = (slot) => {
 
   const checked = app.getEffectiveEquipResonanceAwakeState(slot);
   if (isEditing) {
-    return `<label class="equip-detail-awake-toggle"><input class="equip-detail-awake-checkbox" type="checkbox" data-resonance-awake-toggle ${checked ? 'checked' : ''}><span>${checked ? '✓' : ''}</span></label>`;
+    return /* HTML */ `
+      <label class="equip-detail-awake-toggle">
+        <input
+          class="equip-detail-awake-checkbox"
+          type="checkbox"
+          data-resonance-awake-toggle
+          ${checked ? 'checked' : ''}
+        />
+        <span>${checked ? '✓' : ''}</span>
+      </label>
+    `;
   }
 
   if (!entry) {
     return '--';
   }
 
-  return `<span class="equip-detail-awake-indicator ${checked ? 'is-checked' : 'is-crossed'}" aria-label="${checked ? 'checked' : 'crossed'}">${checked ? '✓' : '×'}</span>`;
+  return /* HTML */ `
+    <span
+      class="equip-detail-awake-indicator ${checked ? 'is-checked' : 'is-crossed'}"
+      aria-label="${checked ? 'checked' : 'crossed'}"
+    >
+      ${checked ? '✓' : '×'}
+    </span>
+  `;
 };
 
 app.renderEquipResonanceAwakeCell = (slot) => {
@@ -368,16 +392,19 @@ app.renderEquipResonanceEffectModalRows = () => {
     : [];
   const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
   const pendingCharacterId = state._equipResonancePendingCharacter?.[slot];
-  const characterId = pendingCharacterId != null
-    ? Number(pendingCharacterId)
-    : Number(entry?.character_id);
+  const characterId =
+    pendingCharacterId != null ? Number(pendingCharacterId) : Number(entry?.character_id);
   if (!Number.isFinite(characterId)) {
     els.tableBody.innerHTML = '';
     els.emptyState.hidden = false;
     return;
   }
 
-  const catalog = app.buildEquipResonanceEffectCatalog(Number(currentItem.TemplateId), characterId, slot);
+  const catalog = app.buildEquipResonanceEffectCatalog(
+    Number(currentItem.TemplateId),
+    characterId,
+    slot,
+  );
   if (catalog.length === 0) {
     els.tableBody.innerHTML = '';
     els.emptyState.hidden = false;
@@ -388,19 +415,21 @@ app.renderEquipResonanceEffectModalRows = () => {
   const sortOrder = state._resonanceEffectModalSortOrder === 'desc' ? -1 : 1;
   const selectedEntry = state._resonanceEffectModalSelectedEntry;
 
-  let filtered = catalog;
+  let filtered;
   if (keyword) {
-    filtered = catalog.map((item) => {
-      const nameLower = item.name.toLowerCase();
-      const descLower = item.description.toLowerCase();
-      let priority = null;
-      if (nameLower.includes(keyword)) {
-        priority = 0;
-      } else if (descLower.includes(keyword)) {
-        priority = 1;
-      }
-      return { item, priority };
-    }).filter(({ priority }) => priority !== null);
+    filtered = catalog
+      .map((item) => {
+        const nameLower = item.name.toLowerCase();
+        const descLower = item.description.toLowerCase();
+        let priority = null;
+        if (nameLower.includes(keyword)) {
+          priority = 0;
+        } else if (descLower.includes(keyword)) {
+          priority = 1;
+        }
+        return { item, priority };
+      })
+      .filter(({ priority }) => priority !== null);
   } else {
     filtered = catalog.map((item) => ({ item, priority: 0 }));
   }
@@ -413,30 +442,44 @@ app.renderEquipResonanceEffectModalRows = () => {
     return nameCmp * sortOrder;
   });
 
-  els.tableBody.innerHTML = filtered.map(({ item }) => {
-    const isSelected = selectedEntry != null
-      && Number(selectedEntry.type) === Number(item.type)
-      && Number(selectedEntry.template_id) === Number(item.template_id);
-    const escapedName = app.escapeHtml(item.name);
-    const escapedDesc = app.escapeHtml(app.stripMarkupText(item.description));
-    const fullDesc = app.stripMarkupText(item.description);
-    const escapedFullDesc = String(fullDesc).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-    return `
-      <tr class="resonance-effect-table-row${isSelected ? ' is-selected' : ''}"
+  els.tableBody.innerHTML = filtered
+    .map(({ item }) => {
+      const isSelected =
+        selectedEntry != null &&
+        Number(selectedEntry.type) === Number(item.type) &&
+        Number(selectedEntry.template_id) === Number(item.template_id);
+      const escapedName = app.escapeHtml(item.name);
+      const escapedDesc = app.escapeHtml(app.stripMarkupText(item.description));
+      const fullDesc = app.stripMarkupText(item.description);
+      const escapedFullDesc = String(fullDesc)
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+      return /* HTML */ `
+        <tr
+          class="resonance-effect-table-row${isSelected ? ' is-selected' : ''}"
           data-resonance-effect-type="${item.type}"
-          data-resonance-effect-template-id="${item.template_id}">
-        <td class="resonance-effect-name">${escapedName}</td>
-        <td class="resonance-effect-description" data-full-description="${escapedFullDesc}">${escapedDesc}</td>
-        <td>
-          <input class="resonance-effect-radio" type="radio"
-                 name="resonance-effect-radio"
-                 data-resonance-effect-type="${item.type}"
-                 data-resonance-effect-template-id="${item.template_id}"
-                 ${isSelected ? 'checked' : ''}>
-        </td>
-      </tr>
-    `;
-  }).join('');
+          data-resonance-effect-template-id="${item.template_id}"
+        >
+          <td class="resonance-effect-name">${escapedName}</td>
+          <td class="resonance-effect-description" data-full-description="${escapedFullDesc}">
+            ${escapedDesc}
+          </td>
+          <td>
+            <input
+              class="resonance-effect-radio"
+              type="radio"
+              name="resonance-effect-radio"
+              data-resonance-effect-type="${item.type}"
+              data-resonance-effect-template-id="${item.template_id}"
+              ${isSelected ? 'checked' : ''}
+            />
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
   els.emptyState.hidden = filtered.length > 0;
 };
 
@@ -455,17 +498,21 @@ app.openEquipResonanceEffectModal = (slot) => {
     : [];
   const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
   const pendingCharId = state._equipResonancePendingCharacter?.[slot];
-  const characterId = pendingCharId != null
-    ? Number(pendingCharId)
-    : Number(entry?.character_id);
+  const characterId = pendingCharId != null ? Number(pendingCharId) : Number(entry?.character_id);
   if (!Number.isFinite(characterId)) {
-    app.openNoticeModal(app.translate('dashboard.equipDetailResonanceBindCharFirst'), { title: app.translate('dashboard.equipDetailCannotSelect'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.equipDetailResonanceBindCharFirst'), {
+      title: app.translate('dashboard.equipDetailCannotSelect'),
+      tone: 'error',
+    });
     return;
   }
 
   const currentItem = state.currentEquipDetailItem;
   if (currentItem == null || !Number.isFinite(Number(currentItem.TemplateId))) {
-    app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetEquipInfo'), { title: app.translate('dashboard.equipDetailError'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetEquipInfo'), {
+      title: app.translate('dashboard.equipDetailError'),
+      tone: 'error',
+    });
     return;
   }
 
@@ -475,7 +522,12 @@ app.openEquipResonanceEffectModal = (slot) => {
   const pendingState = app.getPendingEquipResonanceEffectState(slot);
   if (pendingState.effect) {
     state._resonanceEffectModalSelectedEntry = pendingState.effect;
-  } else if (!pendingState.hasPending && entry && Number.isFinite(Number(entry.type)) && Number.isFinite(Number(entry.template_id))) {
+  } else if (
+    !pendingState.hasPending &&
+    entry &&
+    Number.isFinite(Number(entry.type)) &&
+    Number.isFinite(Number(entry.template_id))
+  ) {
     const effectInfo = app.resolveResonanceEffectInfo(entry);
     state._resonanceEffectModalSelectedEntry = {
       type: Number(entry.type),
@@ -563,15 +615,34 @@ app.renderEquipResonanceEffectCell = (slot) => {
     const effectDescription = effectState.effect?.description || '';
     const escapedDesc = app.escapeHtml(effectDescription);
     effectCell.innerHTML = effectDescription
-      ? `<span class="equip-detail-effect-name" data-resonance-edit-effect data-effect-description="${escapedDesc}" tabindex="0">${escapedName}</span>`
+      ? /* HTML */ `
+          <span
+            class="equip-detail-effect-name"
+            data-resonance-edit-effect
+            data-effect-description="${escapedDesc}"
+            tabindex="0"
+          >
+            ${escapedName}
+          </span>
+        `
       : `<span class="equip-detail-effect-name" data-resonance-edit-effect tabindex="0">${escapedName}</span>`;
   } else {
-    const effectDescription = entry ? app.stripMarkupText(app.resolveResonanceEffectInfo(entry)?.Description) : '';
+    const effectDescription = entry
+      ? app.stripMarkupText(app.resolveResonanceEffectInfo(entry)?.Description)
+      : '';
     const escapedDesc = app.escapeHtml(effectDescription);
     effectCell.innerHTML = entry
-      ? (effectDescription
-        ? `<span class="equip-detail-effect-name" data-effect-description="${escapedDesc}" tabindex="0">${escapedName}</span>`
-        : `<span class="equip-detail-effect-name" tabindex="0">${escapedName}</span>`)
+      ? effectDescription
+        ? /* HTML */ `
+            <span
+              class="equip-detail-effect-name"
+              data-effect-description="${escapedDesc}"
+              tabindex="0"
+            >
+              ${escapedName}
+            </span>
+          `
+        : `<span class="equip-detail-effect-name" tabindex="0">${escapedName}</span>`
       : escapedName;
   }
 };
@@ -590,19 +661,28 @@ app.renderEquipResonanceBoundCharacterCell = (slot) => {
     : [];
   const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
 
-  const effectiveCharacterId = pendingCharacterId != null
-    ? Number(pendingCharacterId)
-    : Number(entry?.character_id);
+  const effectiveCharacterId =
+    pendingCharacterId != null ? Number(pendingCharacterId) : Number(entry?.character_id);
   const noAvatar = !Number.isFinite(effectiveCharacterId) || effectiveCharacterId === 0;
 
-  const characterName = isEditing && noAvatar
-    ? app.translate('common.unselected')
-    : app.getCharacterNameByCharacterId(effectiveCharacterId);
+  const characterName =
+    isEditing && noAvatar
+      ? app.translate('common.unselected')
+      : app.getCharacterNameByCharacterId(effectiveCharacterId);
   const characterIconUrl = app.getCharacterIconByCharacterId(effectiveCharacterId);
 
   if (isEditing) {
     const mediaCell = app.renderEquipMediaCell(characterIconUrl, characterName, !noAvatar);
-    charCell.innerHTML = `<span class="equip-detail-bound-char is-editable" data-resonance-bind-char tabindex="0" role="button">${mediaCell}</span>`;
+    charCell.innerHTML = /* HTML */ `
+      <span
+        class="equip-detail-bound-char is-editable"
+        data-resonance-bind-char
+        tabindex="0"
+        role="button"
+      >
+        ${mediaCell}
+      </span>
+    `;
   } else {
     charCell.innerHTML = app.renderEquipMediaCell(characterIconUrl, characterName, !noAvatar);
   }
@@ -626,13 +706,28 @@ app.renderEquipCharacterPickerSummary = () => {
   const renderSummaryValue = (label, iconUrl, isQuickSelect = false) => {
     const safeLabel = typeof label === 'string' && label.trim() ? label.trim() : '--';
     const escapedLabel = app.escapeHtml(safeLabel);
-    const media = `<span class="character-picker-summary-value-media"><span class="character-picker-summary-value-label">${escapedLabel}</span>${iconUrl ? `<img class="character-picker-summary-value-icon" src=".${iconUrl}" alt="${escapedLabel}">` : ''}</span>`;
+    const media = /* HTML */ `
+      <span class="character-picker-summary-value-media">
+        <span class="character-picker-summary-value-label">${escapedLabel}</span>
+        ${iconUrl
+          ? `<img class="character-picker-summary-value-icon" src=".${iconUrl}" alt="${escapedLabel}">`
+          : ''}
+      </span>
+    `;
 
     if (!isQuickSelect) {
       return `<span class="character-picker-summary-value">${media}</span>`;
     }
 
-    return `<button type="button" class="character-picker-summary-value character-picker-summary-quick-select" data-character-picker-equipment-select="true">${media}</button>`;
+    return /* HTML */ `
+      <button
+        type="button"
+        class="character-picker-summary-value character-picker-summary-quick-select"
+        data-character-picker-equipment-select="true"
+      >
+        ${media}
+      </button>
+    `;
   };
 
   const rows = [];
@@ -665,20 +760,22 @@ app.openEquipCharacterPickerModal = (slot) => {
     : [];
   const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
   const pendingCharacterId = state._equipResonancePendingCharacter?.[slot];
-  const currentCharacterId = pendingCharacterId != null
-    ? Number(pendingCharacterId)
-    : Number(entry?.character_id);
+  const currentCharacterId =
+    pendingCharacterId != null ? Number(pendingCharacterId) : Number(entry?.character_id);
 
   state._equipResonanceCharacterPickerSlot = slot;
-  state._equipResonanceCharacterPickerSelectedId = Number.isFinite(currentCharacterId) ? currentCharacterId : null;
+  state._equipResonanceCharacterPickerSelectedId = Number.isFinite(currentCharacterId)
+    ? currentCharacterId
+    : null;
 
   app.renderEquipCharacterPickerGrid();
   weaponResonanceCharacterPickerModal.hidden = false;
   app.setBodyModalOpen(true);
 
-  const firstSelected = weaponResonanceCharacterPickerGrid instanceof HTMLElement
-    ? weaponResonanceCharacterPickerGrid.querySelector('.is-selected')
-    : null;
+  const firstSelected =
+    weaponResonanceCharacterPickerGrid instanceof HTMLElement
+      ? weaponResonanceCharacterPickerGrid.querySelector('.is-selected')
+      : null;
   if (firstSelected instanceof HTMLElement) {
     firstSelected.focus();
   } else if (weaponResonanceCharacterPickerConfirmButton instanceof HTMLButtonElement) {
@@ -701,11 +798,16 @@ app.closeEquipCharacterPickerModal = (confirm) => {
         const catalog = app.buildEquipResonanceEffectCatalog(equipTemplateId, selectedId, slot);
         const effectState = app.getEffectiveEquipResonanceEffectSelection(slot);
         const currentEffect = effectState.effect
-          ? { type: Number(effectState.effect.type), template_id: Number(effectState.effect.template_id) }
+          ? {
+              type: Number(effectState.effect.type),
+              template_id: Number(effectState.effect.template_id),
+            }
           : null;
         if (currentEffect) {
           const compatible = catalog.some(
-            (item) => Number(item.type) === currentEffect.type && Number(item.template_id) === currentEffect.template_id,
+            (item) =>
+              Number(item.type) === currentEffect.type &&
+              Number(item.template_id) === currentEffect.template_id,
           );
           if (!compatible) {
             if (!state._equipResonancePendingEffect) {
@@ -740,23 +842,34 @@ app.renderEquipCharacterPickerGrid = () => {
 
   const characterIds = Object.keys(characterNameMap)
     .map(Number)
-    .filter((id) => Number.isFinite(id) && typeof characterIconMap[id] === 'string' && characterIconMap[id].trim() !== '')
+    .filter(
+      (id) =>
+        Number.isFinite(id) &&
+        typeof characterIconMap[id] === 'string' &&
+        characterIconMap[id].trim() !== '',
+    )
     .sort((a, b) => a - b);
 
-  weaponResonanceCharacterPickerGrid.innerHTML = characterIds.map((id) => {
-    const isSelected = id === selectedId;
-    const name = characterNameMap[id] || String(id);
-    const iconUrl = `.${characterIconMap[id]}`;
-    const escapedName = app.escapeHtml(name);
-    return `
-      <button type="button" class="character-picker-item${isSelected ? ' is-selected' : ''}" data-character-picker-id="${id}">
-        <span class="character-picker-item-preview">
-          <img src="${iconUrl}" alt="${escapedName}">
-        </span>
-        <strong>${escapedName}</strong>
-      </button>
-    `;
-  }).join('');
+  weaponResonanceCharacterPickerGrid.innerHTML = characterIds
+    .map((id) => {
+      const isSelected = id === selectedId;
+      const name = characterNameMap[id] || String(id);
+      const iconUrl = `.${characterIconMap[id]}`;
+      const escapedName = app.escapeHtml(name);
+      return /* HTML */ `
+        <button
+          type="button"
+          class="character-picker-item${isSelected ? ' is-selected' : ''}"
+          data-character-picker-id="${id}"
+        >
+          <span class="character-picker-item-preview">
+            <img src="${iconUrl}" alt="${escapedName}" />
+          </span>
+          <strong>${escapedName}</strong>
+        </button>
+      `;
+    })
+    .join('');
 
   app.renderEquipCharacterPickerSummary();
 
@@ -840,7 +953,7 @@ app.positionEquipDetailTooltip = (target) => {
   const preferredTop = targetRect.bottom + gap;
   const fallbackTop = targetRect.top - tooltipRect.height - gap;
 
-  let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+  let left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
   let top = preferredTop;
 
   if (left < margin) {
@@ -862,7 +975,11 @@ app.positionEquipDetailTooltip = (target) => {
 };
 
 app.syncEquipDetailTooltipPosition = () => {
-  if (!(state.equipDetailTooltipTarget instanceof HTMLElement) || !(equipDetailTooltip instanceof HTMLElement) || equipDetailTooltip.hidden) {
+  if (
+    !(state.equipDetailTooltipTarget instanceof HTMLElement) ||
+    !(equipDetailTooltip instanceof HTMLElement) ||
+    equipDetailTooltip.hidden
+  ) {
     return;
   }
 
@@ -880,11 +997,12 @@ app.showEquipDetailTooltip = (target) => {
     return;
   }
 
-  const description = typeof target.dataset.equipTooltipText === 'string' && target.dataset.equipTooltipText.trim()
-    ? target.dataset.equipTooltipText.trim()
-    : (typeof target.dataset.effectDescription === 'string'
-      ? target.dataset.effectDescription.trim()
-      : '');
+  const description =
+    typeof target.dataset.equipTooltipText === 'string' && target.dataset.equipTooltipText.trim()
+      ? target.dataset.equipTooltipText.trim()
+      : typeof target.dataset.effectDescription === 'string'
+        ? target.dataset.effectDescription.trim()
+        : '';
   if (!description) {
     app.hideEquipDetailTooltip();
     return;
@@ -941,7 +1059,7 @@ app.positionResonanceDescriptionTooltip = () => {
   const vh = document.documentElement.clientHeight;
   const margin = 12;
   const gap = 8;
-  let left = targetRect.left + (targetRect.width / 2) - (tipRect.width / 2);
+  let left = targetRect.left + targetRect.width / 2 - tipRect.width / 2;
   let top = targetRect.bottom + gap;
 
   if (left < margin) left = margin;
@@ -996,7 +1114,11 @@ app.handleResonanceDescriptionTooltipEvent = (event) => {
   if (event.type === 'mouseover' || event.type === 'focusin') {
     app.scheduleResonanceDescriptionTooltip(descCell);
   } else if (event.type === 'mousemove') {
-    if (state._resonanceDescTooltipTarget === descCell && resonanceEffectTooltip instanceof HTMLElement && !resonanceEffectTooltip.hidden) {
+    if (
+      state._resonanceDescTooltipTarget === descCell &&
+      resonanceEffectTooltip instanceof HTMLElement &&
+      !resonanceEffectTooltip.hidden
+    ) {
       app.positionResonanceDescriptionTooltip();
     }
   } else if (event.type === 'mouseout' || event.type === 'focusout') {
@@ -1013,7 +1135,8 @@ app.handleEquipDetailTooltipEvent = (event) => {
   }
 
   const tooltipTarget = target.closest('.equip-detail-effect-name, [data-equip-tooltip-text]');
-  const row = tooltipTarget instanceof HTMLElement ? tooltipTarget.closest('tr[data-resonance-slot]') : null;
+  const row =
+    tooltipTarget instanceof HTMLElement ? tooltipTarget.closest('tr[data-resonance-slot]') : null;
   if (row instanceof HTMLElement && row.classList.contains('resonance-row-editing')) {
     app.hideEquipDetailTooltip();
     return;
@@ -1027,7 +1150,12 @@ app.handleEquipDetailTooltipEvent = (event) => {
   }
 
   if (event.type === 'mousemove') {
-    if (tooltipTarget instanceof HTMLElement && state.equipDetailTooltipTarget === tooltipTarget && equipDetailTooltip instanceof HTMLElement && !equipDetailTooltip.hidden) {
+    if (
+      tooltipTarget instanceof HTMLElement &&
+      state.equipDetailTooltipTarget === tooltipTarget &&
+      equipDetailTooltip instanceof HTMLElement &&
+      !equipDetailTooltip.hidden
+    ) {
       app.syncEquipDetailTooltipPosition();
     }
     return;
@@ -1069,8 +1197,44 @@ app.renderEquipResonanceRowActionCell = (slot) => {
   const canDelete = app.hasEquipResonanceSlotData(slot);
 
   actionCell.innerHTML = isEditing
-    ? `<div class="equip-detail-resonance-actions"><button class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-cancel" type="button" data-resonance-action="cancel-editing">${app.translate('dashboard.equipDetailResonanceCancel')}</button><button class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-save" type="button" data-resonance-action="save-resonance" ${canSave ? '' : 'disabled'}>${app.translate('dashboard.equipDetailResonanceSave')}</button></div>`
-    : `<div class="equip-detail-resonance-actions"><button class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-edit" type="button" data-resonance-action="start-editing">${app.translate('dashboard.equipDetailResonanceEdit')}</button><button class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-delete" type="button" data-resonance-action="delete-resonance" ${canDelete ? '' : 'disabled'}>${app.translate('dashboard.equipDetailResonanceDelete')}</button></div>`;
+    ? /* HTML */ `
+        <div class="equip-detail-resonance-actions">
+          <button
+            class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-cancel"
+            type="button"
+            data-resonance-action="cancel-editing"
+          >
+            ${app.translate('dashboard.equipDetailResonanceCancel')}
+          </button>
+          <button
+            class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-save"
+            type="button"
+            data-resonance-action="save-resonance"
+            ${canSave ? '' : 'disabled'}
+          >
+            ${app.translate('dashboard.equipDetailResonanceSave')}
+          </button>
+        </div>
+      `
+    : /* HTML */ `
+        <div class="equip-detail-resonance-actions">
+          <button
+            class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-edit"
+            type="button"
+            data-resonance-action="start-editing"
+          >
+            ${app.translate('dashboard.equipDetailResonanceEdit')}
+          </button>
+          <button
+            class="equip-detail-resonance-action-btn equip-detail-resonance-action-btn-delete"
+            type="button"
+            data-resonance-action="delete-resonance"
+            ${canDelete ? '' : 'disabled'}
+          >
+            ${app.translate('dashboard.equipDetailResonanceDelete')}
+          </button>
+        </div>
+      `;
 
   app.renderEquipResonanceEffectCell(slot);
   app.renderEquipResonanceBoundCharacterCell(slot);
@@ -1139,11 +1303,13 @@ app.handleEquipResonanceActionClick = (event) => {
       : [];
     const entry = resonanceInfo.find((r) => Number(r?.slot) === slot) ?? null;
     const pendingCharacterId = state._equipResonancePendingCharacter?.[slot];
-    const characterId = pendingCharacterId != null
-      ? Number(pendingCharacterId)
-      : Number(entry?.character_id);
+    const characterId =
+      pendingCharacterId != null ? Number(pendingCharacterId) : Number(entry?.character_id);
     if (!Number.isFinite(characterId)) {
-      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceBindCharBeforeSave'), { title: app.translate('dashboard.equipDetailCannotSave'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceBindCharBeforeSave'), {
+        title: app.translate('dashboard.equipDetailCannotSave'),
+        tone: 'error',
+      });
       return;
     }
 
@@ -1158,19 +1324,24 @@ app.handleEquipResonanceActionClick = (event) => {
       effectTemplateId = Number(entry.template_id);
     }
     if (!Number.isFinite(effectType) || !Number.isFinite(effectTemplateId)) {
-      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceSelectEffectBeforeSave'), { title: app.translate('dashboard.equipDetailCannotSave'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.weaponDetailResonanceSelectEffectBeforeSave'), {
+        title: app.translate('dashboard.equipDetailCannotSave'),
+        tone: 'error',
+      });
       return;
     }
 
-    const awakeChanged = app.hasEquipAwakeSlotConfig()
-      && state._equipResonancePendingAwake
-      && Object.prototype.hasOwnProperty.call(state._equipResonancePendingAwake, slot);
-    const dataChanged = pendingCharacterId != null
-      || effectState.hasPending
-      || awakeChanged
-      || !Number.isFinite(entry?.character_id)
-      || !Number.isFinite(entry?.type)
-      || !Number.isFinite(entry?.template_id);
+    const awakeChanged =
+      app.hasEquipAwakeSlotConfig() &&
+      state._equipResonancePendingAwake &&
+      Object.prototype.hasOwnProperty.call(state._equipResonancePendingAwake, slot);
+    const dataChanged =
+      pendingCharacterId != null ||
+      effectState.hasPending ||
+      awakeChanged ||
+      !Number.isFinite(entry?.character_id) ||
+      !Number.isFinite(entry?.type) ||
+      !Number.isFinite(entry?.template_id);
     if (!dataChanged) {
       delete state._equipResonanceEditSlots[slot];
       app.renderEquipResonanceRowActionCell(slot);
@@ -1179,13 +1350,19 @@ app.handleEquipResonanceActionClick = (event) => {
 
     const recordId = app.getCurrentEquipDetailRecordId();
     if (recordId === null) {
-      app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), { title: app.translate('dashboard.equipDetailError'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), {
+        title: app.translate('dashboard.equipDetailError'),
+        tone: 'error',
+      });
       return;
     }
 
     void (async () => {
       try {
-        const basePath = state.currentEquipDetailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
+        const basePath =
+          state.currentEquipDetailMode === 'memory'
+            ? '/api/database-memories/selected'
+            : '/api/database-weapons/selected';
         const requestBody = {
           Slot: slot,
           Type: effectType,
@@ -1218,7 +1395,7 @@ app.handleEquipResonanceActionClick = (event) => {
         } else {
           await app.loadWeaponDetailExtraInfo(recordId);
         }
-        await app.refreshEquipDetailSourceViews(recordId, { rerenderSourceRows: true });
+        await app.refreshEquipDetailSourceViews({ rerenderSourceRows: true });
       } catch (error) {
         if (app.isMutationRiskCancelled(error)) {
           return;
@@ -1236,7 +1413,10 @@ app.handleEquipResonanceActionClick = (event) => {
 
     const recordId = app.getCurrentEquipDetailRecordId();
     if (recordId === null) {
-      app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), { title: app.translate('dashboard.equipDetailError'), tone: 'error' });
+      app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), {
+        title: app.translate('dashboard.equipDetailError'),
+        tone: 'error',
+      });
       return;
     }
 
@@ -1247,10 +1427,13 @@ app.handleEquipResonanceActionClick = (event) => {
       weaponName: app.getEquipNameByTemplateId(state.currentEquipDetailItem?.TemplateId),
       detailMode: state.currentEquipDetailMode,
     };
-    app.openWeaponResonanceDeleteModal({
-      slot: app.getEquipResonanceSlotLabel(slot),
-      weaponName: app.getEquipNameByTemplateId(state.currentEquipDetailItem?.TemplateId),
-    }, actionButton);
+    app.openWeaponResonanceDeleteModal(
+      {
+        slot: app.getEquipResonanceSlotLabel(slot),
+        weaponName: app.getEquipNameByTemplateId(state.currentEquipDetailItem?.TemplateId),
+      },
+      actionButton,
+    );
   }
 };
 
@@ -1303,7 +1486,8 @@ app.initEquipResonanceSharedFeature = () => {
   if (resonanceEls.sortNameBtn instanceof HTMLElement) {
     resonanceEls.sortNameBtn.addEventListener('click', () => {
       if (resonanceEls.modal instanceof HTMLElement && resonanceEls.modal.hidden) return;
-      state._resonanceEffectModalSortOrder = state._resonanceEffectModalSortOrder === 'asc' ? 'desc' : 'asc';
+      state._resonanceEffectModalSortOrder =
+        state._resonanceEffectModalSortOrder === 'asc' ? 'desc' : 'asc';
       app.syncEquipResonanceEffectSortArrow();
       app.renderEquipResonanceEffectModalRows();
     });
@@ -1319,16 +1503,25 @@ app.initEquipResonanceSharedFeature = () => {
       const templateId = Number(row.dataset.resonanceEffectTemplateId);
       if (!Number.isFinite(effectType) || !Number.isFinite(templateId)) return;
       const nameCell = row.querySelector('.resonance-effect-name');
-      const effectName = nameCell instanceof HTMLElement ? nameCell.textContent?.trim() ?? '' : '';
+      const effectName =
+        nameCell instanceof HTMLElement ? (nameCell.textContent?.trim() ?? '') : '';
       const descCell = row.querySelector('.resonance-effect-description');
-      const effectDescription = descCell instanceof HTMLElement ? descCell.textContent?.trim() ?? '' : '';
-      state._resonanceEffectModalSelectedEntry = { type: effectType, template_id: templateId, name: effectName, description: effectDescription };
+      const effectDescription =
+        descCell instanceof HTMLElement ? (descCell.textContent?.trim() ?? '') : '';
+      state._resonanceEffectModalSelectedEntry = {
+        type: effectType,
+        template_id: templateId,
+        name: effectName,
+        description: effectDescription,
+      };
       app.renderEquipResonanceEffectModalRows();
     });
   }
 
   if (resonanceEls.confirmButton instanceof HTMLElement) {
-    resonanceEls.confirmButton.addEventListener('click', () => app.closeEquipResonanceEffectModal(true));
+    resonanceEls.confirmButton.addEventListener('click', () =>
+      app.closeEquipResonanceEffectModal(true),
+    );
   }
 
   resonanceEls.closeTargets.forEach((target) => {
@@ -1351,11 +1544,17 @@ app.initEquipResonanceSharedFeature = () => {
   });
 
   if (weaponResonanceCharacterPickerSummary instanceof HTMLElement) {
-    weaponResonanceCharacterPickerSummary.addEventListener('click', app.handleEquipCharacterPickerSummaryClick);
+    weaponResonanceCharacterPickerSummary.addEventListener(
+      'click',
+      app.handleEquipCharacterPickerSummaryClick,
+    );
   }
 
   if (weaponResonanceCharacterPickerGrid instanceof HTMLElement) {
-    weaponResonanceCharacterPickerGrid.addEventListener('click', app.handleEquipCharacterPickerClick);
+    weaponResonanceCharacterPickerGrid.addEventListener(
+      'click',
+      app.handleEquipCharacterPickerClick,
+    );
   }
 
   if (weaponResonanceCharacterPickerConfirmButton instanceof HTMLButtonElement) {
@@ -1368,13 +1567,20 @@ app.initEquipResonanceSharedFeature = () => {
     weaponResonanceCharacterPickerModal.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target === weaponResonanceCharacterPickerModal || target.classList.contains('shared-modal-backdrop')) {
+      if (
+        target === weaponResonanceCharacterPickerModal ||
+        target.classList.contains('shared-modal-backdrop')
+      ) {
         app.closeEquipCharacterPickerModal(false);
       }
     });
 
     weaponResonanceCharacterPickerModal.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-character-picker-id]')) {
+      if (
+        event.key === 'Enter' &&
+        event.target instanceof HTMLElement &&
+        event.target.closest('[data-character-picker-id]')
+      ) {
         event.preventDefault();
         app.closeEquipCharacterPickerModal(true);
       }

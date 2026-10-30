@@ -24,7 +24,8 @@ app.getAddableItemCatalog = () => {
 app._itemAddSortFields = ['item_id', 'name'];
 
 app._syncItemAddSortArrows = () => {
-  const table = itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
+  const table =
+    itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -74,7 +75,8 @@ app.compareItemAddCatalogEntries = (left, right) => {
 app.getFilteredAddableItemCatalog = () => {
   const keyword = state.itemAddSearchKeyword.trim().toLowerCase();
   const direction = state.itemAddSortOrder === 'desc' ? -1 : 1;
-  return app.getAddableItemCatalog()
+  return app
+    .getAddableItemCatalog()
     .filter((item) => !keyword || item.itemName.toLowerCase().includes(keyword))
     .sort((left, right) => app.compareItemAddCatalogEntries(left, right) * direction)
     .slice(0, ITEM_ADD_VISIBLE_LIMIT);
@@ -86,10 +88,11 @@ app.renderItemAddModalRows = () => {
   }
 
   const items = app.getFilteredAddableItemCatalog();
-  itemAddTableBody.innerHTML = items.map((item) => {
-    const draftQuantity = state.itemAddDraftQuantities?.[item.itemId] ?? '';
-    const validationMessage = draftQuantity ? app.validateItemQuantity(draftQuantity) : '';
-    return `
+  itemAddTableBody.innerHTML = items
+    .map((item) => {
+      const draftQuantity = state.itemAddDraftQuantities?.[item.itemId] ?? '';
+      const validationMessage = draftQuantity ? app.validateItemQuantity(draftQuantity) : '';
+      return `
       <tr>
         <td>${item.itemId}</td>
         <td>${item.itemName}</td>
@@ -105,7 +108,8 @@ app.renderItemAddModalRows = () => {
         </td>
       </tr>
     `;
-  }).join('');
+    })
+    .join('');
 
   itemAddEmptyState.hidden = items.length > 0;
 };
@@ -236,7 +240,8 @@ export const initDatabaseItemAddModalFeature = () => {
     });
   }
 
-  const itemAddTable = itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
+  const itemAddTable =
+    itemAddModal instanceof HTMLElement ? itemAddModal.querySelector('.item-add-table') : null;
   if (itemAddTable instanceof HTMLElement) {
     itemAddTable.addEventListener('click', (event) => {
       const target = event.target;

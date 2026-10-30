@@ -18,25 +18,33 @@ const {
 
 app.renderSelectedAccountBadge = () => {
   if (databaseSelectedAccountLabel instanceof HTMLElement) {
-    databaseSelectedAccountLabel.textContent = app.translate('dashboard.selectedUser', { uid: state.selectedAccountUid ?? app.translate('common.notAvailable') });
+    databaseSelectedAccountLabel.textContent = app.translate('dashboard.selectedUser', {
+      uid: state.selectedAccountUid ?? app.translate('common.notAvailable'),
+    });
   }
 };
 
 app.updateAccountSelectionUi = () => {
   if (databaseAccountsBody instanceof HTMLElement) {
-    Array.from(databaseAccountsBody.querySelectorAll('[data-account-action="select"]')).forEach((button) => {
-      if (!(button instanceof HTMLButtonElement)) {
-        return;
-      }
+    Array.from(databaseAccountsBody.querySelectorAll('[data-account-action="select"]')).forEach(
+      (button) => {
+        if (!(button instanceof HTMLButtonElement)) {
+          return;
+        }
 
-      const uid = app.normalizeAccountUid(button.dataset.accountUid);
-      const isSelected = uid !== null && uid === state.selectedAccountUid;
-      const isPending = uid !== null && uid === state.accountSelectionPendingUid;
+        const uid = app.normalizeAccountUid(button.dataset.accountUid);
+        const isSelected = uid !== null && uid === state.selectedAccountUid;
+        const isPending = uid !== null && uid === state.accountSelectionPendingUid;
 
-      button.textContent = isSelected ? app.translate('dashboard.accountSelected') : (isPending ? app.translate('dashboard.accountSelecting') : app.translate('dashboard.accountSelect'));
-      button.disabled = isSelected || isPending || state.accountSelectionPendingUid !== null;
-      button.classList.toggle('is-selected', isSelected);
-    });
+        button.textContent = isSelected
+          ? app.translate('dashboard.accountSelected')
+          : isPending
+            ? app.translate('dashboard.accountSelecting')
+            : app.translate('dashboard.accountSelect');
+        button.disabled = isSelected || isPending || state.accountSelectionPendingUid !== null;
+        button.classList.toggle('is-selected', isSelected);
+      },
+    );
   }
 
   app.renderSelectedAccountBadge();
@@ -142,14 +150,23 @@ app.updateAccountsPagination = () => {
   }
 
   if (databaseAccountsPrevButton instanceof HTMLButtonElement) {
-    databaseAccountsPrevButton.disabled = state.accountsLoading || state.accountsCurrentPage <= 1 || state.accountsTotalPages === 0 || !app.isDatabaseHealthy();
+    databaseAccountsPrevButton.disabled =
+      state.accountsLoading ||
+      state.accountsCurrentPage <= 1 ||
+      state.accountsTotalPages === 0 ||
+      !app.isDatabaseHealthy();
   }
 
   if (databaseAccountsNextButton instanceof HTMLButtonElement) {
-    databaseAccountsNextButton.disabled = state.accountsLoading || state.accountsTotalPages === 0 || state.accountsCurrentPage >= state.accountsTotalPages || !app.isDatabaseHealthy();
+    databaseAccountsNextButton.disabled =
+      state.accountsLoading ||
+      state.accountsTotalPages === 0 ||
+      state.accountsCurrentPage >= state.accountsTotalPages ||
+      !app.isDatabaseHealthy();
   }
 
-  const jumpDisabled = state.accountsLoading || state.accountsTotalPages === 0 || !app.isDatabaseHealthy();
+  const jumpDisabled =
+    state.accountsLoading || state.accountsTotalPages === 0 || !app.isDatabaseHealthy();
 
   if (databaseAccountsJumpInput instanceof HTMLInputElement) {
     databaseAccountsJumpInput.disabled = jumpDisabled;
@@ -165,7 +182,10 @@ app.submitAccountsPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseAccountsJumpInput.value, state.accountsTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseAccountsJumpInput.value,
+    state.accountsTotalPages,
+  );
   databaseAccountsJumpInput.value = '';
 
   if (targetPage === null || targetPage === state.accountsCurrentPage) {
@@ -180,19 +200,46 @@ app.renderAccountRows = (items) => {
     return;
   }
 
-  databaseAccountsBody.innerHTML = items.map((item) => `
-    <tr>
-      <td>${item?.uid ?? '--'}</td>
-      <td>${item?.username ?? '--'}</td>
-      <td>
-        <div class="accounts-row-actions">
-          <button class="status-action-button status-action-button-log" type="button" data-account-action="select" data-account-uid="${item?.uid ?? ''}">${app.translate('dashboard.accountSelect')}</button>
-          <button class="status-action-button status-action-button-config" type="button" data-account-action="password" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">${app.translate('dashboard.accountResetPassword')}</button>
-          <button class="status-action-button status-action-button-stop" type="button" data-account-action="delete" data-account-uid="${item?.uid ?? ''}" data-account-username="${item?.username ?? ''}">${app.translate('dashboard.accountDelete')}</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
+  databaseAccountsBody.innerHTML = items
+    .map(
+      (item) => /* HTML */ `
+        <tr>
+          <td>${item?.uid ?? '--'}</td>
+          <td>${item?.username ?? '--'}</td>
+          <td>
+            <div class="accounts-row-actions">
+              <button
+                class="status-action-button status-action-button-log"
+                type="button"
+                data-account-action="select"
+                data-account-uid="${item?.uid ?? ''}"
+              >
+                ${app.translate('dashboard.accountSelect')}
+              </button>
+              <button
+                class="status-action-button status-action-button-config"
+                type="button"
+                data-account-action="password"
+                data-account-uid="${item?.uid ?? ''}"
+                data-account-username="${item?.username ?? ''}"
+              >
+                ${app.translate('dashboard.accountResetPassword')}
+              </button>
+              <button
+                class="status-action-button status-action-button-stop"
+                type="button"
+                data-account-action="delete"
+                data-account-uid="${item?.uid ?? ''}"
+                data-account-username="${item?.username ?? ''}"
+              >
+                ${app.translate('dashboard.accountDelete')}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `,
+    )
+    .join('');
 
   app.updateAccountSelectionUi();
 };
@@ -288,12 +335,16 @@ app.updateDatabaseAccountsAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (databaseAccountsSubnavButton instanceof HTMLButtonElement) {
     databaseAccountsSubnavButton.disabled = !healthy;
-    databaseAccountsSubnavButton.title = healthy ? '' : app.translate('runtime.accountsAccessTitle');
+    databaseAccountsSubnavButton.title = healthy
+      ? ''
+      : app.translate('runtime.accountsAccessTitle');
   }
 
   if (databaseAccountsSummary instanceof HTMLElement) {
     databaseAccountsSummary.textContent = healthy
-      ? (state.accountsHasLoaded ? app.translate('dashboard.accountsLoaded') : app.translate('dashboard.accountsReady'))
+      ? state.accountsHasLoaded
+        ? app.translate('dashboard.accountsLoaded')
+        : app.translate('dashboard.accountsReady')
       : app.translate('dashboard.accountsUnavailable');
   }
 
@@ -347,18 +398,24 @@ app.handleAccountActionClick = (event) => {
   }
 
   if (button.dataset.accountAction === 'password') {
-    app.openAccountPasswordModal({
-      uid: app.normalizeAccountUid(button.dataset.accountUid),
-      username: button.dataset.accountUsername ?? '',
-    }, button);
+    app.openAccountPasswordModal(
+      {
+        uid: app.normalizeAccountUid(button.dataset.accountUid),
+        username: button.dataset.accountUsername ?? '',
+      },
+      button,
+    );
     return;
   }
 
   if (button.dataset.accountAction === 'delete') {
-    app.openAccountDeleteModal({
-      uid: app.normalizeAccountUid(button.dataset.accountUid),
-      username: button.dataset.accountUsername ?? '',
-    }, button);
+    app.openAccountDeleteModal(
+      {
+        uid: app.normalizeAccountUid(button.dataset.accountUid),
+        username: button.dataset.accountUsername ?? '',
+      },
+      button,
+    );
   }
 };
 
@@ -386,13 +443,16 @@ app.loadDatabaseAccounts = async (page = 1) => {
     const payload = await app.apiFetch(`/api/database-accounts?${params.toString()}`);
 
     const items = Array.isArray(payload?.items) ? payload.items : [];
-    state.accountsCurrentPage = typeof payload?.page === 'number' ? payload.page : state.accountsCurrentPage;
+    state.accountsCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.accountsCurrentPage;
     state.accountsTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.accountsHasLoaded = true;
 
     if (databaseAccountsSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseAccountsSummary.textContent = app.translate('dashboard.accountsSummaryTotal', { total });
+      databaseAccountsSummary.textContent = app.translate('dashboard.accountsSummaryTotal', {
+        total,
+      });
     }
 
     if (items.length === 0) {

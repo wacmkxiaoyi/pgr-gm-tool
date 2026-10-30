@@ -82,21 +82,35 @@ app.showStageManagementTable = () => {
 
 app.updateStageManagementPagination = () => {
   if (databaseStageManagementPaginationLabel instanceof HTMLElement) {
-    databaseStageManagementPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
-      page: state.stageManagementTotalPages === 0 ? 0 : state.stageManagementCurrentPage,
-      totalPages: state.stageManagementTotalPages,
-    });
+    databaseStageManagementPaginationLabel.textContent = app.translate(
+      'dashboard.accountsPagination',
+      {
+        page: state.stageManagementTotalPages === 0 ? 0 : state.stageManagementCurrentPage,
+        totalPages: state.stageManagementTotalPages,
+      },
+    );
   }
 
   if (databaseStageManagementPrevButton instanceof HTMLButtonElement) {
-    databaseStageManagementPrevButton.disabled = state.stageManagementLoading || state.stageManagementCurrentPage <= 1 || state.stageManagementTotalPages === 0 || !app.canAccessStageManagement();
+    databaseStageManagementPrevButton.disabled =
+      state.stageManagementLoading ||
+      state.stageManagementCurrentPage <= 1 ||
+      state.stageManagementTotalPages === 0 ||
+      !app.canAccessStageManagement();
   }
 
   if (databaseStageManagementNextButton instanceof HTMLButtonElement) {
-    databaseStageManagementNextButton.disabled = state.stageManagementLoading || state.stageManagementTotalPages === 0 || state.stageManagementCurrentPage >= state.stageManagementTotalPages || !app.canAccessStageManagement();
+    databaseStageManagementNextButton.disabled =
+      state.stageManagementLoading ||
+      state.stageManagementTotalPages === 0 ||
+      state.stageManagementCurrentPage >= state.stageManagementTotalPages ||
+      !app.canAccessStageManagement();
   }
 
-  const jumpDisabled = state.stageManagementLoading || state.stageManagementTotalPages === 0 || !app.canAccessStageManagement();
+  const jumpDisabled =
+    state.stageManagementLoading ||
+    state.stageManagementTotalPages === 0 ||
+    !app.canAccessStageManagement();
   if (databaseStageManagementJumpInput instanceof HTMLInputElement) {
     databaseStageManagementJumpInput.disabled = jumpDisabled;
   }
@@ -111,7 +125,10 @@ app.submitStageManagementPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseStageManagementJumpInput.value, state.stageManagementTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseStageManagementJumpInput.value,
+    state.stageManagementTotalPages,
+  );
   databaseStageManagementJumpInput.value = '';
   if (targetPage === null || targetPage === state.stageManagementCurrentPage) {
     return;
@@ -125,37 +142,54 @@ app.renderStageRows = (items) => {
     return;
   }
 
-  databaseStageManagementBody.innerHTML = Array.isArray(items) ? items.map((item) => {
-    const stageId = Number.parseInt(String(item?.stage_id ?? ''), 10);
-    const safeStageId = Number.isFinite(stageId) ? stageId : null;
-    const stageName = app.getStageNameById(safeStageId);
-    const stageDescription = app.getStageDescriptionById(safeStageId);
-    const escapedDescription = app.escapeHtml(stageDescription);
-    const tooltipAttr = stageDescription && stageDescription !== '--'
-      ? ` data-stage-tooltip-text="${escapedDescription}" tabindex="0"`
-      : '';
+  databaseStageManagementBody.innerHTML = Array.isArray(items)
+    ? items
+        .map((item) => {
+          const stageId = Number.parseInt(String(item?.stage_id ?? ''), 10);
+          const safeStageId = Number.isFinite(stageId) ? stageId : null;
+          const stageName = app.getStageNameById(safeStageId);
+          const stageDescription = app.getStageDescriptionById(safeStageId);
+          const escapedDescription = app.escapeHtml(stageDescription);
+          const tooltipAttr =
+            stageDescription && stageDescription !== '--'
+              ? ` data-stage-tooltip-text="${escapedDescription}" tabindex="0"`
+              : '';
 
-    return `
-      <tr>
-        <td>${safeStageId ?? '--'}</td>
-        <td>${app.escapeHtml(stageName)}</td>
-        <td>
-          <span class="stage-management-description"${tooltipAttr}>${escapedDescription}</span>
-        </td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-stop" type="button" data-stage-management-action="delete" data-stage-id="${safeStageId ?? ''}" data-stage-name="${app.escapeHtml(stageName)}">${app.translate('dashboard.stageManagementDelete')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('') : '';
+          return /* HTML */ `
+            <tr>
+              <td>${safeStageId ?? '--'}</td>
+              <td>${app.escapeHtml(stageName)}</td>
+              <td>
+                <span class="stage-management-description" ${tooltipAttr}>
+                  ${escapedDescription}
+                </span>
+              </td>
+              <td>
+                <div class="accounts-row-actions">
+                  <button
+                    class="status-action-button status-action-button-stop"
+                    type="button"
+                    data-stage-management-action="delete"
+                    data-stage-id="${safeStageId ?? ''}"
+                    data-stage-name="${app.escapeHtml(stageName)}"
+                  >
+                    ${app.translate('dashboard.stageManagementDelete')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('')
+    : '';
 };
 
 app._stageManagementSortFields = ['stage_id', 'name'];
 
 app._syncStageManagementSortArrows = () => {
-  const table = document.querySelector('#database-stage-management-section .stage-management-table');
+  const table = document.querySelector(
+    '#database-stage-management-section .stage-management-table',
+  );
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -240,13 +274,18 @@ app.loadSelectedAccountStages = async (page = 1) => {
 
     const payload = await app.apiFetch(`/api/database-stages/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
-    state.stageManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.stageManagementCurrentPage;
-    state.stageManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    state.stageManagementCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.stageManagementCurrentPage;
+    state.stageManagementTotalPages =
+      typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.stageManagementHasLoaded = true;
 
     if (databaseStageManagementSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseStageManagementSummary.textContent = app.translate('dashboard.stageManagementSummaryTotal', { total });
+      databaseStageManagementSummary.textContent = app.translate(
+        'dashboard.stageManagementSummaryTotal',
+        { total },
+      );
       databaseStageManagementSummary.hidden = false;
     }
 
@@ -264,7 +303,10 @@ app.loadSelectedAccountStages = async (page = 1) => {
     if (databaseStageManagementBody instanceof HTMLElement) {
       databaseStageManagementBody.innerHTML = '';
     }
-    app.setStageManagementState(app.apiErrorMessage(error, 'runtime.stageManagementLoadFailed'), 'is-error');
+    app.setStageManagementState(
+      app.apiErrorMessage(error, 'runtime.stageManagementLoadFailed'),
+      'is-error',
+    );
   } finally {
     state.stageManagementLoading = false;
     app.updateStageManagementPagination();
@@ -274,7 +316,10 @@ app.loadSelectedAccountStages = async (page = 1) => {
 app.reloadStageManagementCurrentPage = async () => {
   const targetPage = Math.max(1, state.stageManagementCurrentPage);
   await app.loadSelectedAccountStages(targetPage);
-  if (state.stageManagementTotalPages > 0 && state.stageManagementCurrentPage > state.stageManagementTotalPages) {
+  if (
+    state.stageManagementTotalPages > 0 &&
+    state.stageManagementCurrentPage > state.stageManagementTotalPages
+  ) {
     await app.loadSelectedAccountStages(state.stageManagementTotalPages);
   }
 };
@@ -289,9 +334,13 @@ app.updateStageManagementAccess = (payload = state.databaseHealthSnapshot) => {
   if (databaseStageManagementSubnavButton instanceof HTMLButtonElement) {
     databaseStageManagementSubnavButton.disabled = !accessible;
     if (!healthy) {
-      databaseStageManagementSubnavButton.title = app.translate('runtime.stageManagementAccessTitle');
+      databaseStageManagementSubnavButton.title = app.translate(
+        'runtime.stageManagementAccessTitle',
+      );
     } else if (state.selectedAccountUid === null) {
-      databaseStageManagementSubnavButton.title = app.translate('runtime.stageManagementNeedAccountTitle');
+      databaseStageManagementSubnavButton.title = app.translate(
+        'runtime.stageManagementNeedAccountTitle',
+      );
     } else {
       databaseStageManagementSubnavButton.title = '';
     }
@@ -322,7 +371,10 @@ app.updateStageManagementAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (state.selectedAccountUid === null) {
     app.resetStageManagementView();
-    app.setStageManagementState(app.translate('dashboard.stageManagementChooseAccount'), 'is-muted');
+    app.setStageManagementState(
+      app.translate('dashboard.stageManagementChooseAccount'),
+      'is-muted',
+    );
     if (app.isDatabaseStageManagementSectionActive()) {
       app.setActiveDatabaseTab('database-accounts-section');
     }
@@ -377,11 +429,12 @@ app.positionStageDescriptionTooltip = () => {
   const margin = 12;
   const gap = 8;
 
-  let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+  let left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
   let top = targetRect.bottom + gap;
 
   if (left < margin) left = margin;
-  else if (left + tooltipRect.width > viewportWidth - margin) left = viewportWidth - tooltipRect.width - margin;
+  else if (left + tooltipRect.width > viewportWidth - margin)
+    left = viewportWidth - tooltipRect.width - margin;
 
   if (top + tooltipRect.height > viewportHeight - margin) {
     const above = targetRect.top - tooltipRect.height - gap;
@@ -398,7 +451,10 @@ app.showStageDescriptionTooltip = (target) => {
     return;
   }
 
-  const text = typeof target.dataset.stageTooltipText === 'string' ? target.dataset.stageTooltipText.trim() : '';
+  const text =
+    typeof target.dataset.stageTooltipText === 'string'
+      ? target.dataset.stageTooltipText.trim()
+      : '';
   if (!text) {
     app.hideStageDescriptionTooltip();
     return;
@@ -410,10 +466,16 @@ app.showStageDescriptionTooltip = (target) => {
 
   stageDescriptionTooltip.textContent = text;
   const isFurnitureSummary = target.id === 'furniture-additions-open';
-  stageDescriptionTooltip.classList.toggle('furniture-additions-summary-tooltip', isFurnitureSummary);
+  stageDescriptionTooltip.classList.toggle(
+    'furniture-additions-summary-tooltip',
+    isFurnitureSummary,
+  );
   if (isFurnitureSummary) {
     const height = Math.min(300, window.innerHeight * 0.4);
-    stageDescriptionTooltip.style.setProperty('--tooltip-lines', String(Math.max(1, Math.floor((height - 20) / 19.2))));
+    stageDescriptionTooltip.style.setProperty(
+      '--tooltip-lines',
+      String(Math.max(1, Math.floor((height - 20) / 19.2))),
+    );
   }
   stageDescriptionTooltip.hidden = false;
   stageDescriptionTooltip.style.left = '0px';
@@ -450,7 +512,12 @@ app.handleStageDescriptionTooltipEvent = (event) => {
   }
 
   if (event.type === 'mousemove') {
-    if (tooltipTarget instanceof HTMLElement && state.stageDescriptionTooltipTarget === tooltipTarget && stageDescriptionTooltip instanceof HTMLElement && !stageDescriptionTooltip.hidden) {
+    if (
+      tooltipTarget instanceof HTMLElement &&
+      state.stageDescriptionTooltipTarget === tooltipTarget &&
+      stageDescriptionTooltip instanceof HTMLElement &&
+      !stageDescriptionTooltip.hidden
+    ) {
       app.positionStageDescriptionTooltip();
     }
     return;
@@ -498,10 +565,13 @@ app.handleStageManagementActionClick = (event) => {
       return;
     }
 
-    app.openStageDeleteModal({
-      stageId,
-      stageName: button.dataset.stageName ?? app.getStageNameById(stageId),
-    }, button);
+    app.openStageDeleteModal(
+      {
+        stageId,
+        stageName: button.dataset.stageName ?? app.getStageNameById(stageId),
+      },
+      button,
+    );
   }
 };
 
@@ -510,11 +580,26 @@ export const initDatabaseStageManagementFeature = () => {
 
   if (databaseStageManagementShell instanceof HTMLElement) {
     databaseStageManagementShell.addEventListener('click', app.handleStageManagementActionClick);
-    databaseStageManagementShell.addEventListener('mouseover', app.handleStageDescriptionTooltipEvent);
-    databaseStageManagementShell.addEventListener('mousemove', app.handleStageDescriptionTooltipEvent);
-    databaseStageManagementShell.addEventListener('mouseout', app.handleStageDescriptionTooltipEvent);
-    databaseStageManagementShell.addEventListener('focusin', app.handleStageDescriptionTooltipEvent);
-    databaseStageManagementShell.addEventListener('focusout', app.handleStageDescriptionTooltipEvent);
+    databaseStageManagementShell.addEventListener(
+      'mouseover',
+      app.handleStageDescriptionTooltipEvent,
+    );
+    databaseStageManagementShell.addEventListener(
+      'mousemove',
+      app.handleStageDescriptionTooltipEvent,
+    );
+    databaseStageManagementShell.addEventListener(
+      'mouseout',
+      app.handleStageDescriptionTooltipEvent,
+    );
+    databaseStageManagementShell.addEventListener(
+      'focusin',
+      app.handleStageDescriptionTooltipEvent,
+    );
+    databaseStageManagementShell.addEventListener(
+      'focusout',
+      app.handleStageDescriptionTooltipEvent,
+    );
   }
 
   if (databaseStageSearchInput instanceof HTMLInputElement) {
@@ -532,7 +617,9 @@ export const initDatabaseStageManagementFeature = () => {
     });
   }
 
-  const stageManagementTable = document.querySelector('#database-stage-management-section .stage-management-table');
+  const stageManagementTable = document.querySelector(
+    '#database-stage-management-section .stage-management-table',
+  );
   if (stageManagementTable instanceof HTMLElement) {
     stageManagementTable.addEventListener('click', (event) => {
       const target = event.target;

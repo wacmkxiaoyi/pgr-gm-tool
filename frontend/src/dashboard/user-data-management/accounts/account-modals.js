@@ -60,7 +60,10 @@ app.openAccountPasswordModal = (account, trigger) => {
   state.pendingPasswordAccount = account;
   state.lastPasswordTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
   if (accountPasswordTarget instanceof HTMLElement) {
-    const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
+    const username =
+      typeof account?.username === 'string' && account.username
+        ? account.username
+        : app.translate('common.notAvailable');
     accountPasswordTarget.textContent = app.translate('runtime.accountPasswordTarget', {
       uid: account.uid ?? app.translate('common.notAvailable'),
       username,
@@ -76,8 +79,12 @@ app.openAccountPasswordModal = (account, trigger) => {
 };
 
 app.getAccountPasswordValidationMessage = () => {
-  const password = accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
-  const confirmPassword = accountPasswordConfirmInput instanceof HTMLInputElement ? accountPasswordConfirmInput.value : '';
+  const password =
+    accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
+  const confirmPassword =
+    accountPasswordConfirmInput instanceof HTMLInputElement
+      ? accountPasswordConfirmInput.value
+      : '';
 
   if (password.length < 6) {
     return { valid: false, message: app.translate('runtime.accountPasswordTooShort') };
@@ -97,7 +104,10 @@ app.updateAccountPasswordValidationState = () => {
 };
 
 app.submitAccountPasswordReset = async () => {
-  if (!state.pendingPasswordAccount || !(accountPasswordConfirmButton instanceof HTMLButtonElement)) {
+  if (
+    !state.pendingPasswordAccount ||
+    !(accountPasswordConfirmButton instanceof HTMLButtonElement)
+  ) {
     return;
   }
 
@@ -107,7 +117,8 @@ app.submitAccountPasswordReset = async () => {
   }
 
   const targetUid = state.pendingPasswordAccount.uid;
-  const password = accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
+  const password =
+    accountPasswordInput instanceof HTMLInputElement ? accountPasswordInput.value : '';
   accountPasswordConfirmButton.disabled = true;
 
   try {
@@ -120,13 +131,19 @@ app.submitAccountPasswordReset = async () => {
     });
 
     app.closeAccountPasswordModal();
-    app.openSuccessModal(app.translate('runtime.accountPasswordResetSuccess', { uid: targetUid }), app.translate('runtime.accountPasswordResetSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.accountPasswordResetSuccess', { uid: targetUid }),
+      app.translate('runtime.accountPasswordResetSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;
     }
 
-    app.setAccountPasswordFeedback(app.apiErrorMessage(error, 'runtime.accountPasswordResetFailed'), 'is-error');
+    app.setAccountPasswordFeedback(
+      app.apiErrorMessage(error, 'runtime.accountPasswordResetFailed'),
+      'is-error',
+    );
   } finally {
     accountPasswordConfirmButton.disabled = false;
   }
@@ -147,13 +164,20 @@ app.closeAccountDeleteModal = () => {
 };
 
 app.openAccountDeleteModal = (account, trigger) => {
-  if (!(accountDeleteModal instanceof HTMLElement) || !(accountDeleteMessage instanceof HTMLElement)) {
+  if (
+    !(accountDeleteModal instanceof HTMLElement) ||
+    !(accountDeleteMessage instanceof HTMLElement)
+  ) {
     return;
   }
 
   state.pendingDeleteAccount = account;
-  state.lastAccountDeleteTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
-  const username = typeof account?.username === 'string' && account.username ? account.username : app.translate('common.notAvailable');
+  state.lastAccountDeleteTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
+  const username =
+    typeof account?.username === 'string' && account.username
+      ? account.username
+      : app.translate('common.notAvailable');
   accountDeleteMessage.textContent = app.translate('runtime.accountDeleteConfirm', {
     uid: account.uid ?? app.translate('common.notAvailable'),
     username,
@@ -171,7 +195,9 @@ app.removeAccountRow = (uid) => {
     return;
   }
 
-  const row = dom.databaseAccountsBody.querySelector(`button[data-account-action="select"][data-account-uid="${uid}"]`)?.closest('tr');
+  const row = dom.databaseAccountsBody
+    .querySelector(`button[data-account-action="select"][data-account-uid="${uid}"]`)
+    ?.closest('tr');
   if (row instanceof HTMLElement) {
     row.remove();
   }
@@ -204,7 +230,10 @@ app.confirmDeleteAccount = async () => {
 
     app.removeAccountRow(account.uid);
     app.closeAccountDeleteModal();
-    app.openSuccessModal(app.translate('runtime.accountDeleteSuccess', { uid: targetUid }), app.translate('runtime.accountDeleteSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.accountDeleteSuccess', { uid: targetUid }),
+      app.translate('runtime.accountDeleteSuccessTitle'),
+    );
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       return;

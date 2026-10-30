@@ -41,10 +41,14 @@ app.renderPlayerPortraitPicker = () => {
   state.playerPortraitPickerState.totalPages = totalPages;
 
   if (playerPortraitPickerTitle instanceof HTMLElement) {
-    playerPortraitPickerTitle.textContent = app.translate('runtime.portraitPickerTitle', { label: app.getPlayerResourceLabel(field) });
+    playerPortraitPickerTitle.textContent = app.translate('runtime.portraitPickerTitle', {
+      label: app.getPlayerResourceLabel(field),
+    });
   }
   if (playerPortraitPickerEyebrow instanceof HTMLElement) {
-    playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', { label: app.getPlayerResourceLabel(field) });
+    playerPortraitPickerEyebrow.textContent = app.translate('runtime.portraitPickerEyebrow', {
+      label: app.getPlayerResourceLabel(field),
+    });
   }
   if (playerPortraitPickerCurrent instanceof HTMLElement) {
     const currentName = app.getPlayerResourceCurrentName(field);
@@ -52,38 +56,67 @@ app.renderPlayerPortraitPicker = () => {
     const currentUrl = app.getPlayerResourceUrlByField(field, currentValue);
     const escapedLabel = app.escapeHtml(app.translate('runtime.portraitPickerCurrent'));
     const escapedName = app.escapeHtml(currentName || '--');
-    const previewAlt = app.escapeHtml(`${app.getPlayerResourceLabel(field)} ${currentName || '--'}`);
+    const previewAlt = app.escapeHtml(
+      `${app.getPlayerResourceLabel(field)} ${currentName || '--'}`,
+    );
     playerPortraitPickerCurrent.innerHTML = `
       <div class="player-portrait-picker-summary-row">
         <span class="player-portrait-picker-summary-key">${escapedLabel}</span>
         <span class="player-portrait-picker-summary-value">
           <span class="player-portrait-picker-summary-value-media">
             <span class="player-portrait-picker-summary-value-label">${escapedName}</span>
-            ${currentUrl ? `<img class="player-portrait-picker-summary-value-icon${field === 'use_background_id' ? ' is-background' : ''}" src="${currentUrl}" alt="${previewAlt}">` : ''}
+            ${
+              currentUrl
+                ? /* HTML */ `
+                    <img
+                      class="player-portrait-picker-summary-value-icon${field ===
+                      'use_background_id'
+                        ? ' is-background'
+                        : ''}"
+                      src="${currentUrl}"
+                      alt="${previewAlt}"
+                    />
+                  `
+                : ''
+            }
           </span>
         </span>
       </div>
     `;
   }
   if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
-    playerPortraitPickerConfirmButton.disabled = field !== 'head_frame_id' && !Number.isFinite(state.playerPortraitPickerState.selectedId);
+    playerPortraitPickerConfirmButton.disabled =
+      field !== 'head_frame_id' && !Number.isFinite(state.playerPortraitPickerState.selectedId);
   }
 
-  playerPortraitPickerGrid.innerHTML = entries.map((entry) => {
-    const isSelected = entry.id === state.playerPortraitPickerState.selectedId;
-    const isLocked = !app.isPlayerResourceUnlocked(field, entry.id);
-    const url = entry.url || app.getPlayerResourceUrlByField(field, entry.id);
-    const name = app.getPlayerResourceNameByField(field, entry.id) || String(entry.id);
-    return `
-      <button type="button" class="player-portrait-picker-item${isSelected ? ' is-selected' : ''}" data-player-portrait-id="${entry.id}" aria-pressed="${isSelected ? 'true' : 'false'}">
-        <span class="player-portrait-picker-item-preview character-detail-fashion-slot${isLocked ? ' is-locked' : ''}">
-          <img src="${url}" alt="${app.getPlayerResourceLabel(field)} ${entry.id}">
-          ${isLocked ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>' : ''}
-        </span>
-        <strong>${name}</strong>
-      </button>
-    `;
-  }).join('');
+  playerPortraitPickerGrid.innerHTML = entries
+    .map((entry) => {
+      const isSelected = entry.id === state.playerPortraitPickerState.selectedId;
+      const isLocked = !app.isPlayerResourceUnlocked(field, entry.id);
+      const url = entry.url || app.getPlayerResourceUrlByField(field, entry.id);
+      const name = app.getPlayerResourceNameByField(field, entry.id) || String(entry.id);
+      return /* HTML */ `
+        <button
+          type="button"
+          class="player-portrait-picker-item${isSelected ? ' is-selected' : ''}"
+          data-player-portrait-id="${entry.id}"
+          aria-pressed="${isSelected ? 'true' : 'false'}"
+        >
+          <span
+            class="player-portrait-picker-item-preview character-detail-fashion-slot${isLocked
+              ? ' is-locked'
+              : ''}"
+          >
+            <img src="${url}" alt="${app.getPlayerResourceLabel(field)} ${entry.id}" />
+            ${isLocked
+              ? '<span class="character-detail-fashion-slot-lock" aria-hidden="true">🔒</span>'
+              : ''}
+          </span>
+          <strong>${name}</strong>
+        </button>
+      `;
+    })
+    .join('');
 };
 
 app.openPlayerPortraitPicker = (field) => {
@@ -94,7 +127,9 @@ app.openPlayerPortraitPicker = (field) => {
   const currentValue = app.getPlayerProfileEditValue(field);
 
   const availableEntries = app.getPlayerResourcePickerEntries(field);
-  const initialSelectedId = availableEntries.some((entry) => entry.id === currentValue) ? currentValue : null;
+  const initialSelectedId = availableEntries.some((entry) => entry.id === currentValue)
+    ? currentValue
+    : null;
 
   if (state.playerProfileEditState?.field && state.playerProfileEditState.field !== field) {
     app.stopPlayerProfileEdit(state.playerProfileEditState.field);
@@ -114,7 +149,9 @@ app.openPlayerPortraitPicker = (field) => {
     playerPortraitPickerModal.hidden = false;
     app.setBodyModalOpen(true);
     app.renderPlayerPortraitPicker();
-    const firstSelected = playerPortraitPickerGrid?.querySelector?.('.is-selected') ?? playerPortraitPickerGrid?.querySelector?.('button');
+    const firstSelected =
+      playerPortraitPickerGrid?.querySelector?.('.is-selected') ??
+      playerPortraitPickerGrid?.querySelector?.('button');
     if (firstSelected instanceof HTMLElement) {
       firstSelected.focus();
     } else if (playerPortraitPickerConfirmButton instanceof HTMLButtonElement) {
@@ -204,9 +241,8 @@ app.handlePlayerPortraitPickerClick = (event) => {
 
   const { field } = state.playerPortraitPickerState;
   const currentValue = app.getPlayerResourceCurrentValue(field);
-  state.playerPortraitPickerState.selectedId = field === 'head_frame_id' && selectedId === currentValue
-    ? null
-    : selectedId;
+  state.playerPortraitPickerState.selectedId =
+    field === 'head_frame_id' && selectedId === currentValue ? null : selectedId;
   app.renderPlayerPortraitPicker();
 };
 
@@ -236,13 +272,20 @@ export const initDatabasePortraitPickerFeature = () => {
         return;
       }
 
-      if (target === playerPortraitPickerModal || target.classList.contains('shared-modal-backdrop')) {
+      if (
+        target === playerPortraitPickerModal ||
+        target.classList.contains('shared-modal-backdrop')
+      ) {
         app.closePlayerPortraitPicker();
       }
     });
 
     playerPortraitPickerModal.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-player-portrait-id]')) {
+      if (
+        event.key === 'Enter' &&
+        event.target instanceof HTMLElement &&
+        event.target.closest('[data-player-portrait-id]')
+      ) {
         event.preventDefault();
         void app.submitPlayerPortraitPicker();
       }

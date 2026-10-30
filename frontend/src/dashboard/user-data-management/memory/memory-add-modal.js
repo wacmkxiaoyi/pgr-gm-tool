@@ -17,7 +17,9 @@ app.getMemoryAddSearchPriority = (keyword, item) => {
     return 0;
   }
 
-  const memoryName = String(item?.memoryName ?? '').trim().toLowerCase();
+  const memoryName = String(item?.memoryName ?? '')
+    .trim()
+    .toLowerCase();
   if (memoryName.includes(keyword)) {
     return 0;
   }
@@ -38,13 +40,19 @@ app.getAddableMemoryCatalog = () => {
         memoryIconUrl: app.getEquipIconByTemplateId(normalizedTemplateId),
       };
     })
-    .filter((item) => Number.isFinite(item.templateId) && item.memoryName && item.memoryPositionLabel !== '--');
+    .filter(
+      (item) =>
+        Number.isFinite(item.templateId) && item.memoryName && item.memoryPositionLabel !== '--',
+    );
 };
 
 app._memoryAddSortFields = ['star', 'name', 'position'];
 
 app._syncMemoryAddSortArrows = () => {
-  const table = memoryAddModal instanceof HTMLElement ? memoryAddModal.querySelector('.weapon-add-table') : null;
+  const table =
+    memoryAddModal instanceof HTMLElement
+      ? memoryAddModal.querySelector('.weapon-add-table')
+      : null;
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -74,7 +82,10 @@ app._handleMemoryAddSortClick = (sortField) => {
 
 app.compareMemoryAddCatalogEntries = (left, right) => {
   if (state.memoryAddSortBy === 'name') {
-    const comparison = left.memoryName.localeCompare(right.memoryName, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = left.memoryName.localeCompare(right.memoryName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
@@ -90,7 +101,10 @@ app.compareMemoryAddCatalogEntries = (left, right) => {
     }
   }
 
-  const nameComparison = left.memoryName.localeCompare(right.memoryName, state.locale, { numeric: true, sensitivity: 'base' });
+  const nameComparison = left.memoryName.localeCompare(right.memoryName, state.locale, {
+    numeric: true,
+    sensitivity: 'base',
+  });
   if (nameComparison !== 0) {
     return nameComparison;
   }
@@ -101,7 +115,8 @@ app.compareMemoryAddCatalogEntries = (left, right) => {
 app.getFilteredAddableMemoryCatalog = () => {
   const keyword = state.memoryAddSearchKeyword.trim().toLowerCase();
   const direction = state.memoryAddSortOrder === 'asc' ? 1 : -1;
-  return app.getAddableMemoryCatalog()
+  return app
+    .getAddableMemoryCatalog()
     .map((item) => ({
       item,
       searchPriority: app.getMemoryAddSearchPriority(keyword, item),
@@ -119,31 +134,40 @@ app.getFilteredAddableMemoryCatalog = () => {
 };
 
 app.renderMemoryAddModalRows = () => {
-  if (!(memoryAddTableBody instanceof HTMLElement) || !(memoryAddEmptyState instanceof HTMLElement)) {
+  if (
+    !(memoryAddTableBody instanceof HTMLElement) ||
+    !(memoryAddEmptyState instanceof HTMLElement)
+  ) {
     return;
   }
 
   const items = app.getFilteredAddableMemoryCatalog();
   const selectedTemplateIds = new Set(state.memoryAddSelectedTemplateIds ?? []);
-  memoryAddTableBody.innerHTML = items.map((item) => {
-    const selected = selectedTemplateIds.has(item.templateId);
-    return `
-      <tr class="weapon-add-row${selected ? ' is-selected' : ''}" data-memory-add-row="true" data-template-id="${item.templateId}">
-        <td>${app.renderEquipMediaCell(item.memoryIconUrl, item.memoryName)}</td>
-        <td>${app.escapeHtml(item.memoryPositionLabel)}</td>
-        <td>${app.renderEquipStar(item.templateId)}</td>
-        <td>
-          <input
-            class="weapon-add-checkbox"
-            type="checkbox"
-            data-memory-add-select="true"
-            data-template-id="${item.templateId}"
-            ${selected ? 'checked' : ''}
-          >
-        </td>
-      </tr>
-    `;
-  }).join('');
+  memoryAddTableBody.innerHTML = items
+    .map((item) => {
+      const selected = selectedTemplateIds.has(item.templateId);
+      return /* HTML */ `
+        <tr
+          class="weapon-add-row${selected ? ' is-selected' : ''}"
+          data-memory-add-row="true"
+          data-template-id="${item.templateId}"
+        >
+          <td>${app.renderEquipMediaCell(item.memoryIconUrl, item.memoryName)}</td>
+          <td>${app.escapeHtml(item.memoryPositionLabel)}</td>
+          <td>${app.renderEquipStar(item.templateId)}</td>
+          <td>
+            <input
+              class="weapon-add-checkbox"
+              type="checkbox"
+              data-memory-add-select="true"
+              data-template-id="${item.templateId}"
+              ${selected ? 'checked' : ''}
+            />
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 
   memoryAddEmptyState.hidden = items.length > 0;
 };
@@ -193,9 +217,13 @@ app.submitMemoryAddModal = async () => {
     return;
   }
 
-  const templateIds = Array.from(new Set((state.memoryAddSelectedTemplateIds ?? [])
-    .map((templateId) => Number.parseInt(String(templateId), 10))
-    .filter((templateId) => Number.isFinite(templateId))));
+  const templateIds = Array.from(
+    new Set(
+      (state.memoryAddSelectedTemplateIds ?? [])
+        .map((templateId) => Number.parseInt(String(templateId), 10))
+        .filter((templateId) => Number.isFinite(templateId)),
+    ),
+  );
 
   if (templateIds.length === 0) {
     app.openNoticeModal(app.translate('dashboard.memoryAddNoSelection'));
@@ -248,7 +276,10 @@ export const initDatabaseMemoryAddModalFeature = () => {
     });
   }
 
-  const memoryAddTable = memoryAddModal instanceof HTMLElement ? memoryAddModal.querySelector('.weapon-add-table') : null;
+  const memoryAddTable =
+    memoryAddModal instanceof HTMLElement
+      ? memoryAddModal.querySelector('.weapon-add-table')
+      : null;
   if (memoryAddTable instanceof HTMLElement) {
     memoryAddTable.addEventListener('click', (event) => {
       const target = event.target;

@@ -6,6 +6,7 @@ const messages = {
   'zh-CN': {
     common: {
       appName: '战双帕弥什 GM 工具',
+      gameName: '战双帕弥什',
       localeZh: '中文',
       localeEn: 'English',
       confirm: '确认',
@@ -155,7 +156,8 @@ const messages = {
       furnitureDeleteTitle: '确认删除家具',
       furnitureDeleteConfirm: '确定删除「{name}」（行号：{id}）吗？',
       furnitureClearTitle: '确认清理未使用家具',
-      furnitureClearConfirm: '确定删除当前用户全部未使用家具（dormitory_id = -1）吗？此操作不受当前搜索条件影响。',
+      furnitureClearConfirm:
+        '确定删除当前用户全部未使用家具（dormitory_id = -1）吗？此操作不受当前搜索条件影响。',
       furnitureDeleted: '家具已删除。',
       furnitureDeleteProtected: '正在使用的地板、墙和天花板等基础家具不能删除。',
       furnitureCleared: '已清理 {count} 件未使用家具。',
@@ -509,7 +511,8 @@ const messages = {
       languageSwitcherLabel: '语言',
       resonanceEffectEyebrow: '选择',
       resonanceEffectTitle: '共鸣效果',
-      resonanceEffectDescription: '搜索关键词可同时筛选名称和简介，点击名称旁的箭头可切换排序方向。',
+      resonanceEffectDescription:
+        '搜索关键词可同时筛选名称和简介，点击名称旁的箭头可切换排序方向。',
       resonanceEffectSearchPlaceholder: '输入关键词搜索...',
       resonanceEffectDescriptionColumn: '简介',
       resonanceEffectSelectColumn: '选择',
@@ -725,7 +728,8 @@ const messages = {
       itemAddSearchPlaceholder: '输入物品名进行搜索',
       itemAddSubmit: '确认新增',
       itemAddSuccessTitle: '新增完成',
-      itemAddSuccess: '已处理 {addedCount} 种物品，其中新增 {createdCount} 种，累加 {updatedCount} 种。',
+      itemAddSuccess:
+        '已处理 {addedCount} 种物品，其中新增 {createdCount} 种，累加 {updatedCount} 种。',
       itemAddFailed: '新增物品失败',
       weaponAddEyebrow: '新增武器',
       weaponAddTitle: '选择要新增的武器',
@@ -908,21 +912,25 @@ const messages = {
       characterWeaponFashionUpdateFailed: '武器涂装切换失败。',
       characterDetailMaxAllConfirmTitle: '确认一键全满',
       characterDetailMaxAllConfirmSubmit: '确认继续',
-      characterDetailMaxAllConfirm: '角色 {characterName} 当前穿戴的武器与意识会被重建，并穿戴拉满的推荐辅助机；原辅助机会保留。是否继续？',
+      characterDetailMaxAllConfirm:
+        '角色 {characterName} 当前穿戴的武器与意识会被重建，并穿戴拉满的推荐辅助机；原辅助机会保留。是否继续？',
       characterDetailMaxAllSuccessTitle: '设置完成',
       characterDetailMaxAllSuccess: '角色 {characterName} 已一键全满。',
       characterDetailMaxAllFailed: '角色一键全满失败。',
       characterManagementMaxAllConfirmTitle: '确认一键全满',
       characterManagementMaxAllConfirmSubmit: '确认一键全满',
-      characterManagementMaxAllConfirm: '此操作会添加或培养配置完整的角色，重建这些角色已穿戴的武器与意识，并穿戴拉满的推荐辅助机。原辅助机、已有角色技能选择和已解锁涂装会保留；配置缺失的角色会跳过并保留。此操作不可撤销。',
+      characterManagementMaxAllConfirm:
+        '此操作会添加或培养配置完整的角色，重建这些角色已穿戴的武器与意识，并穿戴拉满的推荐辅助机。原辅助机、已有角色技能选择和已解锁涂装会保留；配置缺失的角色会跳过并保留。此操作不可撤销。',
       characterManagementMaxAllSuccessTitle: '设置完成',
-      characterManagementMaxAllSuccess: '已完成一键全满，当前共 {count} 个角色、{equipCount} 件装备、{gatherRewardCount} 条解放奖励。配置缺失而跳过的角色 ID：{skipped}。',
+      characterManagementMaxAllSuccess:
+        '已完成一键全满，当前共 {count} 个角色、{equipCount} 件装备、{gatherRewardCount} 条解放奖励。配置缺失而跳过的角色 ID：{skipped}。',
       characterManagementMaxAllFailed: '角色管理一键全满失败。',
     },
   },
   'en-US': {
     common: {
       appName: 'Punishing Gray Raven GM tool',
+      gameName: 'Punishing Gray Raven',
       localeZh: '中文',
       localeEn: 'English',
       confirm: 'Confirm',
@@ -994,7 +1002,8 @@ const messages = {
       partnerEmpty: 'No matching CUBs.',
       partnerSummary: '{total} CUBs total',
       partnerAddTitle: 'Select CUBs to add',
-      partnerAddDescription: 'Search and sort CUBs, then select multiple entries to add them together.',
+      partnerAddDescription:
+        'Search and sort CUBs, then select multiple entries to add them together.',
       partnerAddSearch: 'Search by name or description',
       partnerNoSelection: 'Select at least one CUB.',
       partnerDeleteTitle: 'Delete CUB',
@@ -1034,11 +1043,13 @@ const messages = {
       furnitureTemplateSearch: 'Search template name',
       furnitureSuitSearch: 'Search set name',
       furnitureGroupNoSelection: 'Select at least one template or set.',
-      furnitureUnlockDescription: 'Rebuild all furniture and unlocks, assigning a floor, wall and ceiling to every existing room.',
+      furnitureUnlockDescription:
+        'Rebuild all furniture and unlocks, assigning a floor, wall and ceiling to every existing room.',
       furnitureAdvanced: 'Advanced options',
       furnitureBaseAttributes: 'Base attributes',
       furnitureAuto: 'Automatic',
-      furnitureAutoDescription: 'Split the maximum for each type evenly; distribute the remainder to Beauty, then Comfort.',
+      furnitureAutoDescription:
+        'Split the maximum for each type evenly; distribute the remainder to Beauty, then Comfort.',
       furnitureCustom: 'Custom',
       furnitureExtraAttributes: 'Additional attributes',
       furnitureExtraTitle: 'Select Additional Attributes',
@@ -1047,7 +1058,8 @@ const messages = {
       furnitureExtraSelected: '{count} selected: {ids}',
       furnitureExtraNone: 'No additional attributes selected',
       furnitureAddNoSelection: 'Select at least one furniture item.',
-      furnitureInvalidAttributes: 'Beauty, Comfort and Utility must be integers between 0 and 9999999.',
+      furnitureInvalidAttributes:
+        'Beauty, Comfort and Utility must be integers between 0 and 9999999.',
       furnitureAdded: 'Added {count} furniture items.',
       furnitureAddSubmit: 'Add Furniture',
       furnitureUnlocked: 'Rebuilt all furniture: {count} items.',
@@ -1060,7 +1072,8 @@ const messages = {
       furnitureUtility: 'Utility',
       furnitureAddition: 'Additional Attribute',
       furnitureNone: 'None',
-      furnitureSearch: 'Search name, type, description, set, stats or additional attribute; press Enter',
+      furnitureSearch:
+        'Search name, type, description, set, stats or additional attribute; press Enter',
       furnitureChooseAccount: 'Select a user in Accounts first.',
       furnitureUnavailable: 'Furnitures requires a healthy database and a selected user.',
       furnitureReady: 'Open this tab to view furniture for the selected user.',
@@ -1072,9 +1085,11 @@ const messages = {
       furnitureDeleteTitle: 'Confirm Delete Furniture',
       furnitureDeleteConfirm: 'Delete “{name}” (row: {id})?',
       furnitureClearTitle: 'Confirm Clear Unused Furniture',
-      furnitureClearConfirm: 'Delete all unused furniture (dormitory_id = -1) for the selected user? The current search filter does not affect this operation.',
+      furnitureClearConfirm:
+        'Delete all unused furniture (dormitory_id = -1) for the selected user? The current search filter does not affect this operation.',
       furnitureDeleted: 'Furniture deleted.',
-      furnitureDeleteProtected: 'In-use floors, walls, ceilings and other basic furnishings cannot be deleted.',
+      furnitureDeleteProtected:
+        'In-use floors, walls, ceilings and other basic furnishings cannot be deleted.',
       furnitureCleared: 'Cleared {count} unused furniture items.',
       stageManagementTab: 'Battles',
       selectedUser: 'UID: {uid}',
@@ -1108,8 +1123,10 @@ const messages = {
       playerProfileChooseAccount: 'Select an account in the Accounts tab first.',
       characterManagementTitle: 'Character Management',
       characterManagementChooseAccount: 'Select an account in the Accounts tab first.',
-      characterManagementUnavailable: 'Available only when the database service is healthy and a user is selected',
-      characterManagementReady: 'Open this tab to view the character list for the currently selected user.',
+      characterManagementUnavailable:
+        'Available only when the database service is healthy and a user is selected',
+      characterManagementReady:
+        'Open this tab to view the character list for the currently selected user.',
       characterManagementLoading: 'Loading character list...',
       characterManagementEmpty: 'No eligible characters are available for the current user.',
       characterManagementSummaryTotal: '{total} characters total, 10 per page',
@@ -1199,8 +1216,10 @@ const messages = {
       characterAwakenLevel5: 'Infinitas',
       weaponManagementTitle: 'Weapon Management',
       weaponManagementChooseAccount: 'Select an account in the Accounts tab first.',
-      weaponManagementUnavailable: 'Available only when the database service is healthy and a user is selected',
-      weaponManagementReady: 'Open this tab to view the weapon list for the currently selected user.',
+      weaponManagementUnavailable:
+        'Available only when the database service is healthy and a user is selected',
+      weaponManagementReady:
+        'Open this tab to view the weapon list for the currently selected user.',
       weaponManagementLoading: 'Loading weapon list...',
       weaponManagementEmpty: 'No eligible weapons are available for the current user.',
       weaponManagementSummaryTotal: '{total} weapons total, 10 per page',
@@ -1246,9 +1265,11 @@ const messages = {
       equipDetailCharPickerDesc: 'Choose a character to bind to this resonance slot.',
       equipDetailCharPickerEquippedCharacter: 'Current Equipped Character',
       equipDetailCharPickerConfirm: 'Confirm',
-      equipDetailResonanceBindCharFirst: 'Please bind a character to this slot before selecting a resonance effect.',
+      equipDetailResonanceBindCharFirst:
+        'Please bind a character to this slot before selecting a resonance effect.',
       equipDetailResonanceBindCharBeforeSave: 'Please bind a character to this slot before saving.',
-      equipDetailResonanceSelectEffectBeforeSave: 'Please select a resonance effect for this slot before saving.',
+      equipDetailResonanceSelectEffectBeforeSave:
+        'Please select a resonance effect for this slot before saving.',
       equipDetailCannotGetEquipInfo: 'Cannot retrieve equip information.',
       equipDetailCannotGetRecordId: 'Cannot retrieve equip record ID.',
       equipDetailResonanceSaveFailed: 'Failed to save resonance.',
@@ -1262,7 +1283,8 @@ const messages = {
       weaponDetailOverrunPickerEyebrow: 'Harmony',
       weaponDetailOverrunPickerTitle: 'Select Harmony',
       weaponDetailOverrunPickerCurrent: 'Current Selection:',
-      weaponDetailOverrunSavePending: 'Harmony save is not wired to the backend yet. The current selection is only previewed locally.',
+      weaponDetailOverrunSavePending:
+        'Harmony save is not wired to the backend yet. The current selection is only previewed locally.',
       equipDetailClose: 'Close',
       equipDetailNoSkill: '(No skill)',
       characterWeaponSwitchEyebrow: 'Character Gear',
@@ -1299,8 +1321,10 @@ const messages = {
       characterMemorySwitchCancel: 'Cancel',
       memoryManagementTitle: 'Memory Management',
       memoryManagementChooseAccount: 'Select an account in the Accounts tab first.',
-      memoryManagementUnavailable: 'Available only when the database service is healthy and a user is selected',
-      memoryManagementReady: 'Open this tab to view the memory list for the currently selected user.',
+      memoryManagementUnavailable:
+        'Available only when the database service is healthy and a user is selected',
+      memoryManagementReady:
+        'Open this tab to view the memory list for the currently selected user.',
       memoryManagementLoading: 'Loading memory list...',
       memoryManagementEmpty: 'No eligible memories are available for the current user.',
       memoryManagementSummaryTotal: '{total} memories total, 10 per page',
@@ -1312,7 +1336,8 @@ const messages = {
       memoryAddNoSelection: 'Choose at least one memory before submitting.',
       itemManagementTitle: 'Item Management',
       itemManagementChooseAccount: 'Select an account in the Accounts tab first.',
-      itemManagementUnavailable: 'Available only when the database service is healthy and a user is selected',
+      itemManagementUnavailable:
+        'Available only when the database service is healthy and a user is selected',
       itemManagementReady: 'Open this tab to view the item list for the currently selected user.',
       itemManagementLoading: 'Loading item list...',
       itemManagementEmpty: 'No eligible items are available for the current user.',
@@ -1336,8 +1361,10 @@ const messages = {
       itemManagementQuantityEditTitle: 'Click, then press Enter to confirm the quantity change',
       stageManagementTitle: 'Stage Battles',
       stageManagementChooseAccount: 'Select an account in the Accounts tab first.',
-      stageManagementUnavailable: 'Available only when the database service is healthy and a user is selected',
-      stageManagementReady: 'Open this tab to view completed stage records for the currently selected user.',
+      stageManagementUnavailable:
+        'Available only when the database service is healthy and a user is selected',
+      stageManagementReady:
+        'Open this tab to view completed stage records for the currently selected user.',
       stageManagementLoading: 'Loading stage records...',
       stageManagementEmpty: 'No stage records are available for the current user.',
       stageManagementSummaryTotal: '{total} stages total, 10 per page',
@@ -1433,7 +1460,8 @@ const messages = {
       languageSwitcherLabel: 'Language',
       resonanceEffectEyebrow: 'Select',
       resonanceEffectTitle: 'Resonance Effect',
-      resonanceEffectDescription: 'Search keywords to filter both names and descriptions. Click the arrow next to the name to toggle sort order.',
+      resonanceEffectDescription:
+        'Search keywords to filter both names and descriptions. Click the arrow next to the name to toggle sort order.',
       resonanceEffectSearchPlaceholder: 'Search by keyword...',
       resonanceEffectDescriptionColumn: 'Description',
       resonanceEffectSelectColumn: 'Select',
@@ -1446,21 +1474,30 @@ const messages = {
       requestInvalidJson: 'Request body format is invalid.',
       authInvalidCredentials: 'Incorrect username or password. Please try again.',
       authSessionInvalid: 'The current session is not authenticated or has expired.',
-      databaseUnhealthyAccountsAccess: 'The database service is not healthy, so account management is unavailable.',
-      databaseUnhealthyAccountSelection: 'The database service is not healthy, so account selection is unavailable.',
-      databaseUnhealthyAccountDelete: 'The database service is not healthy, so account deletion is unavailable.',
-      databaseUnhealthyPasswordReset: 'The database service is not healthy, so password reset is unavailable.',
-      databaseUnhealthyPlayerView: 'The database service is not healthy, so player data is unavailable.',
-      databaseUnhealthyPlayerUpdate: 'The database service is not healthy, so player data cannot be updated.',
-      databaseUnhealthyEquipView: 'The database service is not healthy, so cannot manage equips now.',
+      databaseUnhealthyAccountsAccess:
+        'The database service is not healthy, so account management is unavailable.',
+      databaseUnhealthyAccountSelection:
+        'The database service is not healthy, so account selection is unavailable.',
+      databaseUnhealthyAccountDelete:
+        'The database service is not healthy, so account deletion is unavailable.',
+      databaseUnhealthyPasswordReset:
+        'The database service is not healthy, so password reset is unavailable.',
+      databaseUnhealthyPlayerView:
+        'The database service is not healthy, so player data is unavailable.',
+      databaseUnhealthyPlayerUpdate:
+        'The database service is not healthy, so player data cannot be updated.',
+      databaseUnhealthyEquipView:
+        'The database service is not healthy, so cannot manage equips now.',
       accountNotFound: 'No account was found for the specified UID.',
       accountSelectionRequired: 'Select an account in account management first.',
-      accountSelectedAccountMissing: 'The selected account no longer exists. Please select another one.',
+      accountSelectedAccountMissing:
+        'The selected account no longer exists. Please select another one.',
       accountPasswordTooShort: 'The new password must be at least 6 characters long.',
       playerNotFound: 'No player data was found for the specified UID.',
       playerFieldNotEditable: 'This field cannot be edited.',
       playerNameRequired: 'Nickname is required.',
-      playerNameInvalid: 'Nickname may contain only Chinese or English characters, numbers, spaces, underscores, and hyphens.',
+      playerNameInvalid:
+        'Nickname may contain only Chinese or English characters, numbers, spaces, underscores, and hyphens.',
       playerGenderInvalid: 'Gender must be either male or female.',
       playerIntegerInvalid: 'Enter a valid integer.',
       playerValueBelowZero: 'The value cannot be less than 0.',
@@ -1468,8 +1505,10 @@ const messages = {
       playerHonorLevelInvalid: 'Honor level must be an integer greater than or equal to 0.',
       playerHonorLevelAboveMax: 'Honor level cannot exceed the maximum honor level {max}.',
       playerHonorLevelNotDefined: 'Honor level {level} is not defined in the honor level table.',
-      playerHonorLevelUnavailable: 'Honor level can only be edited when both normal level and EXP are at their maximum.',
-      playerLevelMissing: 'The current player level is missing, so the EXP limit cannot be validated.',
+      playerHonorLevelUnavailable:
+        'Honor level can only be edited when both normal level and EXP are at their maximum.',
+      playerLevelMissing:
+        'The current player level is missing, so the EXP limit cannot be validated.',
       playerLevelNotDefined: 'Level {level} is not defined in the player level table.',
       playerExpAboveMax: 'The maximum EXP allowed for the current level is {max}.',
       playerValueAboveInt32Max: 'The value cannot exceed the 32-bit integer limit {max}.',
@@ -1503,7 +1542,8 @@ const messages = {
       equipsInvalidField: 'This weapon field cannot be edited.',
       characterManagementAddPickerEyebrow: 'Character Select',
       characterManagementAddPickerTitle: 'Add Character',
-      characterManagementAddPickerDescription: 'Select a character the current user does not own yet.',
+      characterManagementAddPickerDescription:
+        'Select a character the current user does not own yet.',
       characterManagementAddLoadFailed: 'Failed to load available characters',
       characterManagementAddAllOwned: 'You already own all characters.',
       characterManagementAddNeedSelection: 'Please select a character first.',
@@ -1513,11 +1553,13 @@ const messages = {
       characterNotFound: 'The character was not found or does not belong to the selected user.',
       serverLogsUnavailable: 'Server logs are not available in the current state.',
       serverConfigUnavailable: 'No server configuration is available.',
-      serverConfigReadonlyWhileRunning: 'Server configuration cannot be modified while the server is running.',
+      serverConfigReadonlyWhileRunning:
+        'Server configuration cannot be modified while the server is running.',
       serverConfigNotFound: 'Configuration file not found: {path}',
       serverConfigReadFailed: 'Failed to read the configuration file.',
       serverConfigInvalidJson: 'Invalid JSON format: {reason} (line {line}, column {column})',
-      serverConfigRootNotObject: 'The top-level value of the configuration file must be a JSON object.',
+      serverConfigRootNotObject:
+        'The top-level value of the configuration file must be a JSON object.',
       serverConfigSaveFailed: 'Failed to save the configuration file.',
       serverStartCommandFailed: 'Failed to run the server start command.',
       serverStartProcessNotDetected: 'No server process was detected after startup.',
@@ -1527,7 +1569,8 @@ const messages = {
       serverLogStreamEndedApi: 'The log stream has ended.',
       serverLogStreamStopped: 'The server has stopped and the log stream has ended.',
       serverLogFileDeleted: 'The log file no longer exists.',
-      databaseUnhealthySelectBlocked: 'The database service is not healthy, so this account cannot be selected right now.',
+      databaseUnhealthySelectBlocked:
+        'The database service is not healthy, so this account cannot be selected right now.',
       clearSelectedAccountFailed: 'Failed to clear the selected account',
       loadSelectedAccountFailed: 'Failed to load the selected account',
       selectAccountFailed: 'Failed to select the account',
@@ -1535,17 +1578,23 @@ const messages = {
       accountsAccessTitle: 'Accounts are available only when the database service is healthy',
       playerProfileAccessTitle: 'User card is available only when the database service is healthy',
       playerProfileNeedAccountTitle: 'Select an account in the Accounts tab first',
-      characterManagementAccessTitle: 'Character management is available only when the database service is healthy and a user is selected',
+      characterManagementAccessTitle:
+        'Character management is available only when the database service is healthy and a user is selected',
       characterManagementNeedAccountTitle: 'Select an account in the Accounts tab first',
-      weaponManagementAccessTitle: 'Weapon management is available only when the database service is healthy and a user is selected',
+      weaponManagementAccessTitle:
+        'Weapon management is available only when the database service is healthy and a user is selected',
       weaponManagementNeedAccountTitle: 'Select an account in the Accounts tab first',
-      memoryManagementAccessTitle: 'Memory management is available only when the database service is healthy and a user is selected',
+      memoryManagementAccessTitle:
+        'Memory management is available only when the database service is healthy and a user is selected',
       memoryManagementNeedAccountTitle: 'Select an account in the Accounts tab first',
-      itemManagementAccessTitle: 'Item management is available only when the database service is healthy and a user is selected',
+      itemManagementAccessTitle:
+        'Item management is available only when the database service is healthy and a user is selected',
       itemManagementNeedAccountTitle: 'Select an account in the Accounts tab first',
-      stageManagementAccessTitle: 'Stage battles are available only when the database service is healthy and a user is selected',
+      stageManagementAccessTitle:
+        'Stage battles are available only when the database service is healthy and a user is selected',
       stageManagementNeedAccountTitle: 'Select an account in the Accounts tab first',
-      playerProfileUnavailable: 'Player data becomes available once the database service is healthy.',
+      playerProfileUnavailable:
+        'Player data becomes available once the database service is healthy.',
       playerProfilePrompt: 'Open this tab to view player data for the currently selected account.',
       playerProfileLoading: 'Loading player data...',
       characterManagementLoadFailed: 'Failed to load character list',
@@ -1557,7 +1606,8 @@ const messages = {
       stageManagementLoadFailed: 'Failed to load stage records',
       stageSkipEyebrow: 'Raw Completion Record',
       stageSkipTitle: 'Select stages to mark complete',
-      stageSkipDescription: 'Writes raw completion records only. It does not grant rewards or synchronize activity, PPC, or trial progress.',
+      stageSkipDescription:
+        'Writes raw completion records only. It does not grant rewards or synchronize activity, PPC, or trial progress.',
       stageSkipSearchPlaceholder: 'Search by stage ID, name, or description',
       stageSkipSelect: 'Select',
       stageSkipSubmit: 'Confirm Add',
@@ -1645,15 +1695,18 @@ const messages = {
       itemQuantityUpdateFailed: 'Failed to update the item quantity',
       itemAddEyebrow: 'Add Items',
       itemAddTitle: 'Choose Items to Add',
-      itemAddDescription: 'Search and sort items, then enter an integer from 1 to 99999 in the quantity column before submitting.',
+      itemAddDescription:
+        'Search and sort items, then enter an integer from 1 to 99999 in the quantity column before submitting.',
       itemAddSearchPlaceholder: 'Search by item name',
       itemAddSubmit: 'Add Items',
       itemAddSuccessTitle: 'Items added',
-      itemAddSuccess: 'Processed {addedCount} item types: created {createdCount}, updated {updatedCount}.',
+      itemAddSuccess:
+        'Processed {addedCount} item types: created {createdCount}, updated {updatedCount}.',
       itemAddFailed: 'Failed to add items',
       weaponAddEyebrow: 'Add Weapon',
       weaponAddTitle: 'Choose Weapons to Add',
-      weaponAddDescription: 'Search and sort weapons, then select multiple entries before submitting.',
+      weaponAddDescription:
+        'Search and sort weapons, then select multiple entries before submitting.',
       weaponAddSearchPlaceholder: 'Search by weapon name or type',
       weaponAddSelect: 'Select',
       weaponAddSubmit: 'Add Weapons',
@@ -1673,7 +1726,8 @@ const messages = {
       characterMemorySwitchNeedSelection: 'Please select a memory first.',
       memoryAddEyebrow: 'Add Memory',
       memoryAddTitle: 'Choose Memories to Add',
-      memoryAddDescription: 'Search and sort memories, then select multiple entries before submitting.',
+      memoryAddDescription:
+        'Search and sort memories, then select multiple entries before submitting.',
       memoryAddSearchPlaceholder: 'Search by memory name',
       memoryAddSelect: 'Select',
       memoryAddSubmit: 'Add Memories',
@@ -1702,7 +1756,8 @@ const messages = {
       playerEditPickerTitle: 'Click to choose {label}',
       playerEditInputTitle: 'Click, then press Enter to confirm',
       playerEditAria: 'Edit {label}',
-      playerEditConfirmRisk: 'The game server is still running. Changes may not take effect and may damage source data. Continue?',
+      playerEditConfirmRisk:
+        'The game server is still running. Changes may not take effect and may damage source data. Continue?',
       playerProfileUpdateFailed: 'Failed to update player data',
       portraitPickerTitle: 'Choose {label}',
       portraitPickerEyebrow: '{label} picker',
@@ -1747,7 +1802,8 @@ const messages = {
       accountPasswordResetSuccessTitle: 'Password reset complete',
       accountPasswordResetSuccess: 'Password for UID {uid} has been reset.',
       accountDeleteConfirm: 'Delete UID {uid} (username {username})?',
-      accountDeleteRemainingEmpty: 'All accounts on the current page were removed. Re-enter the Accounts tab to reload.',
+      accountDeleteRemainingEmpty:
+        'All accounts on the current page were removed. Re-enter the Accounts tab to reload.',
       accountDeleteSuccessTitle: 'Deletion complete',
       accountDeleteSuccess: 'UID {uid} has been removed from the current list.',
       accountDeleteFailed: 'Failed to delete the account',
@@ -1778,7 +1834,8 @@ const messages = {
       configModalTitle: 'Edit Server Config',
       configModalIdle: 'Not loaded',
       configModalPath: 'Config file: {path}',
-      configModalDescription: 'Saving is allowed only while the server is stopped. JSON syntax is validated before save.',
+      configModalDescription:
+        'Saving is allowed only while the server is stopped. JSON syntax is validated before save.',
       configEditorAria: 'config.json editor',
       configReload: 'Reload',
       configSave: 'Save',
@@ -1799,7 +1856,8 @@ const messages = {
       playerEditConfirmEyebrow: 'Risk Warning',
       playerEditConfirmSubmit: 'Edit Anyway',
       playerEditConfirmRiskReset: 'Re-enable Warnings',
-      playerEditConfirmRiskResetTip: 'Risk confirmation re-enabled. You will be prompted again before the next data modification.',
+      playerEditConfirmRiskResetTip:
+        'Risk confirmation re-enabled. You will be prompted again before the next data modification.',
       characterQualityUpdateSuccessTitle: 'Update complete',
       characterQualityUpdateSuccess: 'Character evolution and star have been updated.',
       characterQualityUpdateFailed: 'Failed to update character evolution.',
@@ -1832,15 +1890,18 @@ const messages = {
       characterWeaponFashionUpdateFailed: 'Failed to switch weapon fashion.',
       characterDetailMaxAllConfirmTitle: 'Confirm Max All',
       characterDetailMaxAllConfirmSubmit: 'Continue',
-      characterDetailMaxAllConfirm: 'The weapons and memories equipped by {characterName} will be recreated, and a maxed recommended CUB will be equipped. Existing CUBs are retained. Continue?',
+      characterDetailMaxAllConfirm:
+        'The weapons and memories equipped by {characterName} will be recreated, and a maxed recommended CUB will be equipped. Existing CUBs are retained. Continue?',
       characterDetailMaxAllSuccessTitle: 'Completed',
       characterDetailMaxAllSuccess: 'Character {characterName} is now maxed out.',
       characterDetailMaxAllFailed: 'Failed to max out the character.',
       characterManagementMaxAllConfirmTitle: 'Confirm Max All',
       characterManagementMaxAllConfirmSubmit: 'Max All',
-      characterManagementMaxAllConfirm: 'This action adds or maxes characters with complete configuration, recreates their equipped weapons and memories, and equips maxed recommended CUBs. Existing CUBs, character skill selections and unlocked fashions are preserved. Characters with missing configuration are skipped and retained. This action cannot be undone.',
+      characterManagementMaxAllConfirm:
+        'This action adds or maxes characters with complete configuration, recreates their equipped weapons and memories, and equips maxed recommended CUBs. Existing CUBs, character skill selections and unlocked fashions are preserved. Characters with missing configuration are skipped and retained. This action cannot be undone.',
       characterManagementMaxAllSuccessTitle: 'Completed',
-      characterManagementMaxAllSuccess: 'Max-out completed. Current totals: {count} characters, {equipCount} equips, and {gatherRewardCount} awaken rewards. Character IDs skipped due to missing configuration: {skipped}.',
+      characterManagementMaxAllSuccess:
+        'Max-out completed. Current totals: {count} characters, {equipCount} equips, and {gatherRewardCount} awaken rewards. Character IDs skipped due to missing configuration: {skipped}.',
       characterManagementMaxAllFailed: 'Failed to max all characters.',
     },
   },
@@ -1849,13 +1910,16 @@ const messages = {
 const listeners = new Set();
 
 const interpolate = (template, params = {}) => {
-  return String(template).replace(/\{(\w+)\}/g, (_, key) => (params[key] ?? `{${key}}`));
+  return String(template).replace(/\{(\w+)\}/g, (_, key) => params[key] ?? `{${key}}`);
 };
 
 const getNestedValue = (source, key) => {
   return String(key)
     .split('.')
-    .reduce((value, part) => (value && typeof value === 'object' ? value[part] : undefined), source);
+    .reduce(
+      (value, part) => (value && typeof value === 'object' ? value[part] : undefined),
+      source,
+    );
 };
 
 export const normalizeLocale = (locale) => {
@@ -1872,7 +1936,10 @@ export const getLocale = () => {
 
 export const t = (key, params = {}, locale = getLocale()) => {
   const activeLocale = normalizeLocale(locale);
-  const resolved = getNestedValue(messages[activeLocale], key) ?? getNestedValue(messages[DEFAULT_LOCALE], key) ?? key;
+  const resolved =
+    getNestedValue(messages[activeLocale], key) ??
+    getNestedValue(messages[DEFAULT_LOCALE], key) ??
+    key;
   return interpolate(resolved, params);
 };
 
@@ -1929,10 +1996,12 @@ const applyElementTranslation = (element, locale) => {
 };
 
 export const applyI18n = (root = document, locale = getLocale()) => {
-  const scope = root instanceof Document ? root : root.ownerDocument ?? document;
+  const scope = root instanceof Document ? root : (root.ownerDocument ?? document);
   scope.documentElement.lang = normalizeLocale(locale);
 
-  const elements = root.querySelectorAll('[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-alt]');
+  const elements = root.querySelectorAll(
+    '[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label], [data-i18n-alt]',
+  );
   elements.forEach((element) => applyElementTranslation(element, locale));
 
   const switchers = root.querySelectorAll('[data-locale-switcher]');
@@ -2126,7 +2195,11 @@ export class ApiError extends Error {
   }
 }
 
-export const getLocalizedApiErrorMessage = (error, locale = getLocale(), fallbackKey = 'runtime.apiUnknown') => {
+export const getLocalizedApiErrorMessage = (
+  error,
+  locale = getLocale(),
+  fallbackKey = 'runtime.apiUnknown',
+) => {
   if (error instanceof ApiError && error.code) {
     const translationKey = API_ERROR_TRANSLATION_KEYS[error.code];
     if (translationKey) {
@@ -2182,7 +2255,10 @@ export const resolveUiTextToken = (token, locale = getLocale()) => {
   try {
     const payload = JSON.parse(token);
     if (payload && typeof payload === 'object' && typeof payload.key === 'string') {
-      return getLocalizedApiErrorMessage(new ApiError({ code: payload.key, details: payload.details, message: null, status: null }), locale);
+      return getLocalizedApiErrorMessage(
+        new ApiError({ code: payload.key, details: payload.details, message: null, status: null }),
+        locale,
+      );
     }
   } catch {
     return token;

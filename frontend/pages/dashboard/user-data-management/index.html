@@ -1,0 +1,37 @@
+<section
+  class="dashboard-page"
+  id="database-management"
+  data-dashboard-panel="database-management"
+  aria-label="用户数据管理"
+  data-i18n-aria-label="dashboard.sidebarDatabaseManagement"
+  hidden
+>
+  <header class="dashboard-topbar">
+    <button
+      class="sidebar-toggle"
+      type="button"
+      aria-label="切换侧边栏"
+      data-i18n-aria-label="dashboard.toggleSidebar"
+      aria-controls="dashboard-sidebar"
+      aria-expanded="false"
+    >
+      ☰
+    </button>
+  </header>
+
+  <!-- Keep template includes on separate lines for readability. -->
+  <!-- prettier-ignore -->
+  <div class="dashboard-content database-page">
+    {% include "dashboard/user-data-management/navigation.html" %}
+    {% include "dashboard/user-data-management/database-status.html" %}
+    {% include "dashboard/user-data-management/accounts/panel.html" %}
+    {% include "dashboard/user-data-management/player-profile/panel.html" %}
+    {% include "dashboard/user-data-management/character/panel.html" %}
+    {% include "dashboard/user-data-management/memory/panel.html" %}
+    {% include "dashboard/user-data-management/item/panel.html" %}
+    {% include "dashboard/user-data-management/furniture/panel.html" %}
+    {% include "dashboard/user-data-management/stage/panel.html" %}
+    {% include "dashboard/user-data-management/partner/panel.html" %}
+    {% include "dashboard/user-data-management/weapon/panel.html" %}
+  </div>
+</section>

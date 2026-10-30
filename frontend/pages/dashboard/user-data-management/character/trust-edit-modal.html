@@ -1,0 +1,68 @@
+<div class="shared-modal character-trust-edit-modal" hidden id="character-trust-edit-modal">
+  <div class="shared-modal-backdrop" data-character-trust-edit-modal-close></div>
+  <section
+    class="shared-modal-card character-quality-edit-card"
+    id="character-trust-edit-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-trust-edit-title"
+    tabindex="-1"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">T</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailTrustEditEyebrow">
+          编辑
+        </p>
+        <h3 id="character-trust-edit-title" data-i18n="dashboard.characterDetailTrustEditTitle">
+          好感
+        </h3>
+      </div>
+    </div>
+    <div class="character-quality-edit-form">
+      <div class="character-quality-edit-row">
+        <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailTrustLabel">
+          好感
+        </span>
+        <div
+          class="character-trust-edit-hearts"
+          id="character-trust-edit-hearts"
+          role="group"
+          aria-labelledby="character-trust-edit-title"
+        ></div>
+      </div>
+      <label class="character-quality-edit-row" for="character-trust-edit-exp">
+        <span
+          class="character-quality-edit-label"
+          data-i18n="dashboard.characterDetailTrustExpLabel"
+        >
+          经验
+        </span>
+        <input
+          class="character-quality-edit-select"
+          id="character-trust-edit-exp"
+          type="number"
+          inputmode="numeric"
+        />
+      </label>
+    </div>
+    <div class="shared-modal-actions character-quality-edit-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-trust-edit-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-trust-edit-confirm"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

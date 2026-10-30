@@ -17,17 +17,23 @@ app.getStageSkipSearchPriority = (keyword, item) => {
     return 0;
   }
 
-  const stageName = String(item?.stageName ?? '').trim().toLowerCase();
+  const stageName = String(item?.stageName ?? '')
+    .trim()
+    .toLowerCase();
   if (stageName.includes(keyword)) {
     return 0;
   }
 
-  const stageIdText = String(item?.stageId ?? '').trim().toLowerCase();
+  const stageIdText = String(item?.stageId ?? '')
+    .trim()
+    .toLowerCase();
   if (stageIdText.includes(keyword)) {
     return 1;
   }
 
-  const stageDescription = String(item?.stageDescription ?? '').trim().toLowerCase();
+  const stageDescription = String(item?.stageDescription ?? '')
+    .trim()
+    .toLowerCase();
   if (stageDescription.includes(keyword)) {
     return 2;
   }
@@ -38,7 +44,10 @@ app.getStageSkipSearchPriority = (keyword, item) => {
 app._stageSkipSortFields = ['stage_id', 'name'];
 
 app._syncStageSkipSortArrows = () => {
-  const table = stageSkipModal instanceof HTMLElement ? stageSkipModal.querySelector('.stage-skip-table') : null;
+  const table =
+    stageSkipModal instanceof HTMLElement
+      ? stageSkipModal.querySelector('.stage-skip-table')
+      : null;
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -68,7 +77,10 @@ app._handleStageSkipSortClick = (sortField) => {
 
 app.compareStageSkipCatalogEntries = (left, right) => {
   if (state.stageSkipSortBy === 'name') {
-    const comparison = left.stageName.localeCompare(right.stageName, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = left.stageName.localeCompare(right.stageName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
@@ -103,38 +115,50 @@ app.getFilteredStageSkipCatalog = () => {
 };
 
 app.renderStageSkipModalRows = () => {
-  if (!(stageSkipTableBody instanceof HTMLElement) || !(stageSkipEmptyState instanceof HTMLElement)) {
+  if (
+    !(stageSkipTableBody instanceof HTMLElement) ||
+    !(stageSkipEmptyState instanceof HTMLElement)
+  ) {
     return;
   }
 
   const items = app.getFilteredStageSkipCatalog();
   const selectedStageIds = new Set(state.stageSkipSelectedStageIds ?? []);
-  stageSkipTableBody.innerHTML = items.map((item) => {
-    const selected = selectedStageIds.has(item.stageId);
-    const stageDescription = item.stageDescription || '--';
-    return `
-      <tr class="weapon-add-row${selected ? ' is-selected' : ''}" data-stage-skip-row="true" data-stage-id="${item.stageId}">
-        <td>${item.stageId}</td>
-        <td>${app.escapeHtml(item.stageName || '--')}</td>
-        <td>
-          <span class="stage-skip-description">${app.escapeHtml(stageDescription)}</span>
-        </td>
-        <td>
-          <input
-            class="weapon-add-checkbox"
-            type="checkbox"
-            data-stage-skip-select="true"
-            data-stage-id="${item.stageId}"
-            ${selected ? 'checked' : ''}
-          >
-        </td>
-      </tr>
-    `;
-  }).join('');
+  stageSkipTableBody.innerHTML = items
+    .map((item) => {
+      const selected = selectedStageIds.has(item.stageId);
+      const stageDescription = item.stageDescription || '--';
+      return /* HTML */ `
+        <tr
+          class="weapon-add-row${selected ? ' is-selected' : ''}"
+          data-stage-skip-row="true"
+          data-stage-id="${item.stageId}"
+        >
+          <td>${item.stageId}</td>
+          <td>${app.escapeHtml(item.stageName || '--')}</td>
+          <td>
+            <span class="stage-skip-description">${app.escapeHtml(stageDescription)}</span>
+          </td>
+          <td>
+            <input
+              class="weapon-add-checkbox"
+              type="checkbox"
+              data-stage-skip-select="true"
+              data-stage-id="${item.stageId}"
+              ${selected ? 'checked' : ''}
+            />
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 
   stageSkipEmptyState.hidden = items.length > 0;
   if (stageSkipSubmitButton instanceof HTMLButtonElement) {
-    stageSkipSubmitButton.disabled = state.stageSkipLoading || state.stageSkipSubmitting || (state.stageSkipCatalog?.length ?? 0) === 0;
+    stageSkipSubmitButton.disabled =
+      state.stageSkipLoading ||
+      state.stageSkipSubmitting ||
+      (state.stageSkipCatalog?.length ?? 0) === 0;
     stageSkipSubmitButton.textContent = app.translate('runtime.stageSkipSubmit');
   }
 };
@@ -171,7 +195,11 @@ app.loadStageSkipCatalog = async () => {
   }
 
   const payload = await app.apiFetch('/api/database-stages/selected/cleared-ids');
-  const clearedStageIds = new Set(Array.isArray(payload?.stage_ids) ? payload.stage_ids.map((stageId) => Number.parseInt(String(stageId), 10)) : []);
+  const clearedStageIds = new Set(
+    Array.isArray(payload?.stage_ids)
+      ? payload.stage_ids.map((stageId) => Number.parseInt(String(stageId), 10))
+      : [],
+  );
   state.stageSkipCatalog = Object.entries(state.stageEntriesMap ?? {})
     .map(([stageId, entry]) => ({
       stageId: Number.parseInt(stageId, 10),
@@ -217,9 +245,13 @@ app.submitStageSkipModal = async () => {
     return;
   }
 
-  const stageIds = Array.from(new Set((state.stageSkipSelectedStageIds ?? [])
-    .map((stageId) => Number.parseInt(String(stageId), 10))
-    .filter((stageId) => Number.isFinite(stageId))));
+  const stageIds = Array.from(
+    new Set(
+      (state.stageSkipSelectedStageIds ?? [])
+        .map((stageId) => Number.parseInt(String(stageId), 10))
+        .filter((stageId) => Number.isFinite(stageId)),
+    ),
+  );
 
   if (stageIds.length === 0) {
     app.openNoticeModal(app.translate('dashboard.stageSkipNoSelection'));
@@ -273,7 +305,10 @@ export const initDatabaseStageSkipModalFeature = () => {
     });
   }
 
-  const stageSkipTable = stageSkipModal instanceof HTMLElement ? stageSkipModal.querySelector('.stage-skip-table') : null;
+  const stageSkipTable =
+    stageSkipModal instanceof HTMLElement
+      ? stageSkipModal.querySelector('.stage-skip-table')
+      : null;
   if (stageSkipTable instanceof HTMLElement) {
     stageSkipTable.addEventListener('click', (event) => {
       const target = event.target;

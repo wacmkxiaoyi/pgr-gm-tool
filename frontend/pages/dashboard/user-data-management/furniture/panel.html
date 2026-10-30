@@ -1,0 +1,169 @@
+<section
+  class="database-panel database-item-panel database-tab-panel"
+  id="database-furniture-management-section"
+  data-database-tab-panel="database-furniture-management-section"
+  aria-labelledby="furniture-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+    <div>
+      <span class="section-tag">Furnitures</span>
+      <h2 id="furniture-title" data-i18n="dashboard.furnitureManagementTab">家具管理</h2>
+    </div>
+    <small class="database-item-management-summary" id="furniture-summary"></small>
+  </div>
+  <div
+    class="database-player-empty"
+    id="furniture-state"
+    data-i18n="dashboard.furnitureChooseAccount"
+  >
+    请先在账号管理中选定一个用户。
+  </div>
+  <div class="database-item-management-shell" id="furniture-shell" hidden>
+    <div class="database-item-actions">
+      <button
+        class="status-action-button status-action-button-stop"
+        type="button"
+        id="furniture-clear"
+        data-i18n="dashboard.furnitureClear"
+      >
+        清理未使用家具
+      </button>
+      <div class="database-item-toolbar">
+        <div class="database-item-search-shell">
+          <input
+            class="database-item-search-input"
+            type="search"
+            id="furniture-search"
+            data-i18n-placeholder="dashboard.furnitureSearch"
+            data-i18n-aria-label="dashboard.furnitureSearch"
+            placeholder="输入关键词后回车搜索"
+          />
+        </div>
+      </div>
+      <button
+        class="status-action-button status-action-button-config database-item-action-add"
+        type="button"
+        id="furniture-add"
+        data-i18n="dashboard.furnitureAdd"
+      >
+        新增家具
+      </button>
+    </div>
+    <div class="accounts-table-shell">
+      <div class="accounts-table-scroll">
+        <table
+          class="accounts-table furniture-management-table"
+          aria-describedby="furniture-summary"
+        >
+          <colgroup>
+            <col class="furniture-col-id" />
+            <col class="furniture-col-name" />
+            <col class="furniture-col-type" />
+            <col class="furniture-col-description" />
+            <col class="furniture-col-suit" />
+            <col class="furniture-col-stat" />
+            <col class="furniture-col-stat" />
+            <col class="furniture-col-stat" />
+            <col class="furniture-col-addition" />
+            <col class="furniture-col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="record_id">
+                  <span data-i18n="dashboard.furnitureRow">行号</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="name">
+                  <span data-i18n="dashboard.itemManagementItemName">名称</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="type">
+                  <span data-i18n="dashboard.furnitureType">类型</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="description">
+                  <span data-i18n="dashboard.furnitureDescription">简介</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="suit">
+                  <span data-i18n="dashboard.furnitureSuit">套装</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="beauty">
+                  <span data-i18n="dashboard.furnitureBeauty">美观值</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="comfort">
+                  <span data-i18n="dashboard.furnitureComfort">舒适值</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" type="button" data-sort-field="utility">
+                  <span data-i18n="dashboard.furnitureUtility">实用值</span>
+                  <span class="column-sort-arrow" hidden>▲</span>
+                </button>
+              </th>
+              <th scope="col" data-i18n="dashboard.furnitureAddition">附加属性</th>
+              <th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="furniture-body"></tbody>
+        </table>
+      </div>
+      <div class="accounts-pagination database-item-pagination">
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="furniture-prev"
+          data-i18n="dashboard.accountsPrev"
+        >
+          上一页
+        </button>
+        <span id="furniture-pagination"></span>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="furniture-next"
+          data-i18n="dashboard.accountsNext"
+        >
+          下一页
+        </button>
+        <label class="accounts-pagination-jump" for="furniture-jump">
+          <input
+            class="accounts-pagination-jump-input"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            id="furniture-jump"
+            data-i18n-placeholder="dashboard.accountsJumpPlaceholder"
+            placeholder="页码"
+          />
+        </label>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="furniture-jump-submit"
+          data-i18n="dashboard.accountsJumpButton"
+        >
+          跳转
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

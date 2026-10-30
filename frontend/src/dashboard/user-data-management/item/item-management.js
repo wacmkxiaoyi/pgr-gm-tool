@@ -63,21 +63,35 @@ app.getItemNameById = (itemId) => {
 
 app.updateItemManagementPagination = () => {
   if (databaseItemManagementPaginationLabel instanceof HTMLElement) {
-    databaseItemManagementPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
-      page: state.itemManagementTotalPages === 0 ? 0 : state.itemManagementCurrentPage,
-      totalPages: state.itemManagementTotalPages,
-    });
+    databaseItemManagementPaginationLabel.textContent = app.translate(
+      'dashboard.accountsPagination',
+      {
+        page: state.itemManagementTotalPages === 0 ? 0 : state.itemManagementCurrentPage,
+        totalPages: state.itemManagementTotalPages,
+      },
+    );
   }
 
   if (databaseItemManagementPrevButton instanceof HTMLButtonElement) {
-    databaseItemManagementPrevButton.disabled = state.itemManagementLoading || state.itemManagementCurrentPage <= 1 || state.itemManagementTotalPages === 0 || !app.canAccessItemManagement();
+    databaseItemManagementPrevButton.disabled =
+      state.itemManagementLoading ||
+      state.itemManagementCurrentPage <= 1 ||
+      state.itemManagementTotalPages === 0 ||
+      !app.canAccessItemManagement();
   }
 
   if (databaseItemManagementNextButton instanceof HTMLButtonElement) {
-    databaseItemManagementNextButton.disabled = state.itemManagementLoading || state.itemManagementTotalPages === 0 || state.itemManagementCurrentPage >= state.itemManagementTotalPages || !app.canAccessItemManagement();
+    databaseItemManagementNextButton.disabled =
+      state.itemManagementLoading ||
+      state.itemManagementTotalPages === 0 ||
+      state.itemManagementCurrentPage >= state.itemManagementTotalPages ||
+      !app.canAccessItemManagement();
   }
 
-  const jumpDisabled = state.itemManagementLoading || state.itemManagementTotalPages === 0 || !app.canAccessItemManagement();
+  const jumpDisabled =
+    state.itemManagementLoading ||
+    state.itemManagementTotalPages === 0 ||
+    !app.canAccessItemManagement();
 
   if (databaseItemManagementJumpInput instanceof HTMLInputElement) {
     databaseItemManagementJumpInput.disabled = jumpDisabled;
@@ -93,7 +107,10 @@ app.submitItemManagementPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseItemManagementJumpInput.value, state.itemManagementTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseItemManagementJumpInput.value,
+    state.itemManagementTotalPages,
+  );
   databaseItemManagementJumpInput.value = '';
 
   if (targetPage === null || targetPage === state.itemManagementCurrentPage) {
@@ -108,20 +125,45 @@ app.renderItemRows = (items) => {
     return;
   }
 
-  databaseItemManagementBody.innerHTML = Array.isArray(items) ? items.map((item) => `
-    <tr>
-      <td>${item?.item_id ?? '--'}</td>
-      <td>${app.getItemNameById(item?.item_id)}</td>
-      <td>
-        <span class="item-management-quantity is-editable" tabindex="0" role="button" title="${app.translate('dashboard.itemManagementQuantityEditTitle')}" data-item-edit-quantity="true" data-item-id="${item?.item_id ?? ''}" data-item-quantity="${item?.quantity ?? ''}">${item?.quantity ?? '--'}</span>
-      </td>
-      <td>
-        <div class="accounts-row-actions">
-          <button class="status-action-button status-action-button-stop" type="button" data-item-management-action="delete" data-item-id="${item?.item_id ?? ''}" data-item-name="${app.getItemNameById(item?.item_id)}" data-item-quantity="${item?.quantity ?? ''}">${app.translate('dashboard.itemManagementDelete')}</button>
-        </div>
-      </td>
-    </tr>
-  `).join('') : '';
+  databaseItemManagementBody.innerHTML = Array.isArray(items)
+    ? items
+        .map(
+          (item) => /* HTML */ `
+            <tr>
+              <td>${item?.item_id ?? '--'}</td>
+              <td>${app.getItemNameById(item?.item_id)}</td>
+              <td>
+                <span
+                  class="item-management-quantity is-editable"
+                  tabindex="0"
+                  role="button"
+                  title="${app.translate('dashboard.itemManagementQuantityEditTitle')}"
+                  data-item-edit-quantity="true"
+                  data-item-id="${item?.item_id ?? ''}"
+                  data-item-quantity="${item?.quantity ?? ''}"
+                >
+                  ${item?.quantity ?? '--'}
+                </span>
+              </td>
+              <td>
+                <div class="accounts-row-actions">
+                  <button
+                    class="status-action-button status-action-button-stop"
+                    type="button"
+                    data-item-management-action="delete"
+                    data-item-id="${item?.item_id ?? ''}"
+                    data-item-name="${app.getItemNameById(item?.item_id)}"
+                    data-item-quantity="${item?.quantity ?? ''}"
+                  >
+                    ${app.translate('dashboard.itemManagementDelete')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `,
+        )
+        .join('')
+    : '';
 };
 
 app._itemManagementSortFields = ['item_id', 'name', 'quantity'];
@@ -158,7 +200,10 @@ app._handleItemManagementSortClick = (sortField) => {
 app.reloadItemManagementCurrentPage = async () => {
   const targetPage = Math.max(1, state.itemManagementCurrentPage);
   await app.loadSelectedAccountItems(targetPage);
-  if (state.itemManagementTotalPages > 0 && state.itemManagementCurrentPage > state.itemManagementTotalPages) {
+  if (
+    state.itemManagementTotalPages > 0 &&
+    state.itemManagementCurrentPage > state.itemManagementTotalPages
+  ) {
     await app.loadSelectedAccountItems(state.itemManagementTotalPages);
   }
 };
@@ -168,7 +213,9 @@ app.stopItemQuantityEdit = (itemId) => {
     return;
   }
 
-  const quantityElement = databaseItemManagementBody?.querySelector(`span[data-item-edit-quantity="true"][data-item-id="${itemId}"]`);
+  const quantityElement = databaseItemManagementBody?.querySelector(
+    `span[data-item-edit-quantity="true"][data-item-id="${itemId}"]`,
+  );
   if (quantityElement instanceof HTMLElement) {
     quantityElement.classList.remove('is-editing');
     quantityElement.textContent = quantityElement.dataset.itemQuantity ?? '--';
@@ -257,7 +304,10 @@ app.beginItemQuantityEdit = (quantityElement) => {
 
   input.addEventListener('blur', () => {
     window.setTimeout(() => {
-      if (state.itemManagementEditState?.itemId === itemId && !state.itemManagementEditState.pending) {
+      if (
+        state.itemManagementEditState?.itemId === itemId &&
+        !state.itemManagementEditState.pending
+      ) {
         app.stopItemQuantityEdit(itemId);
       }
     }, 0);
@@ -283,7 +333,9 @@ app.submitItemQuantityEdit = async (itemId, currentQuantity, nextValue) => {
   }
 
   currentState.pending = true;
-  const editor = databaseItemManagementBody?.querySelector(`span[data-item-edit-quantity="true"][data-item-id="${itemId}"] input`);
+  const editor = databaseItemManagementBody?.querySelector(
+    `span[data-item-edit-quantity="true"][data-item-id="${itemId}"] input`,
+  );
   if (editor instanceof HTMLInputElement) {
     editor.disabled = true;
   }
@@ -384,13 +436,18 @@ app.loadSelectedAccountItems = async (page = 1) => {
 
     const payload = await app.apiFetch(`/api/database-items/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
-    state.itemManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.itemManagementCurrentPage;
-    state.itemManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    state.itemManagementCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.itemManagementCurrentPage;
+    state.itemManagementTotalPages =
+      typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.itemManagementHasLoaded = true;
 
     if (databaseItemManagementSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseItemManagementSummary.textContent = app.translate('dashboard.itemManagementSummaryTotal', { total });
+      databaseItemManagementSummary.textContent = app.translate(
+        'dashboard.itemManagementSummaryTotal',
+        { total },
+      );
       databaseItemManagementSummary.hidden = false;
     }
 
@@ -408,7 +465,10 @@ app.loadSelectedAccountItems = async (page = 1) => {
     if (databaseItemManagementBody instanceof HTMLElement) {
       databaseItemManagementBody.innerHTML = '';
     }
-    app.setItemManagementState(app.apiErrorMessage(error, 'runtime.loadAccountsFailed'), 'is-error');
+    app.setItemManagementState(
+      app.apiErrorMessage(error, 'runtime.loadAccountsFailed'),
+      'is-error',
+    );
   } finally {
     state.itemManagementLoading = false;
     app.updateItemManagementPagination();
@@ -427,7 +487,9 @@ app.updateItemManagementAccess = (payload = state.databaseHealthSnapshot) => {
     if (!healthy) {
       databaseItemManagementSubnavButton.title = app.translate('runtime.itemManagementAccessTitle');
     } else if (state.selectedAccountUid === null) {
-      databaseItemManagementSubnavButton.title = app.translate('runtime.itemManagementNeedAccountTitle');
+      databaseItemManagementSubnavButton.title = app.translate(
+        'runtime.itemManagementNeedAccountTitle',
+      );
     } else {
       databaseItemManagementSubnavButton.title = '';
     }
@@ -510,11 +572,14 @@ app.handleItemManagementActionClick = (event) => {
       return;
     }
 
-    app.openItemDeleteModal({
-      itemId,
-      itemName: button.dataset.itemName ?? app.getItemNameById(itemId),
-      quantity: button.dataset.itemQuantity ?? '--',
-    }, button);
+    app.openItemDeleteModal(
+      {
+        itemId,
+        itemName: button.dataset.itemName ?? app.getItemNameById(itemId),
+        quantity: button.dataset.itemQuantity ?? '--',
+      },
+      button,
+    );
   }
 };
 
@@ -559,7 +624,9 @@ export const initDatabaseItemManagementFeature = () => {
     });
   }
 
-  const itemManagementTable = document.querySelector('#database-item-management-section .item-management-table');
+  const itemManagementTable = document.querySelector(
+    '#database-item-management-section .item-management-table',
+  );
   if (itemManagementTable instanceof HTMLElement) {
     itemManagementTable.addEventListener('click', (event) => {
       const target = event.target;

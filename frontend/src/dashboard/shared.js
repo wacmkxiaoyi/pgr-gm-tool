@@ -1,4 +1,11 @@
-import { ApiError, apiFetch, getLocale, getLocalizedApiErrorMessage, resolveUiTextToken, t } from '../i18n.js';
+import {
+  ApiError,
+  apiFetch,
+  getLocale,
+  getLocalizedApiErrorMessage,
+  resolveUiTextToken,
+  t,
+} from '../i18n.js';
 
 const selectAll = (selector) => Array.from(document.querySelectorAll(selector));
 
@@ -15,9 +22,13 @@ export const dom = {
   databaseGrid: document.querySelector('#database-status-grid'),
   databaseAccountsSubnavButton: document.querySelector('#database-accounts-subnav'),
   databasePlayerProfileSubnavButton: document.querySelector('#database-player-profile-subnav'),
-  databaseCharacterManagementSubnavButton: document.querySelector('#database-character-management-subnav'),
+  databaseCharacterManagementSubnavButton: document.querySelector(
+    '#database-character-management-subnav',
+  ),
   databaseWeaponManagementSubnavButton: document.querySelector('#database-equip-management-subnav'),
-  databaseMemoryManagementSubnavButton: document.querySelector('#database-memory-management-subnav'),
+  databaseMemoryManagementSubnavButton: document.querySelector(
+    '#database-memory-management-subnav',
+  ),
   databaseItemManagementSubnavButton: document.querySelector('#database-item-management-subnav'),
   databaseStageManagementSubnavButton: document.querySelector('#database-stage-management-subnav'),
   databaseTabButtons: selectAll('[data-database-tab]'),
@@ -38,42 +49,72 @@ export const dom = {
   databasePlayerProfileSummary: document.querySelector('#database-player-profile-summary'),
   databaseCharacterManagementState: document.querySelector('#database-character-management-state'),
   databaseCharacterManagementShell: document.querySelector('#database-character-management-shell'),
-  databaseCharacterManagementTableShell: document.querySelector('#database-character-management-table-shell'),
+  databaseCharacterManagementTableShell: document.querySelector(
+    '#database-character-management-table-shell',
+  ),
   databaseCharacterManagementBody: document.querySelector('#database-character-management-body'),
-  databaseCharacterManagementSummary: document.querySelector('#database-character-management-summary'),
-  databaseCharacterManagementPrevButton: document.querySelector('#database-character-management-prev'),
-  databaseCharacterManagementNextButton: document.querySelector('#database-character-management-next'),
-  databaseCharacterManagementPaginationLabel: document.querySelector('#database-character-management-pagination'),
-  databaseCharacterManagementJumpInput: document.querySelector('#database-character-management-jump-input'),
-  databaseCharacterManagementJumpButton: document.querySelector('#database-character-management-jump-button'),
+  databaseCharacterManagementSummary: document.querySelector(
+    '#database-character-management-summary',
+  ),
+  databaseCharacterManagementPrevButton: document.querySelector(
+    '#database-character-management-prev',
+  ),
+  databaseCharacterManagementNextButton: document.querySelector(
+    '#database-character-management-next',
+  ),
+  databaseCharacterManagementPaginationLabel: document.querySelector(
+    '#database-character-management-pagination',
+  ),
+  databaseCharacterManagementJumpInput: document.querySelector(
+    '#database-character-management-jump-input',
+  ),
+  databaseCharacterManagementJumpButton: document.querySelector(
+    '#database-character-management-jump-button',
+  ),
   databaseCharacterManagementActions: document.querySelector('#database-character-actions'),
   databaseCharacterFillButton: document.querySelector('#database-character-fill'),
   databaseCharacterAddButton: document.querySelector('#database-character-add'),
   databaseCharacterSearchInput: document.querySelector('#database-character-search-input'),
   databaseWeaponManagementState: document.querySelector('#database-equip-management-state'),
   databaseWeaponManagementShell: document.querySelector('#database-equip-management-shell'),
-  databaseWeaponManagementTableShell: document.querySelector('#database-equip-management-table-shell'),
+  databaseWeaponManagementTableShell: document.querySelector(
+    '#database-equip-management-table-shell',
+  ),
   databaseWeaponManagementBody: document.querySelector('#database-equip-management-body'),
   databaseWeaponManagementSummary: document.querySelector('#database-equip-management-summary'),
   databaseWeaponManagementPrevButton: document.querySelector('#database-equip-management-prev'),
   databaseWeaponManagementNextButton: document.querySelector('#database-equip-management-next'),
-  databaseWeaponManagementPaginationLabel: document.querySelector('#database-equip-management-pagination'),
-  databaseWeaponManagementJumpInput: document.querySelector('#database-equip-management-jump-input'),
-  databaseWeaponManagementJumpButton: document.querySelector('#database-equip-management-jump-button'),
+  databaseWeaponManagementPaginationLabel: document.querySelector(
+    '#database-equip-management-pagination',
+  ),
+  databaseWeaponManagementJumpInput: document.querySelector(
+    '#database-equip-management-jump-input',
+  ),
+  databaseWeaponManagementJumpButton: document.querySelector(
+    '#database-equip-management-jump-button',
+  ),
   databaseequipManagementActions: document.querySelector('#database-weapon-actions'),
   databaseWeaponClearButton: document.querySelector('#database-weapon-clear'),
   databaseWeaponSearchInput: document.querySelector('#database-weapon-search-input'),
   databaseWeaponAddButton: document.querySelector('#database-weapon-add'),
   databaseMemoryManagementState: document.querySelector('#database-memory-management-state'),
   databaseMemoryManagementShell: document.querySelector('#database-memory-management-shell'),
-  databaseMemoryManagementTableShell: document.querySelector('#database-memory-management-table-shell'),
+  databaseMemoryManagementTableShell: document.querySelector(
+    '#database-memory-management-table-shell',
+  ),
   databaseMemoryManagementBody: document.querySelector('#database-memory-management-body'),
   databaseMemoryManagementSummary: document.querySelector('#database-memory-management-summary'),
   databaseMemoryManagementPrevButton: document.querySelector('#database-memory-management-prev'),
   databaseMemoryManagementNextButton: document.querySelector('#database-memory-management-next'),
-  databaseMemoryManagementPaginationLabel: document.querySelector('#database-memory-management-pagination'),
-  databaseMemoryManagementJumpInput: document.querySelector('#database-memory-management-jump-input'),
-  databaseMemoryManagementJumpButton: document.querySelector('#database-memory-management-jump-button'),
+  databaseMemoryManagementPaginationLabel: document.querySelector(
+    '#database-memory-management-pagination',
+  ),
+  databaseMemoryManagementJumpInput: document.querySelector(
+    '#database-memory-management-jump-input',
+  ),
+  databaseMemoryManagementJumpButton: document.querySelector(
+    '#database-memory-management-jump-button',
+  ),
   databaseMemoryManagementActions: document.querySelector('#database-memory-actions'),
   databaseMemoryClearButton: document.querySelector('#database-memory-clear'),
   databaseMemorySearchInput: document.querySelector('#database-memory-search-input'),
@@ -105,33 +146,55 @@ export const dom = {
   characterDetailMainIconShell: document.querySelector('#character-detail-main-icon-shell'),
   characterDetailMainFashionShell: document.querySelector('#character-detail-main-fashion-shell'),
   characterDetailMainFashionIcon: document.querySelector('#character-detail-main-fashion-icon'),
-  characterDetailMainFashionPlaceholder: document.querySelector('#character-detail-main-fashion-placeholder'),
+  characterDetailMainFashionPlaceholder: document.querySelector(
+    '#character-detail-main-fashion-placeholder',
+  ),
   characterFashionSwitchModal: document.querySelector('#character-fashion-switch-modal'),
   characterFashionSwitchCard: document.querySelector('.character-fashion-switch-card'),
-  characterFashionSwitchCloseTargets: document.querySelectorAll('[data-character-fashion-switch-modal-close]'),
+  characterFashionSwitchCloseTargets: document.querySelectorAll(
+    '[data-character-fashion-switch-modal-close]',
+  ),
   characterFashionSwitchCurrent: document.querySelector('#character-fashion-switch-current'),
   characterFashionSwitchConfirmButton: document.querySelector('#character-fashion-switch-confirm'),
   characterDetailFashions: document.querySelector('#character-detail-fashions'),
   characterHeadFashionSwitchModal: document.querySelector('#character-head-fashion-switch-modal'),
-  characterHeadFashionSwitchCurrent: document.querySelector('#character-head-fashion-switch-current'),
-  characterHeadFashionSwitchConfirmButton: document.querySelector('#character-head-fashion-switch-confirm'),
-  characterHeadFashionSwitchCloseTargets: document.querySelectorAll('[data-character-head-fashion-switch-modal-close]'),
+  characterHeadFashionSwitchCurrent: document.querySelector(
+    '#character-head-fashion-switch-current',
+  ),
+  characterHeadFashionSwitchConfirmButton: document.querySelector(
+    '#character-head-fashion-switch-confirm',
+  ),
+  characterHeadFashionSwitchCloseTargets: document.querySelectorAll(
+    '[data-character-head-fashion-switch-modal-close]',
+  ),
   characterDetailHeadFashions: document.querySelector('#character-detail-head-fashions'),
-  characterWeaponFashionSwitchModal: document.querySelector('#character-weapon-fashion-switch-modal'),
-  characterWeaponFashionSwitchCurrent: document.querySelector('#character-weapon-fashion-switch-current'),
-  characterWeaponFashionSwitchConfirmButton: document.querySelector('#character-weapon-fashion-switch-confirm'),
-  characterWeaponFashionSwitchCloseTargets: document.querySelectorAll('[data-character-weapon-fashion-switch-modal-close]'),
+  characterWeaponFashionSwitchModal: document.querySelector(
+    '#character-weapon-fashion-switch-modal',
+  ),
+  characterWeaponFashionSwitchCurrent: document.querySelector(
+    '#character-weapon-fashion-switch-current',
+  ),
+  characterWeaponFashionSwitchConfirmButton: document.querySelector(
+    '#character-weapon-fashion-switch-confirm',
+  ),
+  characterWeaponFashionSwitchCloseTargets: document.querySelectorAll(
+    '[data-character-weapon-fashion-switch-modal-close]',
+  ),
   characterDetailWeaponFashions: document.querySelector('#character-detail-weapon-fashions'),
   characterDetailWeapon: document.querySelector('#character-detail-weapon'),
   characterMemorySwitchModal: document.querySelector('#character-memory-switch-modal'),
-  characterMemorySwitchCloseTargets: document.querySelectorAll('[data-character-memory-switch-modal-close]'),
+  characterMemorySwitchCloseTargets: document.querySelectorAll(
+    '[data-character-memory-switch-modal-close]',
+  ),
   characterMemorySwitchCurrent: document.querySelector('#character-memory-switch-current'),
   characterMemorySwitchSearchInput: document.querySelector('#character-memory-switch-search-input'),
   characterMemorySwitchTableBody: document.querySelector('#character-memory-switch-table-body'),
   characterMemorySwitchEmptyState: document.querySelector('#character-memory-switch-empty-state'),
   characterMemorySwitchSaveButton: document.querySelector('#character-memory-switch-save'),
   characterWeaponSwitchModal: document.querySelector('#character-weapon-switch-modal'),
-  characterWeaponSwitchCloseTargets: document.querySelectorAll('[data-character-weapon-switch-modal-close]'),
+  characterWeaponSwitchCloseTargets: document.querySelectorAll(
+    '[data-character-weapon-switch-modal-close]',
+  ),
   characterWeaponSwitchCurrent: document.querySelector('#character-weapon-switch-current'),
   characterWeaponSwitchSearchInput: document.querySelector('#character-weapon-switch-search-input'),
   characterWeaponSwitchTableBody: document.querySelector('#character-equip-switch-table-body'),
@@ -143,35 +206,47 @@ export const dom = {
   characterDetailEvolution: document.querySelector('#character-detail-evolution'),
   characterQualityEditModal: document.querySelector('#character-quality-edit-modal'),
   characterQualityEditCard: document.querySelector('#character-quality-edit-card'),
-  characterQualityEditCloseTargets: document.querySelectorAll('[data-character-quality-edit-modal-close]'),
+  characterQualityEditCloseTargets: document.querySelectorAll(
+    '[data-character-quality-edit-modal-close]',
+  ),
   characterQualityEditQualitySelect: document.querySelector('#character-quality-edit-quality'),
   characterQualityEditStarSelect: document.querySelector('#character-quality-edit-star'),
   characterQualityEditConfirmButton: document.querySelector('#character-quality-edit-confirm'),
   characterLevelEditModal: document.querySelector('#character-level-edit-modal'),
   characterLevelEditCard: document.querySelector('#character-level-edit-card'),
-  characterLevelEditCloseTargets: document.querySelectorAll('[data-character-level-edit-modal-close]'),
+  characterLevelEditCloseTargets: document.querySelectorAll(
+    '[data-character-level-edit-modal-close]',
+  ),
   characterLevelEditLevelInput: document.querySelector('#character-level-edit-level'),
   characterLevelEditExpInput: document.querySelector('#character-level-edit-exp'),
   characterLevelEditConfirmButton: document.querySelector('#character-level-edit-confirm'),
   characterTrustEditModal: document.querySelector('#character-trust-edit-modal'),
   characterTrustEditCard: document.querySelector('#character-trust-edit-card'),
-  characterTrustEditCloseTargets: document.querySelectorAll('[data-character-trust-edit-modal-close]'),
+  characterTrustEditCloseTargets: document.querySelectorAll(
+    '[data-character-trust-edit-modal-close]',
+  ),
   characterTrustEditHearts: document.querySelector('#character-trust-edit-hearts'),
   characterTrustEditExpInput: document.querySelector('#character-trust-edit-exp'),
   characterTrustEditConfirmButton: document.querySelector('#character-trust-edit-confirm'),
   characterGradeEditModal: document.querySelector('#character-grade-edit-modal'),
   characterGradeEditCard: document.querySelector('#character-grade-edit-card'),
-  characterGradeEditCloseTargets: document.querySelectorAll('[data-character-grade-edit-modal-close]'),
+  characterGradeEditCloseTargets: document.querySelectorAll(
+    '[data-character-grade-edit-modal-close]',
+  ),
   characterGradeEditSelect: document.querySelector('#character-grade-edit-grade'),
   characterGradeEditConfirmButton: document.querySelector('#character-grade-edit-confirm'),
   characterAwakenEditModal: document.querySelector('#character-awaken-edit-modal'),
   characterAwakenEditCard: document.querySelector('#character-awaken-edit-card'),
-  characterAwakenEditCloseTargets: document.querySelectorAll('[data-character-awaken-edit-modal-close]'),
+  characterAwakenEditCloseTargets: document.querySelectorAll(
+    '[data-character-awaken-edit-modal-close]',
+  ),
   characterAwakenEditLevelSelect: document.querySelector('#character-awaken-edit-level'),
   characterAwakenEditConfirmButton: document.querySelector('#character-awaken-edit-confirm'),
   characterSkillEditModal: document.querySelector('#character-skill-edit-modal'),
   characterSkillEditCard: document.querySelector('#character-skill-edit-card'),
-  characterSkillEditCloseTargets: document.querySelectorAll('[data-character-skill-edit-modal-close]'),
+  characterSkillEditCloseTargets: document.querySelectorAll(
+    '[data-character-skill-edit-modal-close]',
+  ),
   characterSkillEditTitle: document.querySelector('#character-skill-edit-title'),
   characterSkillEditLevelInput: document.querySelector('#character-skill-edit-level'),
   characterSkillEditConfirmButton: document.querySelector('#character-skill-edit-confirm'),
@@ -190,7 +265,9 @@ export const dom = {
   databaseItemManagementSummary: document.querySelector('#database-item-management-summary'),
   databaseItemManagementPrevButton: document.querySelector('#database-item-management-prev'),
   databaseItemManagementNextButton: document.querySelector('#database-item-management-next'),
-  databaseItemManagementPaginationLabel: document.querySelector('#database-item-management-pagination'),
+  databaseItemManagementPaginationLabel: document.querySelector(
+    '#database-item-management-pagination',
+  ),
   databaseItemManagementJumpInput: document.querySelector('#database-item-management-jump-input'),
   databaseItemManagementJumpButton: document.querySelector('#database-item-management-jump-button'),
   databaseItemManagementActions: document.querySelector('#database-item-actions'),
@@ -200,14 +277,20 @@ export const dom = {
   databaseItemAddButton: document.querySelector('#database-item-add'),
   databaseStageManagementState: document.querySelector('#database-stage-management-state'),
   databaseStageManagementShell: document.querySelector('#database-stage-management-shell'),
-  databaseStageManagementTableShell: document.querySelector('#database-stage-management-table-shell'),
+  databaseStageManagementTableShell: document.querySelector(
+    '#database-stage-management-table-shell',
+  ),
   databaseStageManagementBody: document.querySelector('#database-stage-management-body'),
   databaseStageManagementSummary: document.querySelector('#database-stage-management-summary'),
   databaseStageManagementPrevButton: document.querySelector('#database-stage-management-prev'),
   databaseStageManagementNextButton: document.querySelector('#database-stage-management-next'),
-  databaseStageManagementPaginationLabel: document.querySelector('#database-stage-management-pagination'),
+  databaseStageManagementPaginationLabel: document.querySelector(
+    '#database-stage-management-pagination',
+  ),
   databaseStageManagementJumpInput: document.querySelector('#database-stage-management-jump-input'),
-  databaseStageManagementJumpButton: document.querySelector('#database-stage-management-jump-button'),
+  databaseStageManagementJumpButton: document.querySelector(
+    '#database-stage-management-jump-button',
+  ),
   databaseStageManagementActions: document.querySelector('#database-stage-actions'),
   databaseStageClearButton: document.querySelector('#database-stage-clear'),
   databaseStageSearchInput: document.querySelector('#database-stage-search-input'),
@@ -280,7 +363,9 @@ export const dom = {
   playerPortraitPickerCurrent: document.querySelector('#player-portrait-picker-current'),
   playerPortraitPickerGrid: document.querySelector('#player-portrait-picker-grid'),
   playerPortraitPickerConfirmButton: document.querySelector('#player-portrait-picker-confirm'),
-  playerPortraitPickerCloseTargets: document.querySelectorAll('[data-player-portrait-picker-modal-close]'),
+  playerPortraitPickerCloseTargets: document.querySelectorAll(
+    '[data-player-portrait-picker-modal-close]',
+  ),
   playerPortraitPickerCancelButton: document.querySelector('.player-portrait-picker-cancel'),
   characterAddModal: document.querySelector('#character-add-modal'),
   characterAddTitle: document.querySelector('#character-add-title'),
@@ -362,17 +447,29 @@ export const dom = {
   resonanceEffectCloseTargets: document.querySelectorAll('[data-resonance-effect-modal-close]'),
   resonanceEffectConfirmButton: document.querySelector('#resonance-effect-confirm'),
   resonanceEffectTooltip: document.querySelector('#resonance-effect-tooltip'),
-  weaponResonanceCharacterPickerModal: document.querySelector('#weapon-resonance-character-picker-modal'),
-  weaponResonanceCharacterPickerSummary: document.querySelector('#weapon-resonance-character-picker-summary'),
-  weaponResonanceCharacterPickerGrid: document.querySelector('#weapon-resonance-character-picker-grid'),
-  weaponResonanceCharacterPickerConfirmButton: document.querySelector('#equip-resonance-character-picker-confirm'),
-  weaponResonanceCharacterPickerCloseTargets: document.querySelectorAll('[data-equip-resonance-character-picker-modal-close]'),
+  weaponResonanceCharacterPickerModal: document.querySelector(
+    '#weapon-resonance-character-picker-modal',
+  ),
+  weaponResonanceCharacterPickerSummary: document.querySelector(
+    '#weapon-resonance-character-picker-summary',
+  ),
+  weaponResonanceCharacterPickerGrid: document.querySelector(
+    '#weapon-resonance-character-picker-grid',
+  ),
+  weaponResonanceCharacterPickerConfirmButton: document.querySelector(
+    '#equip-resonance-character-picker-confirm',
+  ),
+  weaponResonanceCharacterPickerCloseTargets: document.querySelectorAll(
+    '[data-equip-resonance-character-picker-modal-close]',
+  ),
   weaponOverrunPickerModal: document.querySelector('#weapon-overrun-picker-modal'),
   weaponOverrunPickerSummary: document.querySelector('#weapon-overrun-picker-summary'),
   weaponOverrunPickerGrid: document.querySelector('#weapon-overrun-picker-grid'),
   weaponOverrunPickerClearButton: document.querySelector('#weapon-overrun-picker-clear'),
   weaponOverrunPickerConfirmButton: document.querySelector('#weapon-overrun-picker-confirm'),
-  weaponOverrunPickerCloseTargets: document.querySelectorAll('[data-weapon-overrun-picker-modal-close]'),
+  weaponOverrunPickerCloseTargets: document.querySelectorAll(
+    '[data-weapon-overrun-picker-modal-close]',
+  ),
   accountPasswordModal: document.querySelector('#account-password-modal'),
   accountPasswordTarget: document.querySelector('#account-password-target'),
   accountPasswordInput: document.querySelector('#account-password-input'),
@@ -387,7 +484,9 @@ export const dom = {
   playerMutationRiskMessage: document.querySelector('#player-mutation-risk-message'),
   playerMutationRiskDontShow: document.querySelector('#player-mutation-risk-dont-show'),
   playerMutationRiskConfirmButton: document.querySelector('#player-mutation-risk-confirm'),
-  playerMutationRiskCloseTargets: document.querySelectorAll('[data-player-mutation-risk-modal-close]'),
+  playerMutationRiskCloseTargets: document.querySelectorAll(
+    '[data-player-mutation-risk-modal-close]',
+  ),
   playerMutationRiskResetButton: document.querySelector('#player-mutation-risk-reset'),
 };
 
@@ -557,9 +656,18 @@ export const state = {
   itemManagementSortOrder: 'asc',
   itemManagementEditState: null,
   furnitureManagement: {
-    page: 1, totalPages: 0, loaded: false, loading: false, keyword: '',
-    sort: 'record_id', order: 'asc', items: [], requestId: 0,
-    submitting: false, pending: null, trigger: null,
+    page: 1,
+    totalPages: 0,
+    loaded: false,
+    loading: false,
+    keyword: '',
+    sort: 'record_id',
+    order: 'asc',
+    items: [],
+    requestId: 0,
+    submitting: false,
+    pending: null,
+    trigger: null,
   },
   stageEntriesMap: {},
   nameplateEntiresMap: {},
@@ -655,7 +763,8 @@ export const constants = {
   SKIP_MUTATION_RISK_KEY: 'wacmk-pgr-skip-mutation-risk',
   databaseMutationMethods: new Set(['POST', 'PUT', 'PATCH', 'DELETE']),
   mutationRiskBypassPaths: new Set(['/api/database-accounts/selection']),
-  jsonTokenRegex: /("(?:\\u[a-fA-F\d]{4}|\\[^u]|[^\\"])*")([\t ]*:)?|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g,
+  jsonTokenRegex:
+    /("(?:\\u[a-fA-F\d]{4}|\\[^u]|[^\\"])*")([\t ]*:)?|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g,
   stateMeta: {
     healthy: { labelKey: 'dashboard.stateHealthy', className: 'status-ok' },
     unhealthy: { labelKey: 'dashboard.stateUnhealthy', className: 'status-down' },
@@ -667,8 +776,9 @@ export const app = { dom, state, constants };
 
 app.updatePlayerMutationRiskResetVisibility = () => {
   if (dom.playerMutationRiskResetButton instanceof HTMLElement) {
-    dom.playerMutationRiskResetButton.hidden = !state.serverManagementEnabled
-      || localStorage.getItem(constants.SKIP_MUTATION_RISK_KEY) !== '1';
+    dom.playerMutationRiskResetButton.hidden =
+      !state.serverManagementEnabled ||
+      localStorage.getItem(constants.SKIP_MUTATION_RISK_KEY) !== '1';
   }
 };
 
@@ -680,13 +790,23 @@ Object.assign(app, {
     }
   },
   getControlState: (controls) => (controls && typeof controls === 'object' ? controls : null),
-  historyStateClass: (serviceState) => constants.stateMeta[serviceState]?.className ?? 'status-unknown',
-  getStatusLabel: (serviceState) => t(constants.stateMeta[serviceState]?.labelKey ?? constants.stateMeta.unknown.labelKey, {}, state.locale),
+  historyStateClass: (serviceState) =>
+    constants.stateMeta[serviceState]?.className ?? 'status-unknown',
+  getStatusLabel: (serviceState) =>
+    t(
+      constants.stateMeta[serviceState]?.labelKey ?? constants.stateMeta.unknown.labelKey,
+      {},
+      state.locale,
+    ),
   getHistoryGrids: () => [dom.sdkGrid, dom.gameGrid, dom.databaseGrid].filter(Boolean),
-  getActiveDashboardPage: () => dom.dashboardPages.find((page) => page.classList.contains('is-active')) ?? null,
-  getActiveDatabaseTabButton: () => dom.databaseTabButtons.find((button) => button.classList.contains('is-active')) ?? null,
-  isServerManagementPageActive: () => app.getActiveDashboardPage()?.dataset.dashboardPanel === 'server-management',
-  isDatabaseManagementPageActive: () => app.getActiveDashboardPage()?.dataset.dashboardPanel === 'database-management',
+  getActiveDashboardPage: () =>
+    dom.dashboardPages.find((page) => page.classList.contains('is-active')) ?? null,
+  getActiveDatabaseTabButton: () =>
+    dom.databaseTabButtons.find((button) => button.classList.contains('is-active')) ?? null,
+  isServerManagementPageActive: () =>
+    app.getActiveDashboardPage()?.dataset.dashboardPanel === 'server-management',
+  isDatabaseManagementPageActive: () =>
+    app.getActiveDashboardPage()?.dataset.dashboardPanel === 'database-management',
   getServiceHealthState: (service) => service?.latest?.state ?? 'unknown',
   isServiceHealthy: (service) => app.getServiceHealthState(service) === 'healthy',
   getDatabaseSection: (payload) => {
@@ -698,30 +818,61 @@ Object.assign(app, {
     const services = Array.isArray(section?.services) ? section.services : [];
     return services[0] ?? null;
   },
-  isDatabaseHealthy: (payload = state.databaseHealthSnapshot) => app.isServiceHealthy(app.getDatabasePrimaryService(payload)),
+  isDatabaseHealthy: (payload = state.databaseHealthSnapshot) =>
+    app.isServiceHealthy(app.getDatabasePrimaryService(payload)),
   isDatabaseAccountsSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-accounts-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-accounts-section',
+    );
   },
   isDatabaseStatusSectionActive: () => {
-    return app.getActiveDatabaseTabButton()?.dataset.databaseTab === 'database-service-status-section';
+    return (
+      app.getActiveDatabaseTabButton()?.dataset.databaseTab === 'database-service-status-section'
+    );
   },
   isDatabasePlayerProfileSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-player-profile-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-player-profile-section',
+    );
   },
   isDatabaseCharacterManagementSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-character-management-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-character-management-section',
+    );
   },
   isDatabaseWeaponManagementSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-equip-management-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-equip-management-section',
+    );
   },
   isDatabaseMemoryManagementSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-memory-management-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-memory-management-section',
+    );
   },
   isDatabaseItemManagementSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-item-management-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-item-management-section',
+    );
   },
   isDatabaseStageManagementSectionActive: () => {
-    return dom.databaseTabButtons.some((button) => button.classList.contains('is-active') && button.dataset.databaseTab === 'database-stage-management-section');
+    return dom.databaseTabButtons.some(
+      (button) =>
+        button.classList.contains('is-active') &&
+        button.dataset.databaseTab === 'database-stage-management-section',
+    );
   },
   normalizeAccountUid: (value) => {
     const parsed = Number.parseInt(String(value ?? ''), 10);
@@ -794,7 +945,10 @@ Object.assign(app, {
   getPlayerResourcePickerEntries: (field) => {
     const map = app.getPlayerResourceMapByField(field);
     return Object.entries(map)
-      .map(([id, url]) => ({ id: app.normalizePlayerResourceId(id), url: typeof url === 'string' ? url : '' }))
+      .map(([id, url]) => ({
+        id: app.normalizePlayerResourceId(id),
+        url: typeof url === 'string' ? url : '',
+      }))
       .filter((item) => item.id !== null)
       .sort((left, right) => left.id - right.id);
   },
@@ -804,11 +958,12 @@ Object.assign(app, {
       return true;
     }
 
-    const unlockedIds = field === 'head_frame_id'
-      ? profile.unlock_head_frames
-      : field === 'use_background_id'
-        ? profile.owned_background_ids
-        : profile.unlock_head_portraits;
+    const unlockedIds =
+      field === 'head_frame_id'
+        ? profile.unlock_head_frames
+        : field === 'use_background_id'
+          ? profile.owned_background_ids
+          : profile.unlock_head_portraits;
     return Array.isArray(unlockedIds) && unlockedIds.includes(id);
   },
   getPlayerResourceLabel: (field) => {
@@ -839,7 +994,10 @@ Object.assign(app, {
   },
   getPlayerResourceCurrentName: (field) => {
     const currentValue = app.getPlayerResourceCurrentValue(field);
-    return app.getPlayerResourceNameByField(field, currentValue) || (currentValue === null ? t('common.notAvailable', {}, state.locale) : String(currentValue));
+    return (
+      app.getPlayerResourceNameByField(field, currentValue) ||
+      (currentValue === null ? t('common.notAvailable', {}, state.locale) : String(currentValue))
+    );
   },
   getPlayerResourcePickerPageSize: () => {
     const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1280;
@@ -849,7 +1007,10 @@ Object.assign(app, {
     const gap = 12;
     const horizontalPadding = 84;
     const verticalPadding = 280;
-    const columns = Math.max(2, Math.floor((viewportWidth - horizontalPadding) / (cardWidth + gap)));
+    const columns = Math.max(
+      2,
+      Math.floor((viewportWidth - horizontalPadding) / (cardWidth + gap)),
+    );
     const rows = Math.max(2, Math.floor((viewportHeight - verticalPadding) / (cardHeight + gap)));
     return Math.max(4, columns * rows);
   },
@@ -861,11 +1022,16 @@ Object.assign(app, {
     const value = app.getPlayerProfileEditValue(field);
     return value !== null && value !== undefined;
   },
-  canAccessWeaponManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
-  canAccessCharacterManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
-  canAccessMemoryManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
-  canAccessItemManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
-  canAccessStageManagement: (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessWeaponManagement: (payload = state.databaseHealthSnapshot) =>
+    app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessCharacterManagement: (payload = state.databaseHealthSnapshot) =>
+    app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessMemoryManagement: (payload = state.databaseHealthSnapshot) =>
+    app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessItemManagement: (payload = state.databaseHealthSnapshot) =>
+    app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
+  canAccessStageManagement: (payload = state.databaseHealthSnapshot) =>
+    app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null,
   getApiRequestMethod: (init = {}) => String(init?.method ?? 'GET').toUpperCase(),
   getApiRequestPath: (input) => {
     if (typeof input === 'string') {
@@ -926,7 +1092,8 @@ Object.assign(app, {
     const sections = Array.isArray(payload?.sections) ? payload.sections : [];
     return sections.find((section) => section?.key === 'game') ?? null;
   },
-  isGameServerHealthy: (payload = state.latestStatusSnapshot) => app.isServiceHealthy(app.getGameSection(payload)?.services?.[0]),
+  isGameServerHealthy: (payload = state.latestStatusSnapshot) =>
+    app.isServiceHealthy(app.getGameSection(payload)?.services?.[0]),
   formatTime: (iso) => {
     if (!iso) {
       return t('dashboard.statusNoRecords', {}, state.locale);
@@ -953,16 +1120,25 @@ Object.assign(app, {
 
     return apiFetch(input, init);
   },
-  apiErrorMessage: (error, fallbackKey = 'runtime.apiUnknown') => getLocalizedApiErrorMessage(error, state.locale, fallbackKey),
+  apiErrorMessage: (error, fallbackKey = 'runtime.apiUnknown') =>
+    getLocalizedApiErrorMessage(error, state.locale, fallbackKey),
   resolveUiTextToken: (token) => resolveUiTextToken(token, state.locale),
-  createApiError: (payload, status = null) => new ApiError({ code: payload?.code, details: payload?.details, message: payload?.message, status }),
+  createApiError: (payload, status = null) =>
+    new ApiError({
+      code: payload?.code,
+      details: payload?.details,
+      message: payload?.message,
+      status,
+    }),
   normalizePaginationTargetPage: (value, totalPages) => {
     const parsed = Number.parseInt(String(value ?? '').trim(), 10);
     if (!Number.isFinite(parsed)) {
       return null;
     }
 
-    const safeTotalPages = Number.isFinite(Number(totalPages)) ? Math.max(0, Number(totalPages)) : 0;
+    const safeTotalPages = Number.isFinite(Number(totalPages))
+      ? Math.max(0, Number(totalPages))
+      : 0;
     if (safeTotalPages <= 0) {
       return null;
     }

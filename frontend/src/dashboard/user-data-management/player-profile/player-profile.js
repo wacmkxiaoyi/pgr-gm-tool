@@ -111,11 +111,15 @@ const getPlayerExpInputMax = (profile) => {
   return Math.max(0, configuredMaxExp - 1);
 };
 
-const getPlayerExpDisplayMax = (profile) => (isPlayerAtLevelMax(profile)
-  ? getConfiguredPlayerHonorLevelExpMax(Number.parseInt(String(profile?.honor_level ?? ''), 10) || 1)
-  : getConfiguredPlayerLevelExpMax(profile?.level));
+const getPlayerExpDisplayMax = (profile) =>
+  isPlayerAtLevelMax(profile)
+    ? getConfiguredPlayerHonorLevelExpMax(
+        Number.parseInt(String(profile?.honor_level ?? ''), 10) || 1,
+      )
+    : getConfiguredPlayerLevelExpMax(profile?.level);
 
-const validateNonNegativeInteger = (value, invalidKey) => (/^\d+$/.test(value) ? '' : app.translate(invalidKey));
+const validateNonNegativeInteger = (value, invalidKey) =>
+  /^\d+$/.test(value) ? '' : app.translate(invalidKey);
 
 const validateInt32Field = (value, invalidKey) => {
   const invalidMessage = validateNonNegativeInteger(value, invalidKey);
@@ -183,7 +187,8 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
       { value: 2, labelKey: 'dashboard.playerGenderMale' },
     ],
     normalize: (value) => String(value).trim(),
-    validate: (value) => (value === '1' || value === '2' ? '' : app.translate('runtime.playerGenderInvalid')),
+    validate: (value) =>
+      value === '1' || value === '2' ? '' : app.translate('runtime.playerGenderInvalid'),
   },
   likes: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.likes),
@@ -197,7 +202,8 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
   level: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.level),
     getRawValue: (profile) => profile?.level ?? null,
-    element: () => (isPlayerAtLevelMax(state.playerProfileData) ? playerCardHonorLevel : playerCardLevel),
+    element: () =>
+      isPlayerAtLevelMax(state.playerProfileData) ? playerCardHonorLevel : playerCardLevel,
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
@@ -217,8 +223,9 @@ const PLAYER_PROFILE_EDITABLE_FIELDS = {
   },
   honor_level: {
     displayValue: (profile) => app.formatPlayerFieldValue(profile?.honor_level),
-    getRawValue: (profile) => (isPlayerAtLevelMax(profile) ? profile?.honor_level ?? null : null),
-    element: () => (isPlayerAtLevelMax(state.playerProfileData) ? playerCardLevel : playerCardHonorLevel),
+    getRawValue: (profile) => (isPlayerAtLevelMax(profile) ? (profile?.honor_level ?? null) : null),
+    element: () =>
+      isPlayerAtLevelMax(state.playerProfileData) ? playerCardLevel : playerCardHonorLevel,
     editorType: 'input',
     inputMode: 'numeric',
     normalize: (value) => String(value).trim(),
@@ -344,7 +351,14 @@ app.setPlayerEditableState = (field, editable) => {
   element.setAttribute('tabindex', editable ? '0' : '-1');
   if (editable) {
     element.setAttribute('role', 'button');
-    element.setAttribute('title', config?.editorType === 'picker' ? app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }) : app.translate('runtime.playerEditInputTitle'));
+    element.setAttribute(
+      'title',
+      config?.editorType === 'picker'
+        ? app.translate('runtime.playerEditPickerTitle', {
+            label: app.getPlayerResourceLabel(field),
+          })
+        : app.translate('runtime.playerEditInputTitle'),
+    );
   } else {
     element.removeAttribute('role');
     element.removeAttribute('title');
@@ -353,7 +367,12 @@ app.setPlayerEditableState = (field, editable) => {
   if (field === 'use_background_id' && playerCardBackground instanceof HTMLElement) {
     playerCardBackground.classList.toggle('is-editable', editable);
     if (editable) {
-      playerCardBackground.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+      playerCardBackground.setAttribute(
+        'title',
+        app.translate('runtime.playerEditPickerTitle', {
+          label: app.getPlayerResourceLabel(field),
+        }),
+      );
     } else {
       playerCardBackground.removeAttribute('title');
     }
@@ -369,7 +388,12 @@ app.setPlayerEditableState = (field, editable) => {
         playerCardAvatarRing.removeAttribute('role');
       }
       if (editable) {
-        playerCardAvatarRing.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+        playerCardAvatarRing.setAttribute(
+          'title',
+          app.translate('runtime.playerEditPickerTitle', {
+            label: app.getPlayerResourceLabel(field),
+          }),
+        );
       } else {
         playerCardAvatarRing.removeAttribute('title');
       }
@@ -380,7 +404,12 @@ app.setPlayerEditableState = (field, editable) => {
       playerCardAvatarFrameHitbox.disabled = !editable;
       playerCardAvatarFrameHitbox.tabIndex = editable ? 0 : -1;
       if (editable) {
-        playerCardAvatarFrameHitbox.setAttribute('title', app.translate('runtime.playerEditPickerTitle', { label: app.getPlayerResourceLabel(field) }));
+        playerCardAvatarFrameHitbox.setAttribute(
+          'title',
+          app.translate('runtime.playerEditPickerTitle', {
+            label: app.getPlayerResourceLabel(field),
+          }),
+        );
       } else {
         playerCardAvatarFrameHitbox.removeAttribute('title');
       }
@@ -397,24 +426,54 @@ app.syncPlayerCardLevelTheme = (levelValue) => {
   const normalizedLevel = Number.isFinite(parsedLevel) ? Math.max(0, parsedLevel) : 0;
   const levelCap = getConfiguredPlayerLevelMax();
   const progress = levelCap > 0 ? Math.min(1, normalizedLevel / levelCap) : 0;
-  const hue = 192 + (progress * 108);
+  const hue = 192 + progress * 108;
   const angle = 210 + Math.round(progress * 96);
-  const glowAlpha = 0.28 + (progress * 0.34);
-  const shadowAlpha = 0.2 + (progress * 0.18);
-  const expBorderAlpha = 0.28 + (progress * 0.22);
+  const glowAlpha = 0.28 + progress * 0.34;
+  const shadowAlpha = 0.2 + progress * 0.18;
+  const expBorderAlpha = 0.28 + progress * 0.22;
 
   playerCard.style.setProperty('--player-level-progress', progress.toFixed(3));
   playerCard.style.setProperty('--player-level-angle', `${angle}deg`);
-  playerCard.style.setProperty('--player-level-core-start', `hsla(${Math.round(hue - 22)} 92% 64% / ${0.2 + (progress * 0.16)})`);
-  playerCard.style.setProperty('--player-level-core-end', `hsla(${Math.round(hue + 12)} 95% 60% / ${0.26 + (progress * 0.18)})`);
-  playerCard.style.setProperty('--player-level-ring-start', `hsla(${Math.round(hue - 28)} 100% 66% / 0.92)`);
-  playerCard.style.setProperty('--player-level-ring-mid', `hsla(${Math.round(hue + 4)} 98% 64% / 0.96)`);
-  playerCard.style.setProperty('--player-level-ring-end', `hsla(${Math.round(hue + 44)} 100% 72% / ${0.78 + (progress * 0.16)})`);
-  playerCard.style.setProperty('--player-level-glow', `hsla(${Math.round(hue - 16)} 100% 62% / ${glowAlpha.toFixed(3)})`);
-  playerCard.style.setProperty('--player-level-shadow', `hsla(${Math.round(hue + 10)} 92% 52% / ${shadowAlpha.toFixed(3)})`);
-  playerCard.style.setProperty('--player-level-exp-start', `hsla(${Math.round(hue - 26)} 42% 10% / 0.9)`);
-  playerCard.style.setProperty('--player-level-exp-end', `hsla(${Math.round(hue + 8)} 56% 18% / ${0.72 + (progress * 0.12)})`);
-  playerCard.style.setProperty('--player-level-exp-border', `hsla(${Math.round(hue - 10)} 100% 72% / ${expBorderAlpha.toFixed(3)})`);
+  playerCard.style.setProperty(
+    '--player-level-core-start',
+    `hsla(${Math.round(hue - 22)} 92% 64% / ${0.2 + progress * 0.16})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-core-end',
+    `hsla(${Math.round(hue + 12)} 95% 60% / ${0.26 + progress * 0.18})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-ring-start',
+    `hsla(${Math.round(hue - 28)} 100% 66% / 0.92)`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-ring-mid',
+    `hsla(${Math.round(hue + 4)} 98% 64% / 0.96)`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-ring-end',
+    `hsla(${Math.round(hue + 44)} 100% 72% / ${0.78 + progress * 0.16})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-glow',
+    `hsla(${Math.round(hue - 16)} 100% 62% / ${glowAlpha.toFixed(3)})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-shadow',
+    `hsla(${Math.round(hue + 10)} 92% 52% / ${shadowAlpha.toFixed(3)})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-exp-start',
+    `hsla(${Math.round(hue - 26)} 42% 10% / 0.9)`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-exp-end',
+    `hsla(${Math.round(hue + 8)} 56% 18% / ${0.72 + progress * 0.12})`,
+  );
+  playerCard.style.setProperty(
+    '--player-level-exp-border',
+    `hsla(${Math.round(hue - 10)} 100% 72% / ${expBorderAlpha.toFixed(3)})`,
+  );
 };
 
 app.syncPlayerCardExpProgress = (profile) => {
@@ -432,10 +491,15 @@ app.syncPlayerCardHonorLevel = (profile) => {
     playerCardHonorBar.hidden = !available;
   }
   if (playerCardHonorLevel instanceof HTMLElement) {
-    playerCardHonorLevel.textContent = available ? app.formatPlayerFieldValue(profile?.level) : '--';
+    playerCardHonorLevel.textContent = available
+      ? app.formatPlayerFieldValue(profile?.level)
+      : '--';
   }
   if (playerCard instanceof HTMLElement) {
-    playerCard.style.setProperty('--player-honor-progress', getPlayerLevelProgress(profile).toFixed(3));
+    playerCard.style.setProperty(
+      '--player-honor-progress',
+      getPlayerLevelProgress(profile).toFixed(3),
+    );
   }
 };
 
@@ -512,10 +576,18 @@ app.beginPlayerProfileEdit = (field) => {
   if (config.editorType === 'select') {
     const select = document.createElement('select');
     select.className = 'database-player-inline-select';
-    select.setAttribute('aria-label', app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }));
+    select.setAttribute(
+      'aria-label',
+      app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }),
+    );
 
     const options = Array.isArray(config.options) ? config.options : [];
-    select.innerHTML = options.map((option) => `<option value="${option.value}">${app.translate(option.labelKey ?? option.label ?? option.value)}</option>`).join('');
+    select.innerHTML = options
+      .map(
+        (option) =>
+          `<option value="${option.value}">${app.translate(option.labelKey ?? option.label ?? option.value)}</option>`,
+      )
+      .join('');
     select.value = String(rawValue);
     element.appendChild(select);
     select.focus();
@@ -539,7 +611,10 @@ app.beginPlayerProfileEdit = (field) => {
 
     select.addEventListener('blur', () => {
       window.setTimeout(() => {
-        if (state.playerProfileEditState?.field === field && !state.playerProfileEditState.pending) {
+        if (
+          state.playerProfileEditState?.field === field &&
+          !state.playerProfileEditState.pending
+        ) {
           app.stopPlayerProfileEdit(field);
         }
       }, 0);
@@ -552,7 +627,10 @@ app.beginPlayerProfileEdit = (field) => {
   input.className = 'database-player-inline-input';
   input.value = String(rawValue);
   input.inputMode = config.inputMode;
-  input.setAttribute('aria-label', app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }));
+  input.setAttribute(
+    'aria-label',
+    app.translate('runtime.playerEditAria', { label: getPlayerFieldLabel(field) }),
+  );
   element.appendChild(input);
   input.focus();
   input.select();
@@ -639,7 +717,11 @@ app.submitPlayerProfileEdit = async (field, nextValue) => {
 
 app.handlePlayerProfileFieldActivate = (event) => {
   const target = event.target;
-  if (!(target instanceof HTMLElement) || target.tagName === 'INPUT' || target.tagName === 'SELECT') {
+  if (
+    !(target instanceof HTMLElement) ||
+    target.tagName === 'INPUT' ||
+    target.tagName === 'SELECT'
+  ) {
     return;
   }
 
@@ -649,7 +731,11 @@ app.handlePlayerProfileFieldActivate = (event) => {
   }
 
   const field = editableElement.dataset.playerEditField;
-  if (!field || !PLAYER_PROFILE_EDITABLE_FIELDS[field] || !editableElement.classList.contains('is-editable')) {
+  if (
+    !field ||
+    !PLAYER_PROFILE_EDITABLE_FIELDS[field] ||
+    !editableElement.classList.contains('is-editable')
+  ) {
     return;
   }
 
@@ -726,13 +812,21 @@ app.resolvePlayerBackgroundAspectRatio = (source) => {
   image.addEventListener('load', () => {
     const naturalWidth = Number(image.naturalWidth);
     const naturalHeight = Number(image.naturalHeight);
-    if (!Number.isFinite(naturalWidth) || !Number.isFinite(naturalHeight) || naturalWidth <= 0 || naturalHeight <= 0) {
+    if (
+      !Number.isFinite(naturalWidth) ||
+      !Number.isFinite(naturalHeight) ||
+      naturalWidth <= 0 ||
+      naturalHeight <= 0
+    ) {
       return;
     }
 
     const aspectRatio = naturalWidth / naturalHeight;
     state.playerBackgroundAspectRatioMap[normalizedSource] = aspectRatio;
-    if (typeof playerCardBackground?.style?.backgroundImage === 'string' && playerCardBackground.style.backgroundImage.includes(normalizedSource)) {
+    if (
+      typeof playerCardBackground?.style?.backgroundImage === 'string' &&
+      playerCardBackground.style.backgroundImage.includes(normalizedSource)
+    ) {
       state.playerCardBackgroundAspectRatio = aspectRatio;
       app.queuePlayerCardBackgroundAspectSync();
     }
@@ -741,7 +835,12 @@ app.resolvePlayerBackgroundAspectRatio = (source) => {
 };
 
 app.syncPlayerCardBackgroundAspect = () => {
-  if (!(playerCard instanceof HTMLElement) || !(databasePlayerProfileShell instanceof HTMLElement) || playerCard.hidden || databasePlayerProfileShell.hidden) {
+  if (
+    !(playerCard instanceof HTMLElement) ||
+    !(databasePlayerProfileShell instanceof HTMLElement) ||
+    playerCard.hidden ||
+    databasePlayerProfileShell.hidden
+  ) {
     return;
   }
 
@@ -756,14 +855,22 @@ app.syncPlayerCardBackgroundAspect = () => {
     return;
   }
 
-  const targetAspectRatio = Math.min(PLAYER_CARD_MAX_ASPECT_RATIO, Math.max(PLAYER_CARD_MIN_ASPECT_RATIO, rawAspectRatio));
+  const targetAspectRatio = Math.min(
+    PLAYER_CARD_MAX_ASPECT_RATIO,
+    Math.max(PLAYER_CARD_MIN_ASPECT_RATIO, rawAspectRatio),
+  );
   app.clearPlayerCardInlineSize();
 
   const shellRect = databasePlayerProfileShell.getBoundingClientRect();
   const cardRect = playerCard.getBoundingClientRect();
   const maxWidth = Math.floor(shellRect.width);
   const baseHeight = Math.ceil(cardRect.height);
-  if (!Number.isFinite(maxWidth) || maxWidth <= 0 || !Number.isFinite(baseHeight) || baseHeight <= 0) {
+  if (
+    !Number.isFinite(maxWidth) ||
+    maxWidth <= 0 ||
+    !Number.isFinite(baseHeight) ||
+    baseHeight <= 0
+  ) {
     return;
   }
 
@@ -956,11 +1063,15 @@ app.renderPlayerProfile = (profile) => {
     playerCardGender.textContent = genderLabel;
   }
   if (playerCardLevel instanceof HTMLElement) {
-    playerCardLevel.textContent = isPlayerAtLevelMax(profile) ? app.formatPlayerFieldValue(profile?.honor_level) : levelLabel;
+    playerCardLevel.textContent = isPlayerAtLevelMax(profile)
+      ? app.formatPlayerFieldValue(profile?.honor_level)
+      : levelLabel;
     playerCardLevel.dataset.playerEditField = isPlayerAtLevelMax(profile) ? 'honor_level' : 'level';
   }
   if (playerCardLevelLabel instanceof HTMLElement) {
-    playerCardLevelLabel.textContent = app.translate(isPlayerAtLevelMax(profile) ? 'dashboard.playerHonorLevel' : 'dashboard.playerLevel');
+    playerCardLevelLabel.textContent = app.translate(
+      isPlayerAtLevelMax(profile) ? 'dashboard.playerHonorLevel' : 'dashboard.playerLevel',
+    );
   }
   if (playerCardHonorLevel instanceof HTMLElement) {
     playerCardHonorLevel.dataset.playerEditField = 'level';
@@ -984,9 +1095,15 @@ app.renderPlayerProfile = (profile) => {
     playerCardRainbowCard.textContent = app.formatPlayerFieldValue(profile?.rainbow_card ?? 0);
   }
 
-  app.setPlayerCardAvatar(app.getPlayerResourceUrlByField('head_portrait_id', profile?.head_portrait_id ?? null));
-  app.setPlayerCardAvatarFrame(app.getPlayerResourceUrlByField('head_frame_id', profile?.head_frame_id ?? null));
-  app.setPlayerCardBackground(app.getPlayerResourceUrlByField('use_background_id', profile?.use_background_id ?? null));
+  app.setPlayerCardAvatar(
+    app.getPlayerResourceUrlByField('head_portrait_id', profile?.head_portrait_id ?? null),
+  );
+  app.setPlayerCardAvatarFrame(
+    app.getPlayerResourceUrlByField('head_frame_id', profile?.head_frame_id ?? null),
+  );
+  app.setPlayerCardBackground(
+    app.getPlayerResourceUrlByField('use_background_id', profile?.use_background_id ?? null),
+  );
   app.syncPlayerCardLevelTheme(profile?.level);
   app.syncPlayerCardExpProgress(profile);
   app.syncPlayerCardHonorLevel(profile);
@@ -1019,7 +1136,8 @@ app.handlePlayerCardBackgroundActivate = (event) => {
   app.openPlayerPortraitPicker('use_background_id');
 };
 
-app.canAccessPlayerProfile = (payload = state.databaseHealthSnapshot) => app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null;
+app.canAccessPlayerProfile = (payload = state.databaseHealthSnapshot) =>
+  app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null;
 
 app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   const healthy = app.isDatabaseHealthy(payload);
@@ -1031,7 +1149,9 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
     if (!healthy) {
       databasePlayerProfileSubnavButton.title = app.translate('runtime.playerProfileAccessTitle');
     } else if (state.selectedAccountUid === null) {
-      databasePlayerProfileSubnavButton.title = app.translate('runtime.playerProfileNeedAccountTitle');
+      databasePlayerProfileSubnavButton.title = app.translate(
+        'runtime.playerProfileNeedAccountTitle',
+      );
     } else {
       databasePlayerProfileSubnavButton.title = '';
     }
@@ -1040,12 +1160,12 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   if (databasePlayerProfileSummary instanceof HTMLElement) {
     const summaryMeta = databasePlayerProfileSummary.parentElement;
     if (!healthy) {
-        summaryMessage = app.translate('dashboard.accountsUnavailable');
-      } else if (state.selectedAccountUid === null) {
-        summaryMessage = app.translate('dashboard.playerProfileChooseAccount');
-      } else if (state.playerProfileLoading) {
-        summaryMessage = app.translate('runtime.playerProfileLoading');
-      }
+      summaryMessage = app.translate('dashboard.accountsUnavailable');
+    } else if (state.selectedAccountUid === null) {
+      summaryMessage = app.translate('dashboard.playerProfileChooseAccount');
+    } else if (state.playerProfileLoading) {
+      summaryMessage = app.translate('runtime.playerProfileLoading');
+    }
 
     databasePlayerProfileSummary.textContent = summaryMessage;
     databasePlayerProfileSummary.hidden = summaryMessage.length <= 0;
@@ -1075,7 +1195,12 @@ app.updatePlayerProfileAccess = (payload = state.databaseHealthSnapshot) => {
   }
 
   if (!state.playerProfileData) {
-    app.setPlayerProfileState(state.playerProfileLoading ? app.translate('runtime.playerProfileLoading') : app.translate('runtime.playerProfilePrompt'), state.playerProfileLoading ? 'is-loading' : 'is-muted');
+    app.setPlayerProfileState(
+      state.playerProfileLoading
+        ? app.translate('runtime.playerProfileLoading')
+        : app.translate('runtime.playerProfilePrompt'),
+      state.playerProfileLoading ? 'is-loading' : 'is-muted',
+    );
   }
 };
 
@@ -1099,7 +1224,10 @@ app.loadSelectedPlayerProfile = async () => {
   } catch (error) {
     if (!hasRenderedProfile) {
       state.playerProfileData = null;
-      app.setPlayerProfileState(app.apiErrorMessage(error, 'runtime.playerProfileLoadFailed'), 'is-error');
+      app.setPlayerProfileState(
+        app.apiErrorMessage(error, 'runtime.playerProfileLoadFailed'),
+        'is-error',
+      );
     }
   } finally {
     state.playerProfileLoading = false;
@@ -1157,7 +1285,9 @@ export const initDatabasePlayerProfileFeature = () => {
     });
   }
 
-  const playerCardAvatarStage = playerCardAvatarShell?.querySelector('.database-player-card-avatar-stage');
+  const playerCardAvatarStage = playerCardAvatarShell?.querySelector(
+    '.database-player-card-avatar-stage',
+  );
 
   if (playerCardAvatarStage instanceof HTMLElement) {
     playerCardAvatarStage.addEventListener('click', (event) => {
@@ -1170,8 +1300,8 @@ export const initDatabasePlayerProfileFeature = () => {
       }
 
       if (
-        event.target.closest('.database-player-card-avatar-image')
-        || event.target.closest('.database-player-card-avatar-fallback')
+        event.target.closest('.database-player-card-avatar-image') ||
+        event.target.closest('.database-player-card-avatar-fallback')
       ) {
         event.stopPropagation();
         app.openPlayerPortraitPicker('head_portrait_id');

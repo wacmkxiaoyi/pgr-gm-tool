@@ -40,7 +40,9 @@
   background: rgba(255, 255, 255, 0.76);
   color: var(--text);
   font: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .account-password-input:focus {

@@ -1,0 +1,53 @@
+<div class="shared-modal" hidden id="character-head-fashion-switch-modal">
+  <div class="shared-modal-backdrop" data-character-head-fashion-switch-modal-close></div>
+  <section
+    class="shared-modal-card character-fashion-switch-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-head-fashion-switch-title"
+    tabindex="-1"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">H</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailFashions">涂装</p>
+        <h3
+          id="character-head-fashion-switch-title"
+          data-i18n="dashboard.characterDetailHeadFashions"
+        >
+          头像涂装
+        </h3>
+      </div>
+    </div>
+    <div class="character-fashion-picker-meta">
+      <div
+        class="character-fashion-picker-summary"
+        id="character-head-fashion-switch-current"
+      ></div>
+    </div>
+    <div class="character-fashion-switch-grid-shell">
+      <div class="character-detail-fashion-grid" id="character-detail-head-fashions"></div>
+    </div>
+    <div class="character-fashion-picker-toolbar">
+      <div class="shared-modal-actions character-fashion-picker-actions">
+        <button
+          type="button"
+          class="shared-modal-button shared-modal-button-secondary character-fashion-picker-cancel"
+          data-character-head-fashion-switch-modal-close
+          data-i18n="common.cancel"
+        >
+          取消
+        </button>
+        <button
+          type="button"
+          class="shared-modal-button"
+          id="character-head-fashion-switch-confirm"
+          disabled
+          data-i18n="common.confirm"
+        >
+          确认
+        </button>
+      </div>
+    </div>
+  </section>
+</div>

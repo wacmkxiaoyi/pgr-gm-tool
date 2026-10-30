@@ -37,7 +37,11 @@ app.closeItemDeleteModal = () => {
 };
 
 app.openItemDeleteModal = (item, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -71,7 +75,11 @@ app.openItemDeleteModal = (item, trigger) => {
 };
 
 app.openStageDeleteModal = (stage, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -104,7 +112,11 @@ app.openStageDeleteModal = (stage, trigger) => {
 };
 
 app.openWeaponResonanceDeleteModal = (payload, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -137,7 +149,11 @@ app.openWeaponResonanceDeleteModal = (payload, trigger) => {
 };
 
 app.openWeaponDeleteModal = (weapon, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -171,7 +187,11 @@ app.openWeaponDeleteModal = (weapon, trigger) => {
 };
 
 app.openClearItemsModal = (keyword, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -203,7 +223,11 @@ app.openClearItemsModal = (keyword, trigger) => {
 };
 
 app.openClearStagesModal = (trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -233,7 +257,11 @@ app.openClearStagesModal = (trigger) => {
 };
 
 app.openClearWeaponsModal = (keyword, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -265,7 +293,11 @@ app.openClearWeaponsModal = (keyword, trigger) => {
 };
 
 app.openMemoryDeleteModal = (memory, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -299,7 +331,11 @@ app.openMemoryDeleteModal = (memory, trigger) => {
 };
 
 app.openClearMemoriesModal = (keyword, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -331,7 +367,11 @@ app.openClearMemoriesModal = (keyword, trigger) => {
 };
 
 app.openCharacterMaxAllModal = (character, trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -352,7 +392,9 @@ app.openCharacterMaxAllModal = (character, trigger) => {
     characterName: character?.characterName ?? app.translate('common.notAvailable'),
   });
   if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
-    itemDeleteConfirmButton.textContent = app.translate('runtime.characterDetailMaxAllConfirmSubmit');
+    itemDeleteConfirmButton.textContent = app.translate(
+      'runtime.characterDetailMaxAllConfirmSubmit',
+    );
   }
   itemDeleteModal.hidden = false;
   app.setBodyModalOpen(true);
@@ -363,7 +405,11 @@ app.openCharacterMaxAllModal = (character, trigger) => {
 };
 
 app.openCharacterManagementMaxAllModal = (trigger) => {
-  if (!(itemDeleteModal instanceof HTMLElement) || !(itemDeleteMessage instanceof HTMLElement) || !(itemDeleteTitle instanceof HTMLElement)) {
+  if (
+    !(itemDeleteModal instanceof HTMLElement) ||
+    !(itemDeleteMessage instanceof HTMLElement) ||
+    !(itemDeleteTitle instanceof HTMLElement)
+  ) {
     return;
   }
 
@@ -382,7 +428,9 @@ app.openCharacterManagementMaxAllModal = (trigger) => {
   itemDeleteTitle.textContent = app.translate('runtime.characterManagementMaxAllConfirmTitle');
   itemDeleteMessage.textContent = app.translate('runtime.characterManagementMaxAllConfirm');
   if (itemDeleteConfirmButton instanceof HTMLButtonElement) {
-    itemDeleteConfirmButton.textContent = app.translate('runtime.characterManagementMaxAllConfirmSubmit');
+    itemDeleteConfirmButton.textContent = app.translate(
+      'runtime.characterManagementMaxAllConfirmSubmit',
+    );
   }
   itemDeleteModal.hidden = false;
   app.setBodyModalOpen(true);
@@ -406,7 +454,10 @@ app.confirmDeleteOrClearItems = async () => {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
-      app.openSuccessModal(app.translate('runtime.itemDeleteSuccess', { itemName, itemId }), app.translate('runtime.itemDeleteSuccessTitle'));
+      app.openSuccessModal(
+        app.translate('runtime.itemDeleteSuccess', { itemName, itemId }),
+        app.translate('runtime.itemDeleteSuccessTitle'),
+      );
       await app.reloadItemManagementCurrentPage();
       return;
     }
@@ -417,7 +468,10 @@ app.confirmDeleteOrClearItems = async () => {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
-      app.openSuccessModal(app.translate('runtime.stageDeleteSuccess', { stageName, stageId }), app.translate('runtime.stageDeleteSuccessTitle'));
+      app.openSuccessModal(
+        app.translate('runtime.stageDeleteSuccess', { stageName, stageId }),
+        app.translate('runtime.stageDeleteSuccessTitle'),
+      );
       await app.reloadStageManagementCurrentPage();
       return;
     }
@@ -428,7 +482,10 @@ app.confirmDeleteOrClearItems = async () => {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
-      app.openSuccessModal(app.translate('runtime.weaponDeleteSuccess', { weaponName, templateId }), app.translate('runtime.weaponDeleteSuccessTitle'));
+      app.openSuccessModal(
+        app.translate('runtime.weaponDeleteSuccess', { weaponName, templateId }),
+        app.translate('runtime.weaponDeleteSuccessTitle'),
+      );
       await app.reloadWeaponManagementCurrentPage();
       return;
     }
@@ -439,7 +496,10 @@ app.confirmDeleteOrClearItems = async () => {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
-      app.openSuccessModal(app.translate('runtime.memoryDeleteSuccess', { memoryName, templateId }), app.translate('runtime.memoryDeleteSuccessTitle'));
+      app.openSuccessModal(
+        app.translate('runtime.memoryDeleteSuccess', { memoryName, templateId }),
+        app.translate('runtime.memoryDeleteSuccessTitle'),
+      );
       await app.reloadMemoryManagementCurrentPage();
       return;
     }
@@ -472,14 +532,21 @@ app.confirmDeleteOrClearItems = async () => {
     }
 
     if (state.pendingDeleteWeaponResonance) {
-      const { recordId, slot, slotLabel, weaponName, detailMode } = state.pendingDeleteWeaponResonance;
-      const basePath = detailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
+      const { recordId, slot, slotLabel, weaponName, detailMode } =
+        state.pendingDeleteWeaponResonance;
+      const basePath =
+        detailMode === 'memory'
+          ? '/api/database-memories/selected'
+          : '/api/database-weapons/selected';
       await app.apiFetch(`${basePath}/${recordId}/resonance/${slot}`, {
         method: 'DELETE',
       });
       app.closeItemDeleteModal();
       app.openSuccessModal(
-        app.translate('runtime.weaponResonanceDeleteSuccess', { weaponName, slot: slotLabel ?? slot }),
+        app.translate('runtime.weaponResonanceDeleteSuccess', {
+          weaponName,
+          slot: slotLabel ?? slot,
+        }),
         app.translate('runtime.weaponResonanceDeleteSuccessTitle'),
       );
       delete state._weaponResonanceEditSlots?.[slot];
@@ -506,7 +573,10 @@ app.confirmDeleteOrClearItems = async () => {
       app.closeItemDeleteModal();
       app.openSuccessModal(
         keyword
-          ? app.translate('runtime.itemClearSuccess', { keyword, count: payload?.deleted_count ?? 0 })
+          ? app.translate('runtime.itemClearSuccess', {
+              keyword,
+              count: payload?.deleted_count ?? 0,
+            })
           : app.translate('runtime.itemClearAllSuccess', { count: payload?.deleted_count ?? 0 }),
         app.translate('runtime.itemClearSuccessTitle'),
       );
@@ -541,7 +611,10 @@ app.confirmDeleteOrClearItems = async () => {
       app.closeItemDeleteModal();
       app.openSuccessModal(
         keyword
-          ? app.translate('runtime.weaponClearSuccess', { keyword, count: payload?.deleted_count ?? 0 })
+          ? app.translate('runtime.weaponClearSuccess', {
+              keyword,
+              count: payload?.deleted_count ?? 0,
+            })
           : app.translate('runtime.weaponClearAllSuccess', { count: payload?.deleted_count ?? 0 }),
         app.translate('runtime.weaponClearSuccessTitle'),
       );
@@ -561,7 +634,10 @@ app.confirmDeleteOrClearItems = async () => {
       app.closeItemDeleteModal();
       app.openSuccessModal(
         keyword
-          ? app.translate('runtime.memoryClearSuccess', { keyword, count: payload?.deleted_count ?? 0 })
+          ? app.translate('runtime.memoryClearSuccess', {
+              keyword,
+              count: payload?.deleted_count ?? 0,
+            })
           : app.translate('runtime.memoryClearAllSuccess', { count: payload?.deleted_count ?? 0 }),
         app.translate('runtime.memoryClearSuccessTitle'),
       );
@@ -577,28 +653,25 @@ app.confirmDeleteOrClearItems = async () => {
       ? 'runtime.itemDeleteFailed'
       : state.pendingDeleteStage
         ? 'runtime.stageDeleteFailed'
-      : state.pendingDeleteWeapon
-        ? 'runtime.weaponDeleteFailed'
-        : state.pendingDeleteMemory
-          ? 'runtime.memoryDeleteFailed'
-          : state.pendingCharacterMaxAll
-            ? 'runtime.characterDetailMaxAllFailed'
-            : state.pendingCharacterManagementMaxAll
-              ? 'runtime.characterManagementMaxAllFailed'
-            : state.pendingDeleteWeaponResonance
-              ? 'runtime.weaponResonanceDeleteFailed'
-              : state.pendingClearStages
-                ? 'runtime.stageClearFailed'
-              : state.pendingClearWeaponsKeyword !== null
-                ? 'runtime.weaponClearFailed'
-                : state.pendingClearMemoriesKeyword !== null
-                  ? 'runtime.memoryClearFailed'
-                  : 'runtime.itemClearFailed';
+        : state.pendingDeleteWeapon
+          ? 'runtime.weaponDeleteFailed'
+          : state.pendingDeleteMemory
+            ? 'runtime.memoryDeleteFailed'
+            : state.pendingCharacterMaxAll
+              ? 'runtime.characterDetailMaxAllFailed'
+              : state.pendingCharacterManagementMaxAll
+                ? 'runtime.characterManagementMaxAllFailed'
+                : state.pendingDeleteWeaponResonance
+                  ? 'runtime.weaponResonanceDeleteFailed'
+                  : state.pendingClearStages
+                    ? 'runtime.stageClearFailed'
+                    : state.pendingClearWeaponsKeyword !== null
+                      ? 'runtime.weaponClearFailed'
+                      : state.pendingClearMemoriesKeyword !== null
+                        ? 'runtime.memoryClearFailed'
+                        : 'runtime.itemClearFailed';
     app.closeItemDeleteModal();
-    app.openNoticeModal(app.apiErrorMessage(
-      error,
-      fallbackKey,
-    ));
+    app.openNoticeModal(app.apiErrorMessage(error, fallbackKey));
   } finally {
     itemDeleteConfirmButton.disabled = false;
   }

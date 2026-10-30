@@ -1,0 +1,184 @@
+<div class="shared-modal" hidden id="furniture-add-modal">
+  <div class="shared-modal-backdrop" data-furniture-add-close></div>
+  <section
+    class="shared-modal-card furniture-add-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="furniture-add-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">+</span>
+      <h3 id="furniture-add-title" data-i18n="dashboard.furnitureAddTitle">选择要新增的家具</h3>
+    </div>
+    <div class="furniture-add-content">
+      <div class="furniture-add-topbar">
+        <div class="furniture-add-modes">
+          <label class="furniture-option">
+            <input class="weapon-add-checkbox" type="checkbox" id="furniture-unlock-all" />
+            <span data-i18n="dashboard.furnitureUnlockAll">解锁全部家具</span>
+          </label>
+          <label class="furniture-option">
+            <input class="weapon-add-checkbox" type="checkbox" id="furniture-by-template" />
+            <span data-i18n="dashboard.furnitureByTemplate">按模板</span>
+          </label>
+          <label class="furniture-option">
+            <input class="weapon-add-checkbox" type="checkbox" id="furniture-by-suit" />
+            <span data-i18n="dashboard.furnitureBySuit">按套装</span>
+          </label>
+        </div>
+        <input
+          class="database-item-search-input item-add-search-input"
+          type="search"
+          id="furniture-add-search"
+          data-i18n-placeholder="dashboard.furnitureAddSearch"
+          placeholder="搜索名称、类型或套装"
+        />
+      </div>
+      <p
+        class="shared-modal-message"
+        id="furniture-unlock-description"
+        hidden
+        data-i18n="dashboard.furnitureUnlockDescription"
+      >
+        重建全部家具及解锁列表，并为每个现有房间分配地板、墙和天花板。
+      </p>
+      <div class="item-add-table-shell" id="furniture-add-table-shell">
+        <table class="accounts-table item-add-table furniture-add-table">
+          <colgroup>
+            <col />
+            <col />
+            <col />
+            <col class="weapon-add-col-select" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="name" type="button">
+                  <span data-i18n="dashboard.itemManagementItemName">名称</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="type" type="button">
+                  <span data-i18n="dashboard.furnitureType">类型</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="suit" type="button">
+                  <span data-i18n="dashboard.furnitureSuit">套装</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+            </tr>
+          </thead>
+          <tbody id="furniture-add-body"></tbody>
+        </table>
+        <div
+          class="database-player-empty"
+          id="furniture-add-empty"
+          hidden
+          data-i18n="dashboard.furnitureEmpty"
+        >
+          当前没有匹配的家具。
+        </div>
+      </div>
+      <details class="furniture-advanced" id="furniture-advanced">
+        <summary>
+          <span data-i18n="dashboard.furnitureAdvanced">高级选项</span>
+          <span class="furniture-advanced-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <fieldset class="furniture-attributes">
+          <legend data-i18n="dashboard.furnitureBaseAttributes">基础属性</legend>
+          <div class="furniture-attr-row">
+            <label class="furniture-option">
+              <input type="radio" name="furniture-attr-mode" value="auto" checked />
+              <span data-i18n="dashboard.furnitureAuto">自动</span>
+            </label>
+            <span
+              id="furniture-auto-description"
+              class="furniture-attr-description"
+              data-i18n="dashboard.furnitureAutoDescription"
+            >
+              按类型最大属性值均分，余数依次分给美观和舒适。
+            </span>
+          </div>
+          <div class="furniture-attr-row">
+            <label class="furniture-option">
+              <input type="radio" name="furniture-attr-mode" value="custom" />
+              <span data-i18n="dashboard.furnitureCustom">自定义</span>
+            </label>
+            <div class="furniture-custom-inputs" id="furniture-custom-inputs">
+              <label>
+                <span data-i18n="dashboard.furnitureBeauty">美观值</span>
+                <input
+                  class="database-item-search-input"
+                  type="number"
+                  id="furniture-attr-beauty"
+                  min="0"
+                  max="9999999"
+                  step="1"
+                  value="0"
+                  disabled
+                />
+              </label>
+              <label>
+                <span data-i18n="dashboard.furnitureComfort">舒适值</span>
+                <input
+                  class="database-item-search-input"
+                  type="number"
+                  id="furniture-attr-comfort"
+                  min="0"
+                  max="9999999"
+                  step="1"
+                  value="0"
+                  disabled
+                />
+              </label>
+              <label>
+                <span data-i18n="dashboard.furnitureUtility">实用值</span>
+                <input
+                  class="database-item-search-input"
+                  type="number"
+                  id="furniture-attr-utility"
+                  min="0"
+                  max="9999999"
+                  step="1"
+                  value="0"
+                  disabled
+                />
+              </label>
+            </div>
+          </div>
+        </fieldset>
+        <div class="furniture-additions">
+          <span data-i18n="dashboard.furnitureExtraAttributes">扩展属性</span>
+          <button
+            class="shared-modal-button shared-modal-button-secondary"
+            type="button"
+            id="furniture-additions-open"
+          ></button>
+        </div>
+      </details>
+    </div>
+    <div class="shared-modal-actions item-add-actions">
+      <button
+        class="shared-modal-button shared-modal-button-secondary"
+        type="button"
+        data-furniture-add-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        class="shared-modal-button"
+        type="button"
+        id="furniture-add-submit"
+        data-i18n="dashboard.furnitureAddSubmit"
+      >
+        确认新增
+      </button>
+    </div>
+  </section>
+</div>

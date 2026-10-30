@@ -104,7 +104,9 @@ app.renderCharacterAddModal = () => {
   }
 
   if (characterAddDescription instanceof HTMLElement) {
-    characterAddDescription.textContent = app.translate('runtime.characterManagementAddPickerDescription');
+    characterAddDescription.textContent = app.translate(
+      'runtime.characterManagementAddPickerDescription',
+    );
   }
 
   app.renderCharacterAddCurrent();
@@ -115,21 +117,29 @@ app.renderCharacterAddModal = () => {
   if (entries.length === 0) {
     characterAddGrid.innerHTML = '';
   }
-  characterAddGrid.innerHTML = entries.map((entry) => {
-    const isSelected = entry.id === selectedId;
-    const escapedName = app.escapeHtml(entry.name || '--');
-    return `
-      <button type="button" class="character-picker-item${isSelected ? ' is-selected' : ''}" data-character-add-id="${entry.id}"${submitting ? ' disabled' : ''}>
-        <span class="character-picker-item-preview">
-          ${entry.iconUrl ? `<img src=".${entry.iconUrl}" alt="${escapedName}">` : ''}
-        </span>
-        <strong>${escapedName}</strong>
-      </button>
-    `;
-  }).join('');
+  characterAddGrid.innerHTML = entries
+    .map((entry) => {
+      const isSelected = entry.id === selectedId;
+      const escapedName = app.escapeHtml(entry.name || '--');
+      return /* HTML */ `
+        <button
+          type="button"
+          class="character-picker-item${isSelected ? ' is-selected' : ''}"
+          data-character-add-id="${entry.id}"
+          ${submitting ? ' disabled' : ''}
+        >
+          <span class="character-picker-item-preview">
+            ${entry.iconUrl ? `<img src=".${entry.iconUrl}" alt="${escapedName}">` : ''}
+          </span>
+          <strong>${escapedName}</strong>
+        </button>
+      `;
+    })
+    .join('');
 
   if (characterAddConfirmButton instanceof HTMLButtonElement) {
-    characterAddConfirmButton.disabled = submitting || !Number.isFinite(selectedId) || selectedId <= 0;
+    characterAddConfirmButton.disabled =
+      submitting || !Number.isFinite(selectedId) || selectedId <= 0;
   }
 
   if (characterAddCancelButton instanceof HTMLButtonElement) {
@@ -172,7 +182,8 @@ app.openCharacterAddModal = async (trigger = null) => {
     app.setBodyModalOpen(true);
     app.renderCharacterAddModal();
 
-    const firstSelected = characterAddGrid.querySelector('.is-selected') ?? characterAddGrid.querySelector('button');
+    const firstSelected =
+      characterAddGrid.querySelector('.is-selected') ?? characterAddGrid.querySelector('button');
     if (firstSelected instanceof HTMLElement) {
       firstSelected.focus();
     } else if (characterAddConfirmButton instanceof HTMLButtonElement) {
@@ -284,7 +295,11 @@ export const initDatabaseCharacterAddModalFeature = () => {
     });
 
     characterAddModal.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-character-add-id]')) {
+      if (
+        event.key === 'Enter' &&
+        event.target instanceof HTMLElement &&
+        event.target.closest('[data-character-add-id]')
+      ) {
         event.preventDefault();
         app.submitCharacterAdd();
       }

@@ -1,0 +1,150 @@
+<section
+  class="database-panel database-item-panel database-tab-panel"
+  id="database-item-management-section"
+  data-database-tab-panel="database-item-management-section"
+  aria-labelledby="database-item-management-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+    <div>
+      <span class="section-tag">Items</span>
+      <h2 id="database-item-management-title" data-i18n="dashboard.itemManagementTitle">
+        道具管理
+      </h2>
+    </div>
+    <small
+      class="database-item-management-summary"
+      id="database-item-management-summary"
+      data-i18n="dashboard.itemManagementUnavailable"
+    >
+      仅在数据库服务正常且已选定用户时可查看
+    </small>
+  </div>
+
+  <div
+    class="database-player-empty"
+    id="database-item-management-state"
+    data-i18n="dashboard.itemManagementChooseAccount"
+  >
+    请先在账号管理中选定一个用户。
+  </div>
+
+  <div class="database-item-management-shell" id="database-item-management-shell" hidden>
+    <div class="database-item-actions" id="database-item-actions">
+      <button
+        class="status-action-button status-action-button-stop"
+        type="button"
+        id="database-item-clear"
+        data-item-management-action="clear"
+        data-i18n="dashboard.itemManagementClear"
+      >
+        清空物品
+      </button>
+      <div class="database-item-toolbar">
+        <div class="database-item-search-shell" id="database-item-search-shell">
+          <input
+            class="database-item-search-input"
+            type="search"
+            id="database-item-search-input"
+            data-i18n-placeholder="dashboard.itemManagementSearchPlaceholder"
+            placeholder="输入道具名后回车搜索"
+          />
+        </div>
+      </div>
+      <button
+        class="status-action-button status-action-button-config database-item-action-add"
+        type="button"
+        id="database-item-add"
+        data-item-management-action="add-item"
+        data-i18n="dashboard.itemManagementAddItem"
+      >
+        新增物品
+      </button>
+    </div>
+
+    <div class="accounts-table-shell">
+      <div class="accounts-table-scroll" id="database-item-management-table-shell">
+        <table
+          class="accounts-table item-management-table"
+          aria-describedby="database-item-management-summary"
+        >
+          <colgroup>
+            <col class="item-management-col-id" />
+            <col />
+            <col class="item-management-col-quantity" />
+            <col class="item-management-col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="item_id" type="button">
+                  <span data-i18n="dashboard.itemManagementItemId">物品 ID</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="name" type="button">
+                  <span data-i18n="dashboard.itemManagementItemName">名称</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="quantity" type="button">
+                  <span data-i18n="dashboard.itemManagementQuantity">数量</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col" data-i18n="dashboard.itemManagementAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="database-item-management-body"></tbody>
+        </table>
+      </div>
+      <div class="accounts-pagination database-item-pagination">
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-item-management-prev"
+          data-i18n="dashboard.accountsPrev"
+        >
+          上一页
+        </button>
+        <span
+          id="database-item-management-pagination"
+          data-i18n="dashboard.accountsPagination"
+          data-i18n-params='{"page":0,"totalPages":0}'
+        >
+          第 0 / 0 页
+        </span>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-item-management-next"
+          data-i18n="dashboard.accountsNext"
+        >
+          下一页
+        </button>
+        <label class="accounts-pagination-jump" for="database-item-management-jump-input">
+          <input
+            class="accounts-pagination-jump-input"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            id="database-item-management-jump-input"
+            data-i18n-placeholder="dashboard.accountsJumpPlaceholder"
+            placeholder="页码"
+          />
+        </label>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-item-management-jump-button"
+          data-i18n="dashboard.accountsJumpButton"
+        >
+          跳转
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

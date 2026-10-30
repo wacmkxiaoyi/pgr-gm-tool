@@ -1,0 +1,41 @@
+<div class="shared-modal overrun-picker-modal" hidden id="weapon-overrun-picker-modal">
+  <div class="shared-modal-backdrop" data-weapon-overrun-picker-modal-close></div>
+  <section
+    class="shared-modal-card overrun-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="weapon-overrun-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">&#x25C8;</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.weaponDetailOverrunPickerEyebrow">
+          协律
+        </p>
+        <h3 id="weapon-overrun-picker-title" data-i18n="dashboard.weaponDetailOverrunPickerTitle">
+          选择协律
+        </h3>
+      </div>
+    </div>
+    <div class="overrun-picker-summary" id="weapon-overrun-picker-summary"></div>
+    <div class="overrun-picker-grid" id="weapon-overrun-picker-grid"></div>
+    <div class="shared-modal-actions overrun-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary overrun-picker-clear"
+        id="weapon-overrun-picker-clear"
+        data-i18n="common.clear"
+      >
+        清空
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="weapon-overrun-picker-confirm"
+        data-i18n="dashboard.equipDetailResonanceSave"
+      >
+        保存
+      </button>
+    </div>
+  </section>
+</div>

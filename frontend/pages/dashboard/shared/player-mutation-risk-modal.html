@@ -1,0 +1,49 @@
+<div class="shared-modal" hidden id="player-mutation-risk-modal">
+  <div class="shared-modal-backdrop" data-player-mutation-risk-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="player-mutation-risk-title"
+    aria-describedby="player-mutation-risk-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="runtime.playerEditConfirmEyebrow">风险操作</p>
+        <h3 id="player-mutation-risk-title" data-i18n="runtime.playerEditConfirmTitle">
+          数据修改风险提示
+        </h3>
+      </div>
+    </div>
+    <p
+      id="player-mutation-risk-message"
+      class="shared-modal-message"
+      data-i18n="runtime.playerEditConfirmRisk"
+    >
+      游戏服务器尚未关闭，改动可能不生效，且有可能损坏原始数据！
+    </p>
+    <label class="risk-confirm-checkbox">
+      <input type="checkbox" id="player-mutation-risk-dont-show" />
+      <span data-i18n="common.dontShowAgain">不再提示</span>
+    </label>
+    <div class="shared-modal-actions shared-modal-actions-split">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-player-mutation-risk-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-danger"
+        id="player-mutation-risk-confirm"
+        data-i18n="runtime.playerEditConfirmSubmit"
+      >
+        仍然修改
+      </button>
+    </div>
+  </section>
+</div>

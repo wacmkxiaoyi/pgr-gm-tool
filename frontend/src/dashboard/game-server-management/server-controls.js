@@ -4,13 +4,21 @@ const { dom, state } = app;
 const { startButton, stopButton, logButton, configButton } = dom;
 
 app.updateStatusActionButtons = (payload) => {
-  if (!(startButton instanceof HTMLButtonElement) || !(stopButton instanceof HTMLButtonElement) || !(logButton instanceof HTMLButtonElement) || !(configButton instanceof HTMLButtonElement)) {
+  if (
+    !(startButton instanceof HTMLButtonElement) ||
+    !(stopButton instanceof HTMLButtonElement) ||
+    !(logButton instanceof HTMLButtonElement) ||
+    !(configButton instanceof HTMLButtonElement)
+  ) {
     return;
   }
 
   const controls = app.getControlState(payload?.controls);
   if (controls) {
-    startButton.textContent = typeof controls.start_label_key === 'string' ? app.translate(controls.start_label_key) : app.translate('runtime.serverStart');
+    startButton.textContent =
+      typeof controls.start_label_key === 'string'
+        ? app.translate(controls.start_label_key)
+        : app.translate('runtime.serverStart');
     startButton.disabled = Boolean(controls.start_disabled);
     stopButton.disabled = Boolean(controls.stop_disabled);
     logButton.disabled = Boolean(controls.log_disabled);

@@ -14,7 +14,13 @@
 
     <main class="auth-shell">
       <div class="auth-toolbar">
-        <div class="language-switcher" data-locale-switcher data-i18n-aria-label="login.switcherLabel" aria-label="Language switcher" role="group">
+        <div
+          class="language-switcher"
+          data-locale-switcher
+          data-i18n-aria-label="login.switcherLabel"
+          aria-label="Language switcher"
+          role="group"
+        >
           <button type="button" class="language-option" data-locale-option="zh-CN">中文</button>
           <span class="language-divider" aria-hidden="true">|</span>
           <button type="button" class="language-option" data-locale-option="en-US">EN</button>
@@ -30,12 +36,24 @@
           <form class="login-form">
             <label>
               <span data-i18n="login.username">账号</span>
-              <input type="text" name="username" data-i18n-placeholder="login.usernamePlaceholder" placeholder="请输入账号" autocomplete="username" />
+              <input
+                type="text"
+                name="username"
+                data-i18n-placeholder="login.usernamePlaceholder"
+                placeholder="请输入账号"
+                autocomplete="username"
+              />
             </label>
 
             <label>
               <span data-i18n="login.password">密码</span>
-              <input type="password" name="password" data-i18n-placeholder="login.passwordPlaceholder" placeholder="请输入密码" autocomplete="current-password" />
+              <input
+                type="password"
+                name="password"
+                data-i18n-placeholder="login.passwordPlaceholder"
+                placeholder="请输入密码"
+                autocomplete="current-password"
+              />
             </label>
 
             <button type="submit" data-i18n="login.submit">登录</button>
@@ -47,17 +65,36 @@
 
     <div class="shared-modal" hidden id="notice-modal">
       <div class="shared-modal-backdrop" data-notice-modal-close></div>
-      <section class="shared-modal-card" role="dialog" aria-modal="true" aria-labelledby="notice-modal-title" aria-describedby="notice-modal-message">
+      <section
+        class="shared-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notice-modal-title"
+        aria-describedby="notice-modal-message"
+      >
         <div class="shared-modal-header">
           <span class="shared-modal-icon" id="notice-modal-icon" aria-hidden="true">!</span>
           <div>
-            <p class="shared-modal-eyebrow" id="notice-modal-eyebrow" data-i18n="login.failedEyebrow">登录失败</p>
+            <p
+              class="shared-modal-eyebrow"
+              id="notice-modal-eyebrow"
+              data-i18n="login.failedEyebrow"
+            >
+              登录失败
+            </p>
             <h3 id="notice-modal-title" data-i18n="login.failedTitle">请检查账号和密码</h3>
           </div>
         </div>
         <p id="notice-modal-message" class="shared-modal-message"></p>
         <div class="shared-modal-actions">
-          <button type="button" class="shared-modal-button" data-notice-modal-close data-i18n="common.gotIt">知道了</button>
+          <button
+            type="button"
+            class="shared-modal-button"
+            data-notice-modal-close
+            data-i18n="common.gotIt"
+          >
+            知道了
+          </button>
         </div>
       </section>
     </div>

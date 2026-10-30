@@ -1,0 +1,106 @@
+<div class="shared-modal" hidden id="equip-detail-modal">
+  <div class="shared-modal-backdrop" data-equip-detail-modal-close></div>
+  <section
+    class="equip-detail-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="equip-detail-name"
+    tabindex="-1"
+  >
+    <div class="equip-detail-header">
+      <img class="equip-detail-icon" id="equip-detail-icon" src="" alt="" />
+      <div class="equip-detail-title">
+        <h3 class="equip-detail-name" id="equip-detail-name"></h3>
+        <span class="equip-detail-type" id="equip-detail-type">--</span>
+        <span class="equip-detail-star" id="equip-detail-star"></span>
+      </div>
+    </div>
+
+    <div class="equip-detail-description-section" id="equip-detail-description-section" hidden>
+      <div class="equip-detail-description" id="equip-detail-description"></div>
+    </div>
+
+    <div class="equip-detail-section" id="weapon-detail-skill-section" hidden>
+      <div class="equip-detail-section-title"><span>Skill</span></div>
+      <div class="weapon-detail-skill-panel">
+        <div class="weapon-detail-skill-name" id="weapon-detail-skill-name">--</div>
+        <div class="weapon-detail-skill-description" id="weapon-detail-skill-description">--</div>
+      </div>
+    </div>
+
+    <div class="equip-detail-section">
+      <div class="equip-detail-section-title">
+        <span data-i18n="dashboard.equipDetailEnhancementLabel">强化</span>
+      </div>
+      <div class="equip-detail-enhancement">
+        <div class="equip-detail-stat">
+          <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailBreakthrough">
+            突破
+          </span>
+          <span
+            class="equip-detail-stat-value is-editable"
+            id="equip-detail-breakthrough"
+            data-equip-edit-field="Breakthrough"
+            tabindex="0"
+            role="button"
+          >
+            --
+          </span>
+        </div>
+        <div class="equip-detail-stat">
+          <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailLevel">等级</span>
+          <span
+            class="equip-detail-stat-value is-editable"
+            id="equip-detail-level"
+            data-equip-edit-field="Level"
+            tabindex="0"
+            role="button"
+          >
+            --
+          </span>
+        </div>
+        <div class="equip-detail-stat">
+          <span class="equip-detail-stat-label" data-i18n="dashboard.equipDetailExp">经验</span>
+          <span
+            class="equip-detail-stat-value is-editable"
+            id="equip-detail-exp"
+            data-equip-edit-field="Exp"
+            tabindex="0"
+            role="button"
+          >
+            --
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="equip-detail-section" id="equip-detail-resonance-section" hidden>
+      <div class="equip-detail-section-title">
+        <span data-i18n="dashboard.equipDetailResonancesLabel">共鸣</span>
+      </div>
+      <table class="equip-detail-resonance-table">
+        <thead>
+          <tr>
+            <th data-i18n="dashboard.equipDetailSlot">槽位</th>
+            <th data-i18n="dashboard.equipDetailEffect">效果</th>
+            <th data-i18n="dashboard.equipDetailBoundCharacter">绑定角色</th>
+            <th id="equip-detail-awake-header" data-i18n="dashboard.equipDetailHypertune" hidden>
+              超频
+            </th>
+            <th data-i18n="dashboard.equipDetailResonanceAction">操作</th>
+          </tr>
+        </thead>
+        <tbody id="equip-detail-resonance-body"></tbody>
+      </table>
+    </div>
+
+    <div class="equip-detail-section" id="weapon-detail-overrun-section" hidden>
+      <div class="equip-detail-section-title">
+        <span data-i18n="dashboard.weaponDetailOverrunLabel">超限</span>
+      </div>
+      <div class="weapon-detail-overrun" id="weapon-detail-overrun-content"></div>
+    </div>
+
+    <div class="equip-detail-tooltip" id="equip-detail-tooltip" role="tooltip" hidden></div>
+  </section>
+</div>

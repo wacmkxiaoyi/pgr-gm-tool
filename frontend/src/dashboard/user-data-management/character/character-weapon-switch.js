@@ -39,32 +39,42 @@ app.compareCharacterWeaponSwitchItems = (left, right) => {
   const sortBy = state.characterWeaponSwitchSortBy;
 
   if (sortBy === 'character') {
-    const comparison = app.getCharacterNameByCharacterId(left?.CharacterId).localeCompare(
-      app.getCharacterNameByCharacterId(right?.CharacterId),
-      state.locale,
-      { numeric: true, sensitivity: 'base' },
-    );
+    const comparison = app
+      .getCharacterNameByCharacterId(left?.CharacterId)
+      .localeCompare(app.getCharacterNameByCharacterId(right?.CharacterId), state.locale, {
+        numeric: true,
+        sensitivity: 'base',
+      });
     if (comparison !== 0) {
       return comparison;
     }
   } else if (sortBy === 'star') {
-    const comparison = (app.getEquipStarByTemplateId(left?.TemplateId) ?? 0) - (app.getEquipStarByTemplateId(right?.TemplateId) ?? 0);
+    const comparison =
+      (app.getEquipStarByTemplateId(left?.TemplateId) ?? 0) -
+      (app.getEquipStarByTemplateId(right?.TemplateId) ?? 0);
     if (comparison !== 0) {
       return comparison;
     }
   } else if (sortBy === 'enhancement') {
-    const comparison = (app.getEquipEnhancementLevel(left) ?? -1) - (app.getEquipEnhancementLevel(right) ?? -1);
+    const comparison =
+      (app.getEquipEnhancementLevel(left) ?? -1) - (app.getEquipEnhancementLevel(right) ?? -1);
     if (comparison !== 0) {
       return comparison;
     }
   } else {
-    const comparison = leftName.localeCompare(rightName, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = leftName.localeCompare(rightName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
   }
 
-  const fallbackComparison = leftName.localeCompare(rightName, state.locale, { numeric: true, sensitivity: 'base' });
+  const fallbackComparison = leftName.localeCompare(rightName, state.locale, {
+    numeric: true,
+    sensitivity: 'base',
+  });
   if (fallbackComparison !== 0) {
     return fallbackComparison;
   }
@@ -76,7 +86,10 @@ app.getFilteredCharacterWeaponSwitchItems = () => {
   const keyword = state.characterWeaponSwitchSearchKeyword.trim().toLowerCase();
   const direction = state.characterWeaponSwitchSortOrder === 'asc' ? 1 : -1;
   return (Array.isArray(state.characterWeaponSwitchItems) ? state.characterWeaponSwitchItems : [])
-    .map((item) => ({ item, searchPriority: app.getCharacterWeaponSwitchSearchPriority(keyword, item) }))
+    .map((item) => ({
+      item,
+      searchPriority: app.getCharacterWeaponSwitchSearchPriority(keyword, item),
+    }))
     .filter(({ searchPriority }) => searchPriority !== null)
     .sort((left, right) => {
       if (left.searchPriority !== right.searchPriority) {
@@ -88,7 +101,10 @@ app.getFilteredCharacterWeaponSwitchItems = () => {
 };
 
 app.syncCharacterWeaponSwitchSortArrows = () => {
-  const table = characterWeaponSwitchModal instanceof HTMLElement ? characterWeaponSwitchModal.querySelector('.character-equip-switch-table') : null;
+  const table =
+    characterWeaponSwitchModal instanceof HTMLElement
+      ? characterWeaponSwitchModal.querySelector('.character-equip-switch-table')
+      : null;
   if (!(table instanceof HTMLElement)) {
     return;
   }
@@ -117,7 +133,8 @@ app.handleCharacterWeaponSwitchSortClick = (sortField) => {
   }
 
   if (state.characterWeaponSwitchSortBy === sortField) {
-    state.characterWeaponSwitchSortOrder = state.characterWeaponSwitchSortOrder === 'asc' ? 'desc' : 'asc';
+    state.characterWeaponSwitchSortOrder =
+      state.characterWeaponSwitchSortOrder === 'asc' ? 'desc' : 'asc';
   } else {
     state.characterWeaponSwitchSortBy = sortField;
     state.characterWeaponSwitchSortOrder = sortField === 'star' ? 'desc' : 'asc';
@@ -135,7 +152,9 @@ app.scrollCharacterWeaponSwitchSelectionIntoView = (recordId) => {
     return false;
   }
 
-  const row = characterWeaponSwitchTableBody.querySelector(`[data-character-weapon-switch-row="true"][data-weapon-record-id="${normalizedRecordId}"]`);
+  const row = characterWeaponSwitchTableBody.querySelector(
+    `[data-character-weapon-switch-row="true"][data-weapon-record-id="${normalizedRecordId}"]`,
+  );
   if (!(row instanceof HTMLElement)) {
     return false;
   }
@@ -163,50 +182,87 @@ app.renderCharacterWeaponSwitchCurrent = () => {
   const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
   const selectedRecordId = Number(state.characterWeaponSwitchSelectedRecordId);
   const currentRecordId = Number(currentWeapon?.record_id ?? 0);
-  const tagKey = selectedRecordId > 0 && currentRecordId === selectedRecordId
-    ? 'dashboard.characterWeaponSwitchSelected'
-    : 'dashboard.characterEquipSwitchCurrent';
+  const tagKey =
+    selectedRecordId > 0 && currentRecordId === selectedRecordId
+      ? 'dashboard.characterWeaponSwitchSelected'
+      : 'dashboard.characterEquipSwitchCurrent';
 
-  characterWeaponSwitchCurrent.innerHTML = `
-    <button class="character-equip-switch-current-card" type="button" data-character-weapon-switch-current-card="true">
+  characterWeaponSwitchCurrent.innerHTML = /* HTML */ `
+    <button
+      class="character-equip-switch-current-card"
+      type="button"
+      data-character-weapon-switch-current-card="true"
+    >
       ${app.renderEquipMediaCell(iconUrl, weaponName, true, iconClass)}
-      <span class="character-equip-switch-current-tag">${app.escapeHtml(app.translate(tagKey))}</span>
+      <span class="character-equip-switch-current-tag">
+        ${app.escapeHtml(app.translate(tagKey))}
+      </span>
     </button>
   `;
 };
 
 app.renderCharacterWeaponSwitchRows = () => {
-  if (!(characterWeaponSwitchTableBody instanceof HTMLElement) || !(characterWeaponSwitchEmptyState instanceof HTMLElement)) {
+  if (
+    !(characterWeaponSwitchTableBody instanceof HTMLElement) ||
+    !(characterWeaponSwitchEmptyState instanceof HTMLElement)
+  ) {
     return;
   }
 
   const items = app.getFilteredCharacterWeaponSwitchItems();
   const selectedRecordId = Number(state.characterWeaponSwitchSelectedRecordId);
-  characterWeaponSwitchTableBody.innerHTML = items.map((item) => {
-    const recordId = Number(item?.record_id ?? 0);
-    const templateId = item?.TemplateId;
-    const iconUrl = app.getEquipIconByTemplateId(templateId);
-    const weaponName = app.getEquipNameByTemplateId(templateId);
-    const characterName = app.getCharacterNameByCharacterId(item?.CharacterId);
-    const characterIconUrl = app.getCharacterIconByCharacterId(item?.CharacterId);
-    const star = app.getEquipStarByTemplateId(templateId);
-    const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
-    const isSelected = recordId === selectedRecordId;
-    return `
-      <tr class="character-weapon-switch-row${isSelected ? ' is-selected' : ''}" tabindex="0" data-character-weapon-switch-row="true" data-weapon-record-id="${recordId}">
-        <td>${app.renderEquipMediaCell(iconUrl, weaponName, true, iconClass)}</td>
-        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
-        <td>${app.renderEquipStar(templateId)}</td>
-        <td>${app.renderEquipEnhancementLevel(item)}</td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button ${isSelected ? 'status-action-button-stop' : 'status-action-button-config'}" type="button" data-character-weapon-switch-action="select" data-weapon-record-id="${recordId}">${app.translate(isSelected ? 'dashboard.characterWeaponSwitchSelected' : 'dashboard.characterWeaponSwitchSelect')}</button>
-            <button class="status-action-button status-action-button-log" type="button" data-character-weapon-switch-action="detail" data-weapon-record-id="${recordId}">${app.translate('dashboard.characterWeaponSwitchDetail')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
+  characterWeaponSwitchTableBody.innerHTML = items
+    .map((item) => {
+      const recordId = Number(item?.record_id ?? 0);
+      const templateId = item?.TemplateId;
+      const iconUrl = app.getEquipIconByTemplateId(templateId);
+      const weaponName = app.getEquipNameByTemplateId(templateId);
+      const characterName = app.getCharacterNameByCharacterId(item?.CharacterId);
+      const characterIconUrl = app.getCharacterIconByCharacterId(item?.CharacterId);
+      const star = app.getEquipStarByTemplateId(templateId);
+      const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
+      const isSelected = recordId === selectedRecordId;
+      return /* HTML */ `
+        <tr
+          class="character-weapon-switch-row${isSelected ? ' is-selected' : ''}"
+          tabindex="0"
+          data-character-weapon-switch-row="true"
+          data-weapon-record-id="${recordId}"
+        >
+          <td>${app.renderEquipMediaCell(iconUrl, weaponName, true, iconClass)}</td>
+          <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
+          <td>${app.renderEquipStar(templateId)}</td>
+          <td>${app.renderEquipEnhancementLevel(item)}</td>
+          <td>
+            <div class="accounts-row-actions">
+              <button
+                class="status-action-button ${isSelected
+                  ? 'status-action-button-stop'
+                  : 'status-action-button-config'}"
+                type="button"
+                data-character-weapon-switch-action="select"
+                data-weapon-record-id="${recordId}"
+              >
+                ${app.translate(
+                  isSelected
+                    ? 'dashboard.characterWeaponSwitchSelected'
+                    : 'dashboard.characterWeaponSwitchSelect',
+                )}
+              </button>
+              <button
+                class="status-action-button status-action-button-log"
+                type="button"
+                data-character-weapon-switch-action="detail"
+                data-weapon-record-id="${recordId}"
+              >
+                ${app.translate('dashboard.characterWeaponSwitchDetail')}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 
   characterWeaponSwitchEmptyState.hidden = items.length > 0;
 };
@@ -230,7 +286,8 @@ app.closeCharacterWeaponSwitchModal = () => {
   if (characterWeaponSwitchModal instanceof HTMLElement) {
     characterWeaponSwitchModal.hidden = true;
   }
-  const keepBodyLocked = characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden;
+  const keepBodyLocked =
+    characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden;
   if (!keepBodyLocked) {
     app.setBodyModalOpen(false);
   }
@@ -249,10 +306,16 @@ app.loadCharacterWeaponSwitchCandidates = async () => {
 
   state.characterWeaponSwitchLoading = true;
   try {
-    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/weapon-candidates`);
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${recordId}/weapon-candidates`,
+    );
     state.characterWeaponSwitchItems = Array.isArray(payload?.items) ? payload.items : [];
-    state.characterWeaponSwitchCurrentWeapon = payload?.current_weapon && typeof payload.current_weapon === 'object' ? payload.current_weapon : null;
-    state.characterWeaponSwitchSelectedRecordId = Number(payload?.current_weapon?.record_id ?? 0) || null;
+    state.characterWeaponSwitchCurrentWeapon =
+      payload?.current_weapon && typeof payload.current_weapon === 'object'
+        ? payload.current_weapon
+        : null;
+    state.characterWeaponSwitchSelectedRecordId =
+      Number(payload?.current_weapon?.record_id ?? 0) || null;
     app.renderCharacterWeaponSwitchCurrent();
     app.renderCharacterWeaponSwitchRows();
   } catch (error) {
@@ -269,7 +332,8 @@ app.openCharacterWeaponSwitchModal = (trigger) => {
   }
 
   app.closeWeaponDetailModal?.();
-  state.lastCharacterWeaponSwitchTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterWeaponSwitchTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetCharacterWeaponSwitchState();
   app.syncCharacterWeaponSwitchSortArrows();
   app.renderCharacterWeaponSwitchCurrent();
@@ -310,11 +374,16 @@ app.submitCharacterWeaponSwitch = async () => {
     await app.loadCharacterDetailExtraInfo(characterRecordId);
     await app.reloadWeaponManagementCurrentPage?.();
     app.closeCharacterWeaponSwitchModal();
-    app.openSuccessModal(app.translate('runtime.characterWeaponSwitchSaveSuccess'), app.translate('runtime.characterWeaponSwitchSaveSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterWeaponSwitchSaveSuccess'),
+      app.translate('runtime.characterWeaponSwitchSaveSuccessTitle'),
+    );
   } catch (error) {
-    const fallbackKey = error instanceof Error && /weapon_type_mismatch|equip_type_invalid/.test(String(error.message))
-      ? 'runtime.characterWeaponSwitchTypeMismatch'
-      : 'runtime.characterWeaponSwitchSaveFailed';
+    const fallbackKey =
+      error instanceof Error &&
+      /weapon_type_mismatch|equip_type_invalid/.test(String(error.message))
+        ? 'runtime.characterWeaponSwitchTypeMismatch'
+        : 'runtime.characterWeaponSwitchSaveFailed';
     app.openNoticeModal(app.apiErrorMessage(error, fallbackKey));
   } finally {
     state.characterWeaponSwitchSubmitting = false;
@@ -481,14 +550,20 @@ export const initDatabaseCharacterWeaponSwitchFeature = () => {
   if (characterWeaponSwitchCurrent instanceof HTMLElement) {
     characterWeaponSwitchCurrent.addEventListener('click', (event) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement) || !target.closest('[data-character-weapon-switch-current-card="true"]')) {
+      if (
+        !(target instanceof HTMLElement) ||
+        !target.closest('[data-character-weapon-switch-current-card="true"]')
+      ) {
         return;
       }
       app.handleCharacterWeaponSwitchCurrentClick();
     });
   }
 
-  const switchTable = characterWeaponSwitchModal instanceof HTMLElement ? characterWeaponSwitchModal.querySelector('.character-equip-switch-table') : null;
+  const switchTable =
+    characterWeaponSwitchModal instanceof HTMLElement
+      ? characterWeaponSwitchModal.querySelector('.character-equip-switch-table')
+      : null;
   if (switchTable instanceof HTMLElement) {
     switchTable.addEventListener('click', (event) => {
       const target = event.target;
@@ -528,5 +603,4 @@ export const initDatabaseCharacterWeaponSwitchFeature = () => {
       }
     });
   }
-
 };

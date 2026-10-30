@@ -13,7 +13,9 @@ app.shouldHideHistoryGrid = (grid) => {
     return false;
   }
 
-  return Array.from(historyItems).some((item) => item.scrollWidth > item.clientWidth || item.scrollHeight > item.clientHeight);
+  return Array.from(historyItems).some(
+    (item) => item.scrollWidth > item.clientWidth || item.scrollHeight > item.clientHeight,
+  );
 };
 
 app.updateHistoryGridVisibility = (grid) => {
@@ -30,7 +32,9 @@ app.updateAllHistoryGridVisibility = () => {
 
 app.isSnapshotHealthy = (payload) => {
   const sections = Array.isArray(payload?.sections) ? payload.sections : [];
-  const services = sections.flatMap((section) => (Array.isArray(section?.services) ? section.services : []));
+  const services = sections.flatMap((section) =>
+    Array.isArray(section?.services) ? section.services : [],
+  );
 
   if (services.length === 0) {
     return false;
@@ -50,7 +54,9 @@ app.updateNextHealthCheckLabel = () => {
   }
 
   const remainingSeconds = Math.max(0, Math.ceil((state.nextHealthCheckAtMs - Date.now()) / 1000));
-  intervalLabel.textContent = app.translate('dashboard.nextHealthCheck', { seconds: remainingSeconds });
+  intervalLabel.textContent = app.translate('dashboard.nextHealthCheck', {
+    seconds: remainingSeconds,
+  });
 };
 
 app.getDatabaseHealthCheckLabelText = () => {
@@ -58,7 +64,10 @@ app.getDatabaseHealthCheckLabelText = () => {
     return app.translate('dashboard.databaseStatusIntervalIdle');
   }
 
-  const remainingSeconds = Math.max(0, Math.ceil((state.nextDatabaseHealthCheckAtMs - Date.now()) / 1000));
+  const remainingSeconds = Math.max(
+    0,
+    Math.ceil((state.nextDatabaseHealthCheckAtMs - Date.now()) / 1000),
+  );
   return app.translate('dashboard.databaseStatusInterval', { seconds: remainingSeconds });
 };
 
@@ -75,9 +84,15 @@ app.renderCard = (item) => {
   const meta = constants.stateMeta[item.latest?.state] ?? constants.stateMeta.unknown;
   const badgeLabel = app.getStatusLabel(item.latest?.state);
   const checkedAt = item.latest?.checked_at ?? null;
-  const latency = typeof item.latest?.latency_ms === 'number' ? `${item.latest.latency_ms} ms` : app.translate('dashboard.statusUnknownLatency');
-  const statusCode = typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
-  const history = Array.isArray(item.history) ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse() : [];
+  const latency =
+    typeof item.latest?.latency_ms === 'number'
+      ? `${item.latest.latency_ms} ms`
+      : app.translate('dashboard.statusUnknownLatency');
+  const statusCode =
+    typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
+  const history = Array.isArray(item.history)
+    ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse()
+    : [];
   const emptySlots = Math.max(0, constants.HISTORY_SLOT_COUNT - history.length);
 
   return `
@@ -114,24 +129,53 @@ app.renderDatabaseCard = (item) => {
   const meta = constants.stateMeta[item.latest?.state] ?? constants.stateMeta.unknown;
   const badgeLabel = app.getStatusLabel(item.latest?.state);
   const checkedAt = item.latest?.checked_at ?? null;
-  const latency = typeof item.latest?.latency_ms === 'number' ? `${item.latest.latency_ms} ms` : app.translate('dashboard.statusUnknownLatency');
-  const statusCode = typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
-  const history = Array.isArray(item.history) ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse() : [];
+  const latency =
+    typeof item.latest?.latency_ms === 'number'
+      ? `${item.latest.latency_ms} ms`
+      : app.translate('dashboard.statusUnknownLatency');
+  const statusCode =
+    typeof item.latest?.status_code === 'number' ? `HTTP ${item.latest.status_code}` : null;
+  const history = Array.isArray(item.history)
+    ? item.history.slice(0, constants.HISTORY_SLOT_COUNT).reverse()
+    : [];
   const emptySlots = Math.max(0, constants.HISTORY_SLOT_COUNT - history.length);
 
-  return `
-    <article class="status-card status-card-${meta.className === 'status-ok' ? 'healthy' : meta.className === 'status-down' ? 'unhealthy' : 'muted'}">
+  return /* HTML */ `
+    <article
+      class="status-card status-card-${meta.className === 'status-ok'
+        ? 'healthy'
+        : meta.className === 'status-down'
+          ? 'unhealthy'
+          : 'muted'}"
+    >
       <div class="status-card-details">
         <div class="status-card-details-header database-status-card-header">
           <strong>${item.url}</strong>
-          <small class="database-status-card-interval" data-database-status-interval>${app.getDatabaseHealthCheckLabelText()}</small>
+          <small class="database-status-card-interval" data-database-status-interval>
+            ${app.getDatabaseHealthCheckLabelText()}
+          </small>
           <span class="status-badge ${meta.className}">${badgeLabel}</span>
         </div>
-        <span>${item.latest?.message ? app.resolveUiTextToken(item.latest.message) : app.translate('dashboard.statusFirstCheckPending')}</span>
-        <span>${app.translate('dashboard.statusLastChecked', { time: app.formatTime(checkedAt) })}</span>
-        <span>${app.translate('dashboard.statusLatency', { latency: `${latency}${statusCode ? ` · ${statusCode}` : ''}` })}</span>
+        <span>
+          ${item.latest?.message
+            ? app.resolveUiTextToken(item.latest.message)
+            : app.translate('dashboard.statusFirstCheckPending')}
+        </span>
+        <span>
+          ${app.translate('dashboard.statusLastChecked', {
+            time: app.formatTime(checkedAt),
+          })}
+        </span>
+        <span>
+          ${app.translate('dashboard.statusLatency', {
+            latency: `${latency}${statusCode ? ` · ${statusCode}` : ''}`,
+          })}
+        </span>
       </div>
-      <div class="status-history-grid" aria-label="${app.translate('dashboard.statusHistoryAria', { title: item.title })}">
+      <div
+        class="status-history-grid"
+        aria-label="${app.translate('dashboard.statusHistoryAria', { title: item.title })}"
+      >
         ${Array.from({ length: emptySlots })
           .map(() => '<div class="status-history-item is-empty" aria-hidden="true"></div>')
           .join('')}
@@ -189,7 +233,11 @@ app.renderSnapshot = (payload) => {
   }
 
   const startupError = controls?.startup_error;
-  if (typeof startupError === 'string' && startupError && startupError !== state.serverControlFailureMessage) {
+  if (
+    typeof startupError === 'string' &&
+    startupError &&
+    startupError !== state.serverControlFailureMessage
+  ) {
     state.serverControlFailureMessage = startupError;
     app.openNoticeModal(app.resolveUiTextToken(startupError));
   } else if (!startupError) {
@@ -219,7 +267,11 @@ app.renderDatabaseSnapshot = (payload) => {
   if (!wasHealthy && app.isDatabaseHealthy(payload) && app.isDatabaseAccountsSectionActive()) {
     void app.loadDatabaseAccounts(state.accountsCurrentPage);
   }
-  if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null && app.isDatabasePlayerProfileSectionActive()) {
+  if (
+    app.isDatabaseHealthy(payload) &&
+    state.selectedAccountUid !== null &&
+    app.isDatabasePlayerProfileSectionActive()
+  ) {
     void app.loadSelectedPlayerProfile();
   }
   if (app.isDatabaseCharacterManagementSectionActive()) {
@@ -236,7 +288,8 @@ app.renderDatabaseSnapshot = (payload) => {
   }
   if (app.isDatabasePartnerManagementSectionActive()) {
     app.updatePartnerManagementAccess(payload);
-    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null) void app.loadSelectedAccountPartners();
+    if (app.isDatabaseHealthy(payload) && state.selectedAccountUid !== null)
+      void app.loadSelectedAccountPartners();
   }
   if (app.isDatabaseItemManagementSectionActive()) {
     app.updateItemManagementAccess(payload);
@@ -293,48 +346,169 @@ app.loadAppInfo = async () => {
       app.dom.logoutButton.hidden = !payload?.authentication_enabled;
     }
     state.serverManagementEnabled = Boolean(payload?.server_management_enabled);
-    state.serverControlsVisible = state.serverManagementEnabled && Boolean(payload?.server_controls_visible);
+    state.serverControlsVisible =
+      state.serverManagementEnabled && Boolean(payload?.server_controls_visible);
     app.setServerManagementEnabled(state.serverManagementEnabled);
-    state.playerLevelMax = Number.isFinite(Number(payload?.player_level_max)) ? Math.max(0, Number(payload.player_level_max)) : 0;
-    state.playerLevelMaxExpMap = payload?.player_level_max_exp_map && typeof payload.player_level_max_exp_map === 'object' ? payload.player_level_max_exp_map : {};
-    state.playerHonorLevelMax = Number.isFinite(Number(payload?.player_honor_level_max)) ? Math.max(0, Number(payload.player_honor_level_max)) : 0;
-    state.playerHonorLevelMaxExpMap = payload?.player_honor_level_max_exp_map && typeof payload.player_honor_level_max_exp_map === 'object' ? payload.player_honor_level_max_exp_map : {};
-    state.playerPortraitUrlMap = payload?.player_portrait_url_map && typeof payload.player_portrait_url_map === 'object' ? payload.player_portrait_url_map : {};
-    state.playerPortraitFrameUrlMap = payload?.player_portrait_frame_url_map && typeof payload.player_portrait_frame_url_map === 'object' ? payload.player_portrait_frame_url_map : {};
-    state.playerPortraitNameMap = payload?.player_portrait_name_map && typeof payload.player_portrait_name_map === 'object' ? payload.player_portrait_name_map : {};
-    state.playerPortraitFrameNameMap = payload?.player_portrait_frame_name_map && typeof payload.player_portrait_frame_name_map === 'object' ? payload.player_portrait_frame_name_map : {};
-    state.playerBackgroundUrlMap = payload?.player_background_url_map && typeof payload.player_background_url_map === 'object' ? payload.player_background_url_map : {};
-    state.playerBackgroundNameMap = payload?.player_background_name_map && typeof payload.player_background_name_map === 'object' ? payload.player_background_name_map : {};
-    state.itemNameMap = payload?.item_name_map && typeof payload.item_name_map === 'object' ? payload.item_name_map : {};
-    state.furnitureEntriesMap = payload?.furniture_entries_map && typeof payload.furniture_entries_map === 'object' ? payload.furniture_entries_map : {};
-    state.furnitureTypeEntiresMap = payload?.furniture_type_entires_map && typeof payload.furniture_type_entires_map === 'object' ? payload.furniture_type_entires_map : {};
-    state.furnitureSuitNameMap = payload?.furniture_suit_name_map && typeof payload.furniture_suit_name_map === 'object' ? payload.furniture_suit_name_map : {};
-    state.furnitureAdditionalAttrEntriesMap = payload?.furniture_additional_attr_entries_map && typeof payload.furniture_additional_attr_entries_map === 'object' ? payload.furniture_additional_attr_entries_map : {};
-    state.dormTemplateEntriesMap = payload?.dorm_template_entries_map && typeof payload.dorm_template_entries_map === 'object' ? payload.dorm_template_entries_map : {};
-    state.equipNameMap = payload?.equip_name_map && typeof payload.equip_name_map === 'object' ? payload.equip_name_map : {};
-    state.partnerEntriesMap = payload?.partner_entries_map && typeof payload.partner_entries_map === 'object' ? payload.partner_entries_map : {};
+    state.playerLevelMax = Number.isFinite(Number(payload?.player_level_max))
+      ? Math.max(0, Number(payload.player_level_max))
+      : 0;
+    state.playerLevelMaxExpMap =
+      payload?.player_level_max_exp_map && typeof payload.player_level_max_exp_map === 'object'
+        ? payload.player_level_max_exp_map
+        : {};
+    state.playerHonorLevelMax = Number.isFinite(Number(payload?.player_honor_level_max))
+      ? Math.max(0, Number(payload.player_honor_level_max))
+      : 0;
+    state.playerHonorLevelMaxExpMap =
+      payload?.player_honor_level_max_exp_map &&
+      typeof payload.player_honor_level_max_exp_map === 'object'
+        ? payload.player_honor_level_max_exp_map
+        : {};
+    state.playerPortraitUrlMap =
+      payload?.player_portrait_url_map && typeof payload.player_portrait_url_map === 'object'
+        ? payload.player_portrait_url_map
+        : {};
+    state.playerPortraitFrameUrlMap =
+      payload?.player_portrait_frame_url_map &&
+      typeof payload.player_portrait_frame_url_map === 'object'
+        ? payload.player_portrait_frame_url_map
+        : {};
+    state.playerPortraitNameMap =
+      payload?.player_portrait_name_map && typeof payload.player_portrait_name_map === 'object'
+        ? payload.player_portrait_name_map
+        : {};
+    state.playerPortraitFrameNameMap =
+      payload?.player_portrait_frame_name_map &&
+      typeof payload.player_portrait_frame_name_map === 'object'
+        ? payload.player_portrait_frame_name_map
+        : {};
+    state.playerBackgroundUrlMap =
+      payload?.player_background_url_map && typeof payload.player_background_url_map === 'object'
+        ? payload.player_background_url_map
+        : {};
+    state.playerBackgroundNameMap =
+      payload?.player_background_name_map && typeof payload.player_background_name_map === 'object'
+        ? payload.player_background_name_map
+        : {};
+    state.itemNameMap =
+      payload?.item_name_map && typeof payload.item_name_map === 'object'
+        ? payload.item_name_map
+        : {};
+    state.furnitureEntriesMap =
+      payload?.furniture_entries_map && typeof payload.furniture_entries_map === 'object'
+        ? payload.furniture_entries_map
+        : {};
+    state.furnitureTypeEntiresMap =
+      payload?.furniture_type_entires_map && typeof payload.furniture_type_entires_map === 'object'
+        ? payload.furniture_type_entires_map
+        : {};
+    state.furnitureSuitNameMap =
+      payload?.furniture_suit_name_map && typeof payload.furniture_suit_name_map === 'object'
+        ? payload.furniture_suit_name_map
+        : {};
+    state.furnitureAdditionalAttrEntriesMap =
+      payload?.furniture_additional_attr_entries_map &&
+      typeof payload.furniture_additional_attr_entries_map === 'object'
+        ? payload.furniture_additional_attr_entries_map
+        : {};
+    state.dormTemplateEntriesMap =
+      payload?.dorm_template_entries_map && typeof payload.dorm_template_entries_map === 'object'
+        ? payload.dorm_template_entries_map
+        : {};
+    state.equipNameMap =
+      payload?.equip_name_map && typeof payload.equip_name_map === 'object'
+        ? payload.equip_name_map
+        : {};
+    state.partnerEntriesMap =
+      payload?.partner_entries_map && typeof payload.partner_entries_map === 'object'
+        ? payload.partner_entries_map
+        : {};
     state.partnerElementSkillEntiersMap = payload?.partner_element_skill_entiers_map ?? {};
     state.partnerMainSkillGroupIdsMap = payload?.partner_main_skill_group_ids_map ?? {};
-    state.weaponTypeNameMap = payload?.weapon_type_name_map && typeof payload.weapon_type_name_map === 'object' ? payload.weapon_type_name_map : {};
-    state.equipStarMap = payload?.equip_star_map && typeof payload.equip_star_map === 'object' ? payload.equip_star_map : {};
-    state.equipSiteMap = payload?.equip_site_map && typeof payload.equip_site_map === 'object' ? payload.equip_site_map : {};
-    state.equippableMemoryNums = Number.isFinite(Number(payload?.equippable_memory_nums)) ? Math.max(0, Number(payload.equippable_memory_nums)) : 0;
-    state.equipIconUrlMap = payload?.equip_icon_url_map && typeof payload.equip_icon_url_map === 'object' ? payload.equip_icon_url_map : {};
-    state.characterLogNameMap = payload?.character_log_name_map && typeof payload.character_log_name_map === 'object' ? payload.character_log_name_map : {};
-    state.characterHeadIconUrlMap = payload?.character_head_icon_url_map && typeof payload.character_head_icon_url_map === 'object' ? payload.character_head_icon_url_map : {};
-    state.characterGradeNameMap = payload?.character_grade_name_map && typeof payload.character_grade_name_map === 'object' ? payload.character_grade_name_map : {};
-    state.characterTrustExpMap = payload?.character_trust_exp_map && typeof payload.character_trust_exp_map === 'object' ? payload.character_trust_exp_map : {};
-    state.stageEntriesMap = payload?.stage_entries_map && typeof payload.stage_entries_map === 'object' ? payload.stage_entries_map : {};
-    state.nameplateEntiresMap = payload?.nameplate_entires_map && typeof payload.nameplate_entires_map === 'object' ? payload.nameplate_entires_map : {};
-    state.medalEntiresMap = payload?.medal_entires_map && typeof payload.medal_entires_map === 'object' ? payload.medal_entires_map : {};
-    state.chatBoardEntiresMap = payload?.chat_board_entires_map && typeof payload.chat_board_entires_map === 'object' ? payload.chat_board_entires_map : {};
-    state.weaponSkillEntriesMap = payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object' ? payload.weapon_skill_entries_map : {};
-    state.weaponOverrunSuitEntriesMap = payload?.weapon_overrun_suit_entries_map && typeof payload.weapon_overrun_suit_entries_map === 'object' ? payload.weapon_overrun_suit_entries_map : {};
-    state.weaponOverrunSuitMemoryIdsMap = payload?.weapon_overrun_suit_memory_ids_map && typeof payload.weapon_overrun_suit_memory_ids_map === 'object' ? payload.weapon_overrun_suit_memory_ids_map : {};
-    state.weaponSkillPoolEntriesMap = payload?.weapon_skill_pool_entries_map && typeof payload.weapon_skill_pool_entries_map === 'object' ? payload.weapon_skill_pool_entries_map : {};
-    state.attribPoolEntriesMap = payload?.attrib_pool_entries_map && typeof payload.attrib_pool_entries_map === 'object' ? payload.attrib_pool_entries_map : {};
-    state.characterSkillPoolEntriesMap = payload?.character_skill_pool_entries_map && typeof payload.character_skill_pool_entries_map === 'object' ? payload.character_skill_pool_entries_map : {};
-    state.equipResonanceMap = payload?.equip_resonance_map && typeof payload.equip_resonance_map === 'object' ? payload.equip_resonance_map : {};
+    state.weaponTypeNameMap =
+      payload?.weapon_type_name_map && typeof payload.weapon_type_name_map === 'object'
+        ? payload.weapon_type_name_map
+        : {};
+    state.equipStarMap =
+      payload?.equip_star_map && typeof payload.equip_star_map === 'object'
+        ? payload.equip_star_map
+        : {};
+    state.equipSiteMap =
+      payload?.equip_site_map && typeof payload.equip_site_map === 'object'
+        ? payload.equip_site_map
+        : {};
+    state.equippableMemoryNums = Number.isFinite(Number(payload?.equippable_memory_nums))
+      ? Math.max(0, Number(payload.equippable_memory_nums))
+      : 0;
+    state.equipIconUrlMap =
+      payload?.equip_icon_url_map && typeof payload.equip_icon_url_map === 'object'
+        ? payload.equip_icon_url_map
+        : {};
+    state.characterLogNameMap =
+      payload?.character_log_name_map && typeof payload.character_log_name_map === 'object'
+        ? payload.character_log_name_map
+        : {};
+    state.characterHeadIconUrlMap =
+      payload?.character_head_icon_url_map &&
+      typeof payload.character_head_icon_url_map === 'object'
+        ? payload.character_head_icon_url_map
+        : {};
+    state.characterGradeNameMap =
+      payload?.character_grade_name_map && typeof payload.character_grade_name_map === 'object'
+        ? payload.character_grade_name_map
+        : {};
+    state.characterTrustExpMap =
+      payload?.character_trust_exp_map && typeof payload.character_trust_exp_map === 'object'
+        ? payload.character_trust_exp_map
+        : {};
+    state.stageEntriesMap =
+      payload?.stage_entries_map && typeof payload.stage_entries_map === 'object'
+        ? payload.stage_entries_map
+        : {};
+    state.nameplateEntiresMap =
+      payload?.nameplate_entires_map && typeof payload.nameplate_entires_map === 'object'
+        ? payload.nameplate_entires_map
+        : {};
+    state.medalEntiresMap =
+      payload?.medal_entires_map && typeof payload.medal_entires_map === 'object'
+        ? payload.medal_entires_map
+        : {};
+    state.chatBoardEntiresMap =
+      payload?.chat_board_entires_map && typeof payload.chat_board_entires_map === 'object'
+        ? payload.chat_board_entires_map
+        : {};
+    state.weaponSkillEntriesMap =
+      payload?.weapon_skill_entries_map && typeof payload.weapon_skill_entries_map === 'object'
+        ? payload.weapon_skill_entries_map
+        : {};
+    state.weaponOverrunSuitEntriesMap =
+      payload?.weapon_overrun_suit_entries_map &&
+      typeof payload.weapon_overrun_suit_entries_map === 'object'
+        ? payload.weapon_overrun_suit_entries_map
+        : {};
+    state.weaponOverrunSuitMemoryIdsMap =
+      payload?.weapon_overrun_suit_memory_ids_map &&
+      typeof payload.weapon_overrun_suit_memory_ids_map === 'object'
+        ? payload.weapon_overrun_suit_memory_ids_map
+        : {};
+    state.weaponSkillPoolEntriesMap =
+      payload?.weapon_skill_pool_entries_map &&
+      typeof payload.weapon_skill_pool_entries_map === 'object'
+        ? payload.weapon_skill_pool_entries_map
+        : {};
+    state.attribPoolEntriesMap =
+      payload?.attrib_pool_entries_map && typeof payload.attrib_pool_entries_map === 'object'
+        ? payload.attrib_pool_entries_map
+        : {};
+    state.characterSkillPoolEntriesMap =
+      payload?.character_skill_pool_entries_map &&
+      typeof payload.character_skill_pool_entries_map === 'object'
+        ? payload.character_skill_pool_entries_map
+        : {};
+    state.equipResonanceMap =
+      payload?.equip_resonance_map && typeof payload.equip_resonance_map === 'object'
+        ? payload.equip_resonance_map
+        : {};
     if (typeof app.buildResonanceResolveIndices === 'function') {
       app.buildResonanceResolveIndices();
     }
@@ -423,5 +597,4 @@ export const initStatusHealthFeature = () => {
   window.addEventListener('resize', () => {
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
   });
-
 };

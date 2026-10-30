@@ -1,0 +1,58 @@
+<div class="shared-modal character-quality-edit-modal" hidden id="character-quality-edit-modal">
+  <div class="shared-modal-backdrop" data-character-quality-edit-modal-close></div>
+  <section
+    class="shared-modal-card character-quality-edit-card"
+    id="character-quality-edit-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-quality-edit-title"
+    tabindex="-1"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">Q</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailQualityEditEyebrow">
+          进化编辑
+        </p>
+        <h3 id="character-quality-edit-title" data-i18n="dashboard.characterDetailQualityEditTitle">
+          编辑 Quality
+        </h3>
+      </div>
+    </div>
+    <div class="character-quality-edit-form">
+      <label class="character-quality-edit-row" for="character-quality-edit-quality">
+        <span
+          class="character-quality-edit-label"
+          data-i18n="dashboard.characterDetailQualityLabel"
+        >
+          进化
+        </span>
+        <select class="character-quality-edit-select" id="character-quality-edit-quality"></select>
+      </label>
+      <label class="character-quality-edit-row" for="character-quality-edit-star">
+        <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailStarLabel">
+          星级
+        </span>
+        <select class="character-quality-edit-select" id="character-quality-edit-star"></select>
+      </label>
+    </div>
+    <div class="shared-modal-actions character-quality-edit-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-quality-edit-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-quality-edit-confirm"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

@@ -83,7 +83,7 @@
 }
 
 .login-card::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background:
@@ -93,7 +93,7 @@
 }
 
 .login-card::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 1px;
   border-radius: inherit;
@@ -132,7 +132,7 @@
 }
 
 .login-badge::before {
-  content: "";
+  content: '';
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -204,7 +204,12 @@
   padding: 14px 16px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(255, 79, 160, 0.98), rgba(124, 92, 246, 0.98) 52%, rgba(56, 189, 248, 0.98));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 79, 160, 0.98),
+    rgba(124, 92, 246, 0.98) 52%,
+    rgba(56, 189, 248, 0.98)
+  );
   color: white;
   font-size: 15px;
   font-weight: 700;
@@ -221,10 +226,15 @@
 }
 
 .login-form button::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.28) 22%, transparent 45%);
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.28) 22%,
+    transparent 45%
+  );
   transform: translateX(-120%);
   transition: transform 0.65s ease;
 }

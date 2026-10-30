@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="dashboard.title">游戏服务器管理</title>
+    <link rel="icon" href="./assets/webIcon.ico" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    {% include "dashboard/layout/background.html" %}
+
+    <main class="dashboard-shell">
+      <!-- Dashboard shell -->
+      <div class="dashboard-layout">
+        <!-- Primary navigation -->
+        {% include "dashboard/layout/sidebar.html" %}
+
+        <section class="dashboard-main" id="dashboard-main" tabindex="-1">
+          <!-- Server management -->
+          {% include "dashboard/game-server-management/index.html" %}
+
+          <!-- Database management -->
+          {% include "dashboard/user-data-management/index.html" %}
+        </section>
+      </div>
+    </main>
+
+    <!-- Shared modals -->
+    {% include "dashboard/modals.html" %}
+
+    <script type="module" src="./src/dashboard.js"></script>
+  </body>
+</html>

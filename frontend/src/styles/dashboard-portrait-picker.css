@@ -86,7 +86,10 @@
   color: var(--text);
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(67, 78, 117, 0.08);
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .player-portrait-picker-item:hover {
@@ -97,7 +100,9 @@
 
 .player-portrait-picker-item.is-selected {
   border-color: rgba(255, 79, 160, 0.42);
-  box-shadow: 0 0 0 3px rgba(255, 79, 160, 0.12), 0 16px 32px rgba(67, 78, 117, 0.12);
+  box-shadow:
+    0 0 0 3px rgba(255, 79, 160, 0.12),
+    0 16px 32px rgba(67, 78, 117, 0.12);
 }
 
 .player-portrait-picker-item-preview {

@@ -153,7 +153,10 @@
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 14px 28px rgba(255, 79, 160, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
 .shared-modal-button:hover {
@@ -190,7 +193,7 @@
   user-select: none;
 }
 
-.risk-confirm-checkbox input[type="checkbox"] {
+.risk-confirm-checkbox input[type='checkbox'] {
   accent-color: #8c5aa7;
   width: 16px;
   height: 16px;
@@ -207,7 +210,9 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .risk-reset-button:hover {

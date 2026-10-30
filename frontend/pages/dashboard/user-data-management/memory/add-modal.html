@@ -1,0 +1,93 @@
+<div class="shared-modal" hidden id="memory-add-modal">
+  <div class="shared-modal-backdrop" data-memory-add-modal-close></div>
+  <section
+    class="shared-modal-card item-add-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="memory-add-title"
+    aria-describedby="memory-add-description"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">+</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="runtime.memoryAddEyebrow">新增意识</p>
+        <h3 id="memory-add-title" data-i18n="runtime.memoryAddTitle">选择要新增的意识</h3>
+      </div>
+    </div>
+    <p
+      id="memory-add-description"
+      class="shared-modal-message"
+      data-i18n="runtime.memoryAddDescription"
+    >
+      通过搜索和排序选择意识，勾选多项后可批量提交。
+    </p>
+    <div class="database-item-controls item-add-search-shell">
+      <input
+        class="database-item-search-input item-add-search-input"
+        type="search"
+        id="memory-add-search-input"
+        data-i18n-placeholder="runtime.memoryAddSearchPlaceholder"
+        placeholder="输入意识名进行搜索"
+      />
+    </div>
+    <div class="item-add-table-shell">
+      <table class="accounts-table item-add-table weapon-add-table">
+        <colgroup>
+          <col />
+          <col class="equip-management-col-type" />
+          <col class="equip-management-col-star" />
+          <col class="weapon-add-col-select" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="name" type="button">
+                <span data-i18n="dashboard.equipManagementName">名称</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="position" type="button">
+                <span data-i18n="dashboard.memoryManagementPosition">位置</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="star" type="button">
+                <span data-i18n="dashboard.equipManagementStar">星级</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="runtime.memoryAddSelect">选择</th>
+          </tr>
+        </thead>
+        <tbody id="memory-add-table-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        id="memory-add-empty-state"
+        data-i18n="dashboard.memoryAddEmpty"
+      >
+        当前没有匹配的意识。
+      </div>
+    </div>
+    <div class="shared-modal-actions item-add-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-memory-add-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="memory-add-submit"
+        data-i18n="runtime.memoryAddSubmit"
+      >
+        确认新增
+      </button>
+    </div>
+  </section>
+</div>

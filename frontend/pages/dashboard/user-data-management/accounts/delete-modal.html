@@ -1,0 +1,43 @@
+<div class="shared-modal" hidden id="account-delete-modal">
+  <div class="shared-modal-backdrop" data-account-delete-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="account-delete-title"
+    aria-describedby="account-delete-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="runtime.accountDeleteEyebrow">删除确认</p>
+        <h3 id="account-delete-title" data-i18n="runtime.accountDeleteTitle">确认删除账户</h3>
+      </div>
+    </div>
+    <p
+      id="account-delete-message"
+      class="shared-modal-message"
+      data-i18n="runtime.accountDeleteDefaultMessage"
+    >
+      确认删除该账户吗？
+    </p>
+    <div class="shared-modal-actions shared-modal-actions-split account-delete-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-account-delete-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-danger"
+        id="account-delete-confirm"
+        data-i18n="runtime.accountDeleteSubmit"
+      >
+        确认删除
+      </button>
+    </div>
+  </section>
+</div>

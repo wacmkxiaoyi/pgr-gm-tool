@@ -18,15 +18,7 @@ const {
   equipDetailModal,
   equipDetailCloseTargets,
   equipDetailCard,
-  equipDetailResonanceBody,
-  equipDetailTooltip,
   weaponDetailOverrunContent,
-  resonanceEffectTooltip,
-  weaponResonanceCharacterPickerModal,
-  weaponResonanceCharacterPickerSummary,
-  weaponResonanceCharacterPickerGrid,
-  weaponResonanceCharacterPickerConfirmButton,
-  weaponResonanceCharacterPickerCloseTargets,
   weaponOverrunPickerModal,
   weaponOverrunPickerSummary,
   weaponOverrunPickerGrid,
@@ -35,14 +27,15 @@ const {
   weaponOverrunPickerCloseTargets,
 } = dom;
 
-const WEAPON_DETAIL_TOOLTIP_DELAY_MS = 500;
-
-app.escapeHtml = app.escapeHtml || ((value) => String(value)
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#39;'));
+app.escapeHtml =
+  app.escapeHtml ||
+  ((value) =>
+    String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;'));
 
 app.stripMarkupText = (value) => {
   if (typeof value !== 'string') {
@@ -82,22 +75,28 @@ app.parseWeaponOverrunSkillDescription = (value) => {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.map((text, index) => ({ pieces: (index + 1) * 2, text: app.stripMarkupText(text) }))
+  return value
+    .map((text, index) => ({ pieces: (index + 1) * 2, text: app.stripMarkupText(text) }))
     .filter((entry) => entry.text);
 };
 
 app.getWeaponOverrunPieceLabel = (pieces) => {
   const normalizedPieces = Number.isFinite(Number(pieces)) ? Number(pieces) : 0;
-  const key = normalizedPieces === 1
-    ? 'dashboard.weaponDetailOverrunPieceSingle'
-    : 'dashboard.weaponDetailOverrunPiecePlural';
+  const key =
+    normalizedPieces === 1
+      ? 'dashboard.weaponDetailOverrunPieceSingle'
+      : 'dashboard.weaponDetailOverrunPiecePlural';
   return app.translate(key, { count: normalizedPieces });
 };
 
 app.getWeaponOverrunSelection = (extraInfo = state.currentEquipDetailExtraInfo) => {
   const weaponOverrunData = extraInfo?.weapon_overrun_data;
-  const level = Number.isFinite(Number(weaponOverrunData?.level)) ? Math.max(0, Number(weaponOverrunData.level)) : null;
-  const choseSuit = Number.isFinite(Number(weaponOverrunData?.chose_suit)) ? Number(weaponOverrunData.chose_suit) : null;
+  const level = Number.isFinite(Number(weaponOverrunData?.level))
+    ? Math.max(0, Number(weaponOverrunData.level))
+    : null;
+  const choseSuit = Number.isFinite(Number(weaponOverrunData?.chose_suit))
+    ? Number(weaponOverrunData.chose_suit)
+    : null;
   const suitEntry = choseSuit !== null ? state.weaponOverrunSuitEntriesMap?.[choseSuit] : null;
 
   return {
@@ -120,8 +119,7 @@ app.getWeaponOverrunMatchCount = (suitId, extraInfo = state.currentEquipDetailEx
   return Object.values(requiredMemoryIds)
     .map(Number)
     .filter(Number.isFinite)
-    .filter((memoryId) => currentMemoryIds.has(memoryId))
-    .length;
+    .filter((memoryId) => currentMemoryIds.has(memoryId)).length;
 };
 
 app.estimateWeaponOverrunPickerLineBudget = (rowCount) => {
@@ -210,8 +208,14 @@ app.buildWeaponOverrunCardMarkup = ({
     return `<div class="${classes.join(' ')}">${app.escapeHtml(app.translate('dashboard.weaponDetailOverrunInactive'))}</div>`;
   }
 
-  const suitName = suitEntry?.Name ? String(suitEntry.Name).trim() : app.translate('common.notAvailable');
-  const hasEditableLevel = !isPicker && Number.isFinite(Number(level)) && Number.isFinite(Number(maxLevel)) && Number(maxLevel) > 0;
+  const suitName = suitEntry?.Name
+    ? String(suitEntry.Name).trim()
+    : app.translate('common.notAvailable');
+  const hasEditableLevel =
+    !isPicker &&
+    Number.isFinite(Number(level)) &&
+    Number.isFinite(Number(maxLevel)) &&
+    Number(maxLevel) > 0;
   const titleText = isPicker ? suitName : suitName;
   const overrunLevelText = `Lv. ${level ?? 0}`;
   const descriptionRows = app.parseWeaponOverrunSkillDescription(suitEntry?.SkillDescription);
@@ -221,26 +225,38 @@ app.buildWeaponOverrunCardMarkup = ({
     : '';
 
   const lineBudgets = isPicker ? app.allocateWeaponOverrunPickerLines(descriptionRows) : [];
-  const descMarkup = descriptionRows.length > 0
-    ? `<div class="weapon-detail-overrun-lines${isPicker ? ' weapon-overrun-picker-lines' : ''}">${descriptionRows.map(({ pieces, text }, index) => {
-        const escapedLabel = app.escapeHtml(app.getWeaponOverrunPieceLabel(pieces));
-        const result = isPicker
-          ? app.truncateWeaponOverrunPickerText(text, lineBudgets[index] ?? 1)
-          : { text, truncated: false };
-        const escapedText = app.escapeHtml(result.text);
-        const tooltipAttr = result.truncated
-          ? ` data-equip-tooltip-text="${app.escapeHtml(text)}" tabindex="0"`
-          : '';
-        const rowStyle = isPicker ? ` style="--weapon-overrun-picker-lines:${Math.max(1, lineBudgets[index] ?? 1)};"` : '';
-        const isMatched = Number.isFinite(Number(matchCount)) && Number(matchCount) >= pieces;
-        return `
-          <div class="weapon-detail-overrun-line${isPicker ? ' weapon-overrun-picker-line' : ''}${isMatched ? ' is-matched' : ''}"${rowStyle}${tooltipAttr}>
-            <strong class="weapon-detail-overrun-label">${escapedLabel}:</strong>
-            <span class="weapon-detail-overrun-text${result.truncated ? ' is-truncated' : ''}">${escapedText}</span>
-          </div>
-        `;
-      }).join('')}</div>`
-    : '';
+  const descMarkup =
+    descriptionRows.length > 0
+      ? `<div class="weapon-detail-overrun-lines${isPicker ? ' weapon-overrun-picker-lines' : ''}">${descriptionRows
+          .map(({ pieces, text }, index) => {
+            const escapedLabel = app.escapeHtml(app.getWeaponOverrunPieceLabel(pieces));
+            const result = isPicker
+              ? app.truncateWeaponOverrunPickerText(text, lineBudgets[index] ?? 1)
+              : { text, truncated: false };
+            const escapedText = app.escapeHtml(result.text);
+            const tooltipAttr = result.truncated
+              ? ` data-equip-tooltip-text="${app.escapeHtml(text)}" tabindex="0"`
+              : '';
+            const rowStyle = isPicker
+              ? ` style="--weapon-overrun-picker-lines:${Math.max(1, lineBudgets[index] ?? 1)};"`
+              : '';
+            const isMatched = Number.isFinite(Number(matchCount)) && Number(matchCount) >= pieces;
+            return /* HTML */ `
+              <div
+                class="weapon-detail-overrun-line${isPicker
+                  ? ' weapon-overrun-picker-line'
+                  : ''}${isMatched ? ' is-matched' : ''}"
+                ${rowStyle}${tooltipAttr}
+              >
+                <strong class="weapon-detail-overrun-label">${escapedLabel}:</strong>
+                <span class="weapon-detail-overrun-text${result.truncated ? ' is-truncated' : ''}">
+                  ${escapedText}
+                </span>
+              </div>
+            `;
+          })
+          .join('')}</div>`
+      : '';
 
   const rootClasses = ['weapon-detail-overrun', 'weapon-detail-overrun-card'];
   if (isPicker) {
@@ -250,13 +266,34 @@ app.buildWeaponOverrunCardMarkup = ({
     }
   }
 
+  const pickerAttributes =
+    isPicker && Number.isFinite(Number(suitId))
+      ? ` data-weapon-overrun-picker-id="${Number(suitId)}" tabindex="0" role="button" aria-pressed="${selected ? 'true' : 'false'}"`
+      : '';
+  const levelMarkup = hasEditableLevel
+    ? /* HTML */ `
+        <span
+          class="equip-detail-stat-value weapon-detail-overrun-level is-editable"
+          data-equip-edit-field="OverrunLevel"
+          data-weapon-overrun-level-current="${Number(level)}"
+          data-weapon-overrun-level-max="${Number(maxLevel)}"
+          tabindex="0"
+          role="button"
+        >
+          ${app.escapeHtml(overrunLevelText)}
+        </span>
+      `
+    : !isPicker
+      ? `<span class="weapon-detail-overrun-level">${app.escapeHtml(overrunLevelText)}</span>`
+      : '';
+
   return `
-    <div class="${rootClasses.join(' ')}"${isPicker && Number.isFinite(Number(suitId)) ? ` data-weapon-overrun-picker-id="${Number(suitId)}" tabindex="0" role="button" aria-pressed="${selected ? 'true' : 'false'}"` : ''}>
+    <div class="${rootClasses.join(' ')}"${pickerAttributes}>
       <div class="weapon-detail-overrun-surface${isPicker ? ' weapon-overrun-picker-surface' : ''}"${backgroundStyle}>
         <div class="weapon-detail-overrun-overlay${isPicker ? ' weapon-overrun-picker-overlay' : ''}">
           <div class="weapon-detail-overrun-title${isPicker ? ' weapon-overrun-picker-title' : ''}">
             <span class="weapon-detail-overrun-name">${app.escapeHtml(titleText)}</span>
-            ${hasEditableLevel ? `<span class="equip-detail-stat-value weapon-detail-overrun-level is-editable" data-equip-edit-field="OverrunLevel" data-weapon-overrun-level-current="${Number(level)}" data-weapon-overrun-level-max="${Number(maxLevel)}" tabindex="0" role="button">${app.escapeHtml(overrunLevelText)}</span>` : (!isPicker ? `<span class="weapon-detail-overrun-level">${app.escapeHtml(overrunLevelText)}</span>` : '')}
+            ${levelMarkup}
           </div>
           ${descMarkup}
         </div>
@@ -273,7 +310,9 @@ app.renderWeaponOverrunPickerSummary = () => {
   const selectedSuitId = Number(state._weaponOverrunPickerSelectedSuitId);
   const hasSelection = Number.isFinite(selectedSuitId) && selectedSuitId !== 0;
   const suitEntry = hasSelection ? state.weaponOverrunSuitEntriesMap?.[selectedSuitId] : null;
-  const label = suitEntry?.Name ? String(suitEntry.Name).trim() : app.translate('common.unselected');
+  const label = suitEntry?.Name
+    ? String(suitEntry.Name).trim()
+    : app.translate('common.unselected');
 
   weaponOverrunPickerSummary.innerHTML = `
     <div class="overrun-picker-summary-row">
@@ -298,13 +337,17 @@ app.renderWeaponOverrunPickerGrid = () => {
     .filter(({ id, entry }) => Number.isFinite(id) && entry && typeof entry === 'object')
     .sort((left, right) => right.matchCount - left.matchCount || left.id - right.id);
 
-  weaponOverrunPickerGrid.innerHTML = suitEntries.map(({ id, entry, matchCount }) => app.buildWeaponOverrunCardMarkup({
-    suitId: id,
-    suitEntry: entry,
-    matchCount,
-    mode: 'picker',
-    selected: id === selectedSuitId,
-  })).join('');
+  weaponOverrunPickerGrid.innerHTML = suitEntries
+    .map(({ id, entry, matchCount }) =>
+      app.buildWeaponOverrunCardMarkup({
+        suitId: id,
+        suitEntry: entry,
+        matchCount,
+        mode: 'picker',
+        selected: id === selectedSuitId,
+      }),
+    )
+    .join('');
 
   app.renderWeaponOverrunPickerSummary();
 };
@@ -317,15 +360,17 @@ app.openWeaponOverrunPickerModal = (triggerButton) => {
   const selection = app.getWeaponOverrunSelection();
   state._weaponOverrunPickerOriginalSuitId = selection.choseSuit;
   state._weaponOverrunPickerSelectedSuitId = selection.choseSuit;
-  state._weaponOverrunPickerTrigger = triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
+  state._weaponOverrunPickerTrigger =
+    triggerButton instanceof HTMLElement ? triggerButton : document.activeElement;
 
   app.renderWeaponOverrunPickerGrid();
   weaponOverrunPickerModal.hidden = false;
   app.setBodyModalOpen(true);
 
-  const selectedCard = weaponOverrunPickerGrid instanceof HTMLElement
-    ? weaponOverrunPickerGrid.querySelector('.weapon-overrun-picker-card.is-selected')
-    : null;
+  const selectedCard =
+    weaponOverrunPickerGrid instanceof HTMLElement
+      ? weaponOverrunPickerGrid.querySelector('.weapon-overrun-picker-card.is-selected')
+      : null;
   if (selectedCard instanceof HTMLElement) {
     selectedCard.focus();
   } else if (weaponOverrunPickerClearButton instanceof HTMLButtonElement) {
@@ -361,7 +406,10 @@ app.closeWeaponOverrunPickerModal = () => {
 app.submitWeaponOverrunSelection = async () => {
   const recordId = Number(state.currentEquipDetailItem?.record_id);
   if (!Number.isFinite(recordId) || recordId <= 0) {
-    app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), { title: app.translate('dashboard.equipDetailError'), tone: 'error' });
+    app.openNoticeModal(app.translate('dashboard.equipDetailCannotGetRecordId'), {
+      title: app.translate('dashboard.equipDetailError'),
+      tone: 'error',
+    });
     return;
   }
 
@@ -434,7 +482,9 @@ app.renderWeaponOverrunContentInto = (container, extraInfo, { editable = false }
   }
 
   const { weaponOverrunData, level, suitEntry } = app.getWeaponOverrunSelection(extraInfo);
-  const maxLevel = Number.isFinite(Number(weaponOverrunData?.max_level)) ? Number(weaponOverrunData.max_level) : null;
+  const maxLevel = Number.isFinite(Number(weaponOverrunData?.max_level))
+    ? Number(weaponOverrunData.max_level)
+    : null;
   if (!(weaponOverrunData && typeof weaponOverrunData === 'object')) {
     container.className = 'weapon-detail-overrun';
     container.textContent = '--';
@@ -504,7 +554,6 @@ app.resolveWeaponSkillDescription = (templateId) => {
   return '';
 };
 
-
 app.setWeaponManagementState = (message, tone = '') => {
   if (databaseWeaponManagementState instanceof HTMLElement) {
     databaseWeaponManagementState.textContent = message;
@@ -558,21 +607,35 @@ app.getWeaponDetailExtraInfo = async (recordId) => {
 
 app.updateWeaponManagementPagination = () => {
   if (databaseWeaponManagementPaginationLabel instanceof HTMLElement) {
-    databaseWeaponManagementPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
-      page: state.weaponManagementTotalPages === 0 ? 0 : state.weaponManagementCurrentPage,
-      totalPages: state.weaponManagementTotalPages,
-    });
+    databaseWeaponManagementPaginationLabel.textContent = app.translate(
+      'dashboard.accountsPagination',
+      {
+        page: state.weaponManagementTotalPages === 0 ? 0 : state.weaponManagementCurrentPage,
+        totalPages: state.weaponManagementTotalPages,
+      },
+    );
   }
 
   if (databaseWeaponManagementPrevButton instanceof HTMLButtonElement) {
-    databaseWeaponManagementPrevButton.disabled = state.weaponManagementLoading || state.weaponManagementCurrentPage <= 1 || state.weaponManagementTotalPages === 0 || !app.canAccessWeaponManagement();
+    databaseWeaponManagementPrevButton.disabled =
+      state.weaponManagementLoading ||
+      state.weaponManagementCurrentPage <= 1 ||
+      state.weaponManagementTotalPages === 0 ||
+      !app.canAccessWeaponManagement();
   }
 
   if (databaseWeaponManagementNextButton instanceof HTMLButtonElement) {
-    databaseWeaponManagementNextButton.disabled = state.weaponManagementLoading || state.weaponManagementTotalPages === 0 || state.weaponManagementCurrentPage >= state.weaponManagementTotalPages || !app.canAccessWeaponManagement();
+    databaseWeaponManagementNextButton.disabled =
+      state.weaponManagementLoading ||
+      state.weaponManagementTotalPages === 0 ||
+      state.weaponManagementCurrentPage >= state.weaponManagementTotalPages ||
+      !app.canAccessWeaponManagement();
   }
 
-  const jumpDisabled = state.weaponManagementLoading || state.weaponManagementTotalPages === 0 || !app.canAccessWeaponManagement();
+  const jumpDisabled =
+    state.weaponManagementLoading ||
+    state.weaponManagementTotalPages === 0 ||
+    !app.canAccessWeaponManagement();
 
   if (databaseWeaponManagementJumpInput instanceof HTMLInputElement) {
     databaseWeaponManagementJumpInput.disabled = jumpDisabled;
@@ -588,7 +651,10 @@ app.submitWeaponManagementPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseWeaponManagementJumpInput.value, state.weaponManagementTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseWeaponManagementJumpInput.value,
+    state.weaponManagementTotalPages,
+  );
   databaseWeaponManagementJumpInput.value = '';
 
   if (targetPage === null || targetPage === state.weaponManagementCurrentPage) {
@@ -603,41 +669,68 @@ app.renderWeaponRows = (items) => {
     return;
   }
 
-  databaseWeaponManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
-    const recordId = item?.record_id ?? null;
-    const templateId = item?.TemplateId ?? null;
-    const weaponName = app.getEquipNameByTemplateId(templateId);
-    const iconUrl = app.getEquipIconByTemplateId(templateId);
-    const characterId = item?.CharacterId ?? null;
-    const characterName = app.getCharacterNameByCharacterId(characterId);
-    const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
-    const isEquipped = Number(characterId) !== 0;
-    const rowNumber = ((state.weaponManagementCurrentPage - 1) * 10) + index + 1;
-    const star = app.getEquipStarByTemplateId(templateId);
-    const iconExtraClass = (Number.isFinite(star) && star >= 4) ? `equip-icon-tier-${star}` : '';
-    return `
-      <tr>
-        <td>${rowNumber}</td>
-        <td>${app.renderEquipMediaCell(iconUrl, weaponName, true, iconExtraClass)}</td>
-        <td>${app.getWeaponTypeByTemplateId(templateId)}</td>
-        <td>${app.renderEquipStar(templateId)}</td>
-        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
-        <td>${app.renderEquipEnhancementLevel(item)}</td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-log" type="button" data-equip-management-action="detail" data-weapon-record-id="${recordId ?? ''}">${app.translate('dashboard.equipManagementDetail')}</button>
-            <button class="status-action-button status-action-button-stop" type="button" data-equip-management-action="delete" data-weapon-record-id="${recordId ?? ''}" data-weapon-template-id="${templateId ?? ''}" data-weapon-name="${weaponName}" data-weapon-character-id="${characterId ?? ''}" data-weapon-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.equipManagementDelete')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('') : '';
+  databaseWeaponManagementBody.innerHTML = Array.isArray(items)
+    ? items
+        .map((item, index) => {
+          const recordId = item?.record_id ?? null;
+          const templateId = item?.TemplateId ?? null;
+          const weaponName = app.getEquipNameByTemplateId(templateId);
+          const iconUrl = app.getEquipIconByTemplateId(templateId);
+          const characterId = item?.CharacterId ?? null;
+          const characterName = app.getCharacterNameByCharacterId(characterId);
+          const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
+          const isEquipped = Number(characterId) !== 0;
+          const rowNumber = (state.weaponManagementCurrentPage - 1) * 10 + index + 1;
+          const star = app.getEquipStarByTemplateId(templateId);
+          const iconExtraClass =
+            Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
+          return /* HTML */ `
+            <tr>
+              <td>${rowNumber}</td>
+              <td>${app.renderEquipMediaCell(iconUrl, weaponName, true, iconExtraClass)}</td>
+              <td>${app.getWeaponTypeByTemplateId(templateId)}</td>
+              <td>${app.renderEquipStar(templateId)}</td>
+              <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
+              <td>${app.renderEquipEnhancementLevel(item)}</td>
+              <td>
+                <div class="accounts-row-actions">
+                  <button
+                    class="status-action-button status-action-button-log"
+                    type="button"
+                    data-equip-management-action="detail"
+                    data-weapon-record-id="${recordId ?? ''}"
+                  >
+                    ${app.translate('dashboard.equipManagementDetail')}
+                  </button>
+                  <button
+                    class="status-action-button status-action-button-stop"
+                    type="button"
+                    data-equip-management-action="delete"
+                    data-weapon-record-id="${recordId ?? ''}"
+                    data-weapon-template-id="${templateId ?? ''}"
+                    data-weapon-name="${weaponName}"
+                    data-weapon-character-id="${characterId ?? ''}"
+                    data-weapon-character-name="${characterName}"
+                    ${isEquipped ? 'disabled' : ''}
+                  >
+                    ${app.translate('dashboard.equipManagementDelete')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('')
+    : '';
 };
 
 app.reloadWeaponManagementCurrentPage = async () => {
   const targetPage = Math.max(1, state.weaponManagementCurrentPage);
   await app.loadSelectedAccountWeapons(targetPage);
-  if (state.weaponManagementTotalPages > 0 && state.weaponManagementCurrentPage > state.weaponManagementTotalPages) {
+  if (
+    state.weaponManagementTotalPages > 0 &&
+    state.weaponManagementCurrentPage > state.weaponManagementTotalPages
+  ) {
     await app.loadSelectedAccountWeapons(state.weaponManagementTotalPages);
   }
 };
@@ -645,7 +738,9 @@ app.reloadWeaponManagementCurrentPage = async () => {
 app._weaponManagementSortFields = ['name', 'character', 'type', 'star', 'enhancement'];
 
 app._syncWeaponManagementSortArrows = () => {
-  const table = document.querySelector('#database-equip-management-section .equip-management-table');
+  const table = document.querySelector(
+    '#database-equip-management-section .equip-management-table',
+  );
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -732,13 +827,18 @@ app.loadSelectedAccountWeapons = async (page = 1) => {
     const payload = await app.apiFetch(`/api/database-weapons/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.weaponManagementItems = items;
-    state.weaponManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.weaponManagementCurrentPage;
-    state.weaponManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    state.weaponManagementCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.weaponManagementCurrentPage;
+    state.weaponManagementTotalPages =
+      typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.weaponManagementHasLoaded = true;
 
     if (databaseWeaponManagementSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseWeaponManagementSummary.textContent = app.translate('dashboard.weaponManagementSummaryTotal', { total });
+      databaseWeaponManagementSummary.textContent = app.translate(
+        'dashboard.weaponManagementSummaryTotal',
+        { total },
+      );
       databaseWeaponManagementSummary.hidden = false;
     }
 
@@ -756,7 +856,10 @@ app.loadSelectedAccountWeapons = async (page = 1) => {
     if (databaseWeaponManagementBody instanceof HTMLElement) {
       databaseWeaponManagementBody.innerHTML = '';
     }
-    app.setWeaponManagementState(app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'), 'is-error');
+    app.setWeaponManagementState(
+      app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'),
+      'is-error',
+    );
   } finally {
     state.weaponManagementLoading = false;
     app.updateWeaponManagementPagination();
@@ -773,9 +876,13 @@ app.updateWeaponManagementAccess = (payload = state.databaseHealthSnapshot) => {
   if (databaseWeaponManagementSubnavButton instanceof HTMLButtonElement) {
     databaseWeaponManagementSubnavButton.disabled = !accessible;
     if (!healthy) {
-      databaseWeaponManagementSubnavButton.title = app.translate('runtime.weaponManagementAccessTitle');
+      databaseWeaponManagementSubnavButton.title = app.translate(
+        'runtime.weaponManagementAccessTitle',
+      );
     } else if (state.selectedAccountUid === null) {
-      databaseWeaponManagementSubnavButton.title = app.translate('runtime.weaponManagementNeedAccountTitle');
+      databaseWeaponManagementSubnavButton.title = app.translate(
+        'runtime.weaponManagementNeedAccountTitle',
+      );
     } else {
       databaseWeaponManagementSubnavButton.title = '';
     }
@@ -797,7 +904,10 @@ app.updateWeaponManagementAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (!healthy) {
     app.resetWeaponManagementView();
-    app.setWeaponManagementState(app.translate('dashboard.weaponManagementUnavailable'), 'is-muted');
+    app.setWeaponManagementState(
+      app.translate('dashboard.weaponManagementUnavailable'),
+      'is-muted',
+    );
     if (app.isDatabaseWeaponManagementSectionActive()) {
       app.setActiveDatabaseTab('database-service-status-section');
     }
@@ -806,7 +916,10 @@ app.updateWeaponManagementAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (state.selectedAccountUid === null) {
     app.resetWeaponManagementView();
-    app.setWeaponManagementState(app.translate('dashboard.weaponManagementChooseAccount'), 'is-muted');
+    app.setWeaponManagementState(
+      app.translate('dashboard.weaponManagementChooseAccount'),
+      'is-muted',
+    );
     if (app.isDatabaseWeaponManagementSectionActive()) {
       app.setActiveDatabaseTab('database-accounts-section');
     }
@@ -868,12 +981,15 @@ app.handleequipManagementActionClick = (event) => {
       return;
     }
 
-    app.openWeaponDeleteModal({
-      recordId,
-      templateId: button.dataset.weaponTemplateId ?? '--',
-      weaponName: button.dataset.weaponName ?? app.translate('common.notAvailable'),
-      characterName: button.dataset.weaponCharacterName ?? app.translate('common.notAvailable'),
-    }, button);
+    app.openWeaponDeleteModal(
+      {
+        recordId,
+        templateId: button.dataset.weaponTemplateId ?? '--',
+        weaponName: button.dataset.weaponName ?? app.translate('common.notAvailable'),
+        characterName: button.dataset.weaponCharacterName ?? app.translate('common.notAvailable'),
+      },
+      button,
+    );
   }
 };
 
@@ -895,9 +1011,12 @@ app.closeWeaponDetailModal = () => {
   }
 
   equipDetailModal.hidden = true;
-  const keepBodyLocked = (dom.characterDetailModal instanceof HTMLElement && !dom.characterDetailModal.hidden)
-    || (dom.characterWeaponSwitchModal instanceof HTMLElement && !dom.characterWeaponSwitchModal.hidden)
-    || (dom.characterMemorySwitchModal instanceof HTMLElement && !dom.characterMemorySwitchModal.hidden);
+  const keepBodyLocked =
+    (dom.characterDetailModal instanceof HTMLElement && !dom.characterDetailModal.hidden) ||
+    (dom.characterWeaponSwitchModal instanceof HTMLElement &&
+      !dom.characterWeaponSwitchModal.hidden) ||
+    (dom.characterMemorySwitchModal instanceof HTMLElement &&
+      !dom.characterMemorySwitchModal.hidden);
   if (!keepBodyLocked) {
     app.setBodyModalOpen(false);
   }
@@ -959,7 +1078,7 @@ app.loadWeaponDetailExtraInfo = async (recordId) => {
   }
 };
 
-app.refreshEquipDetailSourceViews = async (recordId, { rerenderSourceRows = true } = {}) => {
+app.refreshEquipDetailSourceViews = async ({ rerenderSourceRows = true } = {}) => {
   const source = state.currentEquipDetailSource;
 
   if (source === 'character-weapon-switch') {
@@ -1095,13 +1214,14 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
 
   const rawValue = String(nextValue).trim();
   if (!/^\d+$/.test(rawValue)) {
-    const invalidKey = field === 'Breakthrough'
-      ? 'runtime.weaponBreakthroughInvalid'
-      : field === 'Level'
-        ? 'runtime.equipsLevelBelowMin'
-        : field === 'Exp'
-          ? 'runtime.equipsExpBelowMin'
-          : 'runtime.weaponOverrunLevelBelowMin';
+    const invalidKey =
+      field === 'Breakthrough'
+        ? 'runtime.weaponBreakthroughInvalid'
+        : field === 'Level'
+          ? 'runtime.equipsLevelBelowMin'
+          : field === 'Exp'
+            ? 'runtime.equipsExpBelowMin'
+            : 'runtime.weaponOverrunLevelBelowMin';
     app.openNoticeModal(app.translate(invalidKey));
     return;
   }
@@ -1139,7 +1259,9 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
       return;
     }
     if (parsedValue > overrunLevelMax) {
-      app.openNoticeModal(app.translate('runtime.weaponOverrunLevelAboveLimit', { max: overrunLevelMax }));
+      app.openNoticeModal(
+        app.translate('runtime.weaponOverrunLevelAboveLimit', { max: overrunLevelMax }),
+      );
       return;
     }
   }
@@ -1151,21 +1273,31 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
   }
 
   try {
-    const basePath = state.currentEquipDetailMode === 'memory' ? '/api/database-memories/selected' : '/api/database-weapons/selected';
-    const payload = await app.apiFetch(field === 'OverrunLevel' ? `${basePath}/${recordId}/overrun` : `${basePath}/${recordId}/enhance`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
+    const basePath =
+      state.currentEquipDetailMode === 'memory'
+        ? '/api/database-memories/selected'
+        : '/api/database-weapons/selected';
+    const payload = await app.apiFetch(
+      field === 'OverrunLevel'
+        ? `${basePath}/${recordId}/overrun`
+        : `${basePath}/${recordId}/enhance`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          field === 'OverrunLevel'
+            ? {
+                level: parsedValue,
+              }
+            : {
+                field: field.toLowerCase(),
+                value: parsedValue,
+              },
+        ),
       },
-      body: JSON.stringify(field === 'OverrunLevel'
-        ? {
-            level: parsedValue,
-          }
-        : {
-            field: field.toLowerCase(),
-            value: parsedValue,
-          }),
-    });
+    );
 
     state.equipDetailEditState = null;
 
@@ -1180,7 +1312,7 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
       await app.loadWeaponDetailExtraInfo(recordId);
     }
 
-    await app.refreshEquipDetailSourceViews(recordId);
+    await app.refreshEquipDetailSourceViews();
   } catch (error) {
     if (app.isMutationRiskCancelled(error)) {
       currentState.pending = false;
@@ -1196,7 +1328,6 @@ app.submitEquipDetailFieldEdit = async (field, nextValue) => {
     app.openNoticeModal(app.apiErrorMessage(error, 'runtime.equipsUpdateFailed'));
   }
 };
-
 
 app.handleWeaponOverrunActivate = (event) => {
   if (state.currentEquipDetailMode === 'memory') {
@@ -1223,7 +1354,9 @@ app.handleWeaponOverrunActivate = (event) => {
       return;
     }
 
-    const blockedText = target.closest('.weapon-detail-overrun-title, .weapon-detail-overrun-line, .weapon-detail-overrun-label, .weapon-detail-overrun-text');
+    const blockedText = target.closest(
+      '.weapon-detail-overrun-title, .weapon-detail-overrun-line, .weapon-detail-overrun-label, .weapon-detail-overrun-text',
+    );
     if (blockedText instanceof HTMLElement) {
       return;
     }
@@ -1234,7 +1367,7 @@ app.handleWeaponOverrunActivate = (event) => {
     }
   }
 
-    app.openWeaponOverrunPickerModal(weaponDetailOverrunContent);
+  app.openWeaponOverrunPickerModal(weaponDetailOverrunContent);
 };
 
 app.handleEquipDetailFieldActivate = (event) => {
@@ -1313,7 +1446,9 @@ export const initDatabaseWeaponManagementFeature = () => {
     });
   }
 
-  const weaponManagementTable = document.querySelector('#database-equip-management-section .equip-management-table');
+  const weaponManagementTable = document.querySelector(
+    '#database-equip-management-section .equip-management-table',
+  );
   if (weaponManagementTable instanceof HTMLElement) {
     weaponManagementTable.addEventListener('click', (event) => {
       const target = event.target;
@@ -1358,7 +1493,10 @@ export const initDatabaseWeaponManagementFeature = () => {
   }
 
   if (databaseWeaponManagementJumpButton instanceof HTMLButtonElement) {
-    databaseWeaponManagementJumpButton.addEventListener('click', app.submitWeaponManagementPageJump);
+    databaseWeaponManagementJumpButton.addEventListener(
+      'click',
+      app.submitWeaponManagementPageJump,
+    );
   }
 
   equipDetailCloseTargets.forEach((target) => {
@@ -1390,7 +1528,10 @@ export const initDatabaseWeaponManagementFeature = () => {
       event.preventDefault();
       app.handleEquipDetailFieldActivate(event);
 
-      if (event.target instanceof HTMLElement && event.target.closest('#weapon-detail-overrun-content')) {
+      if (
+        event.target instanceof HTMLElement &&
+        event.target.closest('#weapon-detail-overrun-content')
+      ) {
         app.handleWeaponOverrunActivate(event);
       }
     });
@@ -1427,7 +1568,10 @@ export const initDatabaseWeaponManagementFeature = () => {
     weaponOverrunPickerModal.addEventListener('click', (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
-      if (target === weaponOverrunPickerModal || target.classList.contains('shared-modal-backdrop')) {
+      if (
+        target === weaponOverrunPickerModal ||
+        target.classList.contains('shared-modal-backdrop')
+      ) {
         app.closeWeaponOverrunPickerModal();
       }
     });
@@ -1439,7 +1583,11 @@ export const initDatabaseWeaponManagementFeature = () => {
         return;
       }
 
-      if (event.key === 'Enter' && event.target instanceof HTMLElement && event.target.closest('[data-weapon-overrun-picker-id]')) {
+      if (
+        event.key === 'Enter' &&
+        event.target instanceof HTMLElement &&
+        event.target.closest('[data-weapon-overrun-picker-id]')
+      ) {
         event.preventDefault();
         void app.submitWeaponOverrunSelection();
       }

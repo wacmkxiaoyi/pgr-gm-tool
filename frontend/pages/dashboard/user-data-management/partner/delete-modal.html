@@ -1,0 +1,34 @@
+<div class="shared-modal" hidden id="partner-delete-modal">
+  <div class="shared-modal-backdrop" data-partner-delete-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="partner-delete-title"
+    aria-describedby="partner-delete-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <h3 id="partner-delete-title" data-i18n="dashboard.partnerDeleteTitle">删除辅助机</h3>
+    </div>
+    <p class="shared-modal-message" id="partner-delete-message"></p>
+    <div class="shared-modal-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-partner-delete-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="partner-delete-submit"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,43 @@
+<div class="shared-modal" hidden id="item-delete-modal">
+  <div class="shared-modal-backdrop" data-item-delete-modal-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="item-delete-title"
+    aria-describedby="item-delete-message"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">!</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="runtime.itemDeleteEyebrow">道具操作</p>
+        <h3 id="item-delete-title" data-i18n="runtime.itemDeleteTitle">确认删除物品</h3>
+      </div>
+    </div>
+    <p
+      id="item-delete-message"
+      class="shared-modal-message"
+      data-i18n="runtime.itemDeleteDefaultMessage"
+    >
+      确认执行当前道具操作吗？
+    </p>
+    <div class="shared-modal-actions shared-modal-actions-split account-delete-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-item-delete-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-danger"
+        id="item-delete-confirm"
+        data-i18n="runtime.itemDeleteSubmit"
+      >
+        确认删除
+      </button>
+    </div>
+  </section>
+</div>

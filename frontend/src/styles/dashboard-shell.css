@@ -145,7 +145,12 @@
   top: 0;
   z-index: 8;
   padding: 4px 0 0;
-  background: linear-gradient(180deg, rgba(248, 250, 255, 0.92), rgba(248, 250, 255, 0.72), rgba(248, 250, 255, 0));
+  background: linear-gradient(
+    180deg,
+    rgba(248, 250, 255, 0.92),
+    rgba(248, 250, 255, 0.72),
+    rgba(248, 250, 255, 0)
+  );
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }

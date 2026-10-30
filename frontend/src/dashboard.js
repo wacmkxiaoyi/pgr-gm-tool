@@ -60,28 +60,46 @@ const clearDatabaseStatusPollingTimer = () => {
 
 const scheduleStatusPolling = (intervalSeconds) => {
   clearStatusPollingTimer();
-  if (!state.healthPollingReady || !state.serverManagementEnabled || !app.isServerManagementPageActive()) {
+  if (
+    !state.healthPollingReady ||
+    !state.serverManagementEnabled ||
+    !app.isServerManagementPageActive()
+  ) {
     return;
   }
 
-  state.statusPollingTimerId = window.setTimeout(() => {
-    void refreshStatusPolling();
-  }, Math.max(5, Number(intervalSeconds) || 60) * 1000);
+  state.statusPollingTimerId = window.setTimeout(
+    () => {
+      void refreshStatusPolling();
+    },
+    Math.max(5, Number(intervalSeconds) || 60) * 1000,
+  );
 };
 
 const scheduleDatabaseStatusPolling = (intervalSeconds) => {
   clearDatabaseStatusPollingTimer();
-  if (!state.healthPollingReady || !app.isDatabaseManagementPageActive() || !app.isDatabaseStatusSectionActive()) {
+  if (
+    !state.healthPollingReady ||
+    !app.isDatabaseManagementPageActive() ||
+    !app.isDatabaseStatusSectionActive()
+  ) {
     return;
   }
 
-  state.databaseStatusPollingTimerId = window.setTimeout(() => {
-    void refreshDatabaseStatusPolling();
-  }, Math.max(5, Number(intervalSeconds) || 60) * 1000);
+  state.databaseStatusPollingTimerId = window.setTimeout(
+    () => {
+      void refreshDatabaseStatusPolling();
+    },
+    Math.max(5, Number(intervalSeconds) || 60) * 1000,
+  );
 };
 
 const refreshStatusPolling = async () => {
-  if (!state.healthPollingReady || !state.serverManagementEnabled || !app.isServerManagementPageActive()) {
+  if (
+    !state.healthPollingReady ||
+    !state.serverManagementEnabled ||
+    !app.isServerManagementPageActive()
+  ) {
     clearStatusPollingTimer();
     return;
   }
@@ -100,7 +118,11 @@ const refreshStatusPolling = async () => {
 };
 
 const refreshDatabaseStatusPolling = async () => {
-  if (!state.healthPollingReady || !app.isDatabaseManagementPageActive() || !app.isDatabaseStatusSectionActive()) {
+  if (
+    !state.healthPollingReady ||
+    !app.isDatabaseManagementPageActive() ||
+    !app.isDatabaseStatusSectionActive()
+  ) {
     clearDatabaseStatusPollingTimer();
     return;
   }
@@ -142,7 +164,9 @@ app.refreshHealthPolling = () => {
 
 const startPolling = async () => {
   await app.loadAppInfo();
-  app.setActiveDashboardPage(state.serverManagementEnabled ? 'server-management' : 'database-management');
+  app.setActiveDashboardPage(
+    state.serverManagementEnabled ? 'server-management' : 'database-management',
+  );
   await app.loadSelectedAccount();
   state.healthPollingReady = true;
   app.refreshHealthPolling();

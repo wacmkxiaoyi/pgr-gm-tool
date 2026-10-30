@@ -4,13 +4,14 @@ import uuid
 
 from fastapi import Cookie, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.responses import FileResponse, RedirectResponse
 
 from backend.app.apis.schemas import ApiErrorResponse
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from backend.app.services.db_schema_runtime import init_database_schema_runtime
 from backend.app.services.database_accounts import DatabaseAccountsService
@@ -48,6 +49,7 @@ def _build_error_response(request: Request, status_code: int, code: str, details
 def init_app(app, settings):
     from backend.app.apis import router, server_management_router
 
+    templates = Jinja2Templates(directory=settings.FRONTEND_DIR / "pages")
     app.state.settings = settings
     configure_authentication(settings.authentication_enabled)
     app.state.db_schema_runtime = init_database_schema_runtime()
@@ -157,14 +159,14 @@ def init_app(app, settings):
 
 
     @app.get("/", response_model=None)
-    async def root(login_session_token: str | None = Cookie(default=None)) -> FileResponse | RedirectResponse:
+    async def root(request: Request, login_session_token: str | None = Cookie(default=None)) -> HTMLResponse | RedirectResponse:
         if get_session(login_session_token) is None:
             return RedirectResponse(url="/login", status_code=302)
-        return FileResponse(settings.FRONTEND_DIR / "dashboard.html")
+        return templates.TemplateResponse(request=request, name="dashboard.html")
 
 
     @app.get("/login", response_model=None)
     async def login_page(login_session_token: str | None = Cookie(default=None)) -> FileResponse | RedirectResponse:
         if get_session(login_session_token) is not None:
             return RedirectResponse(url="/", status_code=302)
-        return FileResponse(settings.FRONTEND_DIR / "index.html")
+        return FileResponse(settings.FRONTEND_DIR / "pages" / "index.html")

@@ -1,0 +1,271 @@
+<section
+  class="database-panel database-player-panel database-tab-panel"
+  id="database-player-profile-section"
+  data-database-tab-panel="database-player-profile-section"
+  aria-labelledby="database-player-profile-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact database-player-panel-header">
+    <div>
+      <span class="section-tag">Player</span>
+      <h2 id="database-player-profile-title" data-i18n="dashboard.playerProfileTitle">玩家管理</h2>
+    </div>
+    <div class="database-player-profile-meta" hidden>
+      <small
+        class="database-player-profile-summary"
+        id="database-player-profile-summary"
+        hidden
+      ></small>
+    </div>
+  </div>
+
+  <div
+    class="database-player-empty"
+    id="database-player-profile-state"
+    data-i18n="dashboard.playerProfileChooseAccount"
+  >
+    请先在账号管理中选定一个用户。
+  </div>
+
+  <div class="database-player-profile-shell" id="database-player-profile-shell" hidden>
+    <article
+      class="database-player-card"
+      aria-label="玩家管理"
+      data-i18n-aria-label="dashboard.playerCardAria"
+    >
+      <div
+        class="database-player-card-background"
+        id="player-card-background"
+        aria-hidden="true"
+        hidden
+      ></div>
+      <div class="database-player-card-glow" aria-hidden="true"></div>
+      <div class="database-player-card-avatar-shell">
+        <div class="database-player-card-avatar-stage">
+          <div class="database-player-card-avatar-ring">
+            <img
+              class="database-player-card-avatar-frame-image"
+              id="player-card-avatar-frame-image"
+              alt="玩家头像框"
+              data-i18n-alt="dashboard.playerFrameAlt"
+              data-player-edit-field="head_frame_id"
+              hidden
+            />
+            <img
+              class="database-player-card-avatar-image"
+              id="player-card-avatar-image"
+              alt="玩家头像"
+              data-i18n-alt="dashboard.playerAvatarAlt"
+              data-player-edit-field="head_portrait_id"
+              hidden
+            />
+            <div
+              class="database-player-card-avatar-fallback"
+              id="player-card-avatar-fallback"
+              aria-hidden="true"
+            ></div>
+            <button
+              class="database-player-card-avatar-frame-hitbox"
+              id="player-card-avatar-frame-hitbox"
+              type="button"
+              aria-label="切换头像框"
+              data-i18n-aria-label="dashboard.playerFrameAlt"
+            ></button>
+          </div>
+          <strong
+            class="database-player-card-name"
+            id="player-card-name"
+            data-player-edit-field="name"
+          >
+            --
+          </strong>
+          <div
+            class="database-player-card-appearance-actions"
+            aria-label="Player appearance"
+            data-i18n-aria-label="dashboard.playerAppearanceActionsAria"
+          >
+            <button
+              type="button"
+              class="database-player-card-appearance-action"
+              data-nameplate-picker-open
+              aria-label="Choose nameplate"
+              data-i18n-aria-label="dashboard.playerNameplateAction"
+            >
+              N
+            </button>
+            <button
+              type="button"
+              class="database-player-card-appearance-action"
+              data-medal-picker-open
+              aria-label="Medal"
+              data-i18n-aria-label="dashboard.playerMedalAction"
+            >
+              M
+            </button>
+            <button
+              type="button"
+              class="database-player-card-appearance-action"
+              data-score-title-picker-open
+              aria-label="Score title"
+              data-i18n-aria-label="dashboard.playerScoreTitleAction"
+            >
+              S
+            </button>
+            <button
+              type="button"
+              class="database-player-card-appearance-action"
+              data-chat-board-picker-open
+              aria-label="Chat board"
+              data-i18n-aria-label="dashboard.playerChatBoardAction"
+            >
+              C
+            </button>
+            <button
+              type="button"
+              class="database-player-card-appearance-action"
+              data-chat-emoji-picker-open
+              aria-label="Chat emoji"
+              data-i18n-aria-label="dashboard.playerChatEmojiAction"
+            >
+              E
+            </button>
+          </div>
+        </div>
+        <div class="database-player-card-meta-row">
+          <span class="database-player-card-tag">
+            <span class="database-player-card-tag-label" data-i18n="dashboard.playerGender">
+              性别
+            </span>
+            <strong id="player-card-gender" data-player-edit-field="gender">--</strong>
+          </span>
+          <span class="database-player-card-tag database-player-card-tag-likes">
+            <span
+              class="database-player-card-tag-label"
+              aria-label="点赞"
+              data-i18n-aria-label="dashboard.playerLikes"
+            >
+              👍
+            </span>
+            <strong id="player-card-likes" data-player-edit-field="likes">--</strong>
+          </span>
+        </div>
+      </div>
+      <div class="database-player-card-copy">
+        <div class="database-player-card-name-row">
+          <div
+            class="database-player-card-resources"
+            aria-label="玩家资源"
+            data-i18n-aria-label="dashboard.playerResourcesAria"
+          >
+            <span class="database-player-card-resource">
+              <img
+                class="database-player-card-resource-icon"
+                src="./assets/image/icontoolssp/iconconsumegem02sp.webp"
+                alt="彩虹卡"
+                data-i18n-alt="dashboard.playerRainbowCardAlt"
+              />
+              <strong
+                class="database-player-card-resource-value database-player-card-resource-value-rainbow"
+                id="player-card-rainbow-card"
+                data-player-edit-field="rainbow_card"
+              >
+                0
+              </strong>
+            </span>
+            <span class="database-player-card-resource">
+              <img
+                class="database-player-card-resource-icon"
+                src="./assets/image/iconcurrency/iconconsumegem.webp"
+                alt="黑卡"
+                data-i18n-alt="dashboard.playerBlackCardAlt"
+              />
+              <strong
+                class="database-player-card-resource-value database-player-card-resource-value-black"
+                id="player-card-black-card"
+                data-player-edit-field="black_card"
+              >
+                0
+              </strong>
+            </span>
+            <span class="database-player-card-resource">
+              <img
+                class="database-player-card-resource-icon"
+                src="./assets/image/iconcurrency/iconconsumeactionpoint.webp"
+                alt="血清"
+                data-i18n-alt="dashboard.playerSerumAlt"
+              />
+              <strong
+                class="database-player-card-resource-value database-player-card-resource-value-serum"
+                id="player-card-serum"
+                data-player-edit-field="serum"
+              >
+                0
+              </strong>
+            </span>
+            <span class="database-player-card-resource">
+              <img
+                class="database-player-card-resource-icon"
+                src="./assets/image/iconcurrency/iconconsumemoney.webp"
+                alt="螺母"
+                data-i18n-alt="dashboard.playerMoneyAlt"
+              />
+              <strong
+                class="database-player-card-resource-value database-player-card-resource-value-money"
+                id="player-card-money"
+                data-player-edit-field="money"
+              >
+                0
+              </strong>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="database-player-card-honor-bar"
+        id="player-card-honor-bar"
+        aria-label="等级"
+        data-i18n-aria-label="dashboard.playerLevel"
+        hidden
+      >
+        <strong class="database-player-card-honor-value" id="player-card-honor-level">--</strong>
+        <span class="database-player-card-honor-label" data-i18n="dashboard.playerLevel">等级</span>
+      </div>
+      <div
+        class="database-player-card-stats"
+        aria-label="玩家等级与经验"
+        data-i18n-aria-label="dashboard.playerStatsAria"
+      >
+        <div class="database-player-card-level-hud">
+          <div class="database-player-card-level-orb">
+            <span
+              class="database-player-card-level-label"
+              id="player-card-level-label"
+              data-i18n="dashboard.playerLevel"
+            >
+              等级
+            </span>
+            <strong
+              class="database-player-card-level-value"
+              id="player-card-level"
+              data-player-edit-field="level"
+            >
+              --
+            </strong>
+          </div>
+          <div class="database-player-card-exp-bar">
+            <span class="database-player-card-stat-label" data-i18n="dashboard.playerExp">
+              经验
+            </span>
+            <strong
+              class="database-player-card-stat-value database-player-card-stat-value-exp"
+              id="player-card-exp"
+              data-player-edit-field="exp"
+            >
+              0
+            </strong>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

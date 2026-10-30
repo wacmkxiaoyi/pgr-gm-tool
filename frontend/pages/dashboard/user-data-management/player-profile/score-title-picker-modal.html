@@ -1,0 +1,36 @@
+<div class="shared-modal score-title-picker-modal" hidden id="score-title-picker-modal">
+  <div class="shared-modal-backdrop" data-score-title-picker-modal-close></div>
+  <section
+    class="shared-modal-card score-title-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="score-title-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">S</span>
+      <div>
+        <p class="shared-modal-eyebrow" id="score-title-picker-eyebrow"></p>
+        <h3 id="score-title-picker-title"></h3>
+      </div>
+    </div>
+    <div class="score-title-picker-toolbar">
+      <button
+        type="button"
+        class="shared-modal-button score-title-picker-unlock-all"
+        id="score-title-picker-unlock-all"
+      ></button>
+    </div>
+    <div class="score-title-picker-grid" id="score-title-picker-grid"></div>
+    <div class="shared-modal-actions score-title-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary score-title-picker-cancel"
+        data-score-title-picker-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button type="button" class="shared-modal-button" id="score-title-picker-confirm"></button>
+    </div>
+  </section>
+</div>

@@ -42,7 +42,21 @@ def test_enabled_authentication_requires_valid_credentials() -> None:
 def test_disabled_authentication_bypasses_login_page_and_session_check() -> None:
     client = _client()
 
-    assert client.get("/", follow_redirects=False).status_code == 200
+    response = client.get("/", follow_redirects=False)
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert '{% include' not in response.text
+    for element_id in (
+        "dashboard-sidebar",
+        "server-management",
+        "database-accounts-section",
+        "character-detail-modal",
+        "equip-detail-modal",
+        "partner-description-tooltip",
+        "stage-description-tooltip",
+    ):
+        assert f'id="{element_id}"' in response.text
     assert client.get("/login", follow_redirects=False).headers["location"] == "/"
     assert client.get("/api/session").json() == {"authenticated": True}
 
@@ -54,4 +68,5 @@ def test_enabled_authentication_redirects_unauthenticated_requests_to_login() ->
 
     assert response.status_code == 302
     assert response.headers["location"] == "/login"
+    assert client.get("/login", follow_redirects=False).status_code == 200
     assert client.get("/api/session").json() == {"authenticated": False}

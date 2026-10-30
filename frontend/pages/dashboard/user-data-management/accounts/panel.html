@@ -1,0 +1,104 @@
+<section
+  class="database-panel database-accounts-panel database-tab-panel"
+  id="database-accounts-section"
+  data-database-tab-panel="database-accounts-section"
+  aria-labelledby="database-accounts-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact">
+    <div>
+      <span class="section-tag">Accounts</span>
+      <h2 id="database-accounts-title" data-i18n="dashboard.accountsTitle">账号管理</h2>
+    </div>
+    <div class="database-item-search-shell">
+      <input
+        class="database-item-search-input"
+        type="search"
+        id="database-accounts-search-input"
+        data-i18n-placeholder="dashboard.accountsSearchPlaceholder"
+        placeholder="输入识别码或用户名后回车搜索"
+      />
+    </div>
+    <small
+      class="database-accounts-summary"
+      id="database-accounts-summary"
+      data-i18n="dashboard.accountsUnavailable"
+    >
+      仅在数据库服务正常时可查看
+    </small>
+  </div>
+
+  <div class="accounts-table-shell">
+    <div
+      class="accounts-state"
+      id="database-accounts-state"
+      data-i18n="dashboard.accountsStateReady"
+    >
+      数据库服务正常后可查看账户列表。
+    </div>
+    <div class="accounts-table-scroll" id="database-accounts-table-shell" hidden>
+      <table class="accounts-table" aria-describedby="database-accounts-summary">
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="uid" type="button">
+                <span data-i18n="dashboard.accountsUid">UID</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="username" type="button">
+                <span data-i18n="dashboard.accountsUsername">用户名</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="dashboard.accountsAction">操作</th>
+          </tr>
+        </thead>
+        <tbody id="database-accounts-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="accounts-pagination">
+    <button
+      class="status-action-button status-action-button-log"
+      type="button"
+      id="database-accounts-prev"
+      disabled
+      data-i18n="dashboard.accountsPrev"
+    >
+      上一页
+    </button>
+    <span class="accounts-pagination-label" id="database-accounts-pagination">第 0 / 0 页</span>
+    <button
+      class="status-action-button status-action-button-log"
+      type="button"
+      id="database-accounts-next"
+      disabled
+      data-i18n="dashboard.accountsNext"
+    >
+      下一页
+    </button>
+    <label class="accounts-pagination-jump" for="database-accounts-jump-input">
+      <input
+        class="accounts-pagination-jump-input"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        id="database-accounts-jump-input"
+        data-i18n-placeholder="dashboard.accountsJumpPlaceholder"
+        placeholder="页码"
+      />
+    </label>
+    <button
+      class="status-action-button status-action-button-log"
+      type="button"
+      id="database-accounts-jump-button"
+      data-i18n="dashboard.accountsJumpButton"
+    >
+      跳转
+    </button>
+  </div>
+</section>

@@ -66,21 +66,35 @@ app.showMemoryManagementTable = () => {
 
 app.updateMemoryManagementPagination = () => {
   if (databaseMemoryManagementPaginationLabel instanceof HTMLElement) {
-    databaseMemoryManagementPaginationLabel.textContent = app.translate('dashboard.accountsPagination', {
-      page: state.memoryManagementTotalPages === 0 ? 0 : state.memoryManagementCurrentPage,
-      totalPages: state.memoryManagementTotalPages,
-    });
+    databaseMemoryManagementPaginationLabel.textContent = app.translate(
+      'dashboard.accountsPagination',
+      {
+        page: state.memoryManagementTotalPages === 0 ? 0 : state.memoryManagementCurrentPage,
+        totalPages: state.memoryManagementTotalPages,
+      },
+    );
   }
 
   if (databaseMemoryManagementPrevButton instanceof HTMLButtonElement) {
-    databaseMemoryManagementPrevButton.disabled = state.memoryManagementLoading || state.memoryManagementCurrentPage <= 1 || state.memoryManagementTotalPages === 0 || !app.canAccessMemoryManagement();
+    databaseMemoryManagementPrevButton.disabled =
+      state.memoryManagementLoading ||
+      state.memoryManagementCurrentPage <= 1 ||
+      state.memoryManagementTotalPages === 0 ||
+      !app.canAccessMemoryManagement();
   }
 
   if (databaseMemoryManagementNextButton instanceof HTMLButtonElement) {
-    databaseMemoryManagementNextButton.disabled = state.memoryManagementLoading || state.memoryManagementTotalPages === 0 || state.memoryManagementCurrentPage >= state.memoryManagementTotalPages || !app.canAccessMemoryManagement();
+    databaseMemoryManagementNextButton.disabled =
+      state.memoryManagementLoading ||
+      state.memoryManagementTotalPages === 0 ||
+      state.memoryManagementCurrentPage >= state.memoryManagementTotalPages ||
+      !app.canAccessMemoryManagement();
   }
 
-  const jumpDisabled = state.memoryManagementLoading || state.memoryManagementTotalPages === 0 || !app.canAccessMemoryManagement();
+  const jumpDisabled =
+    state.memoryManagementLoading ||
+    state.memoryManagementTotalPages === 0 ||
+    !app.canAccessMemoryManagement();
 
   if (databaseMemoryManagementJumpInput instanceof HTMLInputElement) {
     databaseMemoryManagementJumpInput.disabled = jumpDisabled;
@@ -96,7 +110,10 @@ app.submitMemoryManagementPageJump = () => {
     return;
   }
 
-  const targetPage = app.normalizePaginationTargetPage(databaseMemoryManagementJumpInput.value, state.memoryManagementTotalPages);
+  const targetPage = app.normalizePaginationTargetPage(
+    databaseMemoryManagementJumpInput.value,
+    state.memoryManagementTotalPages,
+  );
   databaseMemoryManagementJumpInput.value = '';
 
   if (targetPage === null || targetPage === state.memoryManagementCurrentPage) {
@@ -111,42 +128,69 @@ app.renderMemoryRows = (items) => {
     return;
   }
 
-  databaseMemoryManagementBody.innerHTML = Array.isArray(items) ? items.map((item, index) => {
-    const recordId = item?.record_id ?? null;
-    const templateId = item?.TemplateId ?? null;
-    const memoryName = app.getEquipNameByTemplateId(templateId);
-    const iconUrl = app.getEquipIconByTemplateId(templateId);
-    const positionLabel = app.getMemoryPositionByTemplateId(templateId);
-    const characterId = item?.CharacterId ?? null;
-    const characterName = app.getCharacterNameByCharacterId(characterId);
-    const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
-    const isEquipped = Number(characterId) !== 0;
-    const rowNumber = ((state.memoryManagementCurrentPage - 1) * 10) + index + 1;
-    const star = app.getEquipStarByTemplateId(templateId);
-    const iconExtraClass = (Number.isFinite(star) && star >= 4) ? `equip-icon-tier-${star}` : '';
-    return `
-      <tr>
-        <td>${rowNumber}</td>
-        <td>${app.renderEquipMediaCell(iconUrl, memoryName, true, iconExtraClass)}</td>
-        <td>${app.escapeHtml(positionLabel)}</td>
-        <td>${app.renderEquipStar(templateId)}</td>
-        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
-        <td>${app.renderEquipEnhancementLevel(item)}</td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button status-action-button-log" type="button" data-memory-management-action="detail" data-memory-record-id="${recordId ?? ''}">${app.translate('dashboard.equipManagementDetail')}</button>
-            <button class="status-action-button status-action-button-stop" type="button" data-memory-management-action="delete" data-memory-record-id="${recordId ?? ''}" data-memory-template-id="${templateId ?? ''}" data-memory-name="${memoryName}" data-memory-character-id="${characterId ?? ''}" data-memory-character-name="${characterName}" ${isEquipped ? 'disabled' : ''}>${app.translate('dashboard.equipManagementDelete')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('') : '';
+  databaseMemoryManagementBody.innerHTML = Array.isArray(items)
+    ? items
+        .map((item, index) => {
+          const recordId = item?.record_id ?? null;
+          const templateId = item?.TemplateId ?? null;
+          const memoryName = app.getEquipNameByTemplateId(templateId);
+          const iconUrl = app.getEquipIconByTemplateId(templateId);
+          const positionLabel = app.getMemoryPositionByTemplateId(templateId);
+          const characterId = item?.CharacterId ?? null;
+          const characterName = app.getCharacterNameByCharacterId(characterId);
+          const characterIconUrl = app.getCharacterIconByCharacterId(characterId);
+          const isEquipped = Number(characterId) !== 0;
+          const rowNumber = (state.memoryManagementCurrentPage - 1) * 10 + index + 1;
+          const star = app.getEquipStarByTemplateId(templateId);
+          const iconExtraClass =
+            Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
+          return /* HTML */ `
+            <tr>
+              <td>${rowNumber}</td>
+              <td>${app.renderEquipMediaCell(iconUrl, memoryName, true, iconExtraClass)}</td>
+              <td>${app.escapeHtml(positionLabel)}</td>
+              <td>${app.renderEquipStar(templateId)}</td>
+              <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
+              <td>${app.renderEquipEnhancementLevel(item)}</td>
+              <td>
+                <div class="accounts-row-actions">
+                  <button
+                    class="status-action-button status-action-button-log"
+                    type="button"
+                    data-memory-management-action="detail"
+                    data-memory-record-id="${recordId ?? ''}"
+                  >
+                    ${app.translate('dashboard.equipManagementDetail')}
+                  </button>
+                  <button
+                    class="status-action-button status-action-button-stop"
+                    type="button"
+                    data-memory-management-action="delete"
+                    data-memory-record-id="${recordId ?? ''}"
+                    data-memory-template-id="${templateId ?? ''}"
+                    data-memory-name="${memoryName}"
+                    data-memory-character-id="${characterId ?? ''}"
+                    data-memory-character-name="${characterName}"
+                    ${isEquipped ? 'disabled' : ''}
+                  >
+                    ${app.translate('dashboard.equipManagementDelete')}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        })
+        .join('')
+    : '';
 };
 
 app.reloadMemoryManagementCurrentPage = async () => {
   const targetPage = Math.max(1, state.memoryManagementCurrentPage);
   await app.loadSelectedAccountMemories(targetPage);
-  if (state.memoryManagementTotalPages > 0 && state.memoryManagementCurrentPage > state.memoryManagementTotalPages) {
+  if (
+    state.memoryManagementTotalPages > 0 &&
+    state.memoryManagementCurrentPage > state.memoryManagementTotalPages
+  ) {
     await app.loadSelectedAccountMemories(state.memoryManagementTotalPages);
   }
 };
@@ -154,7 +198,9 @@ app.reloadMemoryManagementCurrentPage = async () => {
 app._memoryManagementSortFields = ['name', 'character', 'position', 'star', 'enhancement'];
 
 app._syncMemoryManagementSortArrows = () => {
-  const table = document.querySelector('#database-memory-management-section .equip-management-table');
+  const table = document.querySelector(
+    '#database-memory-management-section .equip-management-table',
+  );
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -241,13 +287,18 @@ app.loadSelectedAccountMemories = async (page = 1) => {
     const payload = await app.apiFetch(`/api/database-memories/selected?${search.toString()}`);
     const items = Array.isArray(payload?.items) ? payload.items : [];
     state.memoryManagementItems = items;
-    state.memoryManagementCurrentPage = typeof payload?.page === 'number' ? payload.page : state.memoryManagementCurrentPage;
-    state.memoryManagementTotalPages = typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
+    state.memoryManagementCurrentPage =
+      typeof payload?.page === 'number' ? payload.page : state.memoryManagementCurrentPage;
+    state.memoryManagementTotalPages =
+      typeof payload?.total_pages === 'number' ? payload.total_pages : 0;
     state.memoryManagementHasLoaded = true;
 
     if (databaseMemoryManagementSummary instanceof HTMLElement) {
       const total = typeof payload?.total === 'number' ? payload.total : items.length;
-      databaseMemoryManagementSummary.textContent = app.translate('dashboard.memoryManagementSummaryTotal', { total });
+      databaseMemoryManagementSummary.textContent = app.translate(
+        'dashboard.memoryManagementSummaryTotal',
+        { total },
+      );
       databaseMemoryManagementSummary.hidden = false;
     }
 
@@ -265,7 +316,10 @@ app.loadSelectedAccountMemories = async (page = 1) => {
     if (databaseMemoryManagementBody instanceof HTMLElement) {
       databaseMemoryManagementBody.innerHTML = '';
     }
-    app.setMemoryManagementState(app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'), 'is-error');
+    app.setMemoryManagementState(
+      app.apiErrorMessage(error, 'runtime.equipManagementLoadFailed'),
+      'is-error',
+    );
   } finally {
     state.memoryManagementLoading = false;
     app.updateMemoryManagementPagination();
@@ -282,9 +336,13 @@ app.updateMemoryManagementAccess = (payload = state.databaseHealthSnapshot) => {
   if (databaseMemoryManagementSubnavButton instanceof HTMLButtonElement) {
     databaseMemoryManagementSubnavButton.disabled = !accessible;
     if (!healthy) {
-      databaseMemoryManagementSubnavButton.title = app.translate('runtime.memoryManagementAccessTitle');
+      databaseMemoryManagementSubnavButton.title = app.translate(
+        'runtime.memoryManagementAccessTitle',
+      );
     } else if (state.selectedAccountUid === null) {
-      databaseMemoryManagementSubnavButton.title = app.translate('runtime.memoryManagementNeedAccountTitle');
+      databaseMemoryManagementSubnavButton.title = app.translate(
+        'runtime.memoryManagementNeedAccountTitle',
+      );
     } else {
       databaseMemoryManagementSubnavButton.title = '';
     }
@@ -306,7 +364,10 @@ app.updateMemoryManagementAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (!healthy) {
     app.resetMemoryManagementView();
-    app.setMemoryManagementState(app.translate('dashboard.memoryManagementUnavailable'), 'is-muted');
+    app.setMemoryManagementState(
+      app.translate('dashboard.memoryManagementUnavailable'),
+      'is-muted',
+    );
     if (app.isDatabaseMemoryManagementSectionActive()) {
       app.setActiveDatabaseTab('database-service-status-section');
     }
@@ -315,7 +376,10 @@ app.updateMemoryManagementAccess = (payload = state.databaseHealthSnapshot) => {
 
   if (state.selectedAccountUid === null) {
     app.resetMemoryManagementView();
-    app.setMemoryManagementState(app.translate('dashboard.memoryManagementChooseAccount'), 'is-muted');
+    app.setMemoryManagementState(
+      app.translate('dashboard.memoryManagementChooseAccount'),
+      'is-muted',
+    );
     if (app.isDatabaseMemoryManagementSectionActive()) {
       app.setActiveDatabaseTab('database-accounts-section');
     }
@@ -434,12 +498,15 @@ app.handleMemoryManagementActionClick = (event) => {
       return;
     }
 
-    app.openMemoryDeleteModal({
-      recordId,
-      templateId: button.dataset.memoryTemplateId ?? '--',
-      memoryName: button.dataset.memoryName ?? app.translate('common.notAvailable'),
-      characterName: button.dataset.memoryCharacterName ?? app.translate('common.notAvailable'),
-    }, button);
+    app.openMemoryDeleteModal(
+      {
+        recordId,
+        templateId: button.dataset.memoryTemplateId ?? '--',
+        memoryName: button.dataset.memoryName ?? app.translate('common.notAvailable'),
+        characterName: button.dataset.memoryCharacterName ?? app.translate('common.notAvailable'),
+      },
+      button,
+    );
   }
 };
 
@@ -465,7 +532,9 @@ export const initDatabaseMemoryManagementFeature = () => {
     });
   }
 
-  const memoryManagementTable = document.querySelector('#database-memory-management-section .equip-management-table');
+  const memoryManagementTable = document.querySelector(
+    '#database-memory-management-section .equip-management-table',
+  );
   if (memoryManagementTable instanceof HTMLElement) {
     memoryManagementTable.addEventListener('click', (event) => {
       const target = event.target;
@@ -510,6 +579,9 @@ export const initDatabaseMemoryManagementFeature = () => {
   }
 
   if (databaseMemoryManagementJumpButton instanceof HTMLButtonElement) {
-    databaseMemoryManagementJumpButton.addEventListener('click', app.submitMemoryManagementPageJump);
+    databaseMemoryManagementJumpButton.addEventListener(
+      'click',
+      app.submitMemoryManagementPageJump,
+    );
   }
 };

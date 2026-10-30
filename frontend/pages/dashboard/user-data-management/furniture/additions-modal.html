@@ -1,0 +1,73 @@
+<div class="shared-modal" hidden id="furniture-additions-modal">
+  <div class="shared-modal-backdrop" data-furniture-additions-close></div>
+  <section
+    class="shared-modal-card furniture-add-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="furniture-additions-title"
+  >
+    <div class="shared-modal-header">
+      <h3 id="furniture-additions-title" data-i18n="dashboard.furnitureExtraTitle">选择扩展属性</h3>
+    </div>
+    <input
+      class="database-item-search-input"
+      type="search"
+      id="furniture-additions-search"
+      data-i18n-placeholder="dashboard.furnitureExtraSearch"
+      placeholder="搜索 Id 或介绍"
+    />
+    <div class="item-add-table-shell">
+      <table class="accounts-table item-add-table furniture-additions-table">
+        <colgroup>
+          <col class="item-management-col-id" />
+          <col />
+          <col class="weapon-add-col-select" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="id" type="button">
+                Id
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="description" type="button">
+                <span data-i18n="dashboard.furnitureDescription">简介</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+          </tr>
+        </thead>
+        <tbody id="furniture-additions-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        id="furniture-additions-empty"
+        hidden
+        data-i18n="dashboard.furnitureExtraEmpty"
+      >
+        当前没有匹配的扩展属性。
+      </div>
+    </div>
+    <div class="shared-modal-actions item-add-actions">
+      <button
+        class="shared-modal-button shared-modal-button-secondary"
+        type="button"
+        data-furniture-additions-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        class="shared-modal-button"
+        type="button"
+        id="furniture-additions-submit"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

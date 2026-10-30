@@ -1,0 +1,37 @@
+<div class="shared-modal medal-picker-modal" hidden id="medal-picker-modal">
+  <div class="shared-modal-backdrop" data-medal-picker-modal-close></div>
+  <section
+    class="shared-modal-card medal-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="medal-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">M</span>
+      <div>
+        <p class="shared-modal-eyebrow" id="medal-picker-eyebrow"></p>
+        <h3 id="medal-picker-title"></h3>
+      </div>
+    </div>
+    <div class="medal-picker-current" id="medal-picker-current"></div>
+    <div class="medal-picker-grid" id="medal-picker-grid"></div>
+    <div class="shared-modal-actions medal-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary medal-picker-cancel"
+        data-medal-picker-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="medal-picker-confirm"
+        data-i18n="runtime.medalPickerConfirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

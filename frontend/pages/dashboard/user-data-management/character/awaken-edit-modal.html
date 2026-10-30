@@ -1,0 +1,49 @@
+<div class="shared-modal character-awaken-edit-modal" hidden id="character-awaken-edit-modal">
+  <div class="shared-modal-backdrop" data-character-awaken-edit-modal-close></div>
+  <section
+    class="shared-modal-card character-quality-edit-card"
+    id="character-awaken-edit-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-awaken-edit-title"
+    tabindex="-1"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">A</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterDetailAwakenEditEyebrow">
+          编辑
+        </p>
+        <h3 id="character-awaken-edit-title" data-i18n="dashboard.characterDetailAwakenEditTitle">
+          解放
+        </h3>
+      </div>
+    </div>
+    <div class="character-quality-edit-form">
+      <label class="character-quality-edit-row" for="character-awaken-edit-level">
+        <span class="character-quality-edit-label" data-i18n="dashboard.characterDetailAwakenLabel">
+          解放
+        </span>
+        <select class="character-quality-edit-select" id="character-awaken-edit-level"></select>
+      </label>
+    </div>
+    <div class="shared-modal-actions character-quality-edit-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-awaken-edit-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-awaken-edit-confirm"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

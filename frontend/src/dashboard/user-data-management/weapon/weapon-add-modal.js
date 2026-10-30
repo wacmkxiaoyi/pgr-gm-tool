@@ -17,12 +17,16 @@ app.getWeaponAddSearchPriority = (keyword, item) => {
     return 0;
   }
 
-  const weaponName = String(item?.weaponName ?? '').trim().toLowerCase();
+  const weaponName = String(item?.weaponName ?? '')
+    .trim()
+    .toLowerCase();
   if (weaponName.includes(keyword)) {
     return 0;
   }
 
-  const weaponTypeLabel = String(item?.weaponTypeLabel ?? '').trim().toLowerCase();
+  const weaponTypeLabel = String(item?.weaponTypeLabel ?? '')
+    .trim()
+    .toLowerCase();
   if (weaponTypeLabel.includes(keyword)) {
     return 1;
   }
@@ -42,13 +46,21 @@ app.getAddableWeaponCatalog = () => {
         weaponIconUrl: app.getEquipIconByTemplateId(normalizedTemplateId),
       };
     })
-    .filter((item) => Number.isFinite(item.templateId) && item.weaponName && ['', '0'].includes(String(state.equipSiteMap?.[item.templateId] ?? '').trim()));
+    .filter(
+      (item) =>
+        Number.isFinite(item.templateId) &&
+        item.weaponName &&
+        ['', '0'].includes(String(state.equipSiteMap?.[item.templateId] ?? '').trim()),
+    );
 };
 
 app._weaponAddSortFields = ['star', 'name', 'type'];
 
 app._syncWeaponAddSortArrows = () => {
-  const table = weaponAddModal instanceof HTMLElement ? weaponAddModal.querySelector('.weapon-add-table') : null;
+  const table =
+    weaponAddModal instanceof HTMLElement
+      ? weaponAddModal.querySelector('.weapon-add-table')
+      : null;
   if (!(table instanceof HTMLElement)) return;
   const buttons = table.querySelectorAll('.column-sort-btn');
   buttons.forEach((btn) => {
@@ -78,12 +90,18 @@ app._handleWeaponAddSortClick = (sortField) => {
 
 app.compareWeaponAddCatalogEntries = (left, right) => {
   if (state.weaponAddSortBy === 'name') {
-    const comparison = left.weaponName.localeCompare(right.weaponName, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = left.weaponName.localeCompare(right.weaponName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
   } else if (state.weaponAddSortBy === 'type') {
-    const comparison = left.weaponTypeLabel.localeCompare(right.weaponTypeLabel, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = left.weaponTypeLabel.localeCompare(right.weaponTypeLabel, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
@@ -94,7 +112,10 @@ app.compareWeaponAddCatalogEntries = (left, right) => {
     }
   }
 
-  const nameComparison = left.weaponName.localeCompare(right.weaponName, state.locale, { numeric: true, sensitivity: 'base' });
+  const nameComparison = left.weaponName.localeCompare(right.weaponName, state.locale, {
+    numeric: true,
+    sensitivity: 'base',
+  });
   if (nameComparison !== 0) {
     return nameComparison;
   }
@@ -105,7 +126,8 @@ app.compareWeaponAddCatalogEntries = (left, right) => {
 app.getFilteredAddableWeaponCatalog = () => {
   const keyword = state.weaponAddSearchKeyword.trim().toLowerCase();
   const direction = state.weaponAddSortOrder === 'asc' ? 1 : -1;
-  return app.getAddableWeaponCatalog()
+  return app
+    .getAddableWeaponCatalog()
     .map((item) => ({
       item,
       searchPriority: app.getWeaponAddSearchPriority(keyword, item),
@@ -123,31 +145,40 @@ app.getFilteredAddableWeaponCatalog = () => {
 };
 
 app.renderWeaponAddModalRows = () => {
-  if (!(weaponAddTableBody instanceof HTMLElement) || !(weaponAddEmptyState instanceof HTMLElement)) {
+  if (
+    !(weaponAddTableBody instanceof HTMLElement) ||
+    !(weaponAddEmptyState instanceof HTMLElement)
+  ) {
     return;
   }
 
   const items = app.getFilteredAddableWeaponCatalog();
   const selectedTemplateIds = new Set(state.weaponAddSelectedTemplateIds ?? []);
-  weaponAddTableBody.innerHTML = items.map((item) => {
-    const selected = selectedTemplateIds.has(item.templateId);
-    return `
-      <tr class="weapon-add-row${selected ? ' is-selected' : ''}" data-weapon-add-row="true" data-template-id="${item.templateId}">
-        <td>${app.renderEquipMediaCell(item.weaponIconUrl, item.weaponName)}</td>
-        <td>${item.weaponTypeLabel}</td>
-        <td>${app.renderEquipStar(item.templateId)}</td>
-        <td>
-          <input
-            class="weapon-add-checkbox"
-            type="checkbox"
-            data-weapon-add-select="true"
-            data-template-id="${item.templateId}"
-            ${selected ? 'checked' : ''}
-          >
-        </td>
-      </tr>
-    `;
-  }).join('');
+  weaponAddTableBody.innerHTML = items
+    .map((item) => {
+      const selected = selectedTemplateIds.has(item.templateId);
+      return /* HTML */ `
+        <tr
+          class="weapon-add-row${selected ? ' is-selected' : ''}"
+          data-weapon-add-row="true"
+          data-template-id="${item.templateId}"
+        >
+          <td>${app.renderEquipMediaCell(item.weaponIconUrl, item.weaponName)}</td>
+          <td>${item.weaponTypeLabel}</td>
+          <td>${app.renderEquipStar(item.templateId)}</td>
+          <td>
+            <input
+              class="weapon-add-checkbox"
+              type="checkbox"
+              data-weapon-add-select="true"
+              data-template-id="${item.templateId}"
+              ${selected ? 'checked' : ''}
+            />
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 
   weaponAddEmptyState.hidden = items.length > 0;
 };
@@ -197,9 +228,13 @@ app.submitWeaponAddModal = async () => {
     return;
   }
 
-  const templateIds = Array.from(new Set((state.weaponAddSelectedTemplateIds ?? [])
-    .map((templateId) => Number.parseInt(String(templateId), 10))
-    .filter((templateId) => Number.isFinite(templateId))));
+  const templateIds = Array.from(
+    new Set(
+      (state.weaponAddSelectedTemplateIds ?? [])
+        .map((templateId) => Number.parseInt(String(templateId), 10))
+        .filter((templateId) => Number.isFinite(templateId)),
+    ),
+  );
 
   if (templateIds.length === 0) {
     app.openNoticeModal(app.translate('dashboard.weaponAddNoSelection'));
@@ -252,7 +287,10 @@ export const initDatabaseWeaponAddModalFeature = () => {
     });
   }
 
-  const weaponAddTable = weaponAddModal instanceof HTMLElement ? weaponAddModal.querySelector('.weapon-add-table') : null;
+  const weaponAddTable =
+    weaponAddModal instanceof HTMLElement
+      ? weaponAddModal.querySelector('.weapon-add-table')
+      : null;
   if (weaponAddTable instanceof HTMLElement) {
     weaponAddTable.addEventListener('click', (event) => {
       const target = event.target;

@@ -1,0 +1,37 @@
+<div class="shared-modal" hidden id="partner-quality-modal">
+  <div class="shared-modal-backdrop" data-partner-quality-close></div>
+  <section
+    class="shared-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="partner-quality-title"
+  >
+    <h3 id="partner-quality-title" data-i18n="dashboard.partnerQualityEdit">进化与星级</h3>
+    <label class="partner-edit-label">
+      <span data-i18n="dashboard.partnerEvolution">进化</span>
+      <select class="character-quality-edit-select" id="partner-quality-select"></select>
+    </label>
+    <label class="partner-edit-label">
+      <span data-i18n="dashboard.partnerStar">星级</span>
+      <select class="character-quality-edit-select" id="partner-star-select"></select>
+    </label>
+    <div class="shared-modal-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-partner-quality-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="partner-quality-confirm"
+        data-i18n="common.confirm"
+      >
+        确认
+      </button>
+    </div>
+  </section>
+</div>

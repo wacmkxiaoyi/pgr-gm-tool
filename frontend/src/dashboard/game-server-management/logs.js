@@ -1,7 +1,15 @@
 import { app } from '../shared.js';
 
 const { dom, state } = app;
-const { logButton, logModal, logModalContent, logModalStatus, logModalPath, logModalCloseTargets, logModalClearButton } = dom;
+const {
+  logButton,
+  logModal,
+  logModalContent,
+  logModalStatus,
+  logModalPath,
+  logModalCloseTargets,
+  logModalClearButton,
+} = dom;
 const logLinePattern = /^\[(.*?)\]\[(.*?)\]\[(.*?)\]:\s?(.*)$/;
 
 app.setLogConnectionState = (label, stateClass = '') => {
@@ -24,7 +32,10 @@ app.isLogPinnedToBottom = () => {
   }
 
   const threshold = 24;
-  return logModalContent.scrollTop + logModalContent.clientHeight >= logModalContent.scrollHeight - threshold;
+  return (
+    logModalContent.scrollTop + logModalContent.clientHeight >=
+    logModalContent.scrollHeight - threshold
+  );
 };
 
 app.scrollLogToBottom = () => {
@@ -141,7 +152,8 @@ app.appendLogContent = (text) => {
   const currentContent = typeof state.logText === 'string' ? state.logText : '';
   const initialPlaceholder = app.translate('runtime.serverLogInitialContent');
   const emptyPlaceholder = app.translate('runtime.serverLogEmpty');
-  const hadPlaceholder = currentContent === initialPlaceholder || currentContent === emptyPlaceholder || !currentContent;
+  const hadPlaceholder =
+    currentContent === initialPlaceholder || currentContent === emptyPlaceholder || !currentContent;
   app.renderLogContent(hadPlaceholder ? text : `${currentContent}${text}`);
 
   if (shouldStick) {
@@ -226,8 +238,11 @@ app.startLogStream = () => {
 
   const currentControls = app.getControlState(state.serverControlState);
   if (logModalPath instanceof HTMLElement) {
-      const runtimeLogPath = typeof currentControls?.runtime_log_path === 'string' ? currentControls.runtime_log_path : app.translate('common.notAvailable');
-      logModalPath.textContent = app.translate('runtime.serverLogPath', { path: runtimeLogPath });
+    const runtimeLogPath =
+      typeof currentControls?.runtime_log_path === 'string'
+        ? currentControls.runtime_log_path
+        : app.translate('common.notAvailable');
+    logModalPath.textContent = app.translate('runtime.serverLogPath', { path: runtimeLogPath });
   }
 
   const eventSource = new EventSource('/api/server-control/logs', { withCredentials: true });
@@ -254,13 +269,21 @@ app.startLogStream = () => {
 
   eventSource.addEventListener('log-error', (event) => {
     const payload = app.parseLogEventPayload(event);
-    app.appendLogContent(app.translate('runtime.serverLogStreamError', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogFileReadFailed') }));
+    app.appendLogContent(
+      app.translate('runtime.serverLogStreamError', {
+        message: app.resolveLogEventMessage(payload, 'runtime.serverLogFileReadFailed'),
+      }),
+    );
     app.setLogConnectionState(app.translate('runtime.serverLogErrorState'), 'is-error');
   });
 
   eventSource.addEventListener('log-end', (event) => {
     const payload = app.parseLogEventPayload(event);
-    app.appendLogContent(app.translate('runtime.serverLogStreamEnded', { message: app.resolveLogEventMessage(payload, 'runtime.serverLogStreamEndedApi') }));
+    app.appendLogContent(
+      app.translate('runtime.serverLogStreamEnded', {
+        message: app.resolveLogEventMessage(payload, 'runtime.serverLogStreamEndedApi'),
+      }),
+    );
     state.logStreamEnded = true;
     app.setLogConnectionState(app.translate('runtime.serverLogEndedState'), 'is-ended');
     app.closeLogStream();

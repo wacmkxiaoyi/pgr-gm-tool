@@ -1,0 +1,36 @@
+<div class="shared-modal chat-emoji-picker-modal" hidden id="chat-emoji-picker-modal">
+  <div class="shared-modal-backdrop" data-chat-emoji-picker-modal-close></div>
+  <section
+    class="shared-modal-card chat-emoji-picker-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="chat-emoji-picker-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">E</span>
+      <div>
+        <p class="shared-modal-eyebrow" id="chat-emoji-picker-eyebrow"></p>
+        <h3 id="chat-emoji-picker-title"></h3>
+      </div>
+    </div>
+    <div class="chat-emoji-picker-toolbar">
+      <button
+        type="button"
+        class="shared-modal-button chat-emoji-picker-unlock-all"
+        id="chat-emoji-picker-unlock-all"
+      ></button>
+    </div>
+    <div class="chat-emoji-picker-grid" id="chat-emoji-picker-grid"></div>
+    <div class="shared-modal-actions chat-emoji-picker-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary chat-emoji-picker-cancel"
+        data-chat-emoji-picker-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button type="button" class="shared-modal-button" id="chat-emoji-picker-confirm"></button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,114 @@
+<div class="shared-modal" hidden id="character-partner-switch-modal">
+  <div class="shared-modal-backdrop" data-character-partner-close></div>
+  <section
+    class="shared-modal-card character-weapon-switch-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-partner-switch-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">C</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterWeaponSwitchEyebrow">
+          角色装备
+        </p>
+        <h3 id="character-partner-switch-title" data-i18n="dashboard.characterPartnerSwitchTitle">
+          切换辅助机
+        </h3>
+      </div>
+    </div>
+    <div class="character-equip-switch-topbar">
+      <div class="character-equip-switch-current-panel">
+        <div
+          class="character-equip-switch-current-label"
+          data-i18n="dashboard.characterEquipSwitchCurrent"
+        >
+          当前穿戴
+        </div>
+        <div class="character-equip-switch-current" id="character-partner-switch-current"></div>
+      </div>
+      <label
+        class="database-item-control character-equip-switch-search"
+        for="character-partner-switch-search"
+      >
+        <input
+          class="database-item-search-input item-add-search-input"
+          type="search"
+          id="character-partner-switch-search"
+          data-i18n-placeholder="dashboard.characterPartnerSwitchSearch"
+          placeholder="输入辅助机名称或穿戴角色名搜索"
+        />
+      </label>
+    </div>
+    <div class="item-add-table-shell character-equip-switch-table-shell">
+      <table class="accounts-table item-add-table character-equip-switch-table">
+        <colgroup>
+          <col />
+          <col />
+          <col class="equip-management-col-star" />
+          <col class="equip-management-col-enhancement" />
+          <col class="equip-management-col-action" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="column-sort-btn" data-partner-candidate-sort="name" type="button">
+                <span data-i18n="dashboard.characterWeaponSwitchName">名称</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-partner-candidate-sort="character" type="button">
+                <span data-i18n="dashboard.characterWeaponSwitchCharacter">穿戴角色</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-partner-candidate-sort="quality" type="button">
+                <span data-i18n="dashboard.partnerEvolution">进化</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                class="column-sort-btn"
+                data-partner-candidate-sort="enhancement"
+                type="button"
+              >
+                <span data-i18n="dashboard.characterWeaponSwitchEnhancement">综合强化等级</span>
+                <span class="column-sort-arrow" hidden>▲</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="dashboard.characterWeaponSwitchAction">操作</th>
+          </tr>
+        </thead>
+        <tbody id="character-partner-switch-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        id="character-partner-switch-empty"
+        data-i18n="dashboard.partnerEmpty"
+      >
+        没有匹配的辅助机。
+      </div>
+    </div>
+    <div class="shared-modal-actions character-equip-switch-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-partner-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-partner-switch-save"
+        data-i18n="dashboard.characterWeaponSwitchSave"
+      >
+        保存
+      </button>
+    </div>
+  </section>
+</div>

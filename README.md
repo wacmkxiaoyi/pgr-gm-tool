@@ -227,8 +227,10 @@ MongoDB can use either `MONGO_URI` or `MONGO_HOST`, `MONGO_PORT`, `MONGO_DB`, `M
 |  |- requirements.txt    Python dependencies
 |  `- tests/              Backend tests
 |- frontend/
-|  |- index.html          Login page
-|  |- dashboard.html      Dashboard page
+|  |- pages/
+|  |  |- index.html       Login page
+|  |  |- dashboard.html   Dashboard template entry point
+|  |  `- dashboard/       Feature panels, navigation, and modal templates
 |  |- src/                Browser JavaScript and CSS
 |  `- assets/             Static assets
 |- .env.example           Configuration reference
@@ -240,6 +242,8 @@ MongoDB can use either `MONGO_URI` or `MONGO_HOST`, `MONGO_PORT`, `MONGO_DB`, `M
 `backend.app.main` builds `Settings`, creates the FastAPI application, and calls `init_app`. The application mounts `/src` and `/assets`, serves `/login` and the authenticated dashboard at `/`, and registers API routes under `/api`.
 
 The frontend is plain HTML, CSS, and ES modules. It requests `/api/app-info` at startup to determine whether server management is available, then only polls the active management page.
+
+The dashboard is assembled on the backend with Jinja2 `{% include %}` directives before its JavaScript loads. `frontend/pages/dashboard.html` defines the page shell; `frontend/pages/dashboard/` contains `layout/`, `shared/`, `game-server-management/`, and `user-data-management/` templates, mirroring the JavaScript feature directories. Each feature owns its panel and modal files. Add panels to `user-data-management/index.html` and modals to `dashboard/modals.html`; preserve existing element IDs and `data-*` attributes when editing markup. Browser-facing URLs remain `/`, `/login`, `/src`, and `/assets`.
 
 ### Game Resource Tables
 

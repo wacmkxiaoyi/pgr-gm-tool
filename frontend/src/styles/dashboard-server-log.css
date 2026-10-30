@@ -24,7 +24,7 @@
 }
 
 .server-log-status::before {
-  content: "";
+  content: '';
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -77,7 +77,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.04),
     0 22px 44px rgba(15, 23, 42, 0.22);
   color: #dbe7ff;
-  font-family: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 13px;
   line-height: 1.65;
   white-space: pre-wrap;

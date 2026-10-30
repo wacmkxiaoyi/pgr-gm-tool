@@ -1,0 +1,126 @@
+<div class="shared-modal" hidden id="character-weapon-switch-modal">
+  <div class="shared-modal-backdrop" data-character-weapon-switch-modal-close></div>
+  <section
+    class="shared-modal-card character-weapon-switch-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="character-weapon-switch-title"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">W</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="dashboard.characterWeaponSwitchEyebrow">
+          角色装备
+        </p>
+        <h3 id="character-weapon-switch-title" data-i18n="dashboard.characterWeaponSwitchTitle">
+          切换武器
+        </h3>
+      </div>
+    </div>
+    <div class="character-equip-switch-topbar">
+      <div class="character-equip-switch-current-panel">
+        <div
+          class="character-equip-switch-current-label"
+          data-i18n="dashboard.characterEquipSwitchCurrent"
+        >
+          当前穿戴
+        </div>
+        <div class="character-equip-switch-current" id="character-weapon-switch-current"></div>
+      </div>
+      <label
+        class="database-item-control character-equip-switch-search"
+        for="character-weapon-switch-search-input"
+      >
+        <input
+          class="database-item-search-input item-add-search-input"
+          type="search"
+          id="character-weapon-switch-search-input"
+          data-i18n-placeholder="dashboard.characterWeaponSwitchSearchPlaceholder"
+          placeholder="输入武器名或角色名进行搜索"
+        />
+      </label>
+    </div>
+    <div class="item-add-table-shell character-equip-switch-table-shell">
+      <table class="accounts-table item-add-table character-equip-switch-table">
+        <colgroup>
+          <col />
+          <col />
+          <col class="equip-management-col-star" />
+          <col class="equip-management-col-enhancement" />
+          <col class="equip-management-col-action" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button
+                class="column-sort-btn"
+                data-character-weapon-switch-sort-field="name"
+                type="button"
+              >
+                <span data-i18n="dashboard.characterWeaponSwitchName">名称</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                class="column-sort-btn"
+                data-character-weapon-switch-sort-field="character"
+                type="button"
+              >
+                <span data-i18n="dashboard.characterWeaponSwitchCharacter">穿戴角色</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                class="column-sort-btn"
+                data-character-weapon-switch-sort-field="star"
+                type="button"
+              >
+                <span data-i18n="dashboard.characterWeaponSwitchStar">星级</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button
+                class="column-sort-btn"
+                data-character-weapon-switch-sort-field="enhancement"
+                type="button"
+              >
+                <span data-i18n="dashboard.characterWeaponSwitchEnhancement">综合强化等级</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="dashboard.characterWeaponSwitchAction">操作</th>
+          </tr>
+        </thead>
+        <tbody id="character-equip-switch-table-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        id="character-weapon-switch-empty-state"
+        data-i18n="dashboard.characterWeaponSwitchEmpty"
+      >
+        当前没有可切换的武器。
+      </div>
+    </div>
+    <div class="shared-modal-actions character-equip-switch-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-character-weapon-switch-modal-close
+        data-i18n="dashboard.characterWeaponSwitchCancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="character-weapon-switch-save"
+        data-i18n="dashboard.characterWeaponSwitchSave"
+      >
+        保存
+      </button>
+    </div>
+  </section>
+</div>

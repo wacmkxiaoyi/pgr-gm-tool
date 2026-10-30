@@ -1,7 +1,17 @@
 import { app } from './shared.js';
 
 const { dom } = app;
-const { layout, sidebarToggle, sidebar, sidebarLinks, dashboardPages, dashboardMain, logoutButton, databaseTabButtons, databaseTabPanels } = dom;
+const {
+  layout,
+  sidebarToggle,
+  sidebar,
+  sidebarLinks,
+  dashboardPages,
+  dashboardMain,
+  logoutButton,
+  databaseTabButtons,
+  databaseTabPanels,
+} = dom;
 const databaseMenuGroups = Array.from(document.querySelectorAll('[data-database-menu-group]'));
 
 app.closeSidebar = () => {
@@ -20,7 +30,8 @@ app.setActiveDashboardPage = (pageKey) => {
   const isAvailablePage = (key) => key !== 'server-management' || serverManagementAvailable;
 
   sidebarLinks.forEach((link) => {
-    const isActive = isAvailablePage(link.dataset.dashboardPage) && link.dataset.dashboardPage === pageKey;
+    const isActive =
+      isAvailablePage(link.dataset.dashboardPage) && link.dataset.dashboardPage === pageKey;
     link.classList.toggle('is-active', isActive);
     if (isActive) {
       matched = true;
@@ -28,7 +39,8 @@ app.setActiveDashboardPage = (pageKey) => {
   });
 
   dashboardPages.forEach((page) => {
-    const isActive = isAvailablePage(page.dataset.dashboardPanel) && page.dataset.dashboardPanel === pageKey;
+    const isActive =
+      isAvailablePage(page.dataset.dashboardPanel) && page.dataset.dashboardPanel === pageKey;
     page.classList.toggle('is-active', isActive);
     page.hidden = !isActive;
   });
@@ -46,8 +58,12 @@ app.setActiveDashboardPage = (pageKey) => {
 };
 
 app.setServerManagementEnabled = (enabled) => {
-  const serverLink = sidebarLinks.find((link) => link.dataset.dashboardPage === 'server-management');
-  const serverPage = dashboardPages.find((page) => page.dataset.dashboardPanel === 'server-management');
+  const serverLink = sidebarLinks.find(
+    (link) => link.dataset.dashboardPage === 'server-management',
+  );
+  const serverPage = dashboardPages.find(
+    (page) => page.dataset.dashboardPanel === 'server-management',
+  );
 
   if (serverLink) {
     serverLink.hidden = !enabled;
@@ -159,7 +175,9 @@ app.initNavigation = () => {
       app.setActiveDatabaseTab(tabId);
       databaseMenuGroups.forEach((group) => {
         group.classList.remove('is-open');
-        group.querySelector('.database-subnav-group-trigger')?.setAttribute('aria-expanded', 'false');
+        group
+          .querySelector('.database-subnav-group-trigger')
+          ?.setAttribute('aria-expanded', 'false');
       });
       if (tabId === 'database-accounts-section' && app.isDatabaseHealthy()) {
         void app.loadDatabaseAccounts(app.state.accountsCurrentPage);
@@ -230,7 +248,10 @@ app.initNavigation = () => {
   });
 
   document.addEventListener('click', (event) => {
-    if (event.target instanceof Node && databaseMenuGroups.some((group) => group.contains(event.target))) {
+    if (
+      event.target instanceof Node &&
+      databaseMenuGroups.some((group) => group.contains(event.target))
+    ) {
       return;
     }
 

@@ -39,32 +39,42 @@ app.compareCharacterMemorySwitchItems = (left, right) => {
   const sortBy = state.characterMemorySwitchSortBy;
 
   if (sortBy === 'character') {
-    const comparison = app.getCharacterNameByCharacterId(left?.CharacterId).localeCompare(
-      app.getCharacterNameByCharacterId(right?.CharacterId),
-      state.locale,
-      { numeric: true, sensitivity: 'base' },
-    );
+    const comparison = app
+      .getCharacterNameByCharacterId(left?.CharacterId)
+      .localeCompare(app.getCharacterNameByCharacterId(right?.CharacterId), state.locale, {
+        numeric: true,
+        sensitivity: 'base',
+      });
     if (comparison !== 0) {
       return comparison;
     }
   } else if (sortBy === 'star') {
-    const comparison = (app.getEquipStarByTemplateId(left?.TemplateId) ?? 0) - (app.getEquipStarByTemplateId(right?.TemplateId) ?? 0);
+    const comparison =
+      (app.getEquipStarByTemplateId(left?.TemplateId) ?? 0) -
+      (app.getEquipStarByTemplateId(right?.TemplateId) ?? 0);
     if (comparison !== 0) {
       return comparison;
     }
   } else if (sortBy === 'enhancement') {
-    const comparison = (app.getEquipEnhancementLevel(left) ?? -1) - (app.getEquipEnhancementLevel(right) ?? -1);
+    const comparison =
+      (app.getEquipEnhancementLevel(left) ?? -1) - (app.getEquipEnhancementLevel(right) ?? -1);
     if (comparison !== 0) {
       return comparison;
     }
   } else {
-    const comparison = leftName.localeCompare(rightName, state.locale, { numeric: true, sensitivity: 'base' });
+    const comparison = leftName.localeCompare(rightName, state.locale, {
+      numeric: true,
+      sensitivity: 'base',
+    });
     if (comparison !== 0) {
       return comparison;
     }
   }
 
-  const fallbackComparison = leftName.localeCompare(rightName, state.locale, { numeric: true, sensitivity: 'base' });
+  const fallbackComparison = leftName.localeCompare(rightName, state.locale, {
+    numeric: true,
+    sensitivity: 'base',
+  });
   if (fallbackComparison !== 0) {
     return fallbackComparison;
   }
@@ -76,7 +86,10 @@ app.getFilteredCharacterMemorySwitchItems = () => {
   const keyword = state.characterMemorySwitchSearchKeyword.trim().toLowerCase();
   const direction = state.characterMemorySwitchSortOrder === 'asc' ? 1 : -1;
   return (Array.isArray(state.characterMemorySwitchItems) ? state.characterMemorySwitchItems : [])
-    .map((item) => ({ item, searchPriority: app.getCharacterMemorySwitchSearchPriority(keyword, item) }))
+    .map((item) => ({
+      item,
+      searchPriority: app.getCharacterMemorySwitchSearchPriority(keyword, item),
+    }))
     .filter(({ searchPriority }) => searchPriority !== null)
     .sort((left, right) => {
       if (left.searchPriority !== right.searchPriority) {
@@ -97,7 +110,9 @@ app.scrollCharacterMemorySwitchSelectionIntoView = (recordId) => {
     return false;
   }
 
-  const row = characterMemorySwitchTableBody.querySelector(`[data-character-memory-switch-row="true"][data-memory-record-id="${normalizedRecordId}"]`);
+  const row = characterMemorySwitchTableBody.querySelector(
+    `[data-character-memory-switch-row="true"][data-memory-record-id="${normalizedRecordId}"]`,
+  );
   if (!(row instanceof HTMLElement)) {
     return false;
   }
@@ -108,7 +123,10 @@ app.scrollCharacterMemorySwitchSelectionIntoView = (recordId) => {
 };
 
 app.syncCharacterMemorySwitchSortArrows = () => {
-  const table = characterMemorySwitchModal instanceof HTMLElement ? characterMemorySwitchModal.querySelector('.character-memory-switch-table') : null;
+  const table =
+    characterMemorySwitchModal instanceof HTMLElement
+      ? characterMemorySwitchModal.querySelector('.character-memory-switch-table')
+      : null;
   if (!(table instanceof HTMLElement)) {
     return;
   }
@@ -137,7 +155,8 @@ app.handleCharacterMemorySwitchSortClick = (sortField) => {
   }
 
   if (state.characterMemorySwitchSortBy === sortField) {
-    state.characterMemorySwitchSortOrder = state.characterMemorySwitchSortOrder === 'asc' ? 'desc' : 'asc';
+    state.characterMemorySwitchSortOrder =
+      state.characterMemorySwitchSortOrder === 'asc' ? 'desc' : 'asc';
   } else {
     state.characterMemorySwitchSortBy = sortField;
     state.characterMemorySwitchSortOrder = sortField === 'star' ? 'desc' : 'asc';
@@ -163,50 +182,87 @@ app.renderCharacterMemorySwitchCurrent = () => {
   const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
   const selectedRecordId = Number(state.characterMemorySwitchSelectedRecordId);
   const currentRecordId = Number(currentMemory?.record_id ?? 0);
-  const tagKey = selectedRecordId > 0 && currentRecordId === selectedRecordId
-    ? 'dashboard.characterMemorySwitchSelected'
-    : 'dashboard.characterMemorySwitchCurrent';
+  const tagKey =
+    selectedRecordId > 0 && currentRecordId === selectedRecordId
+      ? 'dashboard.characterMemorySwitchSelected'
+      : 'dashboard.characterMemorySwitchCurrent';
 
-  characterMemorySwitchCurrent.innerHTML = `
-    <button class="character-equip-switch-current-card" type="button" data-character-memory-switch-current-card="true">
+  characterMemorySwitchCurrent.innerHTML = /* HTML */ `
+    <button
+      class="character-equip-switch-current-card"
+      type="button"
+      data-character-memory-switch-current-card="true"
+    >
       ${app.renderEquipMediaCell(iconUrl, memoryName, true, iconClass)}
-      <span class="character-equip-switch-current-tag">${app.escapeHtml(app.translate(tagKey))}</span>
+      <span class="character-equip-switch-current-tag">
+        ${app.escapeHtml(app.translate(tagKey))}
+      </span>
     </button>
   `;
 };
 
 app.renderCharacterMemorySwitchRows = () => {
-  if (!(characterMemorySwitchTableBody instanceof HTMLElement) || !(characterMemorySwitchEmptyState instanceof HTMLElement)) {
+  if (
+    !(characterMemorySwitchTableBody instanceof HTMLElement) ||
+    !(characterMemorySwitchEmptyState instanceof HTMLElement)
+  ) {
     return;
   }
 
   const items = app.getFilteredCharacterMemorySwitchItems();
   const selectedRecordId = Number(state.characterMemorySwitchSelectedRecordId);
-  characterMemorySwitchTableBody.innerHTML = items.map((item) => {
-    const recordId = Number(item?.record_id ?? 0);
-    const templateId = item?.TemplateId;
-    const iconUrl = app.getEquipIconByTemplateId(templateId);
-    const memoryName = app.getEquipNameByTemplateId(templateId);
-    const characterName = app.getCharacterNameByCharacterId(item?.CharacterId);
-    const characterIconUrl = app.getCharacterIconByCharacterId(item?.CharacterId);
-    const star = app.getEquipStarByTemplateId(templateId);
-    const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
-    const isSelected = recordId === selectedRecordId;
-    return `
-      <tr class="character-weapon-switch-row${isSelected ? ' is-selected' : ''}" tabindex="0" data-character-memory-switch-row="true" data-memory-record-id="${recordId}">
-        <td>${app.renderEquipMediaCell(iconUrl, memoryName, true, iconClass)}</td>
-        <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
-        <td>${app.renderEquipStar(templateId)}</td>
-        <td>${app.renderEquipEnhancementLevel(item)}</td>
-        <td>
-          <div class="accounts-row-actions">
-            <button class="status-action-button ${isSelected ? 'status-action-button-stop' : 'status-action-button-config'}" type="button" data-character-memory-switch-action="select" data-memory-record-id="${recordId}">${app.translate(isSelected ? 'dashboard.characterMemorySwitchSelected' : 'dashboard.characterMemorySwitchSelect')}</button>
-            <button class="status-action-button status-action-button-log" type="button" data-character-memory-switch-action="detail" data-memory-record-id="${recordId}">${app.translate('dashboard.characterMemorySwitchDetail')}</button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
+  characterMemorySwitchTableBody.innerHTML = items
+    .map((item) => {
+      const recordId = Number(item?.record_id ?? 0);
+      const templateId = item?.TemplateId;
+      const iconUrl = app.getEquipIconByTemplateId(templateId);
+      const memoryName = app.getEquipNameByTemplateId(templateId);
+      const characterName = app.getCharacterNameByCharacterId(item?.CharacterId);
+      const characterIconUrl = app.getCharacterIconByCharacterId(item?.CharacterId);
+      const star = app.getEquipStarByTemplateId(templateId);
+      const iconClass = Number.isFinite(star) && star >= 4 ? `equip-icon-tier-${star}` : '';
+      const isSelected = recordId === selectedRecordId;
+      return /* HTML */ `
+        <tr
+          class="character-weapon-switch-row${isSelected ? ' is-selected' : ''}"
+          tabindex="0"
+          data-character-memory-switch-row="true"
+          data-memory-record-id="${recordId}"
+        >
+          <td>${app.renderEquipMediaCell(iconUrl, memoryName, true, iconClass)}</td>
+          <td>${app.renderEquipMediaCell(characterIconUrl, characterName, false)}</td>
+          <td>${app.renderEquipStar(templateId)}</td>
+          <td>${app.renderEquipEnhancementLevel(item)}</td>
+          <td>
+            <div class="accounts-row-actions">
+              <button
+                class="status-action-button ${isSelected
+                  ? 'status-action-button-stop'
+                  : 'status-action-button-config'}"
+                type="button"
+                data-character-memory-switch-action="select"
+                data-memory-record-id="${recordId}"
+              >
+                ${app.translate(
+                  isSelected
+                    ? 'dashboard.characterMemorySwitchSelected'
+                    : 'dashboard.characterMemorySwitchSelect',
+                )}
+              </button>
+              <button
+                class="status-action-button status-action-button-log"
+                type="button"
+                data-character-memory-switch-action="detail"
+                data-memory-record-id="${recordId}"
+              >
+                ${app.translate('dashboard.characterMemorySwitchDetail')}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    })
+    .join('');
 
   characterMemorySwitchEmptyState.hidden = items.length > 0;
 };
@@ -231,7 +287,8 @@ app.closeCharacterMemorySwitchModal = () => {
   if (characterMemorySwitchModal instanceof HTMLElement) {
     characterMemorySwitchModal.hidden = true;
   }
-  const keepBodyLocked = characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden;
+  const keepBodyLocked =
+    characterDetailModal instanceof HTMLElement && !characterDetailModal.hidden;
   if (!keepBodyLocked) {
     app.setBodyModalOpen(false);
   }
@@ -252,10 +309,16 @@ app.loadCharacterMemorySwitchCandidates = async () => {
   state.characterMemorySwitchLoading = true;
   try {
     const search = new URLSearchParams({ slot: String(slot) });
-    const payload = await app.apiFetch(`/api/database-characters/selected/${recordId}/memory-candidates?${search.toString()}`);
+    const payload = await app.apiFetch(
+      `/api/database-characters/selected/${recordId}/memory-candidates?${search.toString()}`,
+    );
     state.characterMemorySwitchItems = Array.isArray(payload?.items) ? payload.items : [];
-    state.characterMemorySwitchCurrentMemory = payload?.current_memory && typeof payload.current_memory === 'object' ? payload.current_memory : null;
-    state.characterMemorySwitchSelectedRecordId = Number(payload?.current_memory?.record_id ?? 0) || null;
+    state.characterMemorySwitchCurrentMemory =
+      payload?.current_memory && typeof payload.current_memory === 'object'
+        ? payload.current_memory
+        : null;
+    state.characterMemorySwitchSelectedRecordId =
+      Number(payload?.current_memory?.record_id ?? 0) || null;
     app.renderCharacterMemorySwitchCurrent();
     app.renderCharacterMemorySwitchRows();
   } catch (error) {
@@ -272,7 +335,8 @@ app.openCharacterMemorySwitchModal = (slot, trigger) => {
   }
 
   app.closeWeaponDetailModal?.();
-  state.lastCharacterMemorySwitchTrigger = trigger instanceof HTMLElement ? trigger : document.activeElement;
+  state.lastCharacterMemorySwitchTrigger =
+    trigger instanceof HTMLElement ? trigger : document.activeElement;
   app.resetCharacterMemorySwitchState();
   state.characterMemorySwitchSlot = Number(slot);
   app.syncCharacterMemorySwitchSortArrows();
@@ -312,7 +376,10 @@ app.submitCharacterMemorySwitch = async () => {
     await app.loadCharacterDetailExtraInfo(characterRecordId);
     await app.reloadMemoryManagementCurrentPage?.();
     app.closeCharacterMemorySwitchModal();
-    app.openSuccessModal(app.translate('runtime.characterMemorySwitchSaveSuccess'), app.translate('runtime.characterMemorySwitchSaveSuccessTitle'));
+    app.openSuccessModal(
+      app.translate('runtime.characterMemorySwitchSaveSuccess'),
+      app.translate('runtime.characterMemorySwitchSaveSuccessTitle'),
+    );
   } catch (error) {
     app.openNoticeModal(app.apiErrorMessage(error, 'runtime.characterMemorySwitchSaveFailed'));
   } finally {
@@ -414,7 +481,8 @@ app.handleCharacterMemorySwitchSelectionChange = (recordId) => {
     return;
   }
 
-  state.characterMemorySwitchSelectedRecordId = Number(state.characterMemorySwitchSelectedRecordId) === recordId ? null : recordId;
+  state.characterMemorySwitchSelectedRecordId =
+    Number(state.characterMemorySwitchSelectedRecordId) === recordId ? null : recordId;
   app.renderCharacterMemorySwitchCurrent();
   app.renderCharacterMemorySwitchRows();
 };
@@ -485,14 +553,20 @@ export const initDatabaseCharacterMemorySwitchFeature = () => {
   if (characterMemorySwitchCurrent instanceof HTMLElement) {
     characterMemorySwitchCurrent.addEventListener('click', (event) => {
       const target = event.target;
-      if (!(target instanceof HTMLElement) || !target.closest('[data-character-memory-switch-current-card="true"]')) {
+      if (
+        !(target instanceof HTMLElement) ||
+        !target.closest('[data-character-memory-switch-current-card="true"]')
+      ) {
         return;
       }
       app.handleCharacterMemorySwitchCurrentClick();
     });
   }
 
-  const switchTable = characterMemorySwitchModal instanceof HTMLElement ? characterMemorySwitchModal.querySelector('.character-memory-switch-table') : null;
+  const switchTable =
+    characterMemorySwitchModal instanceof HTMLElement
+      ? characterMemorySwitchModal.querySelector('.character-memory-switch-table')
+      : null;
   if (switchTable instanceof HTMLElement) {
     switchTable.addEventListener('click', (event) => {
       const target = event.target;

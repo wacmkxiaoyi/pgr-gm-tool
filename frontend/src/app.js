@@ -1,4 +1,10 @@
-import { apiFetch, getLocalizedApiErrorMessage, initI18n, subscribeLocaleChange, t } from './i18n.js';
+import {
+  apiFetch,
+  getLocalizedApiErrorMessage,
+  initI18n,
+  subscribeLocaleChange,
+  t,
+} from './i18n.js';
 
 const form = document.querySelector('.login-form');
 

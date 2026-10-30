@@ -189,7 +189,10 @@ app.initSharedModals = () => {
 
   if (playerMutationRiskConfirmButton instanceof HTMLButtonElement) {
     playerMutationRiskConfirmButton.addEventListener('click', () => {
-      if (playerMutationRiskDontShow instanceof HTMLInputElement && playerMutationRiskDontShow.checked) {
+      if (
+        playerMutationRiskDontShow instanceof HTMLInputElement &&
+        playerMutationRiskDontShow.checked
+      ) {
         localStorage.setItem(app.constants.SKIP_MUTATION_RISK_KEY, '1');
       }
 

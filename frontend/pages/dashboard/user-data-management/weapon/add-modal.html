@@ -1,0 +1,93 @@
+<div class="shared-modal" hidden id="weapon-add-modal">
+  <div class="shared-modal-backdrop" data-weapon-add-modal-close></div>
+  <section
+    class="shared-modal-card item-add-modal-card"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="weapon-add-title"
+    aria-describedby="weapon-add-description"
+  >
+    <div class="shared-modal-header">
+      <span class="shared-modal-icon" aria-hidden="true">+</span>
+      <div>
+        <p class="shared-modal-eyebrow" data-i18n="runtime.weaponAddEyebrow">新增武器</p>
+        <h3 id="weapon-add-title" data-i18n="runtime.weaponAddTitle">选择要新增的武器</h3>
+      </div>
+    </div>
+    <p
+      id="weapon-add-description"
+      class="shared-modal-message"
+      data-i18n="runtime.weaponAddDescription"
+    >
+      通过搜索和排序选择武器，勾选多项后可批量提交。
+    </p>
+    <div class="database-item-controls item-add-search-shell">
+      <input
+        class="database-item-search-input item-add-search-input"
+        type="search"
+        id="weapon-add-search-input"
+        data-i18n-placeholder="runtime.weaponAddSearchPlaceholder"
+        placeholder="输入武器名进行搜索"
+      />
+    </div>
+    <div class="item-add-table-shell">
+      <table class="accounts-table item-add-table weapon-add-table">
+        <colgroup>
+          <col />
+          <col class="equip-management-col-type" />
+          <col class="equip-management-col-star" />
+          <col class="weapon-add-col-select" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="name" type="button">
+                <span data-i18n="dashboard.equipManagementName">名称</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="type" type="button">
+                <span data-i18n="dashboard.equipManagementType">类型</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col">
+              <button class="column-sort-btn" data-sort-field="star" type="button">
+                <span data-i18n="dashboard.equipManagementStar">星级</span>
+                <span class="column-sort-arrow" hidden>&#x25B2;</span>
+              </button>
+            </th>
+            <th scope="col" data-i18n="runtime.weaponAddSelect">选择</th>
+          </tr>
+        </thead>
+        <tbody id="weapon-add-table-body"></tbody>
+      </table>
+      <div
+        class="database-player-empty"
+        id="weapon-add-empty-state"
+        data-i18n="dashboard.weaponAddEmpty"
+      >
+        当前没有匹配的武器。
+      </div>
+    </div>
+    <div class="shared-modal-actions item-add-actions">
+      <button
+        type="button"
+        class="shared-modal-button shared-modal-button-secondary"
+        data-weapon-add-modal-close
+        data-i18n="common.cancel"
+      >
+        取消
+      </button>
+      <button
+        type="button"
+        class="shared-modal-button"
+        id="weapon-add-submit"
+        data-i18n="runtime.weaponAddSubmit"
+      >
+        确认新增
+      </button>
+    </div>
+  </section>
+</div>

@@ -18,7 +18,7 @@ body.auth-page .bg-aurora {
 
 .bg-aurora::before,
 .bg-aurora::after {
-  content: "";
+  content: '';
   position: absolute;
   border-radius: 999px;
   mix-blend-mode: screen;

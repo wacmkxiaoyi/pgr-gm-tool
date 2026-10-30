@@ -1,0 +1,166 @@
+<section
+  class="database-panel database-item-panel database-tab-panel"
+  id="database-memory-management-section"
+  data-database-tab-panel="database-memory-management-section"
+  aria-labelledby="database-memory-management-title"
+  hidden
+>
+  <div class="database-panel-header database-panel-header-compact database-item-panel-header">
+    <div>
+      <span class="section-tag">Memories</span>
+      <h2 id="database-memory-management-title" data-i18n="dashboard.memoryManagementTitle">
+        意识管理
+      </h2>
+    </div>
+    <small
+      class="database-memory-management-summary"
+      id="database-memory-management-summary"
+      data-i18n="dashboard.memoryManagementUnavailable"
+    >
+      仅在数据库服务正常且已选定用户时可查看
+    </small>
+  </div>
+
+  <div
+    class="database-player-empty"
+    id="database-memory-management-state"
+    data-i18n="dashboard.memoryManagementChooseAccount"
+  >
+    请先在账号管理中选定一个用户。
+  </div>
+
+  <div class="database-item-management-shell" id="database-memory-management-shell" hidden>
+    <div class="database-item-actions" id="database-memory-actions">
+      <button
+        class="status-action-button status-action-button-stop"
+        type="button"
+        id="database-memory-clear"
+        data-memory-management-action="clear"
+        data-i18n="dashboard.memoryManagementClear"
+      >
+        清空未穿戴意识
+      </button>
+      <div class="database-item-toolbar">
+        <div class="database-item-search-shell" id="database-memory-search-shell">
+          <input
+            class="database-item-search-input"
+            type="search"
+            id="database-memory-search-input"
+            data-i18n-placeholder="dashboard.memoryManagementSearchPlaceholder"
+            placeholder="输入名称或角色后回车搜索"
+          />
+        </div>
+      </div>
+      <button
+        class="status-action-button status-action-button-config database-item-action-add"
+        type="button"
+        id="database-memory-add"
+        data-memory-management-action="add-memory"
+        data-i18n="dashboard.memoryManagementAdd"
+      >
+        新增意识
+      </button>
+    </div>
+
+    <div class="accounts-table-shell">
+      <div class="accounts-table-scroll" id="database-memory-management-table-shell">
+        <table
+          class="accounts-table equip-management-table"
+          aria-describedby="database-memory-management-summary"
+        >
+          <colgroup>
+            <col class="equip-management-col-row" />
+            <col class="equip-management-col-name" />
+            <col class="equip-management-col-type" />
+            <col class="equip-management-col-star" />
+            <col class="equip-management-col-character" />
+            <col class="equip-management-col-enhance" />
+            <col class="equip-management-col-actions" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="dashboard.equipManagementRowNumber">行号</th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="name" type="button">
+                  <span data-i18n="dashboard.equipManagementName">名称</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="position" type="button">
+                  <span data-i18n="dashboard.memoryManagementPosition">位置</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="star" type="button">
+                  <span data-i18n="dashboard.equipManagementStar">星级</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="character" type="button">
+                  <span data-i18n="dashboard.equipManagementCharacter">穿戴角色</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col">
+                <button class="column-sort-btn" data-sort-field="enhancement" type="button">
+                  <span data-i18n="dashboard.equipManagementEnhancement">综合强化等级</span>
+                  <span class="column-sort-arrow" hidden>&#x25B2;</span>
+                </button>
+              </th>
+              <th scope="col" data-i18n="dashboard.equipManagementAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="database-memory-management-body"></tbody>
+        </table>
+      </div>
+      <div class="accounts-pagination database-item-pagination">
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-memory-management-prev"
+          data-i18n="dashboard.accountsPrev"
+        >
+          上一页
+        </button>
+        <span
+          id="database-memory-management-pagination"
+          data-i18n="dashboard.accountsPagination"
+          data-i18n-params='{"page":0,"totalPages":0}'
+        >
+          第 0 / 0 页
+        </span>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-memory-management-next"
+          data-i18n="dashboard.accountsNext"
+        >
+          下一页
+        </button>
+        <label class="accounts-pagination-jump" for="database-memory-management-jump-input">
+          <input
+            class="accounts-pagination-jump-input"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            id="database-memory-management-jump-input"
+            data-i18n-placeholder="dashboard.accountsJumpPlaceholder"
+            placeholder="页码"
+          />
+        </label>
+        <button
+          class="status-action-button status-action-button-log"
+          type="button"
+          id="database-memory-management-jump-button"
+          data-i18n="dashboard.accountsJumpButton"
+        >
+          跳转
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
