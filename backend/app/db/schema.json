@@ -9682,7 +9682,362 @@
     },
     "transfinite": {
       "type": "object",
-      "default": null
+      "default": null,
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "activity_authorized_until": {
+          "type": "number",
+          "default": 0
+        },
+        "circle_id": {
+          "type": "number",
+          "default": 0
+        },
+        "begin_time": {
+          "type": "number",
+          "default": 0
+        },
+        "region_id": {
+          "type": "number",
+          "default": 0
+        },
+        "stage_group_index": {
+          "type": "number",
+          "default": 0
+        },
+        "stage_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "battle_info": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "stage_group_id": {
+              "type": "number",
+              "default": 0
+            },
+            "stage_progress_index": {
+              "type": "number",
+              "default": 0
+            },
+            "start_stage_progress": {
+              "type": "number",
+              "default": 0
+            },
+            "team_info": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "character_id_list": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "type": "number"
+                  }
+                },
+                "captain_pos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "first_fight_pos": {
+                  "type": "number",
+                  "default": 0
+                },
+                "selected_general_skill": {
+                  "type": "number",
+                  "default": 0
+                },
+                "enter_cg_index": {
+                  "type": "number",
+                  "default": 0
+                },
+                "settle_cg_index": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "stage_info": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_win": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "spend_time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "score": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "result": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "last_win_stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "character_result_list": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "character_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "hp_percent": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "energy": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "stage_spend_time": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "last_result": {
+              "type": "object",
+              "default": null,
+              "schema": {
+                "last_win_stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "character_result_list": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "character_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "hp_percent": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "energy": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "stage_spend_time": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "history_results": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "last_win_stage_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "character_result_list": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "character_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "hp_percent": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "energy": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "stage_spend_time": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "best_spend_time": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "got_score_reward_index": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "send_activity_start_mail": {
+          "type": "boolean",
+          "default": false
+        },
+        "max_rotate_stage_progress_index": {
+          "type": "number",
+          "default": 0
+        },
+        "last_modify_time": {
+          "type": "number",
+          "default": 0
+        },
+        "score_reward_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "rotate_settle_info": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "rotation_id": {
+              "type": "number",
+              "default": 0
+            },
+            "region_id": {
+              "type": "number",
+              "default": 0
+            },
+            "max_stage_progress_index": {
+              "type": "number",
+              "default": 0
+            },
+            "score_reward_group_id": {
+              "type": "number",
+              "default": 0
+            },
+            "settle_score": {
+              "type": "number",
+              "default": 0
+            },
+            "unsettle_score": {
+              "type": "number",
+              "default": 0
+            },
+            "reward_indices": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "last_rotate_receipt": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "rotation_id": {
+              "type": "number",
+              "default": 0
+            },
+            "max_stage_progress_index": {
+              "type": "number",
+              "default": 0
+            },
+            "settle_score": {
+              "type": "number",
+              "default": 0
+            },
+            "unsettle_score": {
+              "type": "number",
+              "default": 0
+            },
+            "reward_goods": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "reward_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "template_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "count": {
+                  "type": "number",
+                  "default": 0
+                },
+                "level": {
+                  "type": "number",
+                  "default": 0
+                },
+                "quality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "grade": {
+                  "type": "number",
+                  "default": 0
+                },
+                "breakthrough": {
+                  "type": "number",
+                  "default": 0
+                },
+                "convert_from": {
+                  "type": "number",
+                  "default": 0
+                },
+                "show_quality": {
+                  "type": "number",
+                  "default": 0
+                },
+                "is_gift": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "reward_multi": {
+                  "type": "number",
+                  "default": 0
+                },
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "terminal_paid_group_id": {
+          "type": "number",
+          "default": 0
+        },
+        "terminal_skipped_score": {
+          "type": "number",
+          "default": 0
+        }
+      }
     },
     "trial": {
       "type": "object",

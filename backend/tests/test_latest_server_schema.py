@@ -29,6 +29,72 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.utils.resource_language import resource_language
 
 
+def _transfinite_sample(paid=False):
+    goods = [{'_id': 7, 'reward_type': 1, 'template_id': 60, 'count': 2}]
+    result = {'last_win_stage_id': 101, 'stage_spend_time': 30,
+              'character_result_list': [{'character_id': Int64(2**40), 'hp_percent': 9500, 'energy': 50}]}
+    return {
+        'activity_id': 1, 'circle_id': 12, 'stage_group_id': 3,
+        'activity_authorized_until': Int64(2**40), 'begin_time': Int64(1900000000),
+        'last_modify_time': Int64(1793000000),
+        'terminal_paid_group_id': 3 if paid else 0, 'terminal_skipped_score': 700 if paid else 0,
+        'best_spend_time': [{'k': 3, 'v': 30}], 'got_score_reward_index': [1, 3],
+        'rotate_settle_info': {'rotation_id': Int64(11), 'max_stage_progress_index': 15, 'reward_indices': [1]},
+        'last_rotate_receipt': {'rotation_id': Int64(10), 'max_stage_progress_index': 8, 'reward_goods': goods},
+        'battle_info': None if paid else {
+            'stage_group_id': 3, 'stage_progress_index': 8, 'start_stage_progress': 8,
+            'team_info': {'character_id_list': [Int64(2**40), Int64(0), Int64(0)],
+                          'captain_pos': 1, 'first_fight_pos': 1},
+            'stage_info': [{'stage_id': 101, 'is_win': True, 'spend_time': 30, 'score': 100}],
+            'result': result, 'last_result': result, 'history_results': [result]},
+    }
+
+
+def _transfinite_inventory_sample():
+    return {
+        'applied_reward_claims': ['transfinite-terminal:1:12:3', 'transfinite-terminal-anchor-repair:1:12:3'],
+        'reward_claim_times': {'transfinite-terminal-anchor-repair:1:12:3': Int64(2**40)},
+        'transfinite_receipts': [{'activity_id': 1, 'rotation_id': Int64(2**40),
+                                 'max_stage_progress_index': 15,
+                                 'reward_goods': [{'_id': 7, 'template_id': 60, 'count': 2}]}],
+    }
+
+
+def _arena_sample():
+    # Two areas can share the same stage without sharing their best score.
+    return {'arena_point': 350, 'arena_area_max_points': [{'k': 1, 'v': 200}, {'k': 2, 'v': 150}],
+            'arena_stage_max_points': [{'k': 101, 'v': 200}]}
+
+
+@pytest.mark.parametrize('paid', [False, True])
+def test_transfinite_defaults_and_legacy_payout_markers(paid):
+    runtime = DatabaseSchemaRuntime()
+    schema = runtime.get_collection_schema('players')
+    for path in ('transfinite', 'transfinite.battle_info', 'transfinite.battle_info.team_info',
+                 'transfinite.battle_info.result', 'transfinite.battle_info.last_result',
+                 'transfinite.rotate_settle_info', 'transfinite.last_rotate_receipt'):
+        assert schema.build_default(path) is None
+        assert schema.materialize_subpath(path, None) is None
+        assert schema.sanitize_subpath(path, None, fill_defaults=False) is None
+    legacy = schema.materialize_subpath('transfinite', {'last_modify_time': Int64(1793000000)})
+    assert legacy['terminal_paid_group_id'] == legacy['terminal_skipped_score'] == 0
+    assert legacy['last_modify_time'] == 1793000000
+    state = _transfinite_sample(paid)
+    normalized = schema.materialize_subpath('transfinite', state)
+    assert schema.sanitize_subpath('transfinite', state, fill_defaults=False) == state
+    decoded = BSON.encode(normalized).decode()
+    assert decoded == normalized
+    assert isinstance(decoded['activity_authorized_until'], Int64)
+    assert isinstance(decoded['last_rotate_receipt']['rotation_id'], Int64)
+    inventory = runtime.get_collection_schema('inventory')
+    receipts = _transfinite_inventory_sample()
+    assert inventory.sanitize_document(receipts, fill_defaults=False) == receipts
+    assert BSON.encode(inventory.materialize_document(receipts)).decode()['applied_reward_claims'] == receipts['applied_reward_claims']
+    arena = schema.materialize_subpath('simulated_battlefield', _arena_sample())
+    assert arena['arena_area_max_points'] == _arena_sample()['arena_area_max_points']
+    assert arena['arena_stage_max_points'] == _arena_sample()['arena_stage_max_points']
+
+
 def _reset_cycle_sample(epoch=1):
     team = {'_id': 1, 'CaptainPos': 1, 'FirstPos': 2,
             'CharacterInfos': [{'_id': 1011002, 'PlayerId': Int64(2**40), 'Pos': 1}],
@@ -136,6 +202,7 @@ def test_inventory_edits_do_not_record_spending_or_reset_receipts(monkeypatch, o
                 'spent_totals': {'60': Int64(2**40)},
                 'applied_reward_claims': ['accumulate-expend-shop:1:sign:0'],
                 'reward_claim_times': {'accumulate-expend-shop:1:sign:0': Int64(2**40)}}
+    document.update(_transfinite_inventory_sample())
     writes = []
 
     class Collection:
@@ -368,7 +435,10 @@ def test_stage_edit_does_not_reset_boss_period(monkeypatch):
 
     class Client:
         def __getitem__(self, name):
-            return self if name == 'test' else collection
+            if name == 'test':
+                return self
+            assert name == 'stages'  # No player state or inventory repair receipts may be written.
+            return collection
 
         def close(self):
             pass
@@ -409,10 +479,11 @@ def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch, epo
     writes = []
     players = {'_id': 'player', 'player_data': {'Name': 'original'},
                **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch),
+               'transfinite': _transfinite_sample(paid=bool(epoch)), 'simulated_battlefield': _arena_sample(),
                'boss_inshot': {'characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}]},
                'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]}}
     inventory = {'_id': 'inventory', 'items': [{'_id': 5, 'Count': Int64(60)}],
-                 'spent_totals': {'5': Int64(2**40)}}
+                 'spent_totals': {'5': Int64(2**40)}, **_transfinite_inventory_sample()}
     original_players = copy.deepcopy(players)
     original_inventory = copy.deepcopy(inventory)
 
@@ -568,6 +639,7 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/Database/Player.cs',
         server / 'AscNet.Common/Database/Player.Passport.cs',
         server / 'AscNet.Common/Database/Player.Stronghold.cs',
+        server / 'AscNet.Common/Database/Player.Transfinite.cs',
         server / 'AscNet.Common/Database/Player.Archive.cs',
         server / 'AscNet.Common/Database/Player.FavorMemory.cs',
         server / 'AscNet.Common/Database/Player.SmallRewards.cs',
@@ -615,7 +687,8 @@ def _read_persisted_classes(server):
     return classes
 
 
-def test_latest_schema_against_actual_server_types_and_mongodb_driver():
+@pytest.mark.parametrize('transfinite_state', ['absent', 'legacy', 'paid'])
+def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinite_state):
     server = Path(os.environ.get('INFINITELOOP_TEST_PATH', str(Path(__file__).resolve().parents[2].parent / 'InfiniteLoop')))
     driver = Path(os.environ.get('MONGODB_BSON_TEST_DLL', str(Path.home() / '.nuget/packages/mongodb.bson/2.21.0/lib/net472/MongoDB.Bson.dll')))
     powershell = shutil.which('powershell')
@@ -658,6 +731,8 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
         'mission_progress': 'MissionProgressState',
         'passport': 'PassportState',
         'stronghold': 'StrongholdState',
+        'transfinite': 'TransfiniteState',
+        'transfinite_receipts': 'List<TransfiniteInventoryReceipt>',
         'extra_chapter_treasures': 'List<int>',
         'short_story_treasures': 'List<int>',
         'experiment_star_claims': 'Dictionary<int, List<int>>',
@@ -744,12 +819,16 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver():
             return characters_schema
         if name == 'experiment_star_claims':
             return runtime.get_collection_schema('stages')
-        if name == 'spent_totals':
+        if name in ('spent_totals', 'transfinite_receipts'):
             return runtime.get_collection_schema('inventory')
         return schema
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
     payload.update(_small_rewards_sample())
+    payload['transfinite'] = (None if transfinite_state == 'absent' else
+                             schema.materialize_subpath('transfinite', _transfinite_sample(transfinite_state == 'paid')))
+    payload['transfinite_receipts'] = runtime.get_collection_schema('inventory').materialize_subpath(
+        'transfinite_receipts', _transfinite_inventory_sample()['transfinite_receipts'])
     for name, value in _reset_cycle_sample().items():
         payload[name] = root_schema(name).materialize_subpath(name, value)
     # The server currently leaves StageBuffId empty. Its int-key dictionary has

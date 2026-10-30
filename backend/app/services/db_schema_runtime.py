@@ -270,6 +270,8 @@ def _sanitize_value(value: Any, schema_node: dict[str, Any], *, fill_defaults: b
         return sanitized_items
 
     if node_type == "object" or "schema" in schema_node or _is_object_schema_definition(schema_node):
+        if value is None and "default" in schema_node and schema_node["default"] is None:
+            return None
         if node_type == "object" and "schema" not in schema_node:
             if isinstance(value, dict):
                 return copy.deepcopy(value)
