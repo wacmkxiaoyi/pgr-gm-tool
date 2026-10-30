@@ -2,6 +2,7 @@ import { applyI18n, getLocale, initLocaleControls, subscribeLocaleChange, t } fr
 import { app } from './dashboard/shared.js';
 import './dashboard/navigation.js';
 import './dashboard/modals.js';
+import { initThemeControl } from './dashboard/theme.js';
 
 import { initStatusFeature } from './dashboard/game-server-management/index.js';
 import { initDatabaseFeature } from './dashboard/user-data-management/index.js';
@@ -187,6 +188,7 @@ const initDashboard = () => {
     window.location.reload();
   });
   initLocaleControls(document);
+  initThemeControl();
 
   app.initNavigation();
   app.initSharedModals();

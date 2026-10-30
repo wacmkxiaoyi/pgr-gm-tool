@@ -1,0 +1,548 @@
+/* Theme tokens are scoped to the dashboard, including its body-level dialogs. */
+:root[data-dashboard-theme] {
+  --text-primary: var(--text);
+  --text-secondary: var(--muted);
+  --theme-shell: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  --theme-panel: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+  --theme-shell-border: rgba(255, 255, 255, 0.76);
+  --theme-control: rgba(255, 255, 255, 0.8);
+  --theme-focus: #7c5cff;
+}
+
+.sidebar-preferences-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  border: 1px solid var(--panel-border);
+  border-radius: 11px;
+  background: var(--theme-control);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  border-color: var(--theme-focus);
+  color: var(--theme-focus);
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--theme-focus);
+  outline-offset: 3px;
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-toggle .theme-icon-sun,
+[data-dashboard-theme='dark'] .theme-toggle .theme-icon-moon {
+  display: none;
+}
+
+[data-dashboard-theme='dark'] .theme-toggle .theme-icon-sun {
+  display: block;
+}
+
+[data-dashboard-theme] :is(.dashboard-main, .dashboard-sidebar) {
+  background: var(--theme-shell);
+  border-color: var(--theme-shell-border);
+}
+
+[data-dashboard-theme] :is(.dashboard-subnav, .database-panel) {
+  background: var(--theme-panel);
+  border-color: var(--theme-shell-border);
+}
+
+:root[data-dashboard-theme='dark'] {
+  color-scheme: dark;
+  --bg-base: #0f1420;
+  --bg-deep: #111a29;
+  --text: #e5ecf5;
+  --muted: #a6b4c8;
+  --panel: #273449;
+  --panel-strong: #2d3c52;
+  --panel-border: #35445b;
+  --accent: #f28cbb;
+  --accent-2: #b7a2ff;
+  --accent-3: #7dd3fc;
+  --accent-4: #fbbf24;
+  --glow: rgba(183, 162, 255, 0.1);
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  --theme-shell: #171f2e;
+  --theme-panel: #1e293b;
+  --theme-shell-border: #303e53;
+  --theme-control: #273449;
+  --theme-focus: #b7a2ff;
+  --theme-dialog: #263247;
+  --theme-dialog-section: #2d3c52;
+  --theme-dialog-control: #34465f;
+  --theme-selected: linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(56, 189, 248, 0.14));
+  --theme-success: #6ee7b7;
+  --theme-error: #fda4af;
+  --theme-warning: #fcd34d;
+}
+
+html[data-dashboard-theme='dark'],
+[data-dashboard-theme='dark'] body {
+  background: linear-gradient(145deg, var(--bg-base), var(--bg-deep));
+}
+
+[data-dashboard-theme='dark'] .bg-aurora {
+  opacity: 0.28;
+}
+
+[data-dashboard-theme='dark'] .bg-grid {
+  opacity: 0.08;
+}
+
+[data-dashboard-theme='dark'] .dashboard-topbar {
+  background: linear-gradient(180deg, #171f2e 0%, rgba(23, 31, 46, 0.94) 70%, rgba(23, 31, 46, 0));
+}
+
+/* Page panels sit above the shell; their cards sit one step above the panels. */
+[data-dashboard-theme='dark'] :is(.status-hero, .status-section) {
+  background: var(--theme-panel);
+  border-color: var(--theme-shell-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .sidebar-link,
+    .sidebar-toggle,
+    .subnav-link,
+    .database-selected-account,
+    .status-card,
+    .accounts-state,
+    .accounts-table-scroll,
+    .database-player-empty,
+    .database-accounts-summary,
+    .database-player-profile-summary,
+    .equip-management-icon,
+    .database-player-card
+  ) {
+  background: var(--panel);
+  border-color: var(--panel-border);
+}
+
+[data-dashboard-theme='dark'] :is(.sidebar-link, .subnav-link):is(:hover, .is-active),
+[data-dashboard-theme='dark'] .database-subnav-group-trigger.is-active {
+  background: var(--theme-selected);
+  border-color: rgba(183, 162, 255, 0.5);
+  color: var(--text);
+}
+
+[data-dashboard-theme='dark'] .database-subnav-menu {
+  background: var(--theme-dialog);
+  border-color: var(--panel-border);
+}
+
+/* Dialogs use local surface tokens so nested controls remain distinguishable. */
+[data-dashboard-theme='dark'] .shared-modal {
+  --panel: var(--theme-dialog-section);
+  --panel-strong: var(--theme-dialog-control);
+  --theme-control: var(--theme-dialog-control);
+}
+
+[data-dashboard-theme='dark'] .shared-modal-backdrop {
+  background: rgba(3, 7, 18, 0.72);
+}
+
+[data-dashboard-theme='dark'] :is(.shared-modal-card, .character-detail-card, .equip-detail-card) {
+  background: var(--theme-dialog);
+  border-color: var(--panel-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .character-detail-main-icon-shell,
+    .character-detail-stat-card,
+    .character-detail-section,
+    .character-fashion-picker-summary,
+    .character-picker-summary,
+    .character-add-summary,
+    .overrun-picker-summary,
+    .weapon-detail-skill-panel,
+    .equip-detail-enhancement,
+    .weapon-detail-overrun,
+    .character-equip-switch-current-card,
+    .character-equip-switch-current-empty,
+    .player-portrait-picker-summary,
+    .nameplate-picker-current,
+    .medal-picker-current,
+    .chat-board-picker-current,
+    .item-add-table-shell,
+    .character-detail-skill-table,
+    .weapon-detail-overrun-overlay
+  ) {
+  background: var(--panel);
+  border-color: var(--panel-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .player-portrait-picker-item,
+    .character-picker-item,
+    .character-fashion-picker-item,
+    .score-title-picker-item,
+    .chat-emoji-picker-item,
+    .chat-board-picker-item,
+    .nameplate-picker-item,
+    .medal-picker-item,
+    .character-trust-edit-heart,
+    .equip-detail-awake-indicator,
+    .equip-detail-awake-toggle,
+    .character-detail-main-icon,
+    .character-detail-main-fashion-shell,
+    .character-detail-main-icon-shell-button,
+    .character-detail-main-fashion-icon,
+    .character-detail-slot,
+    .character-detail-equip-icon,
+    .character-detail-fashion-slot,
+    .character-fashion-picker-preview,
+    .equip-detail-icon
+  ) {
+  background: var(--panel-strong);
+  border-color: var(--panel-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .accounts-table thead,
+    .character-detail-skill-table th,
+    .equip-detail-resonance-table thead
+  ) {
+  background: var(--panel-strong);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .accounts-table th,
+    .accounts-table td,
+    .character-detail-skill-table th,
+    .character-detail-skill-table td,
+    .equip-detail-resonance-table,
+    .equip-detail-resonance-table th,
+    .equip-detail-resonance-table td,
+    .character-detail-skill-table-shell,
+    .equip-detail-stat:not(:last-child)
+  ) {
+  border-color: var(--panel-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(.accounts-table tbody tr:hover, .resonance-effect-table-row:hover) {
+  background: rgba(183, 162, 255, 0.09);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .character-weapon-switch-row.is-selected,
+    .weapon-add-row.is-selected,
+    .partner-add-table tbody tr.is-selected,
+    .resonance-effect-table-row.is-selected,
+    .player-portrait-picker-item.is-selected,
+    .character-picker-item.is-selected,
+    .character-fashion-picker-item.is-selected,
+    .score-title-picker-item.is-selected,
+    .chat-emoji-picker-item.is-selected,
+    .chat-board-picker-item.is-selected,
+    .nameplate-picker-item.is-selected,
+    .medal-picker-item.is-selected,
+    .character-trust-edit-heart.is-selected
+  ) {
+  background: var(--theme-selected);
+}
+
+/* Explicit text controls leave transparent game-image hitboxes and the code editor intact. */
+[data-dashboard-theme='dark']
+  :is(
+    .sidebar-language select,
+    .account-password-input,
+    .database-item-sort-select,
+    .database-item-search-input,
+    .database-item-inline-input,
+    .item-add-quantity-input,
+    .accounts-pagination-jump-input,
+    .character-quality-edit-select,
+    .database-player-inline-input,
+    .database-player-inline-select
+  ) {
+  background: var(--theme-control);
+  border-color: var(--panel-border);
+  color: var(--text);
+  caret-color: var(--text);
+}
+
+[data-dashboard-theme='dark'] :is(input, textarea)::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+[data-dashboard-theme='dark'] :is(select, input, textarea, button):focus-visible {
+  outline: 2px solid var(--theme-focus);
+  outline-offset: 2px;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .subnav-link,
+    .accounts-pagination-jump-input,
+    .character-quality-edit-select,
+    .character-trust-edit-heart
+  ):disabled {
+  background: rgba(148, 163, 184, 0.08);
+  color: #8a9ab0;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .shared-modal-message,
+    .risk-confirm-checkbox,
+    .account-password-target,
+    .account-password-feedback,
+    .server-config-path,
+    .server-config-feedback,
+    .server-config-description,
+    .server-log-path,
+    .server-log-feedback,
+    .character-quality-edit-label,
+    .resonance-effect-description,
+    .character-detail-information-body,
+    .weapon-detail-overrun-text,
+    .equip-detail-resonance-action-btn-cancel
+  ) {
+  color: var(--muted);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .resonance-effect-name,
+    .weapon-detail-overrun-overlay,
+    .weapon-detail-overrun-title,
+    .weapon-detail-overrun-label,
+    .equip-enhancement-tier-0,
+    .character-quality-tier-0,
+    .character-grade-tier-0,
+    .character-awaken-tier-0,
+    .equip-detail-bt-tier-0,
+    .character-detail-stat-value.character-grade-tier-0,
+    .character-detail-stat-value.character-awaken-tier-0
+  ) {
+  color: var(--text);
+}
+
+/* Semantic and rarity colors keep their meaning while gaining night-time contrast. */
+[data-dashboard-theme='dark']
+  :is(
+    .status-ok,
+    .server-config-status.is-valid,
+    .server-config-feedback.is-valid,
+    .server-log-status.is-live,
+    .account-password-feedback.is-valid,
+    .shared-modal-eyebrow.is-success,
+    .status-action-button-start,
+    .status-action-button.is-selected,
+    .equip-detail-resonance-action-btn-save,
+    .equip-detail-awake-indicator.is-checked,
+    .equip-detail-awake-toggle span
+  ) {
+  color: var(--theme-success);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .status-warning,
+    .server-config-status.is-pending,
+    .server-config-feedback.is-pending,
+    .server-config-status.is-warning,
+    .server-config-feedback.is-warning,
+    .server-log-status.is-pending,
+    .status-action-button-config
+  ) {
+  color: var(--theme-warning);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .status-down,
+    .server-config-status.is-error,
+    .server-config-feedback.is-error,
+    .server-log-status.is-error,
+    .account-password-feedback.is-error,
+    .accounts-state.is-error,
+    .database-player-empty.is-error,
+    .status-action-button-stop,
+    .equip-detail-resonance-action-btn-delete,
+    .equip-detail-awake-indicator.is-crossed,
+    .weapon-detail-overrun-line.is-matched .weapon-detail-overrun-label,
+    .weapon-detail-overrun-line.is-matched .weapon-detail-overrun-text
+  ),
+[data-dashboard-theme='dark'] .equip-detail-awake-toggle input:not(:checked) + span::before {
+  color: var(--theme-error);
+}
+
+[data-dashboard-theme='dark'] .equip-detail-awake-toggle input:not(:checked) + span {
+  color: transparent;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .status-unknown,
+    .server-config-status:not([class*='is-']),
+    .server-log-status:not([class*='is-'])
+  ) {
+  color: var(--muted);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .shared-modal-eyebrow,
+    .risk-reset-button,
+    .accounts-state.is-loading,
+    .database-player-empty.is-loading,
+    .equip-detail-resonance-action-btn-edit,
+    .equip-detail-resonance-effect-btn,
+    .column-sort-btn:hover,
+    .resonance-effect-sort-btn:hover,
+    .status-action-button-log,
+    .server-log-status.is-ended
+  ) {
+  color: var(--accent-2);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .equip-star-tier-2,
+    .equip-enhancement-tier-1,
+    .character-quality-tier-1,
+    .character-grade-tier-1,
+    .fashion-star-tier-2,
+    .equip-detail-bt-tier-1,
+    .equip-detail-star-tier-2
+  ) {
+  color: #86efac;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .equip-star-tier-3,
+    .equip-enhancement-tier-2,
+    .character-quality-tier-2,
+    .character-grade-tier-2,
+    .character-awaken-tier-2,
+    .fashion-star-tier-3,
+    .equip-detail-bt-tier-2,
+    .equip-detail-star-tier-3,
+    .character-detail-stat-value.character-grade-tier-2,
+    .character-detail-stat-value.character-awaken-tier-2,
+    .character-equip-switch-current-tag
+  ) {
+  color: #93c5fd;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .equip-star-tier-4,
+    .equip-enhancement-tier-3,
+    .character-quality-tier-3,
+    .character-grade-tier-3,
+    .character-awaken-tier-3,
+    .fashion-star-tier-4,
+    .equip-detail-bt-tier-3,
+    .equip-detail-star-tier-4,
+    .character-detail-stat-value.character-grade-tier-3,
+    .character-detail-stat-value.character-awaken-tier-3
+  ) {
+  color: #c4b5fd;
+}
+
+[data-dashboard-theme='dark'] .character-quality-tier-4 {
+  color: #fde68a;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .equip-star-tier-5,
+    .equip-enhancement-tier-4,
+    .character-quality-tier-5,
+    .character-grade-tier-4,
+    .character-awaken-tier-4,
+    .fashion-star-tier-5,
+    .equip-detail-bt-tier-4,
+    .equip-detail-star-tier-5,
+    .character-detail-stat-value.character-grade-tier-4,
+    .character-detail-stat-value.character-awaken-tier-4
+  ) {
+  color: #fdba74;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .equip-star-tier-6,
+    .character-quality-tier-6,
+    .character-grade-tier-5,
+    .character-awaken-tier-5,
+    .fashion-star-tier-6,
+    .equip-detail-star-tier-6,
+    .character-detail-stat-value.character-grade-tier-5,
+    .character-detail-stat-value.character-awaken-tier-5
+  ) {
+  color: #fda4af;
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .character-awaken-tier-1,
+    .character-detail-stat-value.character-grade-tier-1,
+    .character-detail-stat-value.character-awaken-tier-1
+  ) {
+  color: var(--muted);
+}
+
+[data-dashboard-theme='dark'] :is(.equip-detail-tooltip, .character-detail-equip-tooltip) {
+  background: #182235;
+  border: 1px solid var(--panel-border);
+}
+
+[data-dashboard-theme='dark']
+  :is(
+    .player-portrait-picker-summary,
+    .character-fashion-picker-summary,
+    .character-picker-summary,
+    .character-add-summary,
+    .overrun-picker-summary,
+    .database-player-card
+  ) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+[data-dashboard-theme='dark'] .database-player-card::before {
+  background: linear-gradient(180deg, rgba(15, 20, 32, 0.12), rgba(15, 20, 32, 0.24));
+}
+
+[data-dashboard-theme='dark'] .weapon-detail-overrun-surface {
+  background-color: var(--panel);
+}
+
+[data-dashboard-theme='dark'] .weapon-detail-overrun-host {
+  background: transparent;
+}
+
+[data-dashboard-theme='dark'] .status-action-button:disabled:not(.is-selected) {
+  color: #8a9ab0;
+}

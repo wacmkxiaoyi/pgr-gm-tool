@@ -509,6 +509,8 @@ const messages = {
       logoutConfirmSubmit: '确认退出',
       controlAcknowledge: '知道了',
       languageSwitcherLabel: '语言',
+      switchToDarkTheme: '切换到夜间主题',
+      switchToLightTheme: '切换到白天主题',
       resonanceEffectEyebrow: '选择',
       resonanceEffectTitle: '共鸣效果',
       resonanceEffectDescription:
@@ -1458,6 +1460,8 @@ const messages = {
       logoutConfirmSubmit: 'Sign Out',
       controlAcknowledge: 'OK',
       languageSwitcherLabel: 'Language',
+      switchToDarkTheme: 'Switch to night theme',
+      switchToLightTheme: 'Switch to day theme',
       resonanceEffectEyebrow: 'Select',
       resonanceEffectTitle: 'Resonance Effect',
       resonanceEffectDescription:
