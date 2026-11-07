@@ -49,9 +49,9 @@ ASSET_MAP = {
     "ExhibitionReward.tsv": "en/bytes/share/exhibition/ExhibitionReward.json",
     "Fashion.tsv": "en/bytes/share/fashion/Fashion.json",
     "HeadPortrait.tsv": "en/bytes/share/headportrait/HeadPortrait.json",
-    "HonorLevel.tsv": "cn/bytes/share/player/HonorLevel.json",
+    "HonorLevel.tsv": "en/bytes/share/player/HonorLevel.json",
     "Item.tsv": "en/bytes/share/item/Item.json",
-    "Player.tsv": "cn/bytes/share/player/Player.json",
+    "Player.tsv": "en/bytes/share/player/Player.json",
     "Stage.tsv": "en/bytes/share/fuben/Stage.json",
     "WeaponOverrun.tsv": "en/bytes/share/equip/WeaponOverrun.json",
     "WeaponSkill.tsv": "en/bytes/share/equip/WeaponSkill.json",
@@ -71,10 +71,10 @@ ASSET_MAP = {
     "NameplateContentMap.tsv": "en/bytes/client/nameplate/NameplateContentMap.json",
     "ChatBoard.tsv": "en/bytes/share/chat/ChatBoard.json",
     "Emoji.tsv": "en/bytes/share/chat/Emoji.json",
-    "Medal.tsv": "cn/bytes/share/medal/Medal.json",
+    "Medal.tsv": "en/bytes/share/medal/Medal.json",
     "ScoreTitle.tsv": "en/bytes/share/scoretitle/ScoreTitle.json",
-    "leveluptemplate/1.tsv": "cn/bytes/share/character/leveluptemplate/1.json",
-    "leveluptemplate/2.tsv": "cn/bytes/share/character/leveluptemplate/2.json",
+    "leveluptemplate/1.tsv": "en/bytes/share/character/leveluptemplate/1.json",
+    "leveluptemplate/2.tsv": "en/bytes/share/character/leveluptemplate/2.json",
     "TeamRecommendCharacterTarget.tsv": "en/bytes/share/teamrecommend/teamrecommendcharactertarget.json",
     "TeamRecommendBaseCharacter.tsv": "en/bytes/share/teamrecommend/teamrecommendbasecharacter.json",
     "Furniture.tsv": "en/bytes/share/dormitory/furniture/Furniture.json",
@@ -85,7 +85,7 @@ ASSET_MAP = {
     "DormTemplate.tsv": "en/bytes/share/dormitory/DormTemplate.json",
     **{
         f"leveluptemplate/{template_id}.tsv": (
-            f"cn/bytes/share/equip/leveluptemplate/{template_id}.json"
+            f"en/bytes/share/equip/leveluptemplate/{template_id}.json"
         )
         for template_id in (
             301, 302, 303, 401, 402, 403, 404, 405, 501, 502, 503, 504,

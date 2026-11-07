@@ -17,6 +17,294 @@
     }
   },
   "players[*]": {
+    "anniversary_preheating": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "groups": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "group_id": {
+              "type": "number",
+              "default": 0
+            },
+            "read_content_ids": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "reward_received": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        }
+      }
+    },
+    "pacman2": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "highest_score": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "playing_stage_id": {
+          "type": "number",
+          "default": 0
+        },
+        "playing_start_unix": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "reform": {
+      "type": "object",
+      "default": null,
+      "schema": {
+        "stages": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "stage_id": {
+              "type": "number",
+              "default": 0
+            },
+            "passed": {
+              "type": "boolean",
+              "default": false
+            },
+            "max_wish_quality": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        }
+      }
+    },
+    "sky_tower": {
+      "type": "object",
+      "schema": {
+        "activity_id": {
+          "type": "number",
+          "default": 0
+        },
+        "level": {
+          "type": "number",
+          "default": 0
+        },
+        "gold": {
+          "type": "number",
+          "default": 0
+        },
+        "character_lv_up_item": {
+          "type": "number",
+          "default": 0
+        },
+        "speed_up_item": {
+          "type": "number",
+          "default": 0
+        },
+        "speed_up_daily_used": {
+          "type": "number",
+          "default": 0
+        },
+        "speed_up_granted_days": {
+          "type": "number",
+          "default": 0
+        },
+        "total_gold_produced": {
+          "type": "number",
+          "default": 0
+        },
+        "total_trans_character_lv_up_item": {
+          "type": "number",
+          "default": 0
+        },
+        "daily_gold_gained": {
+          "type": "number",
+          "default": 0
+        },
+        "total_gold_gained": {
+          "type": "number",
+          "default": 0
+        },
+        "last_settle_time": {
+          "type": "number",
+          "default": 0
+        },
+        "daily_period": {
+          "type": "number",
+          "default": 0
+        },
+        "last_unlocked_floor_id": {
+          "type": "number",
+          "default": 0
+        },
+        "last_unlocked_work_pos_index": {
+          "type": "number",
+          "default": 0
+        },
+        "work_pos": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "work_type": {
+                  "type": "number",
+                  "default": 0
+                },
+                "product_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "character_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "state": {
+                  "type": "number",
+                  "default": 0
+                },
+                "worked_seconds": {
+                  "type": "number",
+                  "default": 0
+                },
+                "produce_remainder": {
+                  "type": "number",
+                  "default": 0
+                },
+                "reserved_inputs": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "product_type": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "product_id": {
+                      "type": "number",
+                      "default": 0
+                    },
+                    "count": {
+                      "type": "number",
+                      "default": 0
+                    }
+                  }
+                },
+                "reserved_extra_produce_ratio": {
+                  "type": "number",
+                  "default": 0
+                },
+                "has_started_round": {
+                  "type": "boolean",
+                  "default": false
+                }
+              }
+            }
+          }
+        },
+        "storage": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "characters": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "performs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "object",
+              "schema": {
+                "state": {
+                  "type": "number",
+                  "default": 0
+                },
+                "update_time": {
+                  "type": "number",
+                  "default": 0
+                },
+                "story": {
+                  "type": "array",
+                  "default": [],
+                  "schema": {
+                    "k": {
+                      "type": "number"
+                    },
+                    "v": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "task_progress": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "number"
+            },
+            "v": {
+              "type": "number"
+            }
+          }
+        },
+        "applied_reward_claims": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "birthday_single_story_ids": {
       "type": "array",
       "default": [],

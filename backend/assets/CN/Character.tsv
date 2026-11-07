@@ -73,7 +73,7 @@
 1361003	但丁	但丁	但丁	Dante	1	2	1	事务所“Devil May Cry”的老板，最强的恶魔猎人，被誉为拥有着传说级的力量。	583	1	2490	56	2565001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005201	136322	未命名	Dante	2	1	1	[2]		
 1041005	比安卡	晖暮	比安卡·晖暮	Bianca	1	1	1	在对溯源装置进一步验证的基础上，由科学理事会研发的新型特化机体。机体能够一定程度打乱帕弥什的信息，从而达到削弱帕弥什的效果。	584	1	2500	57	2574001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005301	104522	未命名	BPO-87	5	1		[7]		
 1371002	斜奏	裁律	斜奏·裁律	Discord	1	1	1	空中花园设计的新机体，与黑野的旧机体相比意识海不够稳定，输出率起伏较大。	585	1	2510	58	2584001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005401	137222	未命名	BPN-49	1	1		[3]		
-1381003	维罗妮卡	铮骨	维罗妮卡·铮骨	Veronica	1	1	1	原机械教会的成员之一，因为种种原因脱离教会，特立独行，比起言语，更擅长用武力来表达自己的内心。	586	1	2520	59	2594001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005501	138322	未命名	MPK-01	1	5		[2]		
+1381003	维罗妮卡	铮骨	维罗妮卡·铮骨	Veronica	1	1	1	原机械教会的成员之一，因为种种原因脱离教会，特立独行，比起言语，更擅长用武力来表达自己的内心。	586	1	2520	59	2594001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005501	138322	未命名	MPK-01	1	5		[2]		2596001
 1031005	丽芙	霁梦	丽芙·霁梦	Liv	1	1	1	由科学理事会研发出的全新机体，在意识海上应用了黄金时代“生命树计划”中的某套数据，而这副机体的成功落地揭开了新时代的帷幕。	587	1	2530	60	2604001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005601	103522	未命名	BPN-08	4	1		[6]		2606001
 1291003	布偶熊	骇影	布偶熊·骇影	Teddy	1	1	1	骇影机体百分之八十的基础设计来自布偶熊自己，布偶熊本想在觅语机体的基础上设计出一副战斗力更强的机体，以防万一。链接伊利希恩的“核心”后，剩下的部分被补全。	588	1	2540	61	2614001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005701	129322	未命名	BPD-27	3	5		[7]		
 1141004	罗塞塔	极锋	罗塞塔·极锋	Rosetta	1	1	1	代号为“马尔库特”的最终统合机，完整启动需要借助仿生鲸等机械单位构建统合阵列，另外，本机可以随时切换人或人马型态进行强突破力的战斗。	589	1	2550	62	2624001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6005801	114422	未命名	IH-31C	5	8		[3]		
@@ -84,3 +84,4 @@
 1071005	卡列尼娜	烬航	卡列尼娜·烬航	Karenina	1	1	1	为卡列尼娜研发的轻量化机体，适配海上作战环境。舰锚为锤，以应对近战场合，并且可借尾焰推力踏浪而行，具有应对各种海况的高机动性。	594	1	2600	67	2674001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6006301	107522	未命名	BPD-72	1	8		[6]		
 1411003	时崎狂三	时崎狂三	时崎狂三	Kurumi Tokisaki	1	1	1	和时之天使“刻刻帝”结下契约的精灵少女，拥有着操纵影子和时间的能力。	595	1	2610	68	2685001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6006401	141322	未命名	Kurumi Tokisaki	5	1	1			
 1421003	阿德莱德	破渊	阿德莱德·破渊	Adelyde	1	1	1	环大西洋赫里欧家族前继承人，现法奥斯非常驻军事实训教官。身为空中花园军部初代构造体之一，其机体经多次迭代更新，长期活跃于前线战场与教学之间，其深渊破阵的信念始终如一。	596	1	2620	69	2694001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6006501	142322	未命名	BPA-09	5	9		[3]		
+1431003	莱亚	祈星	莱亚·祈星	Leia	1	1	1	来自地面保育区的少女，原机体改造途径不明，核心部分材料特殊。现机体由科学理事会进行改造，但其实机体的核心部分依旧沿用旧机体中的模块。	597	1	2630	70	2704001	Assets/Product/Texture/Image/IconType/IconCharacter3.png	6006601	143322	未命名	EBB-01	3	8		[5]		

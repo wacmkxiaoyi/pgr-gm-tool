@@ -29,6 +29,49 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.utils.resource_language import resource_language
 
 
+def _version49_sample():
+    return {
+        'anniversary_preheating': {'activity_id': 1, 'groups': [
+            {'group_id': 2, 'read_content_ids': [3, 4], 'reward_received': True}]},
+        'pacman2': {'records': [{'stage_id': 7, 'highest_score': 12345}],
+                   'playing_stage_id': 8, 'playing_start_unix': Int64(2**40)},
+        'reform': {'stages': [{'stage_id': 9, 'passed': True, 'max_wish_quality': 250}]},
+        'sky_tower': {'activity_id': 1, 'level': 3, 'gold': Int64(2**40),
+                      'last_settle_time': Int64(2**40 + 1), 'daily_period': Int64(20001),
+                      'storage': [{'k': 10101, 'v': Int64(2**40 + 2)}],
+                      'characters': [{'k': 1011002, 'v': 3}],
+                      'task_progress': [{'k': 7, 'v': Int64(2**40 + 3)}],
+                      'applied_reward_claims': ['sky-tower:1:task:7'],
+                      'work_pos': [{'k': 10, 'v': {
+                          'work_type': 1, 'product_id': 2, 'character_id': 1011002, 'state': 1,
+                          'worked_seconds': Int64(2**40), 'produce_remainder': Int64(3),
+                          'reserved_extra_produce_ratio': Int64(100), 'has_started_round': True,
+                          'reserved_inputs': [{'product_type': 1, 'product_id': 2, 'count': Int64(2**40)}]}}],
+                      'performs': [{'k': 1, 'v': {'state': 1, 'update_time': Int64(2**40),
+                                               'story': [{'k': 2, 'v': 1}]}}]},
+    }
+
+
+def test_version49_defaults_and_populated_bson():
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('anniversary_preheating') == {'activity_id': 0, 'groups': []}
+    for path in ('pacman2', 'reform'):
+        assert schema.build_default(path) is None
+        assert schema.materialize_subpath(path, None) is None
+    tower = schema.build_default('sky_tower')
+    assert tower['activity_id'] == tower['gold'] == tower['last_settle_time'] == 0
+    assert tower['work_pos'] == tower['storage'] == tower['applied_reward_claims'] == []
+    for path, value in _version49_sample().items():
+        assert schema.sanitize_subpath(path, value, fill_defaults=False) == value
+        normalized = schema.materialize_subpath(path, value)
+        decoded = BSON.encode(normalized).decode()
+        assert decoded == normalized
+    assert isinstance(decoded['gold'], Int64)
+    assert isinstance(decoded['work_pos'][0]['v']['reserved_inputs'][0]['count'], Int64)
+    forward = schema.materialize_subpath('sky_tower', {'future': {'nonce': Int64(2**40)}})
+    assert forward['future'] == {'nonce': 2**40}
+
+
 def _transfinite_sample(paid=False):
     goods = [{'_id': 7, 'reward_type': 1, 'template_id': 60, 'count': 2}]
     result = {'last_win_stage_id': 101, 'stage_spend_time': 30,
@@ -478,7 +521,7 @@ def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch, epo
     runtime = DatabaseSchemaRuntime()
     writes = []
     players = {'_id': 'player', 'player_data': {'Name': 'original'},
-               **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch),
+               **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch), **_version49_sample(),
                'transfinite': _transfinite_sample(paid=bool(epoch)), 'simulated_battlefield': _arena_sample(),
                'boss_inshot': {'characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}]},
                'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]}}
@@ -640,6 +683,10 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/Database/Player.Passport.cs',
         server / 'AscNet.Common/Database/Player.Stronghold.cs',
         server / 'AscNet.Common/Database/Player.Transfinite.cs',
+        server / 'AscNet.Common/Database/Player.AnniversaryPreHeating.cs',
+        server / 'AscNet.Common/Database/Player.PacMan2.cs',
+        server / 'AscNet.Common/Database/Player.Reform.cs',
+        server / 'AscNet.Common/Database/Player.SkyTower.cs',
         server / 'AscNet.Common/Database/Player.Archive.cs',
         server / 'AscNet.Common/Database/Player.FavorMemory.cs',
         server / 'AscNet.Common/Database/Player.SmallRewards.cs',
@@ -732,6 +779,10 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
         'passport': 'PassportState',
         'stronghold': 'StrongholdState',
         'transfinite': 'TransfiniteState',
+        'anniversary_preheating': 'AnniversaryPreHeatingState',
+        'pacman2': 'PacMan2State',
+        'reform': 'ReformState',
+        'sky_tower': 'SkyTowerState',
         'transfinite_receipts': 'List<TransfiniteInventoryReceipt>',
         'extra_chapter_treasures': 'List<int>',
         'short_story_treasures': 'List<int>',
@@ -825,6 +876,10 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
     payload.update(_small_rewards_sample())
+    for name, value in _version49_sample().items():
+        payload[name] = schema.materialize_subpath(name, value)
+    if transfinite_state == 'absent':
+        payload['pacman2'] = payload['reform'] = None
     payload['transfinite'] = (None if transfinite_state == 'absent' else
                              schema.materialize_subpath('transfinite', _transfinite_sample(transfinite_state == 'paid')))
     payload['transfinite_receipts'] = runtime.get_collection_schema('inventory').materialize_subpath(

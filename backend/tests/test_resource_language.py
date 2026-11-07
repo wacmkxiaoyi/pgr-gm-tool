@@ -3,6 +3,7 @@ import asyncio
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 import httpx
+import pytest
 
 from backend.app.utils import resource_language as resources
 from backend.app.utils.tsv_reader import TSVReader
@@ -12,13 +13,38 @@ from backend.app.config import Settings
 from backend.app.services import init_app
 
 
-def test_mapping_preserves_cn_only_en_sources():
+def test_mapping_uses_native_language_sources():
     mapping = get_download_mapping()
     assert mapping["EN/Character.tsv"].startswith("en/")
     assert mapping["CN/Character.tsv"].startswith("cn/")
     for table in ("Player.tsv", "HonorLevel.tsv", "Medal.tsv", "leveluptemplate/1.tsv",
                   "TeamRecommendCharacterTarget.tsv", "TeamRecommendBaseCharacter.tsv"):
-        assert mapping[f"EN/{table}"] == mapping[f"CN/{table}"]
+        assert mapping[f"EN/{table}"].startswith("en/")
+        assert mapping[f"CN/{table}"] == mapping[f"EN/{table}"].replace("en/", "cn/", 1)
+
+
+@pytest.mark.parametrize('language', ['EN', 'CN'])
+def test_refreshed_resources_resolve_previously_supplemented_records(language):
+    from backend.app.services.player.resource_validation import get_resource_issues
+    from backend.app.services.player import player_characters as characters
+    from backend.app.services.player.equips.partner import build_partner_max_save_template
+    from backend.app.services.player.equips import get_weapon_fashion_id_entries_map
+    from backend.app.services.player.nameplates import get_nameplate_entires_map
+
+    token = resources.resource_language.set(language)
+    try:
+        assert get_resource_issues() == []
+        for character_id in (1411003, 1421003, 1431003):
+            assert characters.get_character_quality_bound_map()[character_id] == [3, 6]
+            assert len(characters.get_character_grade_name_map()[character_id]) == 14
+            assert character_id in characters.get_character_max_template_map()
+        for partner_id in (16420000, 16430000, 16440000):
+            assert build_partner_max_save_template(partner_id) is not None
+        for fashion_id in (12530003, 12630002, 12690001):
+            assert get_weapon_fashion_id_entries_map()[fashion_id]['Name']
+        assert get_nameplate_entires_map()[17064707]['Name']
+    finally:
+        resources.resource_language.reset(token)
 
 
 def test_reader_selects_language_and_explicit_resource_path(tmp_path, monkeypatch):

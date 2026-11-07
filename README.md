@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.8 (document version 4.8.12), synchronized with commit `9b40b1f921d05873828179db6337e76d6e5cda9e`.
+> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `ecc9c80ca1cff02873ef53cd42c2d435d53e4e2a`.
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -133,6 +133,8 @@ It also does not resolve MaintainerAction (Operation Guardians) board nodes, cha
 
 Adding or clearing stage records does not claim or reset chapter treasures, experiment star rewards, weekly activeness rewards, auto-fight rewards, or Stage Memory milestones; those have separate server-owned records. It also does not settle Concert Pre-Heating stages or advance their tasks. Profile edits preserve birthday single-story records, board-effect cooldowns, version-gift claims, and BossInshot talent selections.
 
+The 4.9 activity records for Dreamhouse Tycoon (`sky_tower`), Munchy Pixels (`pacman2`), Dreamscape Disequilibrium (`reform`), and Time Trace (`anniversary_preheating`) are independent of raw stage records. GM profile edits preserve their progress, production reservations, balances and reward receipts. Dreamhouse Tycoon currencies are player activity state, not ordinary inventory balances; its settlement and rewards remain server-managed. A saved activity record does not override the server's availability rules.
+
 When login is disabled, anyone who can reach the application can operate the GM tool. Use this mode only on a trusted local machine or protected network.
 
 When server management is enabled, the Server Management page also shows SDK and game-server health. If the configured executable is available, it provides start, stop, live-log, and server configuration controls.
@@ -249,18 +251,7 @@ The dashboard is assembled on the backend with Jinja2 `{% include %}` directives
 
 `backend/assets/EN/` and `backend/assets/CN/` contain independent TSV datasets. All APIs select the complete dataset using the request's `Accept-Language` header (`en-US` → EN, `zh-CN` → CN; default EN), including names, search, available IDs, and upgrade rules. Parsed and derived tables are cached independently in memory for each language. Changing the dashboard language reloads the page to refresh tables and discard old requests and dialog state.
 
-#### Manual EN resource supplements (2026-10-24)
-
-The EN dataset includes **74 manually supplemented records across 10 TSV tables**, based on the corresponding CN records. IDs, numeric values, references, and asset paths are preserved from CN. English text is manually translated using existing EN terminology, or reuses existing EN skill, coating, and nameplate text; these supplements are not an official upstream EN export.
-
-| Supplement | EN tables | Records |
-| --- | --- | --- |
-| Kurumi Tokisaki (`1411003`) and Adelyde: Anabasis (`1421003`): S–SSS+ evolution and 14 promotion grades each | `CharacterQuality.tsv`, `CharacterGrade.tsv` | 8 + 28 |
-| Zafkiel (`16420000`) and Kelpie (`16430000`): definitions, breakthrough, evolution, and skill bindings | `Partner.tsv`, `PartnerBreakThrough.tsv`, `PartnerQuality.tsv`, `PartnerSkill.tsv`, `PartnerMainSkillGroup.tsv`, `PartnerPassiveSkillGroup.tsv` | 34 |
-| Scorching Torrent (`12530003`), Sacrament of Ruin (`12630002`), and Pale Pyre (`12690001`): functional coating definitions paired with existing EN display text | `WeaponFashion.tsv` | 3 |
-| Nightshroud Covenant (`17064707`): nameplate definition using existing EN content-map text | `Nameplate.tsv` | 1 |
-
-**Resource refreshes overwrite these manual supplements.** After refreshing, check whether upstream EN now provides these records; otherwise reapply the CN-based supplements and English translations. Restart the backend after updating tables to clear its in-memory caches. Validate both languages with `get_resource_issues()` from `backend.app.services.player.resource_validation`, and check that both characters have quality bounds `[3, 6]`, 14 promotion grades, and complete max templates, that both CUB max templates resolve, and that the coating/nameplate IDs remain selectable.
+After refreshing resources, validate EN and CN independently with `get_resource_issues()` from `backend.app.services.player.resource_validation`. The current 4.9.4 datasets pass this cross-table check in both languages; the previously listed character, CUB, weapon-coating and nameplate records resolve correctly. Restart the backend after updating tables to clear its in-memory caches.
 
 #### Refreshing resource tables
 
@@ -270,9 +261,9 @@ Refresh both datasets together (the former `--cn` option has been removed):
 python backend/scripts/tsv_fetcher.py --upstream-dir "....\PGR_Data"
 ```
 
-Omit `--upstream-dir` to download from GitHub, or add `--dry-run` to validate without replacing files. Existing CN-only source mappings for EN are preserved. Both datasets must be prepared successfully before replacement; known legacy root tables are removed after migration. Restart the backend after a resource refresh to clear its in-memory caches.
+Omit `--upstream-dir` to download from GitHub, or add `--dry-run` to validate without replacing files. EN uses the EN source mappings and CN uses their corresponding CN paths. Both datasets must be prepared successfully before replacement; known legacy root tables are removed after migration. Restart the backend after a resource refresh to clear its in-memory caches.
 
-Max All uses the first `BaseCharacterIds` entry in `TeamRecommendCharacterTarget.tsv` and resolves equipment from `TeamRecommendBaseCharacter.tsv`. Both datasets currently use the CN upstream source for these tables. `MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE` defaults to `true` to retain the fixed memory resonance strategy; when disabled, the selected native recommendation supplies memory resonances. `MAX_CHARACTER_USE_RECOMMEND_HARMONY` defaults to `true` to use the selected recommendation's `WeaponOverrunChoseSuit` (zero means no selected suit); set it to `false` to select a Harmony suit automatically from the equipped memories. Both switches support environment variables and matching command-line options. Partner recommendations are loaded but are not applied by Max All. Single-file conversion targets must start with `EN/` or `CN/`.
+Max All uses the first `BaseCharacterIds` entry in `TeamRecommendCharacterTarget.tsv` and resolves equipment from `TeamRecommendBaseCharacter.tsv`. Each dataset uses its own language's upstream source for these tables. `MAX_CHARACTER_USE_FIX_MEMORY_RESONANCE` defaults to `true` to retain the fixed memory resonance strategy; when disabled, the selected native recommendation supplies memory resonances. `MAX_CHARACTER_USE_RECOMMEND_HARMONY` defaults to `true` to use the selected recommendation's `WeaponOverrunChoseSuit` (zero means no selected suit); set it to `false` to select a Harmony suit automatically from the equipped memories. Both switches support environment variables and matching command-line options. Partner recommendations are loaded but are not applied by Max All. Single-file conversion targets must start with `EN/` or `CN/`.
 
 Database health monitoring is always started. Game-server health monitoring and all server-control routes are registered only when `ENABLE_SERVER_MANAGEMENT` is enabled.
 

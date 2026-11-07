@@ -6,8 +6,8 @@ def test_medal_entries_map_reads_required_fields_and_normalizes_image() -> None:
     entries = get_medal_entires_map()
 
     assert entries[1] == {
-        "Name": "王牌指挥勋章",
-        "Desc": "在任何组织中，“王牌”都具有着非同凡响的分量，这枚“王牌指挥”勋章正是对那些在各种任务中都能进行出色指挥，起到关键作用之人的认可。",
+        "Name": "Ace Commandant Medal",
+        "Desc": "Ace means a lot in any organization. As its name suggests, this medal is a recognition of those who are able to give outstanding commands and carry great importance in any situation.",
         "MedalImg": "/assets/image/uimedal/uimedalicon1.webp",
     }
 
@@ -49,6 +49,6 @@ def test_app_info_and_player_profile_expose_medal_state() -> None:
     })
     profile = PlayerProfileResponse.model_validate({"uid": 1, "current_medal_id": 6, "unlock_medals": [1, 6]})
 
-    assert app_info.medal_entires_map[1].Name == "王牌指挥勋章"
+    assert app_info.medal_entires_map[1].Name == "Ace Commandant Medal"
     assert profile.current_medal_id == 6
     assert profile.unlock_medals == [1, 6]
