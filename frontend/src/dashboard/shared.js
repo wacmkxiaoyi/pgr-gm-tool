@@ -762,7 +762,10 @@ export const constants = {
   HISTORY_SLOT_COUNT: 10,
   SKIP_MUTATION_RISK_KEY: 'wacmk-pgr-skip-mutation-risk',
   databaseMutationMethods: new Set(['POST', 'PUT', 'PATCH', 'DELETE']),
-  mutationRiskBypassPaths: new Set(['/api/database-accounts/selection']),
+  mutationRiskBypassPaths: new Set([
+    '/api/database-accounts/selection',
+    '/api/database-status/refresh',
+  ]),
   jsonTokenRegex:
     /("(?:\\u[a-fA-F\d]{4}|\\[^u]|[^\\"])*")([\t ]*:)?|-?\b\d+(?:\.\d+)?(?:[eE][+-]?\d+)?\b|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g,
   stateMeta: {

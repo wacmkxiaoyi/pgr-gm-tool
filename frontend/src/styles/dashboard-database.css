@@ -216,6 +216,12 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+.database-status-refresh-button {
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: flex-end;
+}
+
 .database-status-card-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

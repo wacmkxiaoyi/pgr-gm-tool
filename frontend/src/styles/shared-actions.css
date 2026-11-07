@@ -45,7 +45,8 @@
   box-shadow: 0 12px 30px rgba(248, 113, 113, 0.12);
 }
 
-.status-action-button-log {
+.status-action-button-log,
+.database-status-refresh-button {
   color: #4338ca;
   background: linear-gradient(135deg, rgba(124, 92, 246, 0.14), rgba(56, 189, 248, 0.12));
   border-color: rgba(99, 102, 241, 0.24);

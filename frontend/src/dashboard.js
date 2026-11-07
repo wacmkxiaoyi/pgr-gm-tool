@@ -118,7 +118,7 @@ const refreshStatusPolling = async () => {
   }
 };
 
-const refreshDatabaseStatusPolling = async () => {
+const refreshDatabaseStatusPolling = async ({ refresh = false } = {}) => {
   if (
     !state.healthPollingReady ||
     !app.isDatabaseManagementPageActive() ||
@@ -133,11 +133,25 @@ const refreshDatabaseStatusPolling = async () => {
   }
 
   state.databaseStatusPollingRequestInFlight = true;
+  clearDatabaseStatusPollingTimer();
+  const refreshButton = document.getElementById('database-status-refresh-button');
+  if (refreshButton) {
+    refreshButton.disabled = true;
+    refreshButton.setAttribute('aria-busy', 'true');
+    if (refresh) {
+      refreshButton.textContent = app.translate('dashboard.databaseStatusRefreshing');
+    }
+  }
   try {
-    const intervalSeconds = await app.loadDatabaseStatus();
+    const intervalSeconds = await app.loadDatabaseStatus({ refresh });
     scheduleDatabaseStatusPolling(intervalSeconds);
   } finally {
     state.databaseStatusPollingRequestInFlight = false;
+    if (refreshButton) {
+      refreshButton.disabled = false;
+      refreshButton.removeAttribute('aria-busy');
+      refreshButton.textContent = app.translate('dashboard.databaseStatusRefresh');
+    }
   }
 };
 
@@ -195,6 +209,9 @@ const initDashboard = () => {
   initStatusFeature();
   initDatabaseFeature();
   initGlobalKeyboardShortcuts();
+  document.getElementById('database-status-refresh-button')?.addEventListener('click', () => {
+    void refreshDatabaseStatusPolling({ refresh: true });
+  });
 
   app.updateNextHealthCheckLabel();
   app.updateDatabaseHealthCheckLabel();

@@ -257,6 +257,13 @@ async def database_status(request: Request) -> DatabaseHealthStatusResponse:
     return DatabaseHealthStatusResponse.model_validate(snapshot)
 
 
+@router.post("/database-status/refresh", response_model=DatabaseHealthStatusResponse)
+async def refresh_database_status(request: Request) -> DatabaseHealthStatusResponse:
+    settings = request.app.state.settings
+    await run_database_health_check_once(settings)
+    return DatabaseHealthStatusResponse.model_validate(get_database_health_snapshot(settings))
+
+
 @router.get("/database-accounts", response_model=AccountListResponse)
 async def database_accounts(
     request: Request,

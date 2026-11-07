@@ -563,18 +563,24 @@ app.loadAppInfo = async () => {
   }
 };
 
-app.loadDatabaseStatus = async () => {
+app.loadDatabaseStatus = async ({ refresh = false } = {}) => {
   try {
-    const payload = await app.apiFetch('/api/database-status');
+    const payload = await app.apiFetch(
+      refresh ? '/api/database-status/refresh' : '/api/database-status',
+      refresh ? { method: 'POST' } : {},
+    );
     app.renderDatabaseSnapshot(payload);
     return typeof payload?.interval_seconds === 'number' ? payload.interval_seconds : 60;
-  } catch {
+  } catch (error) {
     state.databaseHealthSnapshot = null;
     state.nextDatabaseHealthCheckAtMs = null;
     app.updateDatabaseHealthCheckLabel();
     app.renderGrid(databaseGrid, { services: [] });
     app.updateDatabaseAccountsAccess(null);
     window.requestAnimationFrame(app.updateAllHistoryGridVisibility);
+    if (refresh) {
+      app.openNoticeModal(app.apiErrorMessage(error, 'dashboard.databaseStatusLoadFailed'));
+    }
     return 60;
   }
 };

@@ -420,6 +420,7 @@ html[data-dashboard-theme='dark'],
     .column-sort-btn:hover,
     .resonance-effect-sort-btn:hover,
     .status-action-button-log,
+    .database-status-refresh-button,
     .server-log-status.is-ended
   ) {
   color: var(--accent-2);
