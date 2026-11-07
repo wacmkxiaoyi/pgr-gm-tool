@@ -1716,7 +1716,7 @@ app.renderCharacterSkillTableRows = (
     const left = normalizedItems[index] ?? null;
     const right = normalizedItems[index + 1] ?? null;
     const renderNameCell = (entry) =>
-      `<td>${entry ? app.escapeHtml(entry.DisplayName) : '--'}</td>`;
+      `<td${entry ? ` title="Skill ID: ${entry.SkillId}"` : ''}>${entry ? app.escapeHtml(entry.DisplayName) : '--'}</td>`;
     const renderLevelCell = (entry) => {
       if (!entry) {
         return '<td>--</td>';
@@ -1875,7 +1875,7 @@ app.updateCharacterSkillLevel = async () => {
 
   try {
     const endpoint = editState.sectionType === 'enhance' ? 'enhance-skill' : 'skill';
-    const payload = await app.apiFetch(
+    await app.apiFetch(
       `/api/database-characters/selected/${editState.recordId}/${endpoint}`,
       {
         method: 'PUT',
@@ -1889,28 +1889,7 @@ app.updateCharacterSkillLevel = async () => {
       },
     );
 
-    const updatedLevel = Number.isFinite(Number(payload?.Level))
-      ? Math.max(0, Number(payload.Level))
-      : level;
-    const listKey = editState.sectionType === 'enhance' ? 'EnhanceSkillList' : 'SkillsList';
-    if (
-      state.currentCharacterDetailExtraInfo &&
-      typeof state.currentCharacterDetailExtraInfo === 'object'
-    ) {
-      const currentList = app.normalizeCharacterSkillList(
-        state.currentCharacterDetailExtraInfo[listKey],
-      );
-      state.currentCharacterDetailExtraInfo = {
-        ...state.currentCharacterDetailExtraInfo,
-        [listKey]: currentList.map((entry) =>
-          entry.SkillId === editState.skillId ? { ...entry, Level: updatedLevel } : entry,
-        ),
-      };
-    }
-
-    if (state.currentCharacterDetailItem) {
-      app.populateCharacterDetailCard(state.currentCharacterDetailItem);
-    }
+    await app.loadCharacterDetailExtraInfo(editState.recordId);
 
     app.closeCharacterSkillEditModal();
     app.openSuccessModal(

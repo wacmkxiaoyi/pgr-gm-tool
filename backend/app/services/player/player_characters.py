@@ -92,23 +92,23 @@ def get_character_skill_groups_map() -> dict[int, list[list[int]]]:
 
 
 def build_character_max_skills(character_id: int, existing_skills: Any = None) -> list[dict[str, Any]]:
-    """Maximize every skill ID, preserving its last-existing metadata."""
+    """Maximize one selected skill per group, matching server normalization."""
     entries = get_character_skill_entries_map()
     existing = existing_skills if isinstance(existing_skills, list) else []
-    existing_by_id = {
-        parse_int(entry.get("_id")): entry
-        for entry in existing if isinstance(entry, dict)
-    }
     result: list[dict[str, Any]] = []
     seen: set[int] = set()
     for skill_ids in get_character_skill_groups_map().get(character_id, []):
-        for skill_id in skill_ids:
-            if skill_id in seen:
-                continue
-            seen.add(skill_id)
-            max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
-            if max_level > 0:
-                result.append({**existing_by_id.get(skill_id, {}), "_id": skill_id, "Level": max_level})
+        if not skill_ids:
+            continue
+        selected = next((entry for entry in reversed(existing)
+                         if isinstance(entry, dict) and parse_int(entry.get("_id")) in skill_ids), {})
+        skill_id = parse_int(selected.get("_id")) or skill_ids[0]
+        if skill_id in seen:
+            continue
+        seen.add(skill_id)
+        max_level = parse_int(entries.get(skill_id, {}).get("MaxLevel")) or 0
+        if max_level > 0:
+            result.append({**selected, "_id": skill_id, "Level": max_level})
     return result
 
 
@@ -928,8 +928,9 @@ def get_character_max_template_map() -> dict[int, dict[str, Any]]:
 
         skill_list = build_character_max_skills(character_id)
         groups = get_character_skill_groups_map().get(character_id, [])
-        expected_skill_ids = {skill_id for group in groups for skill_id in group}
-        if not groups or any(not group for group in groups) or {skill["_id"] for skill in skill_list} != expected_skill_ids:
+        if not groups or any(not group for group in groups) or any(
+            sum(skill["_id"] in group for skill in skill_list) != 1 for group in groups
+        ):
             continue
         enhance_skill_list = [
             {"_id": skill_id, "Level": parse_int(character_enhance_skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0}

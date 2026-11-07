@@ -39,6 +39,7 @@ from backend.app.services.player.player_characters import (
     get_character_quality_bound_map,
     get_character_skill_entries_map,
     get_character_skill_ids_map,
+    get_character_skill_groups_map,
     get_character_trust_exp_map,
     get_character_default_weapon_map,
     get_character_equip_type_map,
@@ -194,13 +195,22 @@ def _build_character_skill_info_list(
     value: Any,
     skill_ids_map: dict[int, list[int]],
     skill_entries_map: dict[int, dict[str, int | str]],
+    skill_groups_map: dict[int, list[list[int]]] | None = None,
 ) -> list[CharacterSkillInfoRecord]:
     if character_id is None:
         return []
 
     level_map = _normalize_character_skill_level_map(value)
     normalized_list: list[CharacterSkillInfoRecord] = []
-    for skill_id in skill_ids_map.get(character_id, []):
+    skill_ids = skill_ids_map.get(character_id, [])
+    if skill_groups_map is not None:
+        existing = value if isinstance(value, list) else []
+        skill_ids = [
+            next((parse_optional_int(row.get("_id")) for row in reversed(existing)
+                  if isinstance(row, dict) and parse_optional_int(row.get("_id")) in group), group[0])
+            for group in skill_groups_map.get(character_id, []) if group
+        ]
+    for skill_id in skill_ids:
         entry = skill_entries_map.get(skill_id, {})
         name = str(entry.get("Name") or "").strip()
         max_level = parse_optional_int(entry.get("MaxLevel")) or 0
@@ -1746,6 +1756,19 @@ class PlayerCharactersService:
 
             raw_skill_list = target_character.get(list_field_name)
             normalized_skill_list = [item for item in raw_skill_list if isinstance(item, dict)] if isinstance(raw_skill_list, list) else []
+            if list_field_name == "SkillList":
+                group = next((group for group in get_character_skill_groups_map().get(character_id, [])
+                              if skill_id in group), [skill_id])
+                # Editing a group's level must not implicitly switch its selected skill.
+                selected = next((item for item in reversed(normalized_skill_list)
+                                 if parse_optional_int(item.get("_id")) in group), None)
+                if selected is not None:
+                    skill_id = parse_optional_int(selected.get("_id"))
+                    max_level = parse_optional_int(skill_entries_map.get(skill_id, {}).get("MaxLevel")) or 0
+                    if max_level <= 0 or level > max_level:
+                        raise ValueError(invalid_error)
+                    normalized_skill_list = [item for item in normalized_skill_list
+                                             if parse_optional_int(item.get("_id")) not in group or item is selected]
             updated = False
             for skill_entry in normalized_skill_list:
                 if parse_optional_int(skill_entry.get("_id")) != skill_id:
@@ -2142,6 +2165,7 @@ class PlayerCharactersService:
             target_character.get("SkillList"),
             character_skill_ids_map,
             character_skill_entries_map,
+            get_character_skill_groups_map(),
         )
         character_enhance_skills = _build_character_skill_info_list(
             character_id,

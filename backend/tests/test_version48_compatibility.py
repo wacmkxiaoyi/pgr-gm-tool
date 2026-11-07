@@ -100,23 +100,22 @@ def test_new_activity_defaults_and_server_only_paths():
     assert runtime.get_collection_schema("transfinite_tower_rank_entries").allows_update_path("characters.0.IsTrial")
 
 
-def test_max_skills_cover_all_variants_and_preserve_each_skill_metadata():
+def test_max_skills_keep_one_selected_skill_per_group_and_its_metadata():
     character_id = 1031005
     group = [103528, 103518]
     assert group in resources.get_character_skill_groups_map()[character_id]
     default = resources.build_character_max_skills(character_id)
-    assert [entry["_id"] for entry in default if entry["_id"] in group] == group
+    assert [entry["_id"] for entry in default if entry["_id"] in group] == [group[0]]
     selected = resources.build_character_max_skills(character_id, [
         {"_id": 103528, "Level": 2, "other_metadata": 7},
         {"_id": 103518, "Level": 3, "server_future": True},
     ])
     assert [entry for entry in selected if entry["_id"] in group] == [
-        {"_id": 103528, "Level": 35, "other_metadata": 7},
         {"_id": 103518, "Level": 35, "server_future": True},
     ]
     for cid, skills in ((cid, resources.build_character_max_skills(cid)) for cid in resources.get_character_skill_groups_map()):
         for ids in resources.get_character_skill_groups_map()[cid]:
-            assert {entry["_id"] for entry in skills if entry["_id"] in ids} == set(ids)
+            assert [entry["_id"] for entry in skills if entry["_id"] in ids] == [ids[0]]
 
 
 def test_missing_resources_are_reported_and_not_offered(monkeypatch):
@@ -178,17 +177,73 @@ def test_weapon_transfer_swaps_both_owners_and_preserves_forward_fields(monkeypa
     assert [(item["CharacterId"], item["server_future"]) for item in updated] == [(1011002, 1), (1021001, 2)]
 
 
-def test_manual_skill_update_preserves_other_group_variant(monkeypatch):
+def test_manual_skill_update_uses_selected_group_skill_without_switching(monkeypatch):
     collection = Collection({"characters": [{"_id": 1031005, "SkillList": [
         {"_id": 103528, "Level": 7}, {"_id": 103517, "Level": 4},
     ]}]})
     monkeypatch.setattr(player_characters_service, "create_mongo_client", lambda _: Client({"characters": collection}))
     service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
-    asyncio.run(service.update_character_skill_level(42, 1031005, 103518, 10))
+    result = asyncio.run(service.update_character_skill_level(42, 1031005, 103518, 10))
     skills = collection.updates[0][1]["$set"]["characters"][0]["SkillList"]
-    assert {entry["_id"] for entry in skills} == {103528, 103518, 103517}
-    assert next(entry for entry in skills if entry["_id"] == 103528)["Level"] == 7
-    assert next(entry for entry in skills if entry["_id"] == 103518)["Level"] == 10
+    assert result.SkillId == 103528
+    assert skills == [{"_id": 103528, "Level": 10}, {"_id": 103517, "Level": 4}]
+
+
+def test_manual_skill_update_collapses_legacy_duplicates_preserving_selected_metadata(monkeypatch):
+    collection = Collection({"characters": [{"_id": 1431003, "SkillList": [
+        {"_id": 143321, "Level": 35},
+        {"_id": 143328, "Level": 7, "server_future": True},
+    ]}]})
+    monkeypatch.setattr(player_characters_service, "create_mongo_client", lambda _: Client({"characters": collection}))
+    service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
+    result = asyncio.run(service.update_character_skill_level(42, 1431003, 143321, 20))
+    assert result.SkillId == 143328
+    assert collection.updates[0][1]["$set"]["characters"][0]["SkillList"] == [
+        {"_id": 143328, "Level": 20, "server_future": True},
+    ]
+
+
+@pytest.mark.parametrize("language", ["CN", "EN"])
+@pytest.mark.parametrize("existing", [False, True])
+def test_bulk_max_laiya_group_survives_server_skill_selection(monkeypatch, language, existing):
+    token = resource_language.set(language)
+    try:
+        character_id = 1431003
+        group = [143321, 143328]
+        selected_id = group[1] if existing else group[0]
+        characters = [{"_id": character_id, "SkillList": [
+            {"_id": group[0], "Level": 3},
+            {"_id": group[1], "Level": 7, "server_future": True},
+        ]}] if existing else []
+        chars = Collection({"characters": characters, "equips": [], "fashions": [], "weaponFashions": []})
+        players = Collection({"gather_rewards": []})
+        template = resources.get_character_max_template_map()[character_id]
+        monkeypatch.setattr(player_characters_service, "get_character_max_template_map", lambda: {character_id: template})
+        monkeypatch.setattr(player_characters_service, "create_mongo_client", lambda _: Client({"characters": chars, "players": players}))
+        service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
+        asyncio.run(service.max_all_characters(42))
+        saved = chars.updates[-1][1]["$set"]["characters"][0]
+        selected = [row for row in saved["SkillList"] if row["_id"] in group]
+        assert len(selected) == 1
+        assert selected[0]["_id"] == selected_id
+        assert selected[0]["Level"] == 35
+        if existing:
+            assert selected[0]["server_future"] is True
+
+        # The server keeps the last existing skill in each group on load.
+        normalized = [next(row for row in reversed(saved["SkillList"]) if row["_id"] in ids)
+                      for ids in resources.get_character_skill_groups_map()[character_id]]
+        assert normalized == saved["SkillList"]
+        for value in (saved["SkillList"], normalized):
+            detail = player_characters_service._build_character_skill_info_list(
+                character_id, value, resources.get_character_skill_ids_map(),
+                resources.get_character_skill_entries_map(), resources.get_character_skill_groups_map(),
+            )
+            group_detail = [row for row in detail if row.SkillId in group]
+            assert len(group_detail) == 1
+            assert (group_detail[0].SkillId, group_detail[0].Level) == (selected_id, 35)
+    finally:
+        resource_language.reset(token)
 
 
 def test_delete_account_removes_every_player_rank_projection(monkeypatch):
@@ -242,7 +297,7 @@ def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language,
     try:
         template = resources.get_character_max_template_map()[character_id]
         monkeypatch.setattr(player_characters_service, "get_character_max_template_map", lambda: {character_id: template})
-        # Maximize every variant and preserve forward-compatible fields while rebuilding skills.
+        # Preserve the selected group skill and forward-compatible metadata.
         variant = 103518 if character_id == 1031005 else 153518
         chars = Collection({"characters": [{"_id": character_id, "SkillList": [
             {"_id": variant, "Level": 3, "server_future": True},
@@ -258,10 +313,10 @@ def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language,
                 asyncio.run(service.max_character(42, character_id))
             update = chars.updates[-1][1]["$set"]
             skills = {entry["_id"]: entry for entry in update["characters"][0]["SkillList"]}
-            assert set(skills) == set(resources.get_character_skill_ids_map()[character_id])
             for group in resources.get_character_skill_groups_map()[character_id]:
+                assert len(set(skills).intersection(group)) == 1
                 if variant in group:
-                    assert all(skills[skill_id]["Level"] == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"] for skill_id in group)
+                    assert set(skills).intersection(group) == {variant}
             for group_id, bonus in bonuses.items():
                 for skill_id in resources.get_character_skill_group_skill_ids_map()[group_id]:
                     if skill_id in skills:
