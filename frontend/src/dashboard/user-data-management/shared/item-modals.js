@@ -8,8 +8,18 @@ const {
   itemDeleteCloseTargets,
   itemDeleteConfirmButton,
 } = dom;
+const borderPactOption = document.querySelector('#character-max-border-pact-option');
+const borderPactCheckbox = document.querySelector('#character-max-border-pact');
+
+const showBorderPactOption = () => {
+  if (borderPactOption instanceof HTMLElement) borderPactOption.hidden = false;
+  if (borderPactCheckbox instanceof HTMLInputElement) borderPactCheckbox.checked = true;
+};
+
+const considerBorderPact = () => !(borderPactCheckbox instanceof HTMLInputElement) || borderPactCheckbox.checked;
 
 app.closeItemDeleteModal = () => {
+  if (borderPactOption instanceof HTMLElement) borderPactOption.hidden = true;
   state.pendingDeleteItem = null;
   state.pendingDeleteStage = null;
   state.pendingDeleteWeapon = null;
@@ -367,6 +377,7 @@ app.openClearMemoriesModal = (keyword, trigger) => {
 };
 
 app.openCharacterMaxAllModal = (character, trigger) => {
+  showBorderPactOption();
   if (
     !(itemDeleteModal instanceof HTMLElement) ||
     !(itemDeleteMessage instanceof HTMLElement) ||
@@ -405,6 +416,7 @@ app.openCharacterMaxAllModal = (character, trigger) => {
 };
 
 app.openCharacterManagementMaxAllModal = (trigger) => {
+  showBorderPactOption();
   if (
     !(itemDeleteModal instanceof HTMLElement) ||
     !(itemDeleteMessage instanceof HTMLElement) ||
@@ -506,14 +518,17 @@ app.confirmDeleteOrClearItems = async () => {
 
     if (state.pendingCharacterMaxAll) {
       const { recordId } = state.pendingCharacterMaxAll;
+      const includeBorderPact = considerBorderPact();
       app.closeItemDeleteModal();
-      await app.executeCharacterMaxAll(recordId);
+      await app.executeCharacterMaxAll(recordId, includeBorderPact);
       return;
     }
 
     if (state.pendingCharacterManagementMaxAll) {
       const payload = await app.apiFetch('/api/database-characters/selected/max-all', {
         method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ consider_border_pact: considerBorderPact() }),
       });
       app.closeItemDeleteModal();
       app.closeCharacterDetailModal?.();

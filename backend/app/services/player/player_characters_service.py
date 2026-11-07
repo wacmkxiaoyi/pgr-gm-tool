@@ -22,6 +22,7 @@ from backend.app.services.player.levelup_template import get_level_exp_map
 from backend.app.services.player.utils import matching_uid_query, normalize_search_keyword, ordered_number_key, ordered_text_key, parse_optional_int
 from backend.app.services.player.player_characters import (
     apply_character_max_weapon_skill_upgrades,
+    apply_character_max_border_pact_skill_upgrades,
     build_character_max_skills,
     get_character_add_config_map,
     get_character_Intro_map,
@@ -823,6 +824,7 @@ class PlayerCharactersService:
         weapon_fashions: list[dict[str, Any]],
         gather_rewards: set[int],
         template: dict[str, Any],
+        consider_border_pact: bool = True,
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[int]]:
         character_id = parse_optional_int(target_character.get("_id"))
         if character_id is None:
@@ -842,6 +844,8 @@ class PlayerCharactersService:
             apply_character_max_weapon_skill_upgrades(
                 character_id, parse_optional_int(weapon_template.get("TemplateId")), character_patch,
             )
+        if consider_border_pact:
+            apply_character_max_border_pact_skill_upgrades(character_id, character_patch)
         for field_name, field_value in character_patch.items():
             target_character[field_name] = field_value
 
@@ -1505,7 +1509,7 @@ class PlayerCharactersService:
             with contextlib.suppress(Exception):
                 client.close()
 
-    async def max_character(self, uid: int, record_id: int) -> MaxCharacterResponse:
+    async def max_character(self, uid: int, record_id: int, *, consider_border_pact: bool = True) -> MaxCharacterResponse:
         client = create_mongo_client(self._settings)
 
         try:
@@ -1555,6 +1559,7 @@ class PlayerCharactersService:
                 weapon_fashions=weapon_fashions,
                 gather_rewards=gather_rewards,
                 template=template,
+                consider_border_pact=consider_border_pact,
             )
 
             characters_update_payload = {
@@ -1586,7 +1591,7 @@ class PlayerCharactersService:
             with contextlib.suppress(Exception):
                 client.close()
 
-    async def max_all_characters(self, uid: int) -> MaxAllCharactersResponse:
+    async def max_all_characters(self, uid: int, *, consider_border_pact: bool = True) -> MaxAllCharactersResponse:
         client = create_mongo_client(self._settings)
 
         try:
@@ -1665,6 +1670,7 @@ class PlayerCharactersService:
                     weapon_fashions=weapon_fashions,
                     gather_rewards=gather_rewards,
                     template=template,
+                    consider_border_pact=consider_border_pact,
                 )
                 gather_rewards = set(updated_gather_rewards)
                 self._apply_max_partner_template(partners, character_id, template)

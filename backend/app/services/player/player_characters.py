@@ -13,6 +13,7 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
+from backend.app.services.player.constants import ASSIGN_CHAPTER_TSV_PATH, CHARACTER_SKILL_TYPE_TSV_PATH, CHARACTER_SKILL_TYPE_PLUS_TSV_PATH
 
 
 def _build_skill_entry(template_id: Any, name: Any, description: Any) -> dict[str, Any] | None:
@@ -110,6 +111,46 @@ def build_character_max_skills(character_id: int, existing_skills: Any = None) -
         if max_level > 0:
             result.append({**selected, "_id": skill_id, "Level": max_level})
     return result
+
+
+@lru_cache(maxsize=1)
+def get_character_skill_type_map() -> dict[int, int]:
+    return {
+        int(skill_id): int(skill_type)
+        for skill_id, skill_type in TSVReader(CHARACTER_SKILL_TYPE_TSV_PATH, typed=True).get_maps("Id", "Type")[0].items()
+    }
+
+
+@lru_cache(maxsize=1)
+def get_character_border_pact_skill_bonus_map() -> dict[int, dict[int, int]]:
+    """Full-garrison bonuses, independent of the player's current Assign state."""
+    skill_types = get_character_skill_type_map()
+    character_types = TSVReader(CHARACTER_TSV_PATH, typed=True).get_maps("Id", "Type")[0]
+    plus_rows = TSVReader(CHARACTER_SKILL_TYPE_PLUS_TSV_PATH, typed=True).get_sub_table("Id", ["CharacterType", "SkillType"])
+    chapter_plus_ids = TSVReader(ASSIGN_CHAPTER_TSV_PATH, typed=True).get_maps("ChapterId", "SkillPlusId")[0]
+    bonuses = [plus_rows[plus_id] for plus_id in chapter_plus_ids.values()]
+    result: dict[int, dict[int, int]] = {}
+    for character_id, groups in get_character_skill_groups_map().items():
+        character_type = character_types[character_id]
+        result[character_id] = {}
+        for skill_id in {skill_id for group in groups for skill_id in group}:
+            count = sum(
+                character_type in extract_int_list(plus, ["CharacterType"])
+                and skill_types.get(skill_id, 0) in extract_int_list(plus, ["SkillType"])
+                for plus in bonuses
+            )
+            if count:
+                result[character_id][skill_id] = count
+    return result
+
+
+def apply_character_max_border_pact_skill_upgrades(character_id: int, character: dict[str, Any]) -> None:
+    """Subtract from freshly maxed levels, after Harmony has reserved its room."""
+    bonuses = get_character_border_pact_skill_bonus_map().get(character_id, {})
+    for skill in character.get("SkillList", []):
+        bonus = bonuses.get(parse_int(skill.get("_id")), 0)
+        if bonus:
+            skill["Level"] = max(0, skill["Level"] - bonus)
 
 
 def apply_character_max_weapon_skill_upgrades(character_id: int, weapon_id: int | None, character: dict[str, Any]) -> None:

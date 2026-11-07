@@ -278,6 +278,10 @@ class UpdateCharacterSkillResponse(BaseModel):
     MaxLevel: int = 0
 
 
+class MaxCharacterRequest(BaseModel):
+    consider_border_pact: bool = True
+
+
 class MaxCharacterResponse(BaseModel):
     record_id: int
     CharacterId: int

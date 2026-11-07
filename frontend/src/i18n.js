@@ -915,6 +915,8 @@ const messages = {
       characterFashionUpdateFailed: '角色涂装切换失败。',
       characterWeaponFashionUpdateFailed: '武器涂装切换失败。',
       characterDetailMaxAllConfirmTitle: '确认一键全满',
+      characterMaxConsiderBorderPact: '考虑边界公约技能等级加成',
+      characterMaxConsiderBorderPactHint: '按全部公约加成生效预留技能等级，与当前通关及驻守状态无关。',
       characterDetailMaxAllConfirmSubmit: '确认继续',
       characterDetailMaxAllConfirm:
         '角色 {characterName} 当前穿戴的武器与意识会被重建，并穿戴拉满的推荐辅助机；原辅助机会保留。是否继续？',
@@ -1897,6 +1899,8 @@ const messages = {
       characterFashionUpdateFailed: 'Failed to switch character fashion.',
       characterWeaponFashionUpdateFailed: 'Failed to switch weapon fashion.',
       characterDetailMaxAllConfirmTitle: 'Confirm Max All',
+      characterMaxConsiderBorderPact: 'Account for Border Pact skill level bonuses',
+      characterMaxConsiderBorderPactHint: 'Reserve skill levels for all Border Pact bonuses, regardless of current completion or garrison status.',
       characterDetailMaxAllConfirmSubmit: 'Continue',
       characterDetailMaxAllConfirm:
         'The weapons and memories equipped by {characterName} will be recreated, and a maxed recommended CUB will be equipped. Existing CUBs are retained. Continue?',

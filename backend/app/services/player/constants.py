@@ -3,6 +3,9 @@ from pathlib import Path
 
 ATTRIB_POOL_TSV_PATH = Path("assets/AttribPool.tsv")
 CHARACTER_SKILL_TSV_PATH = Path("assets/CharacterSkill.tsv")
+CHARACTER_SKILL_TYPE_TSV_PATH = Path("assets/CharacterSkillType.tsv")
+CHARACTER_SKILL_TYPE_PLUS_TSV_PATH = Path("assets/CharacterSkillTypePlus.tsv")
+ASSIGN_CHAPTER_TSV_PATH = Path("assets/AssignChapter.tsv")
 CHARACTER_SKILL_GROUP_TSV_PATH = Path("assets/CharacterSkillGroup.tsv")
 CHARACTER_SKILL_POOL_TSV_PATH = Path("assets/CharacterSkillPool.tsv")
 CHARACTER_SKILL_LEVEL_EFFECT_TSV_PATH = Path("assets/CharacterSkillLevelEffect.tsv")

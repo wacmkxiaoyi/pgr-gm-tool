@@ -2438,7 +2438,7 @@ app.maxCurrentCharacterDetail = async () => {
   });
 };
 
-app.executeCharacterMaxAll = async (recordId) => {
+app.executeCharacterMaxAll = async (recordId, considerBorderPact = true) => {
   const normalizedRecordId = Number(recordId);
   if (!Number.isFinite(normalizedRecordId) || state.characterFashionSwitchPending) {
     return;
@@ -2452,6 +2452,8 @@ app.executeCharacterMaxAll = async (recordId) => {
   try {
     await app.apiFetch(`/api/database-characters/selected/${normalizedRecordId}/max-all`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ consider_border_pact: considerBorderPact }),
     });
 
     await app.loadSelectedAccountCharacters(state.characterManagementCurrentPage || 1);

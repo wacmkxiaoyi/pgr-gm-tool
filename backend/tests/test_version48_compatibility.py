@@ -226,7 +226,8 @@ def test_bulk_max_laiya_group_survives_server_skill_selection(monkeypatch, langu
         selected = [row for row in saved["SkillList"] if row["_id"] in group]
         assert len(selected) == 1
         assert selected[0]["_id"] == selected_id
-        assert selected[0]["Level"] == 35
+        expected_level = 35 - resources.get_character_border_pact_skill_bonus_map()[character_id].get(selected_id, 0)
+        assert selected[0]["Level"] == expected_level
         if existing:
             assert selected[0]["server_future"] is True
 
@@ -241,7 +242,7 @@ def test_bulk_max_laiya_group_survives_server_skill_selection(monkeypatch, langu
             )
             group_detail = [row for row in detail if row.SkillId in group]
             assert len(group_detail) == 1
-            assert (group_detail[0].SkillId, group_detail[0].Level) == (selected_id, 35)
+            assert (group_detail[0].SkillId, group_detail[0].Level) == (selected_id, expected_level)
     finally:
         resource_language.reset(token)
 
@@ -292,7 +293,8 @@ def test_bulk_max_preserves_skipped_character_and_assets(monkeypatch):
 @pytest.mark.parametrize("language", ["CN", "EN"])
 @pytest.mark.parametrize("bulk", [False, True])
 @pytest.mark.parametrize("character_id", [1031005, 1531005])
-def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language, bulk, character_id):
+@pytest.mark.parametrize("consider_border_pact", [None, False, True])
+def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language, bulk, character_id, consider_border_pact):
     token = resource_language.set(language)
     try:
         template = resources.get_character_max_template_map()[character_id]
@@ -302,15 +304,17 @@ def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language,
         chars = Collection({"characters": [{"_id": character_id, "SkillList": [
             {"_id": variant, "Level": 3, "server_future": True},
         ]}], "equips": [], "fashions": [], "weaponFashions": []})
-        players = Collection({"gather_rewards": []})
+        players = Collection({"gather_rewards": [], "assign": {"chapters": [], "groups": [], "teams": []}})
         monkeypatch.setattr(player_characters_service, "create_mongo_client", lambda _: Client({"characters": chars, "players": players}))
         service = PlayerCharactersService(SimpleNamespace(mongo_db="test"), DatabaseSchemaRuntime())
         bonuses = get_weapon_overrun_character_max_level_skill_upgrade_map()[template["weapon"]["TemplateId"]][character_id]
+        pact_bonuses = resources.get_character_border_pact_skill_bonus_map()[character_id] if consider_border_pact is not False else {}
+        options = {} if consider_border_pact is None else {"consider_border_pact": consider_border_pact}
         for _ in range(2):
             if bulk:
-                asyncio.run(service.max_all_characters(42))
+                asyncio.run(service.max_all_characters(42, **options))
             else:
-                asyncio.run(service.max_character(42, character_id))
+                asyncio.run(service.max_character(42, character_id, **options))
             update = chars.updates[-1][1]["$set"]
             skills = {entry["_id"]: entry for entry in update["characters"][0]["SkillList"]}
             for group in resources.get_character_skill_groups_map()[character_id]:
@@ -320,8 +324,16 @@ def test_single_and_bulk_max_reserve_harmony_skill_levels(monkeypatch, language,
             for group_id, bonus in bonuses.items():
                 for skill_id in resources.get_character_skill_group_skill_ids_map()[group_id]:
                     if skill_id in skills:
-                        assert skills[skill_id]["Level"] + bonus == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"]
-            assert skills[variant]["Level"] == resources.get_character_skill_entries_map()[variant]["MaxLevel"]
+                        assert skills[skill_id]["Level"] + bonus + pact_bonuses.get(skill_id, 0) == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"]
+            assert skills[variant]["Level"] + pact_bonuses.get(variant, 0) == resources.get_character_skill_entries_map()[variant]["MaxLevel"]
+            harmony_bonuses = {
+                skill_id: sum(bonus for group_id, bonus in bonuses.items()
+                              if skill_id in resources.get_character_skill_group_skill_ids_map()[group_id])
+                for skill_id in skills
+            }
+            for skill_id, skill in skills.items():
+                assert skill["Level"] + harmony_bonuses[skill_id] + pact_bonuses.get(skill_id, 0) == resources.get_character_skill_entries_map()[skill_id]["MaxLevel"]
+            assert "assign" not in players.updates[-1][1]["$set"]
             assert skills[variant]["server_future"] is True
             assert update["equips"][-1]["WeaponOverrunData"]["Level"] == 7
             chars.document.update(update)
