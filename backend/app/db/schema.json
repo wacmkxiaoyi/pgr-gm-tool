@@ -17,6 +17,10 @@
     }
   },
   "players[*]": {
+    "client_region": {
+      "type": "string",
+      "default": null
+    },
     "anniversary_preheating": {
       "type": "object",
       "schema": {
@@ -9641,13 +9645,6 @@
                 }
               }
             }
-          }
-        },
-        "rune_list": {
-          "type": "array",
-          "default": [],
-          "schema": {
-            "type": "number"
           }
         },
         "reward_ids": {

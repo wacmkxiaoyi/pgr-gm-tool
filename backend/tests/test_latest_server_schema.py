@@ -31,6 +31,7 @@ from backend.app.utils.resource_language import resource_language
 
 def _version49_sample():
     return {
+        'client_region': 'cn',
         'anniversary_preheating': {'activity_id': 1, 'groups': [
             {'group_id': 2, 'read_content_ids': [3, 4], 'reward_received': True}]},
         'pacman2': {'records': [{'stage_id': 7, 'highest_score': 12345}],
@@ -54,6 +55,11 @@ def _version49_sample():
 
 def test_version49_defaults_and_populated_bson():
     schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('client_region') is None
+    assert schema.materialize_subpath('client_region', None) is None
+    assert 'rune_list' not in schema.build_default('stronghold')
+    legacy = {'rune_list': [1, 7], 'future': {'nonce': 9}}
+    assert schema.sanitize_subpath('stronghold', legacy, fill_defaults=False) == legacy
     assert schema.build_default('anniversary_preheating') == {'activity_id': 0, 'groups': []}
     for path in ('pacman2', 'reform'):
         assert schema.build_default(path) is None
@@ -64,7 +70,7 @@ def test_version49_defaults_and_populated_bson():
     for path, value in _version49_sample().items():
         assert schema.sanitize_subpath(path, value, fill_defaults=False) == value
         normalized = schema.materialize_subpath(path, value)
-        decoded = BSON.encode(normalized).decode()
+        decoded = BSON.encode({'value': normalized}).decode()['value']
         assert decoded == normalized
     assert isinstance(decoded['gold'], Int64)
     assert isinstance(decoded['work_pos'][0]['v']['reserved_inputs'][0]['count'], Int64)
@@ -680,6 +686,7 @@ def _read_persisted_classes(server):
     files = list((server / 'AscNet.Common/Database/BigWorld').glob('*.cs')) + [
         server / 'AscNet.Common/Database/Inventory.cs',
         server / 'AscNet.Common/Database/Player.cs',
+        server / 'AscNet.Common/Database/Player.ClientRegion.cs',
         server / 'AscNet.Common/Database/Player.Passport.cs',
         server / 'AscNet.Common/Database/Player.Stronghold.cs',
         server / 'AscNet.Common/Database/Player.Transfinite.cs',
@@ -742,12 +749,16 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
     if not powershell or not driver.is_file() or not (server / 'AscNet.Common/Database/BigWorld').is_dir():
         pytest.skip('Requires InfiniteLoop source, Windows PowerShell and MongoDB.Bson 2.21.0')
     classes = _read_persisted_classes(server)
+    region = next(prop for prop in classes['Player'] if prop['name'] == 'ClientRegion')
+    assert region['type'].strip() == 'string?'
+    assert 'BsonElement("client_region")' in region['attrs']
     spent_totals = next(prop for prop in classes['Inventory'] if prop['name'] == 'SpentTotals')
     assert spent_totals['type'].strip() == 'Dictionary<string, long>'
     assert 'BsonElement("spent_totals")' in spent_totals['attrs']
     runtime = DatabaseSchemaRuntime()
     schema = runtime.get_collection_schema('players')
     roots = {
+        'client_region': 'string',
         'big_world_state': 'BigWorldPlayerState', 'purchase_daily_passes': 'Dictionary<uint, PlayerPurchaseDailyPass>',
         'pending_purchase': 'PlayerPendingPurchase', 'pending_recharge': 'PlayerPendingRecharge',
         'pending_partner_decompose': 'PartnerDecomposePendingOperation',
@@ -879,6 +890,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
     for name, value in _version49_sample().items():
         payload[name] = schema.materialize_subpath(name, value)
     if transfinite_state == 'absent':
+        payload['client_region'] = None
         payload['pacman2'] = payload['reform'] = None
     payload['transfinite'] = (None if transfinite_state == 'absent' else
                              schema.materialize_subpath('transfinite', _transfinite_sample(transfinite_state == 'paid')))

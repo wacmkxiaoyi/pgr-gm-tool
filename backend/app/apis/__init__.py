@@ -123,7 +123,7 @@ from backend.app.services.player.player_characters import (
     get_character_skill_pool_entries_map,
     get_character_trust_exp_map,
 )
-from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.player_items import get_item_name_map, get_item_weapon_fashion_map
 from backend.app.services.player.player_dorm import (
     get_dorm_template_entries_map,
     get_furniture_additional_attr_entries_map,
@@ -930,7 +930,7 @@ async def add_selected_database_items(
         if merged_items[item_id] > 99999:
             raise_http_error(422, "item.add_quantity_above_max", {"item_id": item_id})
 
-        if current_quantities.get(item_id, 0) + merged_items[item_id] > 99999:
+        if item_id not in get_item_weapon_fashion_map() and current_quantities.get(item_id, 0) + merged_items[item_id] > 99999:
             raise_http_error(422, "item.add_total_above_max", {"item_id": item_id})
 
     result = await items_service.add_inventory_items(

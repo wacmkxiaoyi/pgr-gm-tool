@@ -14,7 +14,7 @@ from backend.app.db.models import InventoryItemRecord, InventoryListResponse
 from backend.app.db.models.player_items import INVENTORY_COLLECTION_NAME, INVENTORY_ITEMS_SCHEMA_PATH, INVENTORY_ITEM_SCHEMA_PATH
 from backend.app.services.db_schema_runtime import DatabaseSchemaRuntime, CompiledCollectionSchema
 from backend.app.services.constants import DEFAULT_LIST_PAGE_SIZE
-from backend.app.services.player.player_items import get_item_name_map
+from backend.app.services.player.player_items import get_item_name_map, get_item_weapon_fashion_map
 from backend.app.services.player.utils import normalize_search_keyword, parse_optional_int
 
 
@@ -228,8 +228,38 @@ class PlayerItemsService:
         return result.modified_count > 0
 
     async def add_inventory_items(self, uid: int, items: list[dict[str, int]]) -> dict[str, int]:
+        fashion_map = get_item_weapon_fashion_map()
+        tickets = [item for item in items if item["item_id"] in fashion_map]
+        inventory_items = [item for item in items if item["item_id"] not in fashion_map]
+        created_count = 0
+        updated_count = 0
         client = create_mongo_client(self._settings)
         try:
+            if tickets:
+                characters = client[self._settings.mongo_db]["characters"]
+                for item in tickets:
+                    if item["quantity"] <= 0:
+                        continue
+                    fashion_id = fashion_map[item["item_id"]]
+                    # Target just this unlock, preserving equipped characters and future fields.
+                    result = await characters.update_one(
+                        {"uid": Int64(uid), "weaponFashions._id": fashion_id},
+                        {"$set": {"weaponFashions.$.ExpireTime": Int64(0)}},
+                    )
+                    if result.matched_count:
+                        updated_count += int(result.modified_count > 0)
+                        continue
+                    result = await characters.update_one(
+                        {"uid": Int64(uid), "weaponFashions._id": {"$ne": fashion_id}},
+                        {"$push": {"weaponFashions": {
+                            "_id": fashion_id, "ExpireTime": Int64(0), "UseCharacterList": [],
+                        }}},
+                    )
+                    if not result.matched_count:
+                        raise RuntimeError("Character document missing or weapon fashion changed; retry the grant")
+                    created_count += int(result.modified_count > 0)
+            if not inventory_items:
+                return {"added_count": len(items), "created_count": created_count, "updated_count": updated_count}
             collection = client[self._settings.mongo_db][INVENTORY_COLLECTION_NAME]
             document = await collection.find_one(
                 {"uid": Int64(uid)},
@@ -246,11 +276,9 @@ class PlayerItemsService:
                     continue
                 existing_item_by_id[item_id] = raw_item
 
-            created_count = 0
-            updated_count = 0
             existing_quantity_updates: dict[int, Int64] = {}
             new_items: list[dict[str, Any]] = []
-            for item in items:
+            for item in inventory_items:
                 item_id = int(item["item_id"])
                 quantity = int(item["quantity"])
 

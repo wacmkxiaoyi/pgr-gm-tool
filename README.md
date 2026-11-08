@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `ecc9c80ca1cff02873ef53cd42c2d435d53e4e2a`.
+> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `016e1b591c35fb2b0af58816aa92b9e4fb76a0c1`.
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -117,13 +117,21 @@ AUTO_UPDATE_TIMEOUT=20 bash quick_start.sh
 4. Open Database Management and confirm that the MongoDB status is healthy.
 5. Select an account before editing player profile, characters, weapons, memories, items, or stages.
 
+Use **Refresh Status** on the Database Management page to check MongoDB immediately. The result updates the cached status and history; automatic polling continues afterward.
+
+Single-character and all-character max actions keep one selected skill per skill group and reserve levels for the max weapon's Harmony bonuses. **Account for Border Pact skill level bonuses** is enabled by default and additionally reserves the full-garrison bonuses, regardless of the player's current Border Pact completion or garrison status. Disable it to omit that reservation. These actions preserve Border Pact progress and teams.
+
+Adding a weapon-coating ticket through item management permanently unlocks its mapped weapon fashion instead of adding a bag item. Existing timed unlocks become permanent, equipped characters are preserved, and repeated grants do not duplicate the unlock. The response counts newly unlocked fashions as created and timed-to-permanent changes as updated; an already permanent unlock adds neither count. Existing bag tickets are left for the server's migration/use logic.
+
+The server records the player's last client region in `client_region` (`null` for shared EN tables, or `cn`, `tw`, `kr`, `jp`). GM edits preserve it. The GM language selector controls its own CN/EN resource display; it does not change the player's client region or the server's regional task, mail, monthly-pass and recharge catalogs.
+
 Changing the rainbow-card balance in GM does not increase Total Recharge progress. The server tracks accumulated recharge separately from the item balance and credits it only for completed recharge products.
 
 First-pay progress is also separate: `total_pay_money` records completed recharge amounts in hundredths of `Pay.ShowAmount`, while `accumulated_pay_money` counts credited rainbow cards. Editing the GM balance does not advance either counter or claim first-pay rewards.
 
 Accumulated consumption is tracked separately in `inventory.spent_totals`, a BSON document keyed by item ID strings with Int64 totals. The server counts in-game debits after the accumulate-expend shop's saved baseline. GM balance changes and item deletion do not count as consumption, convert shop tokens, or reset shop sign-in and version-gift claim records.
 
-Daily and weekly task resets follow the server's configured reset boundaries. The server owns the `mission_progress.reset_epoch` migration marker, Passport season login counters, and Norman Revival Plan (Stronghold) daily settlement periods. GM profile and balance edits preserve these records. Direct balance or stage edits do not replay gameplay events to credit Passport tasks, settle Norman cycles, or award Clash Reflection (Transfinite) achievements.
+Daily and weekly task resets follow the server's configured reset boundaries. The server owns the `mission_progress.reset_epoch` migration marker, Passport season login counters, limited-time event task counters and claims, and Norman Revival Plan (Stronghold) daily settlement periods. GM profile and balance edits preserve these records. Direct balance or stage edits do not replay gameplay events to credit Passport or limited-time event tasks, settle Norman cycles, or award Clash Reflection (Transfinite) achievements. Norman runes now come from server tables rather than a persisted `stronghold.rune_list`; GM does not create that field in new state and preserves it in old records.
 
 Clash Reflection's legacy anchor-skipped payout repair runs on server login, once per eligible run, using the saved rotation history and inventory claim receipts. New payouts record `terminal_paid_group_id` and `terminal_skipped_score`; GM edits preserve these markers, timestamps and receipts. Changing balances or stage records does not perform the repair or recalculate War Zone area best scores or Pain Cage Intensive Battle strategy score bonuses. War Zone areas retain independent best scores even when they share a stage.
 
