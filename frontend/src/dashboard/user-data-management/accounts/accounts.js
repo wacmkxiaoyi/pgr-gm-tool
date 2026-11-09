@@ -222,6 +222,7 @@ app.renderAccountRows = (items) => {
                 data-account-action="password"
                 data-account-uid="${item?.uid ?? ''}"
                 data-account-username="${item?.username ?? ''}"
+                disabled
               >
                 ${app.translate('dashboard.accountResetPassword')}
               </button>
@@ -388,7 +389,7 @@ app.handleAccountActionClick = (event) => {
   }
 
   const button = target.closest('[data-account-action]');
-  if (!(button instanceof HTMLButtonElement)) {
+  if (!(button instanceof HTMLButtonElement) || button.disabled) {
     return;
   }
 

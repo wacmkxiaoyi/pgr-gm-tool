@@ -13,7 +13,7 @@ A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and
 
 ## Quick start for [AscNet Launcher](https://github.com/reiserFSs/InfiniteLoop/releases) Users
 
-1. Install Python (> 3.12), and clone the GM tool repo:
+1. Install [Python](https://www.python.org/downloads/) (> 3.12), and clone the GM tool repo:
     ```sh
     git clone git@github.com:wacmkxiaoyi/pgr-gm-tool.git
     ```
