@@ -8,6 +8,7 @@ from backend.app import apis
 from backend.app.db.models import MaxAllCharactersResponse, MaxCharacterResponse
 from backend.app.services.player import player_characters as resources
 from backend.app.utils.resource_language import resource_language
+from backend.app.utils.tsv_reader import TSVReader
 
 
 @pytest.mark.parametrize("language", ["CN", "EN"])
@@ -60,3 +61,36 @@ def test_max_api_forwards_border_pact_option(monkeypatch, bulk, body, expected):
         response = client.put(path, **({} if body is None else {"json": body}))
     assert response.status_code == 200, response.text
     assert calls == [(42, None if bulk else 1031005, expected)]
+
+
+@pytest.mark.parametrize('language', ['CN', 'EN'])
+@pytest.mark.parametrize('occupied_count', [0, 4, 8])
+@pytest.mark.parametrize('reserve', [False, True])
+def test_max_levels_with_actual_occupied_chapter_bonuses(language, occupied_count, reserve):
+    """Independent table oracle for bc3ff146 GetAssignmentLevels (not wire execution)."""
+    token = resource_language.set(language)
+    try:
+        chapters = TSVReader('assets/AssignChapter.tsv', typed=True).select(['ChapterId', 'SkillPlusId'])
+        plus_rows = TSVReader('assets/CharacterSkillTypePlus.tsv', typed=True).get_sub_table('Id', ['CharacterType', 'SkillType'])
+        character_types = TSVReader('assets/Character.tsv', typed=True).get_maps('Id', 'Type')[0]
+        skill_types = TSVReader('assets/CharacterSkillType.tsv', typed=True).get_maps('Id', 'Type')[0]
+        entries = resources.get_character_skill_entries_map()
+        for cid in resources.get_character_skill_groups_map():
+            character = {'SkillList': resources.build_character_max_skills(cid)}
+            if reserve:
+                resources.apply_character_max_border_pact_skill_upgrades(cid, character)
+            for skill in character['SkillList']:
+                additions = [
+                    int(character_types[cid] in plus_rows[row['SkillPlusId']]['CharacterType']
+                        and skill_types.get(skill['_id']) in plus_rows[row['SkillPlusId']]['SkillType'])
+                    for row in chapters
+                ]
+                actual_bonus = sum(additions[:occupied_count]) if skill['Level'] > 0 else 0
+                maximum = entries[skill['_id']]['MaxLevel']
+                assert skill['Level'] + actual_bonus == maximum - (sum(additions) if reserve else 0) + actual_bonus
+                if reserve:
+                    assert skill['Level'] + actual_bonus <= maximum
+                if reserve and occupied_count == len(chapters):
+                    assert skill['Level'] + actual_bonus == maximum
+    finally:
+        resource_language.reset(token)

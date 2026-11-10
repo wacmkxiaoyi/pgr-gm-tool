@@ -18,7 +18,8 @@ def test_mapping_uses_native_language_sources():
     assert mapping["EN/Character.tsv"].startswith("en/")
     assert mapping["CN/Character.tsv"].startswith("cn/")
     for table in ("Player.tsv", "HonorLevel.tsv", "Medal.tsv", "leveluptemplate/1.tsv",
-                  "TeamRecommendCharacterTarget.tsv", "TeamRecommendBaseCharacter.tsv"):
+                  "TeamRecommendCharacterTarget.tsv", "TeamRecommendBaseCharacter.tsv",
+                  "Config.tsv", "ExhibitionLimit.tsv"):
         assert mapping[f"EN/{table}"].startswith("en/")
         assert mapping[f"CN/{table}"] == mapping[f"EN/{table}"].replace("en/", "cn/", 1)
 

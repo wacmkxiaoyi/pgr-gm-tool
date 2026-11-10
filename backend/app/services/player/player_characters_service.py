@@ -24,6 +24,7 @@ from backend.app.services.player.player_characters import (
     apply_character_max_weapon_skill_upgrades,
     apply_character_max_border_pact_skill_upgrades,
     build_character_max_skills,
+    sync_character_liberate_ball_magic,
     get_character_add_config_map,
     get_character_Intro_map,
     get_character_default_fashion_id_map,
@@ -848,6 +849,7 @@ class PlayerCharactersService:
             apply_character_max_border_pact_skill_upgrades(character_id, character_patch)
         for field_name, field_value in character_patch.items():
             target_character[field_name] = field_value
+        sync_character_liberate_ball_magic(target_character)
 
         fashion_template = template.get("fashion") if isinstance(template.get("fashion"), dict) else {}
         selected_fashion_id = parse_optional_int(fashion_template.get("SelectedFashionId"))
@@ -1026,6 +1028,7 @@ class PlayerCharactersService:
             cleaned_gather_rewards.update(awaken_path[:awaken_level])
 
             target_character["LiberateLv"] = awaken_level
+            sync_character_liberate_ball_magic(target_character)
             self._unlock_exhibition_fashions(fashions, character_id, awaken_level)
 
             characters_result = await characters_collection.update_one(

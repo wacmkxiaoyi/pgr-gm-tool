@@ -50,6 +50,8 @@ ASSET_MAP = {
     "EquipResonance.tsv": "en/bytes/share/equip/EquipResonance.json",
     "EquipSuit.tsv": "en/bytes/share/equip/EquipSuit.json",
     "ExhibitionReward.tsv": "en/bytes/share/exhibition/ExhibitionReward.json",
+    "ExhibitionLimit.tsv": "en/bytes/share/exhibition/ExhibitionLimit.json",
+    "Config.tsv": "en/bytes/share/config/Config.json",
     "Fashion.tsv": "en/bytes/share/fashion/Fashion.json",
     "HeadPortrait.tsv": "en/bytes/share/headportrait/HeadPortrait.json",
     "HonorLevel.tsv": "en/bytes/share/player/HonorLevel.json",

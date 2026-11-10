@@ -49,6 +49,8 @@ def test_max_partner_reuses_and_preserves_ownership_and_forward_fields(monkeypat
         chars = Collection({"characters": [{"_id": cid} for cid in character_ids], "partners": existing,
                             "fashions": [], "equips": [], "weaponFashions": []})
         protected_state = {
+            "assign": {"chapters": [{"chapter_id": 2001, "character_id": 1011002}]},
+            "awareness": {"chapters": [{"chapter_id": 1, "character_id": 1011002}], "future": True},
             "client_region": "cn",
             "stronghold": {"rune_list": [1, 7], "future": True},
             "mission_progress": {"condition_counters": [{"k": 25001001, "v": 1234567}]},

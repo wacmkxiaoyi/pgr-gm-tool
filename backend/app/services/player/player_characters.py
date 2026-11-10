@@ -13,6 +13,7 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.services.player.levelup_template import get_level_per_exp, get_levelup_template_max_level, get_level_exp_map
 from backend.app.services.player.utils import extract_int_list, normalize_asset_path, normalize_int_text_map, parse_int
 from backend.app.utils.tsv_reader import TSVReader
+from backend.app.services.player.constants import CONFIG_TSV_PATH, EXHIBITION_LIMIT_TSV_PATH
 from backend.app.services.player.constants import ASSIGN_CHAPTER_TSV_PATH, CHARACTER_SKILL_TYPE_TSV_PATH, CHARACTER_SKILL_TYPE_PLUS_TSV_PATH
 
 
@@ -142,6 +143,33 @@ def get_character_border_pact_skill_bonus_map() -> dict[int, dict[int, int]]:
             if count:
                 result[character_id][skill_id] = count
     return result
+
+
+@lru_cache(maxsize=1)
+def get_character_ball_color_map() -> dict[int, int]:
+    return TSVReader(EXHIBITION_LIMIT_TSV_PATH, typed=True).get_maps("CharacterId", "SetBallColor")[0]
+
+
+@lru_cache(maxsize=1)
+def get_liberate_ball_magic_ids() -> list[int]:
+    values = TSVReader(CONFIG_TSV_PATH).get_maps("Key", "Value", "Key = 'HigherLiberateLvMagicId'")[0]
+    return [int(value) for value in values["HigherLiberateLvMagicId"].split("|")]
+
+
+def sync_character_liberate_ball_magic(character: dict[str, Any]) -> None:
+    """Match server Super initialization; GM downgrades remove only known ball effects."""
+    # XEnumConst.CHARACTER.GrowUpLevel.Super, also used by EnsureLiberateBallMagic.
+    super_liberate_level = 5
+    magic_ids = get_liberate_ball_magic_ids()
+    magic_list = character.get("MagicList")
+    if (parse_int(character.get("LiberateLv")) or 0) < super_liberate_level:
+        if isinstance(magic_list, list):
+            character["MagicList"] = [
+                row for row in magic_list
+                if not isinstance(row, dict) or parse_int(row.get("_id")) not in magic_ids
+            ]
+    elif not magic_list and (get_character_ball_color_map().get(parse_int(character.get("_id")), 0) or 0) > 0:
+        character["MagicList"] = [{"_id": magic_ids[0], "Level": 1}]
 
 
 def apply_character_max_border_pact_skill_upgrades(character_id: int, character: dict[str, Any]) -> None:

@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `016e1b591c35fb2b0af58816aa92b9e4fb76a0c1`.
+> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `bc3ff146eae5f2687c7c2d85e14091dfd4601799`.
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -120,6 +120,12 @@ AUTO_UPDATE_TIMEOUT=20 bash quick_start.sh
 Use **Refresh Status** on the Database Management page to check MongoDB immediately. The result updates the cached status and history; automatic polling continues afterward.
 
 Single-character and all-character max actions keep one selected skill per skill group and reserve levels for the max weapon's Harmony bonuses. **Account for Border Pact skill level bonuses** is enabled by default and additionally reserves the full-garrison bonuses, regardless of the player's current Border Pact completion or garrison status. Disable it to omit that reservation. These actions preserve Border Pact progress and teams.
+
+InfiniteLoop now sends the actual occupied Border Pact chapters' bonuses as `CharacterSkillPlus` in battle. Full-garrison reservation is not a grant of those bonuses: an empty or partially occupied Border Pact can leave effective levels below the full-garrison target. Disabling reservation can put effective levels above the authored maximum once chapters are occupied.
+
+Raising liberation to Super (level 5), including max actions, initializes an empty `MagicList` to the first configured ball colour for characters with `ExhibitionLimit.SetBallColor`. An existing selection and its metadata are preserved. Lowering liberation below Super removes only the ball IDs listed in `Config.HigherLiberateLvMagicId`, preserving unrelated magic. Ball magic is a battle effect, not an increase to character skill levels.
+
+Hypertuned Memory battle effects depend on occupied Awareness guard chapters and the deployed character's own memory `AwakeSlotList` at each chapter's Site. Max actions provide the configured hypertune slots but preserve Awareness occupancy and teams; they do not occupy chapters. `CharacterSkillPlus`, `MagicIds`, `FightEventsWithLevel` and `AwarenessSetPositions` are derived by the server, not saved as extra GM fields.
 
 Adding a weapon-coating ticket through item management permanently unlocks its mapped weapon fashion instead of adding a bag item. Existing timed unlocks become permanent, equipped characters are preserved, and repeated grants do not duplicate the unlock. The response counts newly unlocked fashions as created and timed-to-permanent changes as updated; an already permanent unlock adds neither count. Existing bag tickets are left for the server's migration/use logic.
 
