@@ -29,6 +29,63 @@ from backend.app.services.player.equips.partner import build_partner_max_save_te
 from backend.app.utils.resource_language import resource_language
 
 
+def _trpg_sample(examining=True):
+    return {
+        'cn_first_pay_client_version': '4.9.0',
+        'trpg': {
+            'cur_target_link': 10001, 'targets': [10001, 10002], 'rewards': [1],
+            'functions': [2], 'memoirs': [3], 'is_normal_page': True,
+            'endurance': 37, 'endurance_period': Int64(2**40),
+            'roles': [{'_id': 1, 'talents': [2, 3],
+                       'buffs': [{'_id': 4, 'period': Int64(2**40 + 1)}]}],
+            'examines_passed': [5],
+            'examine': {'examine': 6, 'action': 7, 'round': 2,
+                        'scores': [{'role': 1, 'score': 9}, {'role': 2, 'score': 0}],
+                        'carried': 12} if examining else None,
+            'reward_seq': Int64(2**40 + 2),
+        },
+        'trpg_maze': {'finished_cards': [8, 9]},
+        'trpg_shop_boss': {
+            'shop_buys': [{'shop_id': 1, 'item_id': 2, 'count': 3}],
+            'shop_day': Int64(2**40), 'shop_serial': 17,
+            'boss_lose_hp': Int64(2**40 + 3), 'boss_challenge_count': 2,
+            'boss_challenge_day': Int64(2**40 + 1), 'boss_phase_rewards': [1, 3],
+        },
+    }
+
+
+@pytest.mark.parametrize('examining', [False, True])
+def test_trpg_defaults_legacy_progress_and_bson(examining):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    assert schema.build_default('cn_first_pay_client_version') is None
+    assert schema.build_default('player_data.PointRecordInfo') == []
+    assert schema.build_default('player_data.PointRecordInfo.0') == {'_id': 0, 'PointTypes': []}
+    assert schema.build_default('trpg') == {
+        'cur_target_link': 0, 'targets': [], 'rewards': [], 'functions': [], 'memoirs': [],
+        'is_normal_page': False, 'endurance': 0, 'endurance_period': 0,
+        'roles': [], 'examines_passed': [], 'examine': None, 'reward_seq': 0,
+    }
+    assert schema.build_default('trpg_maze') == {'finished_cards': []}
+    assert schema.build_default('trpg_shop_boss') == {
+        'shop_buys': [], 'shop_day': 0, 'shop_serial': 0, 'boss_lose_hp': 0,
+        'boss_challenge_count': 0, 'boss_challenge_day': 0, 'boss_phase_rewards': [],
+    }
+    assert not schema.allows_update_path('trpg_maze_run')
+    assert schema.materialize_subpath('trpg.examine', None) is None
+    for path, value in _trpg_sample(examining).items():
+        assert schema.sanitize_subpath(path, value, fill_defaults=False) == value
+        normalized = schema.materialize_subpath(path, value)
+        assert BSON.encode({'value': normalized}).decode()['value'] == value
+    trpg = BSON.encode(schema.materialize_subpath('trpg', _trpg_sample(examining)['trpg'])).decode()
+    assert isinstance(trpg['reward_seq'], Int64)
+    assert isinstance(trpg['roles'][0]['buffs'][0]['period'], Int64)
+    legacy = schema.materialize_subpath('trpg', {'targets': [1], 'future': {'nonce': 9}})
+    assert legacy['targets'] == [1] and legacy['examine'] is None
+    assert legacy['future'] == {'nonce': 9} and legacy['reward_seq'] == 0
+    points = [{'_id': 1, 'PointTypes': [2, 3], 'future': True}]
+    assert schema.materialize_subpath('player_data.PointRecordInfo', points) == points
+
+
 def _version49_sample():
     return {
         'client_region': 'cn',
@@ -499,6 +556,9 @@ def test_stage_edit_does_not_reset_boss_period(monkeypatch):
     assert set(updates[0]) == {'$push'} and set(updates[0]['$push']) == {'stages'}
     asyncio.run(service.clear_stages(42))
     assert updates[1] == {'$set': {'stages': []}}
+    document['stages'] = [{'k': 1, 'v': {'StageId': 1, 'Passed': True}}]
+    asyncio.run(service.delete_stage(42, 1))
+    assert updates[2] == {'$pull': {'stages': {'v.StageId': 1}}}
 
 
 @pytest.mark.parametrize('money,selections', [(0, []), (2**40 + 60, [101, 102, 101])])
@@ -526,8 +586,10 @@ def test_accumulated_pay_and_pending_choice_survive_bson(money, selections):
 def test_profile_and_rainbow_edits_only_update_requested_fields(monkeypatch, epoch):
     runtime = DatabaseSchemaRuntime()
     writes = []
-    players = {'_id': 'player', 'player_data': {'Name': 'original'},
-               **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch), **_version49_sample(),
+    players = {'_id': 'player', 'player_data': {
+                   'Name': 'original', 'PointRecordInfo': [{'_id': 1, 'PointTypes': [2, 3]}]},
+                 **_everyday_sample(), **_small_rewards_sample(), **_reset_cycle_sample(epoch), **_version49_sample(),
+               **_trpg_sample(examining=bool(epoch)),
                'transfinite': _transfinite_sample(paid=bool(epoch)), 'simulated_battlefield': _arena_sample(),
                'boss_inshot': {'characters': [{'character_id': 1011002, 'selected_talents': [7, 0, 9]}]},
                'version47_concert_preheating': {'activity_id': 1, 'completed_stage_ids': [101, 109]}}
@@ -694,6 +756,9 @@ def _read_persisted_classes(server):
         server / 'AscNet.Common/Database/Player.PacMan2.cs',
         server / 'AscNet.Common/Database/Player.Reform.cs',
         server / 'AscNet.Common/Database/Player.SkyTower.cs',
+        server / 'AscNet.Common/Database/Player.Trpg.cs',
+        server / 'AscNet.Common/Database/Player.Trpg.Maze.cs',
+        server / 'AscNet.Common/Database/Player.Trpg.ShopBoss.cs',
         server / 'AscNet.Common/Database/Player.Archive.cs',
         server / 'AscNet.Common/Database/Player.FavorMemory.cs',
         server / 'AscNet.Common/Database/Player.SmallRewards.cs',
@@ -736,7 +801,10 @@ def _read_persisted_classes(server):
             if not end:
                 continue
             body = text[match.end():match.end() + end.start()]
-            properties = list(pattern.finditer(body))
+            # Nested classes (e.g. TrpgShopBossState.ShopBuy) are emitted
+            # separately; their properties must not leak into the parent.
+            properties = [prop for prop in pattern.finditer(body)
+                          if body[:prop.start()].count('{') == body[:prop.start()].count('}')]
             classes.setdefault(match['name'], []).extend(properties)
     return classes
 
@@ -759,6 +827,11 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
     schema = runtime.get_collection_schema('players')
     roots = {
         'client_region': 'string',
+        'cn_first_pay_client_version': 'string',
+        'trpg': 'TrpgState',
+        'trpg_maze': 'TrpgMazeState',
+        'trpg_shop_boss': 'TrpgShopBossState',
+        'player_data.PointRecordInfo': 'List<PlayerPointRecord>',
         'big_world_state': 'BigWorldPlayerState', 'purchase_daily_passes': 'Dictionary<uint, PlayerPurchaseDailyPass>',
         'pending_purchase': 'PlayerPendingPurchase', 'pending_recharge': 'PlayerPendingRecharge',
         'pending_partner_decompose': 'PartnerDecomposePendingOperation',
@@ -887,10 +960,15 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
 
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
     payload.update(_small_rewards_sample())
+    payload.update(_trpg_sample(examining=transfinite_state == 'paid'))
+    payload['player_data.PointRecordInfo'] = [{'_id': 1, 'PointTypes': [2, 3]}]
     for name, value in _version49_sample().items():
         payload[name] = schema.materialize_subpath(name, value)
     if transfinite_state == 'absent':
         payload['client_region'] = None
+        payload['cn_first_pay_client_version'] = None
+        for name in ('trpg', 'trpg_maze', 'trpg_shop_boss', 'player_data.PointRecordInfo'):
+            payload[name] = schema.build_default(name)
         payload['pacman2'] = payload['reform'] = None
     payload['transfinite'] = (None if transfinite_state == 'absent' else
                              schema.materialize_subpath('transfinite', _transfinite_sample(transfinite_state == 'paid')))

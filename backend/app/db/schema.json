@@ -17,6 +17,195 @@
     }
   },
   "players[*]": {
+    "trpg": {
+      "type": "object",
+      "schema": {
+        "cur_target_link": {
+          "type": "number",
+          "default": 0
+        },
+        "targets": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "rewards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "functions": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "memoirs": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "is_normal_page": {
+          "type": "boolean",
+          "default": false
+        },
+        "endurance": {
+          "type": "number",
+          "default": 0
+        },
+        "endurance_period": {
+          "type": "number",
+          "default": 0
+        },
+        "roles": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "talents": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            },
+            "buffs": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "_id": {
+                  "type": "number",
+                  "default": 0
+                },
+                "period": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        },
+        "examines_passed": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        },
+        "examine": {
+          "type": "object",
+          "default": null,
+          "schema": {
+            "examine": {
+              "type": "number",
+              "default": 0
+            },
+            "action": {
+              "type": "number",
+              "default": 0
+            },
+            "round": {
+              "type": "number",
+              "default": 0
+            },
+            "scores": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "role": {
+                  "type": "number",
+                  "default": 0
+                },
+                "score": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            },
+            "carried": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "reward_seq": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "trpg_maze": {
+      "type": "object",
+      "schema": {
+        "finished_cards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "trpg_shop_boss": {
+      "type": "object",
+      "schema": {
+        "shop_buys": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "shop_id": {
+              "type": "number",
+              "default": 0
+            },
+            "item_id": {
+              "type": "number",
+              "default": 0
+            },
+            "count": {
+              "type": "number",
+              "default": 0
+            }
+          }
+        },
+        "shop_day": {
+          "type": "number",
+          "default": 0
+        },
+        "shop_serial": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_lose_hp": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_count": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_challenge_day": {
+          "type": "number",
+          "default": 0
+        },
+        "boss_phase_rewards": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "type": "number"
+          }
+        }
+      }
+    },
     "client_region": {
       "type": "string",
       "default": null
@@ -446,6 +635,10 @@
     "total_pay_money": {
       "type": "number",
       "default": 0
+    },
+    "cn_first_pay_client_version": {
+      "type": "string",
+      "default": null
     },
     "first_pay_reward_ids": {
       "type": "array",
@@ -3743,6 +3936,23 @@
         "NewPlayerTaskActiveUi": {
           "type": "number",
           "default": 0
+        },
+        "PointRecordInfo": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "_id": {
+              "type": "number",
+              "default": 0
+            },
+            "PointTypes": {
+              "type": "array",
+              "default": [],
+              "schema": {
+                "type": "number"
+              }
+            }
+          }
         },
         "ChangeGenderTime": {
           "type": "number",
