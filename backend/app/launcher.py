@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,6 +21,8 @@ def running_under_wine() -> bool:
 
 
 def default_launcher_path() -> str:
+    if sys.platform == 'darwin':
+        return str(Path.home() / 'Library' / 'Application Support' / 'AscNetLauncher' / 'local')
     base = os.environ.get('LOCALAPPDATA')
     return str(Path(base) / 'AscNetLauncher' / 'local') if base else ''
 

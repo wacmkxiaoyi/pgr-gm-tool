@@ -7,18 +7,25 @@ from types import SimpleNamespace
 import pytest
 
 from backend.app.config import Settings
+from backend.app import launcher
 from backend.app.launcher import load_launcher_build
 from backend.app.services import launcher_runtime
 from backend.app.services.launcher_runtime import LauncherRuntime, matching_servers
 from backend.app.services.server_control import ServerController
 
 
-@pytest.fixture
-def local_build(tmp_path, monkeypatch):
-    root = tmp_path / 'AscNetLauncher' / 'local'
+@pytest.fixture(params=['windows', 'macos'])
+def local_build(tmp_path, monkeypatch, request):
+    macos = request.param == 'macos'
+    monkeypatch.setattr(launcher, 'sys', SimpleNamespace(platform='darwin' if macos else 'win32'))
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    base = tmp_path / 'Library' / 'Application Support' if macos else tmp_path
+    root = base / 'AscNetLauncher' / 'local'
     server = root / 'build' / ('9' * 40) / 'server'
     (server / 'Configs').mkdir(parents=True)
-    for name in ('AscNet.dll', 'dotnet.exe', 'mongod.exe'):
+    dotnet = 'dotnet' if macos else 'dotnet.exe'
+    mongod = 'mongod' if macos else 'mongod.exe'
+    for name in ('AscNet.dll', dotnet, mongod):
         (server / name).touch()
     config = {'GameServer': {'Host': '127.0.0.1', 'Port': 42002},
               'Database': {'Host': '127.0.0.1', 'Port': 42003, 'Name': 'asc_net'},
@@ -26,13 +33,41 @@ def local_build(tmp_path, monkeypatch):
     (server / 'Configs' / 'config.json').write_text(json.dumps(config), encoding='utf-8')
     (root / 'config.json').write_text(json.dumps(config), encoding='utf-8')
     state = {'schemaVersion': 1, 'serverDirectory': str(server), 'resourceDirectory': str(server),
-             'dotnet': str(server / 'dotnet.exe'), 'mongod': str(server / 'mongod.exe'),
+             'dotnet': str(server / dotnet), 'mongod': str(server / mongod),
              'sdkPort': 42001, 'gamePort': 42002, 'mongoPort': 42003}
     (root / 'build-state.json').write_text(json.dumps(state), encoding='utf-8')
     monkeypatch.setenv('LOCALAPPDATA', str(tmp_path))
     monkeypatch.delenv('ASCNET_LAUNCHER_PATH', raising=False)
     monkeypatch.delenv('ENABLE_SERVER_MANAGEMENT', raising=False)
     return load_launcher_build(str(root))
+
+
+@pytest.mark.parametrize('platform,localappdata,expected', [
+    ('win32', True, 'windows'),
+    ('win32', False, ''),
+    ('darwin', True, 'macos'),
+    ('darwin', False, 'macos'),
+    ('linux', False, ''),
+])
+def test_default_launcher_path_by_platform(tmp_path, monkeypatch, platform, localappdata, expected):
+    monkeypatch.setattr(launcher, 'sys', SimpleNamespace(platform=platform))
+    monkeypatch.setattr(Path, 'home', classmethod(lambda cls: tmp_path))
+    if localappdata:
+        monkeypatch.setenv('LOCALAPPDATA', str(tmp_path / 'windows'))
+    else:
+        monkeypatch.delenv('LOCALAPPDATA', raising=False)
+    base = tmp_path / 'windows' if expected == 'windows' else tmp_path / 'Library' / 'Application Support'
+    assert launcher.default_launcher_path() == (str(base / 'AscNetLauncher' / 'local') if expected else '')
+
+
+def test_explicit_launcher_path_precedence(local_build, tmp_path, monkeypatch):
+    missing = str(tmp_path / 'missing launcher')
+    monkeypatch.setenv('ASCNET_LAUNCHER_PATH', missing)
+    assert Settings().launcher_build is None
+    assert Settings({'ASCNET_LAUNCHER_PATH': str(local_build.root)}).launcher_build == local_build
+    monkeypatch.setenv('ASCNET_LAUNCHER_PATH', str(local_build.root))
+    assert Settings().launcher_build == local_build
+    assert Settings({'ASCNET_LAUNCHER_PATH': ''}).launcher_build is None
 
 
 def test_default_discovery_overrides_paths_ports_and_uri(local_build):

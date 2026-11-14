@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `716e3f239c0b67b36f9f2c1601e44258a3a45816`.
+> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `78084f23d51545689aa9c5b8608730ceb15d458e` (Launcher 1.0.25).
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -66,7 +66,15 @@ Install Python 3.12+ and run from the project directory:
 bash quick_start.sh
 ```
 
-The script creates `.venv`, installs dependencies and starts the application. Server process management defaults to disabled on this path. Connect to your MongoDB using environment variables or CLI options:
+The script creates `.venv`, installs dependencies and starts the application. With the native macOS AscNet Launcher, the application automatically reads `~/Library/Application Support/AscNetLauncher/local/build-state.json` and uses its native .NET/MongoDB paths and assigned ports. Complete Launcher setup first. Server process management defaults to disabled; use `--ENABLE_SERVER_MANAGEMENT true` to enable GM's server controls.
+
+To use a different Launcher root:
+
+```bash
+bash quick_start.sh --ASCNET_LAUNCHER_PATH "$HOME/Library/Application Support/AscNetLauncher/local"
+```
+
+Without a Launcher build, connect to MongoDB using environment variables or CLI options:
 
 ```bash
 bash quick_start.sh --MONGO_HOST 127.0.0.1 --MONGO_PORT 27017 --MONGO_DB asc_net --APP_PORT 8000
@@ -197,7 +205,7 @@ The application and both quick-start scripts default to `false`, including when 
 
 #### AscNet Launcher Integration
 
-`ASCNET_LAUNCHER_PATH` defaults to `%LOCALAPPDATA%\AscNetLauncher\local` on Windows, and empty when `LOCALAPPDATA` is unavailable. An empty value disables discovery. When no `build-state.json` exists there, ordinary configuration is used. A present but invalid build produces a descriptive startup error.
+`ASCNET_LAUNCHER_PATH` defaults to `%LOCALAPPDATA%\AscNetLauncher\local` on Windows and `~/Library/Application Support/AscNetLauncher/local` on macOS. On other platforms it uses `LOCALAPPDATA` when available, otherwise empty. An explicit path overrides automatic discovery; an empty value disables it. When no `build-state.json` exists there, ordinary configuration is used. A present but invalid build produces a descriptive startup error.
 
 Connection/runtime selection uses this precedence: **Launcher state > service directory/configuration > manual connection parameters** (including `MONGO_URI`). Within each option, CLI values override environment values.
 
@@ -218,7 +226,7 @@ When enabled, these settings are available:
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `ASCNET_LAUNCHER_PATH` | `%LOCALAPPDATA%\AscNetLauncher\local` on Windows | Discover a local Launcher build and automatically configure server/database paths and ports. |
+| `ASCNET_LAUNCHER_PATH` | Windows: `%LOCALAPPDATA%\AscNetLauncher\local`; macOS: `~/Library/Application Support/AscNetLauncher/local` | Discover a local Launcher build and automatically configure server/database paths and ports. |
 | `HEALTHY_CHECK_INTERVAL` | `60` | Server and database health-check interval in seconds. |
 | `SERVER_PATH` | `/root/wacmk-pgr-server` | Server directory containing the executable and `Configs/config.json`. |
 | `SERVER_BINARY_FILE` | `Wacmk.Pgr.Server` | Server executable file name. |
