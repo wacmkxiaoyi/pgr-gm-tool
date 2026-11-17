@@ -2,7 +2,7 @@
 
 A FastAPI-based administration tool for PGR private servers (e.g., `AscNet`) and player data. The backend serves the static frontend, so only one process is required to run the application.
 
-> Current support: InfiniteLoop 4.9 (game version 4.9.4), synchronized with commit `78084f23d51545689aa9c5b8608730ceb15d458e` (Launcher 1.0.25).
+> Current support: InfiniteLoop 4.9, synchronized with commit `8fe0b0ad9109e6554e9a9b465e8293751509b635` (Launcher 1.0.28). GM resources remain from the previously imported PGR_Data snapshot; the latest EN stage-name changes are pending a refreshed source.
 
 >[!TIP]
 >If you have any setup question about this tool, it is a good choice to use "Chat with Copilot"
@@ -150,6 +150,8 @@ Accumulated consumption is tracked separately in `inventory.spent_totals`, a BSO
 Daily and weekly task resets follow the server's configured reset boundaries. The server owns the `mission_progress.reset_epoch` migration marker, Passport season login counters, limited-time event task counters and claims, and Norman Revival Plan (Stronghold) daily settlement periods. GM profile and balance edits preserve these records. Direct balance or stage edits do not replay gameplay events to credit Passport or limited-time event tasks, settle Norman cycles, or award Clash Reflection (Transfinite) achievements. Norman runes now come from server tables rather than a persisted `stronghold.rune_list`; GM does not create that field in new state and preserves it in old records.
 
 Clash Reflection's legacy anchor-skipped payout repair runs on server login, once per eligible run, using the saved rotation history and inventory claim receipts. New payouts record `terminal_paid_group_id` and `terminal_skipped_score`; GM edits preserve these markers, timestamps and receipts. Changing balances or stage records does not perform the repair or recalculate War Zone area best scores or Pain Cage Intensive Battle strategy score bonuses. War Zone areas retain independent best scores even when they share a stage.
+
+GM edits preserve the server's `/warzone` difficulty fluctuation and zone override, area/stage best-run wave records, and `/ppc` Intensive Battle boss/weakness selections. War Zone wave records are keyed by both area and stage, so areas sharing a stage keep separate timers and scores. Raw stage edits do not reset these records, challenge attempts or weekly progression. `/warzone dmg` changes install-wide scoring in the server runtime's `Configs/simulated_battlefield.local.json`; it is separate from player data and GM's `config.json` editor. Launcher 1.0.28 retains the version-1 build-state contract; client patch updates remain managed by Launcher Setup/Play.
 
 Stage management edits raw completion records only. It does not synchronize CerberusGame story points, route choices, star-reward claims, or activity teams; those are separate server-owned activity state.
 

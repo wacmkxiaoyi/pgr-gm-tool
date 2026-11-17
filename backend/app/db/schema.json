@@ -4666,6 +4666,14 @@
           "type": "number",
           "default": 0
         },
+        "arena_fluctuation_level": {
+          "type": "number",
+          "default": 0
+        },
+        "arena_zone_override_area_id": {
+          "type": "number",
+          "default": 0
+        },
         "arena_join_activity": {
           "type": "number",
           "default": 0
@@ -4699,6 +4707,19 @@
             },
             "v": {
               "type": "number"
+            }
+          }
+        },
+        "arena_area_stage_best_records": {
+          "type": "array",
+          "default": [],
+          "schema": {
+            "k": {
+              "type": "string"
+            },
+            "v": {
+              "type": "object",
+              "default": {}
             }
           }
         },

@@ -169,7 +169,33 @@ def _transfinite_inventory_sample():
 def _arena_sample():
     # Two areas can share the same stage without sharing their best score.
     return {'arena_point': 350, 'arena_area_max_points': [{'k': 1, 'v': 200}, {'k': 2, 'v': 150}],
-            'arena_stage_max_points': [{'k': 101, 'v': 200}]}
+            'arena_stage_max_points': [{'k': 101, 'v': 200}],
+            'arena_fluctuation_level': 770, 'arena_zone_override_area_id': 2,
+            'arena_area_stage_best_records': [
+                {'k': '1:101', 'v': {'WaveCostTimes': [100, 220], 'TimePointScore': [90, 180]}},
+                {'k': '2:101', 'v': {'WaveCostTimes': [300], 'TimePointScore': []}}],
+            'boss_challenge_selected_section': 7, 'boss_challenge_selected_feature_group': 8}
+
+
+@pytest.mark.parametrize('populated', [False, True])
+def test_warzone_settings_and_area_records_survive_bson(populated):
+    schema = DatabaseSchemaRuntime().get_collection_schema('players')
+    root = 'simulated_battlefield'
+    assert schema.build_default(root + '.arena_fluctuation_level') == 0
+    assert schema.build_default(root + '.arena_zone_override_area_id') == 0
+    assert schema.build_default(root + '.arena_area_stage_best_records') == []
+    value = _arena_sample() if populated else {'arena_point': 42}
+    value['future'] = {'nonce': Int64(2**40)}
+    assert schema.sanitize_subpath(root, value, fill_defaults=False) == value
+    normalized = schema.materialize_subpath(root, value)
+    decoded = BSON.encode(normalized).decode()
+    assert decoded == normalized
+    assert decoded['future'] == value['future']
+    for key, expected in value.items():
+        assert decoded[key] == expected
+    if not populated:
+        assert decoded['arena_fluctuation_level'] == decoded['arena_zone_override_area_id'] == 0
+        assert decoded['arena_area_stage_best_records'] == []
 
 
 @pytest.mark.parametrize('paid', [False, True])
@@ -823,6 +849,17 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
     spent_totals = next(prop for prop in classes['Inventory'] if prop['name'] == 'SpentTotals')
     assert spent_totals['type'].strip() == 'Dictionary<string, long>'
     assert 'BsonElement("spent_totals")' in spent_totals['attrs']
+    arena_properties = {prop['name']: prop for prop in classes['SimulatedBattlefieldState']}
+    arena_types = {
+        'ArenaFluctuationLevel': ('arena_fluctuation_level', 'int'),
+        'ArenaZoneOverrideAreaId': ('arena_zone_override_area_id', 'int'),
+        'ArenaAreaStageBestRecords': ('arena_area_stage_best_records', 'Dictionary<string, Dictionary<string, List<int>>>'),
+    }
+    for member, (field, type_name) in arena_types.items():
+        prop = arena_properties[member]
+        assert prop['type'].strip() == type_name
+        assert f'BsonElement("{field}")' in prop['attrs']
+    assert 'DictionaryRepresentation.ArrayOfDocuments' in arena_properties['ArenaAreaStageBestRecords']['attrs']
     runtime = DatabaseSchemaRuntime()
     schema = runtime.get_collection_schema('players')
     roots = {
@@ -879,6 +916,7 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
         'accumulate_expend_shop': 'AccumulateExpendShopState',
         'spent_totals': 'Dictionary<string, long>',
     }
+    roots.update({f'simulated_battlefield.{field}': type_name for field, type_name in arena_types.values()})
     primitives = {'int', 'uint', 'long', 'float', 'double', 'bool', 'string', 'byte', 'object', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Boolean', 'String', 'Single', 'Double', 'Byte', 'List', 'Dictionary', 'HashSet', 'dynamic'}
     emitted = set()
     declarations = []
@@ -909,6 +947,8 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
             key, value_type = inner.split(',', 1)
             if node['type'] == 'object':
                 inner_type = value_type.strip()
+                if inner_type == 'List<int>':
+                    return {'WaveCostTimes': [1, 2], 'TimePointScore': []}
                 if inner_type in {'Theatre5DlcVector2', 'Theatre5DlcVector3'}:
                     axes = ('X', 'Y') if inner_type.endswith('2') else ('X', 'Y', 'Z')
                     vector = {'type': 'object', 'schema': {
@@ -961,6 +1001,9 @@ def test_latest_schema_against_actual_server_types_and_mongodb_driver(transfinit
     payload = {name: build(type_name, root_schema(name).resolve(name)) for name, type_name in roots.items()}
     payload.update(_small_rewards_sample())
     payload.update(_trpg_sample(examining=transfinite_state == 'paid'))
+    for field, _ in arena_types.values():
+        path = 'simulated_battlefield.' + field
+        payload[path] = schema.build_default(path) if transfinite_state == 'absent' else _arena_sample()[field]
     payload['player_data.PointRecordInfo'] = [{'_id': 1, 'PointTypes': [2, 3]}]
     for name, value in _version49_sample().items():
         payload[name] = schema.materialize_subpath(name, value)

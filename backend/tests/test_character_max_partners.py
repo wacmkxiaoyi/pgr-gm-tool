@@ -52,6 +52,12 @@ def test_max_partner_reuses_and_preserves_ownership_and_forward_fields(monkeypat
             "assign": {"chapters": [{"chapter_id": 2001, "character_id": 1011002}]},
             "awareness": {"chapters": [{"chapter_id": 1, "character_id": 1011002}], "future": True},
             "client_region": "cn",
+            "simulated_battlefield": {
+                "arena_fluctuation_level": 770, "arena_zone_override_area_id": 2,
+                "arena_area_stage_best_records": [
+                    {"k": "1:101", "v": {"WaveCostTimes": [100, 200], "TimePointScore": [90]}},
+                    {"k": "2:101", "v": {"WaveCostTimes": [300], "TimePointScore": []}}],
+                "boss_challenge_selected_section": 7, "boss_challenge_selected_feature_group": 8},
             "cn_first_pay_client_version": "4.9.0",
             "player_data": {"PointRecordInfo": [{"_id": 1, "PointTypes": [2]}]},
             "trpg": {"targets": [1, 2], "rewards": [3], "reward_seq": 17,
